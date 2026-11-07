@@ -1,6 +1,4 @@
 // apps/dsh/src/session-agent-loop.ts
-import { AgentLoop } from "@deepseek-ai/dsh-agent-loop";
-import { MessageId } from "@deepseek-ai/dsh-llm";
 import { randomUUID } from "node:crypto";
 var MAX_NETWORK_RETRIES = 3;
 var retryDelay = (attempt) => 1e3 * 2 ** (attempt - 1);
@@ -17,7 +15,7 @@ function isTransientNetworkFailure(error, seen = /* @__PURE__ */ new Set()) {
 function networkRetryMessage(attempt) {
   const summary = `\u7F51\u7EDC\u4E2D\u65AD \xB7 \u81EA\u52A8\u91CD\u8BD5 ${attempt}/${MAX_NETWORK_RETRIES}`;
   return {
-    id: MessageId(`network-retry-${randomUUID()}`),
+    id: `network-retry-${randomUUID()}`,
     role: "user",
     source: { kind: "studio-continuation", form: "notice", summary },
     content: [{ type: "text", text: `\u3010\u7F51\u7EDC\u4E2D\u65AD\u81EA\u52A8\u6062\u590D \xB7 \u7B2C ${attempt}/${MAX_NETWORK_RETRIES} \u6B21\u3011\u4E0A\u4E00\u8F6E\u56E0\u7F51\u7EDC\u8FDE\u63A5\u4E2D\u65AD\u800C\u5931\u8D25\u3002\u8BF7\u68C0\u67E5\u6700\u8FD1\u7684\u5DE5\u5177\u8C03\u7528\u548C\u5DE5\u4F5C\u533A\u5B9E\u9645\u72B6\u6001\uFF1A\u5DF2\u6210\u529F\u7684\u64CD\u4F5C\u4E0D\u8981\u91CD\u590D\uFF0C\u4E0D\u786E\u5B9A\u65F6\u5148\u8BFB\u53D6\u7ED3\u679C\uFF1B\u7136\u540E\u4ECE\u672A\u5B8C\u6210\u5904\u7EE7\u7EED\u7528\u6237\u539F\u4EFB\u52A1\uFF0C\u4E0D\u8981\u628A\u6B64\u6062\u590D\u8BF4\u660E\u5F53\u6210\u65B0\u9700\u6C42\u3002` }]
@@ -69,55 +67,72 @@ var NetworkRetryController = class {
     }
   }
 };
-var SessionAgentLoop = class extends AgentLoop {
-  handles = /* @__PURE__ */ new Map();
-  retries = new NetworkRetryController();
-  constructor(ctx, config) {
-    super(ctx, config);
-    ctx.provide("studioAgentHandles", { dispose: async (id) => {
-      const handle = this.handles.get(id);
-      if (!handle) throw new Error("SESSION_LIFECYCLE_UNAVAILABLE: \u8BF7\u5237\u65B0\u4F1A\u8BDD\u540E\u91CD\u8BD5\u5220\u9664");
+var name = "@agent-studio/plugin-session-features";
+var inject = ["agentLoop"];
+function apply(ctx) {
+  const loop = ctx.get("agentLoop");
+  if (!loop) throw new Error("\u4F1A\u8BDD\u529F\u80FD\u589E\u5F3A\u9700\u8981 DSH \u539F\u751F AgentLoop");
+  const handles = /* @__PURE__ */ new Map();
+  const retries = new NetworkRetryController();
+  ctx.provide("studioAgentHandles", {
+    dispose: async (id) => {
+      const handle = handles.get(id);
+      if (!handle) throw new Error("SESSION_LIFECYCLE_UNAVAILABLE: \u4F1A\u8BDD\u53E5\u67C4\u672A\u767B\u8BB0\uFF0C\u8BF7\u91CD\u65B0\u6253\u5F00\u4F1A\u8BDD\u540E\u91CD\u8BD5");
       await handle.dispose();
-      if (this.handles.get(id) === handle) this.handles.delete(id);
-    } });
-    ctx.on("agent/disposed", ({ agent }) => {
-      if (this.handles.get(agent.id)?.agent === agent) this.handles.delete(agent.id);
-      this.retries.dispose(agent.id);
-      return void 0;
-    });
-    ctx.on("agent/error", ({ agent, turn, error }) => {
-      try {
-        this.retries.failed(agent, turn, error);
-      } catch {
-      }
-    });
-    ctx.on("agent/status", ({ agent, status }) => {
-      try {
-        this.retries.completed(agent, status);
-      } catch {
-      }
-    });
-    ctx.effect(() => () => this.retries.disposeAll(), "session features: network retry lifecycle");
-  }
-  async createAgent(ctx, options) {
-    const handle = await super.createAgent(ctx, options);
+      if (handles.get(id) === handle) handles.delete(id);
+    }
+  });
+  const createAgent = loop.createAgent;
+  const resume = loop.resume;
+  const wrappedCreateAgent = async function(...args) {
+    const handle = await Reflect.apply(createAgent, this, args);
     try {
-      this.handles.set(handle.agent.id, handle);
+      handles.set(handle.agent.id, handle);
     } catch {
     }
     return handle;
-  }
-  async resume(ctx, options) {
-    const handle = await super.resume(ctx, options);
+  };
+  const wrappedResume = async function(...args) {
+    const handle = await Reflect.apply(resume, this, args);
     try {
-      this.handles.set(handle.agent.id, handle);
+      handles.set(handle.agent.id, handle);
     } catch {
     }
     return handle;
-  }
-};
+  };
+  loop.createAgent = wrappedCreateAgent;
+  loop.resume = wrappedResume;
+  ctx.on("agent/disposed", ({ agent }) => {
+    try {
+      if (handles.get(agent.id)?.agent === agent) handles.delete(agent.id);
+      retries.dispose(agent.id);
+    } catch {
+    }
+  });
+  ctx.on("agent/error", ({ agent, turn, error }) => {
+    try {
+      retries.failed(agent, turn, error);
+    } catch {
+    }
+  });
+  ctx.on("agent/status", ({ agent, status }) => {
+    try {
+      retries.completed(agent, status);
+    } catch {
+    }
+  });
+  ctx.effect(() => () => {
+    retries.disposeAll();
+    if (loop.createAgent === wrappedCreateAgent) loop.createAgent = createAgent;
+    if (loop.resume === wrappedResume) loop.resume = resume;
+  }, "session features: native agent lifecycle");
+}
+var session_agent_loop_default = apply;
 export {
   NetworkRetryController,
-  SessionAgentLoop as default,
-  isTransientNetworkFailure
+  apply,
+  session_agent_loop_default as default,
+  inject,
+  isTransientNetworkFailure,
+  name
 };

@@ -18,7 +18,7 @@ var __copyProps = (to, from, except, desc) => {
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-// src/client-session-ui.tsx
+// apps/dsh/src/client-session-ui.tsx
 var client_session_ui_exports = {};
 __export(client_session_ui_exports, {
   apply: () => apply,
@@ -26,16 +26,16 @@ __export(client_session_ui_exports, {
 });
 module.exports = __toCommonJS(client_session_ui_exports);
 
-// src/session-continuation-ui.tsx
+// apps/dsh/src/session-continuation-ui.tsx
 var import_react4 = require("react");
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/createLucideIcon.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/createLucideIcon.mjs
 var import_react3 = require("react");
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/toKebabCase.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/toKebabCase.mjs
 var toKebabCase = (string) => string?.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/toLucideIconData.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/toLucideIconData.mjs
 function toLucideIconData(iconName, iconNode, aliases = []) {
   if (iconNode == null) {
     throw new Error("[lucide]: iconNode is required when icon name is used");
@@ -48,7 +48,7 @@ function toLucideIconData(iconName, iconNode, aliases = []) {
   };
 }
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/toCamelCase.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/toCamelCase.mjs
 var toCamelCase = (string) => {
   let out = "";
   let upperNext = false;
@@ -67,21 +67,21 @@ var toCamelCase = (string) => {
   return out;
 };
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/toPascalCase.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/toPascalCase.mjs
 var toPascalCase = (string) => {
   const camelCase = toCamelCase(string);
   return camelCase.charAt(0).toUpperCase() + camelCase.slice(1);
 };
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/Icon.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/Icon.mjs
 var import_react2 = require("react");
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/mergeClasses.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/mergeClasses.mjs
 var mergeClasses = (...classes) => classes.filter((className, index, array) => {
   return Boolean(className) && className.trim() !== "" && array.indexOf(className) === index;
 }).join(" ").trim();
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/build/defaultAttributes.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/build/defaultAttributes.mjs
 var defaultAttributes = {
   xmlns: "http://www.w3.org/2000/svg",
   width: 24,
@@ -94,7 +94,7 @@ var defaultAttributes = {
   "stroke-linejoin": "round"
 };
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/build/buildLucideIconNode.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/build/buildLucideIconNode.mjs
 function isDefined(value) {
   return value !== null && value !== void 0;
 }
@@ -147,7 +147,7 @@ function buildLucideIconNode(icon, params = {}) {
   ];
 }
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/build/buildLucideIconForReact.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/build/buildLucideIconForReact.mjs
 function buildLucideIconForReact(icon, params = {}) {
   return buildLucideIconNode(icon, {
     ...params,
@@ -162,7 +162,7 @@ function buildLucideIconForReact(icon, params = {}) {
   });
 }
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/hasA11yProp.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/hasA11yProp.mjs
 var hasA11yProp = (props) => {
   for (const prop in props) {
     if (prop.startsWith("aria-") || prop === "role" || prop === "title") {
@@ -172,12 +172,12 @@ var hasA11yProp = (props) => {
   return false;
 };
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/context.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/context.mjs
 var import_react = require("react");
 var LucideContext = (0, import_react.createContext)({});
 var useLucideContext = () => (0, import_react.useContext)(LucideContext);
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/Icon.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/Icon.mjs
 var Icon = (0, import_react2.forwardRef)(
   ({
     color,
@@ -231,7 +231,7 @@ var Icon = (0, import_react2.forwardRef)(
   }
 );
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/createLucideIcon.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/createLucideIcon.mjs
 function createLucideIcon(iconDataOrName, iconNode = [], aliases = []) {
   const iconData = typeof iconDataOrName === "string" ? toLucideIconData(iconDataOrName, iconNode, aliases) : iconDataOrName;
   const Component = (0, import_react3.forwardRef)(
@@ -248,7 +248,7 @@ function createLucideIcon(iconDataOrName, iconNode = [], aliases = []) {
   return Component;
 }
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/loader-circle.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/loader-circle.mjs
 var __iconData = {
   name: "loader-circle",
   size: 24,
@@ -258,7 +258,7 @@ var __iconData = {
 __iconData.node;
 var LoaderCircle = createLucideIcon(__iconData);
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/play.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/play.mjs
 var __iconData2 = {
   name: "play",
   size: 24,
@@ -275,7 +275,7 @@ var __iconData2 = {
 __iconData2.node;
 var Play = createLucideIcon(__iconData2);
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/rotate-ccw.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/rotate-ccw.mjs
 var __iconData3 = {
   name: "rotate-ccw",
   size: 24,
@@ -287,7 +287,7 @@ var __iconData3 = {
 __iconData3.node;
 var RotateCcw = createLucideIcon(__iconData3);
 
-// src/session-continuation-ui.tsx
+// apps/dsh/src/session-continuation-ui.tsx
 var import_jsx_runtime = require("react/jsx-runtime");
 var endpoint = "/studio/sessions/continuation";
 async function responseState(response) {
@@ -369,7 +369,7 @@ var continuationStyles = `
 @media (prefers-reduced-motion:reduce) { .studio-chat-resuming { animation:none; } }
 `;
 
-// src/session-resume-notice.tsx
+// apps/dsh/src/session-resume-notice.tsx
 var import_jsx_runtime2 = require("react/jsx-runtime");
 function registerSessionResumeNotice(slots) {
   function ResumeTrigger(props) {
@@ -399,7 +399,7 @@ var resumeNoticeStyles = `
 .studio-resume-notice > pre { white-space:pre-wrap; overflow-wrap:anywhere; margin:8px 0; padding:12px; border-radius:10px; background:var(--dsw-alias-bg-base, #f6f8fa); font:12px/20px ui-monospace,monospace; }
 `;
 
-// src/plugin-settings.tsx
+// apps/dsh/src/plugin-settings.tsx
 var import_jsx_runtime3 = require("react/jsx-runtime");
 var pluginSettingsStyles = `
 .studio-plugin-settings { width:100%; min-width:0; box-sizing:border-box; color:var(--dsw-alias-label-primary); font:inherit; font-size:13px; line-height:1.5; }
@@ -452,13 +452,13 @@ div:has(> div > button.eda-sidebar-entry) { display:flex; flex-direction:column;
 @media (prefers-reduced-motion:reduce) { .studio-plugin-switch span { transition:none; } }
 `;
 
-// src/client-session-ui.tsx
+// apps/dsh/src/client-session-ui.tsx
 var import_jsx_runtime4 = require("react/jsx-runtime");
 var SESSION_FEATURES_PACKAGE = "@agent-studio/plugin-session-features";
 function SessionFeaturesSettings() {
   return /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("section", { className: "studio-plugin-settings", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("h3", { children: "\u4F1A\u8BDD\u63A7\u5236\u4E0E\u7F51\u7EDC\u6062\u590D" }),
-    /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("p", { children: "\u53EF\u5728\u8F93\u5165\u680F\u6682\u505C\u6216\u7EE7\u7EED\u4F1A\u8BDD\u3002\u9047\u5230\u8FDE\u63A5\u65AD\u5F00\u3001\u8D85\u65F6\u7B49\u4E34\u65F6\u7F51\u7EDC\u6545\u969C\u65F6\uFF0C\u4F1A\u81EA\u52A8\u7B49\u5F85\u5E76\u91CD\u8BD5\u6700\u591A 3 \u6B21\uFF1B\u5DF2\u5B8C\u6210\u7684\u5DE5\u5177\u7ED3\u679C\u4F1A\u4FDD\u7559\uFF0C\u6062\u590D\u524D\u4F1A\u68C0\u67E5\u64CD\u4F5C\u72B6\u6001\u4EE5\u51CF\u5C11\u91CD\u590D\u6267\u884C\u3002" })
+    /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("h3", { children: "\u4F1A\u8BDD\u529F\u80FD\u589E\u5F3A" }),
+    /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("p", { children: "\u81EA\u52A8\u4FDD\u5B58\u4F1A\u8BDD TodoList \u548C TaskPlan\uFF0C\u652F\u6301\u6682\u505C\u540E\u4ECE\u539F\u8FDB\u5EA6\u7EE7\u7EED\u3002\u9047\u5230\u8FDE\u63A5\u65AD\u5F00\u3001\u8D85\u65F6\u7B49\u4E34\u65F6\u7F51\u7EDC\u6545\u969C\u65F6\uFF0C\u4F1A\u81EA\u52A8\u7B49\u5F85\u5E76\u91CD\u8BD5\u6700\u591A 3 \u6B21\uFF1B\u5DF2\u5B8C\u6210\u7684\u5DE5\u5177\u7ED3\u679C\u4F1A\u4FDD\u7559\uFF0C\u6062\u590D\u524D\u4F1A\u68C0\u67E5\u64CD\u4F5C\u72B6\u6001\u4EE5\u51CF\u5C11\u91CD\u590D\u6267\u884C\u3002" })
   ] });
 }
 var inject = [];

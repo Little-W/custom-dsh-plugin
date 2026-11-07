@@ -1,7 +1,3 @@
-- id: agent-loop
-  disabled: true
 - insert:
-    - id: studio-session-agent-loop
+    - id: studio-session-features
       name: '@agent-studio/plugin-session-features'
-      config:
-        agents: []

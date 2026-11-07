@@ -1,6 +1,6 @@
 {
   "meta": {
-    "title": "Session Pause and Resume",
-    "description": "Pause or resume conversations, and automatically retry temporary network failures."
+    "title": "Session Features",
+    "description": "Keep conversation task lists and plans, resume paused sessions, and retry temporary network failures."
   }
 }

@@ -2,7 +2,7 @@
   "name": "@agent-studio/plugin-session-features",
   "version": "0.2.0",
   "type": "module",
-  "description": "提供会话暂停、继续和临时网络故障自动重试。",
+  "description": "保存会话任务清单与计划，支持暂停后继续，并在临时网络中断时自动重试。",
   "main": "./index.js",
   "exports": {
     ".": "./index.js",
@@ -30,9 +30,5 @@
         "@deepseek-ai/dsh-client-ui-sidebar-right"
       ]
     }
-  },
-  "dependencies": {
-    "@deepseek-ai/dsh-agent-loop": "0.2.2-rc.1",
-    "@deepseek-ai/dsh-llm": "0.2.2-rc.1"
   }
 }
