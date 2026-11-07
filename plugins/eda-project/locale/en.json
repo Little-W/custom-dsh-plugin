@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "EDA projects and script toolbox",
+    "description": "Provides project-scoped EDA configuration and agent-callable script generation."
+  }
+}

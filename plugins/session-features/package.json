@@ -1,0 +1,21 @@
+{
+  "name": "@agent-studio/plugin-session-features",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "description": "提供会话暂停、继续和临时网络故障自动重试。",
+  "main": "./index.js",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./icon": "./icon.svg",
+    "./locale/*.json": "./locale/*.json",
+    "./package.json": "./package.json"
+  },
+  "files": ["index.js", "client.js", "cordis.patch.yml", "icon.svg", "locale/*.json", "README.md"],
+  "dsh": {
+    "bundle": { "patch": "./cordis.patch.yml" },
+    "client": { "platform": "web", "inject": ["@deepseek-ai/dsh-client-locale", "@deepseek-ai/dsh-client-ui-sidebar-right"] }
+  },
+  "dependencies": { "@agent-studio/studio-core": "workspace:*" }
+}

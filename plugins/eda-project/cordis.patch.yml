@@ -1,0 +1,3 @@
+- insert:
+    - id: studio-eda-project
+      name: '@agent-studio/plugin-eda-project'

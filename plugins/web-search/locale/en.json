@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Web search",
+    "description": "Adds configurable search providers to the native DSH web-search capability."
+  }
+}

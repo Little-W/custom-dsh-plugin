@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Working directory policy",
+    "description": "Aligns DSH sandbox writes with each session work directory."
+  }
+}

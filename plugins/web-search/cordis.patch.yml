@@ -1,0 +1,9 @@
+- id: web
+  config:
+    searchProvider: studio-search
+    # Use DSH's safe HTTP fetch provider explicitly. Leaving this unset makes
+    # DSH's native DeepSeek fetch API and HTTP provider ambiguous when enabled.
+    fetchProvider: http
+- insert:
+    - id: studio-web-search
+      name: '@agent-studio/plugin-web-search'

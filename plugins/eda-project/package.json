@@ -1,0 +1,32 @@
+{
+  "name": "@agent-studio/plugin-eda-project",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "按项目保存芯片设计参数、工艺库和工作目录，并生成 EDA 脚本。",
+  "main": "./index.js",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./icon": "./icon.svg",
+    "./locale/*.json": "./locale/*.json",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "cordis.patch.yml",
+    "icon.svg",
+    "locale/*.json",
+    "README.md"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": { "platform": "web", "inject": ["@deepseek-ai/dsh-client-locale", "@deepseek-ai/dsh-client-ui-sidebar-right"] }
+  },
+  "dependencies": {
+    "@agent-studio/studio-core": "workspace:*"
+  }
+}

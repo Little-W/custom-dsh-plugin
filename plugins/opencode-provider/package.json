@@ -1,0 +1,15 @@
+{
+  "name": "@agent-studio/plugin-opencode-provider",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "连接 OpenCode 模型服务，并在工作台中选择和配置可用模型。",
+  "main": "./index.js",
+  "exports": { ".": "./index.js", "./client": "./client.js", "./locale/*.json": "./locale/*.json", "./package.json": "./package.json" },
+  "files": ["index.js", "client.js", "cordis.patch.yml", "locale/*.json", "README.md"],
+  "dsh": {
+    "bundle": { "patch": "./cordis.patch.yml" },
+    "client": { "platform": "web", "inject": ["@deepseek-ai/dsh-client-locale", "@deepseek-ai/dsh-client-ui-sidebar-right"] }
+  },
+  "dependencies": { "@agent-studio/studio-core": "workspace:*" }
+}

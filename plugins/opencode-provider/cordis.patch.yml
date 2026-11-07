@@ -1,0 +1,19 @@
+# OpenCode owns the model catalog. Keep DSH's native adapters unchanged unless
+# this optional provider plugin is enabled.
+- id: llm-pi-ai
+  disabled: true
+- id: llm-deepseek
+  disabled: true
+- id: llm-deepseek-account
+  disabled: true
+- id: ui-settings-models
+  disabled: true
+- id: subagent
+  config:
+    maxDepth: 2
+    maxActiveSubagents: 16
+- insert:
+    - id: studio-opencode
+      name: '@agent-studio/plugin-opencode-provider'
+      config:
+        dataDir: !!js process.env.STUDIO_DATA_DIR

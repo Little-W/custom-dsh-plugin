@@ -1,0 +1,32 @@
+{
+  "name": "@agent-studio/plugin-web-search",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "让智能体搜索网页资料，并可选择搜索服务和使用方式。",
+  "main": "./index.js",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./icon": "./icon.svg",
+    "./locale/*.json": "./locale/*.json",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "cordis.patch.yml",
+    "icon.svg",
+    "locale/*.json",
+    "README.md"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": { "platform": "web", "inject": ["@deepseek-ai/dsh-client-locale"] }
+  },
+  "dependencies": {
+    "@agent-studio/studio-core": "workspace:*"
+  }
+}

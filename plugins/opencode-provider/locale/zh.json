@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "OpenCode 模型服务",
+    "description": "连接 OpenCode 提供的模型，在工作台查看模型列表并选择要使用的模型。"
+  }
+}
