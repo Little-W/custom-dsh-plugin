@@ -1,1 +1,3 @@
-[]
+- insert:
+    - id: studio-blue-theme
+      name: '@agent-studio/plugin-blue-theme'

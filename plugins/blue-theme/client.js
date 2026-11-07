@@ -63,7 +63,7 @@ function apply(ctx) {
   }, "agent-studio: theme styles");
   ctx.inject(["theme"], (child) => {
     const theme = child.get("theme");
-    child.effect(() => theme.overrideTokens("agent-studio-blue", studioTheme), "agent-studio: blue theme");
+    child.effect(() => theme.overrideTokens("agent-studio-blue", studioTheme), "DeepSeek \u84DD\u8272\u4E3B\u9898");
   });
 }
 return module.exports;}});

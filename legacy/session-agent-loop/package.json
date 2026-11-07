@@ -1,7 +1,6 @@
 {
   "name": "@agent-studio/plugin-session-agent-loop",
   "version": "0.1.0",
-  "private": true,
   "type": "module",
   "description": "会话暂停或意外中断后，可从原进度继续，已完成的工作会保留。",
   "main": "./index.js",
@@ -24,6 +23,7 @@
     }
   },
   "dependencies": {
-    "@agent-studio/studio-core": "workspace:*"
+    "@deepseek-ai/dsh-agent-loop": "0.2.2-rc.1",
+    "@deepseek-ai/dsh-llm": "0.2.2-rc.1"
   }
 }

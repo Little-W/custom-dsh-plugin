@@ -1,15 +1,42 @@
 {
   "name": "@agent-studio/plugin-opencode-provider",
   "version": "0.1.0",
-  "private": true,
   "type": "module",
   "description": "连接 OpenCode 模型服务，并在工作台中选择和配置可用模型。",
   "main": "./index.js",
-  "exports": { ".": "./index.js", "./client": "./client.js", "./locale/*.json": "./locale/*.json", "./package.json": "./package.json" },
-  "files": ["index.js", "client.js", "cordis.patch.yml", "locale/*.json", "README.md"],
-  "dsh": {
-    "bundle": { "patch": "./cordis.patch.yml" },
-    "client": { "platform": "web", "inject": ["@deepseek-ai/dsh-client-locale", "@deepseek-ai/dsh-client-ui-sidebar-right"] }
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./locale/*.json": "./locale/*.json",
+    "./package.json": "./package.json"
   },
-  "dependencies": { "@agent-studio/studio-core": "workspace:*" }
+  "files": [
+    "index.js",
+    "client.js",
+    "cordis.patch.yml",
+    "locale/*.json",
+    "README.md"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-sidebar-right"
+      ]
+    }
+  },
+  "dependencies": {
+    "@deepseek-ai/dsh-llm": "0.2.2-rc.1",
+    "@deepseek-ai/schemastery": "3.19.0",
+    "@opencode/ai": "2.2.5",
+    "@opencode/client": "2.2.5",
+    "@opencode/core": "2.2.5",
+    "@opencode/schema": "2.2.5",
+    "@opencode/server": "2.2.5",
+    "effect": "4.0.6"
+  }
 }

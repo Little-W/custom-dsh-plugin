@@ -1,7 +1,6 @@
 {
   "name": "@agent-studio/plugin-session-workspace-settings",
   "version": "0.1.0",
-  "private": true,
   "type": "module",
   "description": "管理工作区路径、会话工作目录，并在会话菜单中删除会话。",
   "main": "./index.js",
@@ -24,6 +23,12 @@
     "bundle": {
       "patch": "./cordis.patch.yml"
     },
-    "client": { "platform": "web", "inject": ["@deepseek-ai/dsh-client-locale", "@deepseek-ai/dsh-client-ui-sidebar-right"] }
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-sidebar-right"
+      ]
+    }
   }
 }
