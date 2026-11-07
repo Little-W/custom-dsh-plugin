@@ -1,19 +1,1025 @@
+import { createRequire as __createRequire } from 'node:module'; const require = __createRequire(import.meta.url);
 var __defProp = Object.defineProperty;
 var __export = (target, all) => {
   for (var name2 in all)
     __defProp(target, name2, { get: all[name2], enumerable: true });
 };
 
-// src/eda-project/plugin.ts
-import z2 from "@deepseek-ai/schemastery";
+// node_modules/.pnpm/@deepseek-ai+cosmokit@1.9.0/node_modules/@deepseek-ai/cosmokit/lib/index.js
+function isNullable(value) {
+  return value === null || value === void 0;
+}
+function isPlainObject(data) {
+  return data && typeof data === "object" && !Array.isArray(data);
+}
+function filterKeys(object2, filter) {
+  return Object.fromEntries(Object.entries(object2).filter(([key, value]) => filter(key, value)));
+}
+function mapValues(object2, transform2) {
+  return Object.fromEntries(Object.entries(object2).map(([key, value]) => [key, transform2(value, key)]));
+}
+function pick(source, keys, forced) {
+  if (!keys) return { ...source };
+  const result = {};
+  for (const key of keys) if (forced || source[key] !== void 0) result[key] = source[key];
+  return result;
+}
+var write = /* @__PURE__ */ Symbol.for("cosmokit.volatile.write");
+function snapshot(value, ancestors = /* @__PURE__ */ new Set()) {
+  if (typeof value === "function") throw new TypeError("volatile config cannot contain functions");
+  if (value === null || typeof value !== "object") return value;
+  if (ancestors.has(value)) throw new TypeError("volatile config cannot contain cycles");
+  ancestors.add(value);
+  try {
+    if (Array.isArray(value)) return Object.freeze(value.map((item) => snapshot(item, ancestors)));
+    if (Object.getPrototypeOf(value) !== Object.prototype && Object.getPrototypeOf(value) !== null) throw new TypeError("volatile config objects must be plain objects or arrays");
+    return Object.freeze(Object.fromEntries(Object.entries(value).map(([key, item]) => [key, snapshot(item, ancestors)])));
+  } finally {
+    ancestors.delete(value);
+  }
+}
+function createVolatile(value) {
+  let current = snapshot(value);
+  return Object.freeze({
+    get: () => current,
+    [write]: (value2) => {
+      current = value2;
+    }
+  });
+}
+function isVolatile(value) {
+  return typeof value === "object" && value !== null && write in value;
+}
+function is(type, value) {
+  if (arguments.length === 1) return (value2) => is(type, value2);
+  return type in globalThis && value instanceof globalThis[type] || Object.prototype.toString.call(value).slice(8, -1) === type;
+}
+function isArrayBufferLike(value) {
+  return is("ArrayBuffer", value) || is("SharedArrayBuffer", value);
+}
+function isArrayBufferSource(value) {
+  return isArrayBufferLike(value) || ArrayBuffer.isView(value);
+}
+var Binary;
+(function(Binary2) {
+  Binary2.is = isArrayBufferLike;
+  Binary2.isSource = isArrayBufferSource;
+  function fromSource(source) {
+    if (ArrayBuffer.isView(source)) return source.buffer.slice(source.byteOffset, source.byteOffset + source.byteLength);
+    else return source;
+  }
+  Binary2.fromSource = fromSource;
+  function toBase64(source) {
+    source = fromSource(source);
+    if (typeof Buffer !== "undefined") return Buffer.from(source).toString("base64");
+    let binary = "";
+    const bytes = new Uint8Array(source);
+    for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i]);
+    return btoa(binary);
+  }
+  Binary2.toBase64 = toBase64;
+  function fromBase64(source) {
+    if (typeof Buffer !== "undefined") return fromSource(Buffer.from(source, "base64"));
+    return Uint8Array.from(atob(source), (c) => c.charCodeAt(0));
+  }
+  Binary2.fromBase64 = fromBase64;
+  function toHex(source) {
+    source = fromSource(source);
+    if (typeof Buffer !== "undefined") return Buffer.from(source).toString("hex");
+    return Array.from(new Uint8Array(source), (byte) => byte.toString(16).padStart(2, "0")).join("");
+  }
+  Binary2.toHex = toHex;
+  function fromHex(source) {
+    if (typeof Buffer !== "undefined") return fromSource(Buffer.from(source, "hex"));
+    const hex3 = source.length % 2 === 0 ? source : source.slice(0, source.length - 1);
+    const buffer = [];
+    for (let i = 0; i < hex3.length; i += 2) buffer.push(parseInt(`${hex3[i]}${hex3[i + 1]}`, 16));
+    return Uint8Array.from(buffer).buffer;
+  }
+  Binary2.fromHex = fromHex;
+})(Binary || (Binary = {}));
+var base64ToArrayBuffer = Binary.fromBase64;
+var arrayBufferToBase64 = Binary.toBase64;
+var hexToArrayBuffer = Binary.fromHex;
+var arrayBufferToHex = Binary.toHex;
+function clone(source, refs = /* @__PURE__ */ new Map()) {
+  if (!source || typeof source !== "object") return source;
+  if (is("Date", source)) return new Date(source.valueOf());
+  if (is("RegExp", source)) return new RegExp(source.source, source.flags);
+  if (isArrayBufferLike(source)) return source.slice(0);
+  if (ArrayBuffer.isView(source)) return source.buffer.slice(source.byteOffset, source.byteOffset + source.byteLength);
+  const cached2 = refs.get(source);
+  if (cached2) return cached2;
+  if (Array.isArray(source)) {
+    const result2 = [];
+    refs.set(source, result2);
+    source.forEach((value, index) => {
+      result2[index] = Reflect.apply(clone, null, [value, refs]);
+    });
+    return result2;
+  }
+  const result = Object.create(Object.getPrototypeOf(source));
+  refs.set(source, result);
+  for (const key of Reflect.ownKeys(source)) {
+    const descriptor = { ...Reflect.getOwnPropertyDescriptor(source, key) };
+    if ("value" in descriptor) descriptor.value = Reflect.apply(clone, null, [descriptor.value, refs]);
+    Reflect.defineProperty(result, key, descriptor);
+  }
+  return result;
+}
+function deepEqual(a, b, strict) {
+  const ancestors = /* @__PURE__ */ new Set();
+  function compare(a2, b2) {
+    if (a2 === b2) return true;
+    if (isVolatile(a2) || isVolatile(b2)) return isVolatile(a2) && isVolatile(b2);
+    if (!strict && isNullable(a2) && isNullable(b2)) return true;
+    if (typeof a2 !== typeof b2 || typeof a2 !== "object" || !a2 || !b2) return false;
+    if (ancestors.has(a2)) return false;
+    function check2(test, then) {
+      return test(a2) ? test(b2) ? then(a2, b2) : false : test(b2) ? false : void 0;
+    }
+    ancestors.add(a2);
+    try {
+      return check2(Array.isArray, (a3, b3) => {
+        if (a3.length !== b3.length) return false;
+        for (let index = 0; index < a3.length; index++) if (!compare(a3[index], b3[index])) return false;
+        return true;
+      }) ?? check2(is("Date"), (a3, b3) => a3.valueOf() === b3.valueOf()) ?? check2(is("URL"), (a3, b3) => a3.href === b3.href) ?? check2(is("RegExp"), (a3, b3) => a3.source === b3.source && a3.flags === b3.flags) ?? check2(isArrayBufferLike, (a3, b3) => {
+        if (a3.byteLength !== b3.byteLength) return false;
+        const viewA = new Uint8Array(a3);
+        const viewB = new Uint8Array(b3);
+        for (let i = 0; i < viewA.length; i++) if (viewA[i] !== viewB[i]) return false;
+        return true;
+      }) ?? ((!strict || [a2, b2].every((value) => Object.getPrototypeOf(value) === Object.prototype || Object.getPrototypeOf(value) === null)) && Object.keys({
+        ...a2,
+        ...b2
+      }).every((key) => compare(a2[key], b2[key])));
+    } finally {
+      ancestors.delete(a2);
+    }
+  }
+  return compare(a, b);
+}
+var Time;
+(function(Time2) {
+  Time2.millisecond = 1;
+  Time2.second = 1e3;
+  Time2.minute = Time2.second * 60;
+  Time2.hour = Time2.minute * 60;
+  Time2.day = Time2.hour * 24;
+  Time2.week = Time2.day * 7;
+  let timezoneOffset = (/* @__PURE__ */ new Date()).getTimezoneOffset();
+  function setTimezoneOffset(offset) {
+    timezoneOffset = offset;
+  }
+  Time2.setTimezoneOffset = setTimezoneOffset;
+  function getTimezoneOffset() {
+    return timezoneOffset;
+  }
+  Time2.getTimezoneOffset = getTimezoneOffset;
+  function getDateNumber(date6 = /* @__PURE__ */ new Date(), offset) {
+    if (typeof date6 === "number") date6 = new Date(date6);
+    if (offset === void 0) offset = timezoneOffset;
+    return Math.floor((date6.valueOf() / Time2.minute - offset) / 1440);
+  }
+  Time2.getDateNumber = getDateNumber;
+  function fromDateNumber(value, offset) {
+    const date6 = new Date(value * Time2.day);
+    if (offset === void 0) offset = timezoneOffset;
+    return new Date(+date6 + offset * Time2.minute);
+  }
+  Time2.fromDateNumber = fromDateNumber;
+  const numeric2 = /\d+(?:\.\d+)?/.source;
+  const timeRegExp = new RegExp(`^${[
+    "w(?:eek(?:s)?)?",
+    "d(?:ay(?:s)?)?",
+    "h(?:our(?:s)?)?",
+    "m(?:in(?:ute)?(?:s)?)?",
+    "s(?:ec(?:ond)?(?:s)?)?"
+  ].map((unit) => `(${numeric2}${unit})?`).join("")}$`);
+  function parseTime(source) {
+    const capture = timeRegExp.exec(source);
+    if (!capture) return 0;
+    return (parseFloat(capture[1]) * Time2.week || 0) + (parseFloat(capture[2]) * Time2.day || 0) + (parseFloat(capture[3]) * Time2.hour || 0) + (parseFloat(capture[4]) * Time2.minute || 0) + (parseFloat(capture[5]) * Time2.second || 0);
+  }
+  Time2.parseTime = parseTime;
+  function parseDate(date6) {
+    const parsed = parseTime(date6);
+    if (parsed) date6 = Date.now() + parsed;
+    else if (/^\d{1,2}(:\d{1,2}){1,2}$/.test(date6)) date6 = `${(/* @__PURE__ */ new Date()).toLocaleDateString()}-${date6}`;
+    else if (/^\d{1,2}-\d{1,2}-\d{1,2}(:\d{1,2}){1,2}$/.test(date6)) date6 = `${(/* @__PURE__ */ new Date()).getFullYear()}-${date6}`;
+    return date6 ? new Date(date6) : /* @__PURE__ */ new Date();
+  }
+  Time2.parseDate = parseDate;
+  function format(ms) {
+    const abs = Math.abs(ms);
+    if (abs >= Time2.day - Time2.hour / 2) return Math.round(ms / Time2.day) + "d";
+    else if (abs >= Time2.hour - Time2.minute / 2) return Math.round(ms / Time2.hour) + "h";
+    else if (abs >= Time2.minute - Time2.second / 2) return Math.round(ms / Time2.minute) + "m";
+    else if (abs >= Time2.second) return Math.round(ms / Time2.second) + "s";
+    return ms + "ms";
+  }
+  Time2.format = format;
+  function toDigits(source, length = 2) {
+    return source.toString().padStart(length, "0");
+  }
+  Time2.toDigits = toDigits;
+  function template(template2, time3 = /* @__PURE__ */ new Date()) {
+    return template2.replace("yyyy", time3.getFullYear().toString()).replace("yy", time3.getFullYear().toString().slice(2)).replace("MM", toDigits(time3.getMonth() + 1)).replace("dd", toDigits(time3.getDate())).replace("hh", toDigits(time3.getHours())).replace("mm", toDigits(time3.getMinutes())).replace("ss", toDigits(time3.getSeconds())).replace("SSS", toDigits(time3.getMilliseconds(), 3));
+  }
+  Time2.template = template;
+})(Time || (Time = {}));
+
+// node_modules/.pnpm/@deepseek-ai+schemastery@3.19.0/node_modules/@deepseek-ai/schemastery/lib/index.mjs
+var kSchema = /* @__PURE__ */ Symbol.for("schemastery");
+var kValidationError = /* @__PURE__ */ Symbol.for("ValidationError");
+globalThis.__schemastery_index__ ??= 0;
+globalThis.__schemastery_refs__ = void 0;
+var ValidationError = class extends TypeError {
+  options;
+  name = "ValidationError";
+  constructor(message, options) {
+    let prefix = "$";
+    for (const segment of options.path || []) if (typeof segment === "string") prefix += "." + segment;
+    else if (typeof segment === "number") prefix += "[" + segment + "]";
+    else if (typeof segment === "symbol") prefix += `[Symbol(${segment.toString()})]`;
+    if (prefix.startsWith(".")) prefix = prefix.slice(1);
+    super((prefix === "$" ? "" : `${prefix} `) + message);
+    this.options = options;
+  }
+  static is(error62) {
+    return !!error62?.[kValidationError];
+  }
+};
+Object.defineProperty(ValidationError.prototype, kValidationError, { value: true });
+var Schema = function(options) {
+  const schema = function(data, options2 = {}) {
+    return Schema.resolve(data, schema, options2)[0];
+  };
+  if (options.refs) {
+    const refs = mapValues(options.refs, (options2) => new Schema(options2));
+    const getRef = (uid) => refs[uid];
+    for (const key in refs) {
+      const options2 = refs[key];
+      options2.sKey = getRef(options2.sKey);
+      options2.inner = getRef(options2.inner);
+      options2.list = options2.list && options2.list.map(getRef);
+      options2.dict = options2.dict && mapValues(options2.dict, getRef);
+    }
+    return refs[options.uid];
+  }
+  Object.assign(schema, options);
+  if (typeof schema.callback === "string") try {
+    schema.callback = new Function("return " + schema.callback)();
+  } catch {
+  }
+  Object.defineProperty(schema, "uid", { value: globalThis.__schemastery_index__++ });
+  Object.setPrototypeOf(schema, Schema.prototype);
+  schema.meta ||= {};
+  schema.toString = schema.toString.bind(schema);
+  return schema;
+};
+Schema.prototype = Object.create(Function.prototype);
+Schema.prototype[kSchema] = true;
+Object.defineProperty(Schema.prototype, "~standard", { get() {
+  return {
+    version: 1,
+    vendor: "schemastery",
+    validate: (value) => {
+      try {
+        return { value: Schema.resolve(value, this, {})[0] };
+      } catch (error62) {
+        if (ValidationError.is(error62)) return { issues: [{
+          message: error62.message,
+          path: error62.options.path
+        }] };
+        throw error62;
+      }
+    }
+  };
+} });
+Schema.ValidationError = ValidationError;
+Schema.prototype.toJSON = function toJSON() {
+  if (globalThis.__schemastery_refs__) {
+    globalThis.__schemastery_refs__[this.uid] ??= JSON.parse(JSON.stringify({ ...this }));
+    return this.uid;
+  }
+  globalThis.__schemastery_refs__ = { [this.uid]: { ...this } };
+  globalThis.__schemastery_refs__[this.uid] = JSON.parse(JSON.stringify({ ...this }));
+  const result = {
+    uid: this.uid,
+    refs: globalThis.__schemastery_refs__
+  };
+  globalThis.__schemastery_refs__ = void 0;
+  return result;
+};
+Schema.prototype.set = function set(key, value) {
+  this.dict[key] = value;
+  return this;
+};
+Schema.prototype.push = function push(value) {
+  this.list.push(value);
+  return this;
+};
+function mergeDesc(original, messages) {
+  const result = typeof original === "string" ? { "": original } : { ...original };
+  for (const locale in messages) {
+    const value = messages[locale];
+    if (value?.$description || value?.$desc) result[locale] = value.$description || value.$desc;
+    else if (typeof value === "string") result[locale] = value;
+  }
+  return result;
+}
+function getInner(value) {
+  return value?.$value ?? value?.$inner;
+}
+function extractKeys(data) {
+  return filterKeys(data ?? {}, (key) => !key.startsWith("$"));
+}
+Schema.prototype.i18n = function i18n(messages) {
+  const schema = Schema(this);
+  const desc = mergeDesc(schema.meta.description, messages);
+  if (Object.keys(desc).length) schema.meta.description = desc;
+  if (schema.dict) schema.dict = mapValues(schema.dict, (inner, key) => {
+    return inner.i18n(mapValues(messages, (data) => getInner(data)?.[key] ?? data?.[key]));
+  });
+  if (schema.list) schema.list = schema.list.map((inner, index) => {
+    return inner.i18n(mapValues(messages, (data = {}) => {
+      if (Array.isArray(getInner(data))) return getInner(data)[index];
+      if (Array.isArray(data)) return data[index];
+      return extractKeys(data);
+    }));
+  });
+  if (schema.inner) schema.inner = schema.inner.i18n(mapValues(messages, (data) => {
+    if (getInner(data)) return getInner(data);
+    return extractKeys(data);
+  }));
+  if (schema.sKey) schema.sKey = schema.sKey.i18n(mapValues(messages, (data) => data?.$key));
+  return schema;
+};
+Schema.prototype.extra = function extra(key, value) {
+  const schema = Schema(this);
+  schema.meta = {
+    ...schema.meta,
+    [key]: value
+  };
+  return schema;
+};
+for (const key of [
+  "required",
+  "disabled",
+  "collapse",
+  "hidden",
+  "loose"
+]) Object.assign(Schema.prototype, { [key](value = true) {
+  const schema = Schema(this);
+  schema.meta = {
+    ...schema.meta,
+    [key]: value
+  };
+  return schema;
+} });
+Schema.prototype.deprecated = function deprecated() {
+  const schema = Schema(this);
+  schema.meta.badges ||= [];
+  schema.meta.badges.push({
+    text: "deprecated",
+    type: "danger"
+  });
+  return schema;
+};
+Schema.prototype.experimental = function experimental() {
+  const schema = Schema(this);
+  schema.meta.badges ||= [];
+  schema.meta.badges.push({
+    text: "experimental",
+    type: "warning"
+  });
+  return schema;
+};
+Schema.prototype.pattern = function pattern(regexp) {
+  const schema = Schema(this);
+  const pattern2 = pick(regexp, ["source", "flags"]);
+  schema.meta = {
+    ...schema.meta,
+    pattern: pattern2
+  };
+  return schema;
+};
+Schema.prototype.simplify = function simplify(value) {
+  if (isVolatile(value)) value = value.get();
+  if (deepEqual(value, this.meta.default, this.type === "dict")) return null;
+  if (isNullable(value)) return value;
+  if (this.type === "object" || this.type === "dict") {
+    const result = {};
+    for (const key in value) {
+      const item = (this.type === "object" ? this.dict[key] : this.inner)?.simplify(value[key]);
+      if (this.type === "dict" || !isNullable(item)) result[key] = item;
+    }
+    if (deepEqual(result, this.meta.default, this.type === "dict")) return null;
+    return result;
+  } else if (this.type === "array" || this.type === "tuple") {
+    const result = [];
+    value.forEach((value2, index) => {
+      const schema = this.type === "array" ? this.inner : this.list[index];
+      const item = schema ? schema.simplify(value2) : value2;
+      result.push(item);
+    });
+    return result;
+  } else if (this.type === "intersect") {
+    const result = {};
+    for (const item of this.list) Object.assign(result, item.simplify(value));
+    return result;
+  } else if (this.type === "union") for (const schema of this.list) try {
+    Schema.resolve(value, schema, {});
+    return schema.simplify(value);
+  } catch {
+  }
+  return value;
+};
+Schema.prototype.toString = function toString(inline) {
+  return formatters[this.type]?.(this, inline) ?? `Schema<${this.type}>`;
+};
+Schema.prototype.role = function role(role, extra2) {
+  const schema = Schema(this);
+  schema.meta = {
+    ...schema.meta,
+    role,
+    extra: extra2
+  };
+  return schema;
+};
+for (const key of [
+  "default",
+  "link",
+  "comment",
+  "description",
+  "max",
+  "min",
+  "step"
+]) Object.assign(Schema.prototype, { [key](value) {
+  const schema = Schema(this);
+  schema.meta = {
+    ...schema.meta,
+    [key]: value
+  };
+  return schema;
+} });
+Schema.prototype.volatile = function volatile() {
+  if (this.meta.volatile) throw new TypeError("volatile schema is already wrapped");
+  return this.extra("volatile", true);
+};
+var resolvers = {};
+var checkedVolatile = /* @__PURE__ */ Symbol("checked-volatile-schema");
+function validateVolatileSchema(schema, path7 = [], blocked = false, seen = /* @__PURE__ */ new Map()) {
+  const states = seen.get(schema) ?? /* @__PURE__ */ new Set();
+  if (states.has(blocked)) return;
+  states.add(blocked);
+  seen.set(schema, states);
+  if (schema.meta?.volatile && blocked) throw new ValidationError("volatile fields require a fixed object path without an enclosing volatile field", { path: path7 });
+  const nested = blocked || !!schema.meta?.volatile;
+  if (schema.dict) for (const [key, child] of Object.entries(schema.dict)) validateVolatileSchema(child, [...path7, key], nested, seen);
+  if (schema.sKey) validateVolatileSchema(schema.sKey, [...path7, "<key>"], true, seen);
+  if (schema.inner && (schema.type !== "lazy" || schema.inner[kSchema])) validateVolatileSchema(schema.inner, [...path7, "*"], true, seen);
+  if (schema.list) for (let index = 0; index < schema.list.length; index++) validateVolatileSchema(schema.list[index], [...path7, String(index)], true, seen);
+}
+Schema.extend = function extend(type, resolve2) {
+  resolvers[type] = resolve2;
+};
+Schema.resolve = function resolve(data, schema, options = {}, strict = false) {
+  if (!schema) return [data];
+  if (!options[checkedVolatile]) {
+    validateVolatileSchema(schema, options.path);
+    options = {
+      ...options,
+      [checkedVolatile]: true
+    };
+  }
+  if (schema.meta?.volatile) {
+    const inner = Schema(schema);
+    inner.meta = {
+      ...schema.meta,
+      volatile: false
+    };
+    const [value, adapted] = Schema.resolve(data, inner, options, strict);
+    try {
+      return [createVolatile(value), adapted];
+    } catch (error62) {
+      throw new ValidationError(error62 instanceof Error ? error62.message : String(error62), options);
+    }
+  }
+  if (options.ignore?.(data, schema)) return [data];
+  if (isNullable(data) && schema.type !== "lazy") {
+    if (schema.meta.required) throw new ValidationError(`missing required value`, options);
+    let current = schema;
+    let fallback = schema.meta.default;
+    while (current?.type === "intersect" && isNullable(fallback)) {
+      current = current.list[0];
+      fallback = current?.meta.default;
+    }
+    if (isNullable(fallback)) return [data];
+    data = clone(fallback);
+  }
+  const callback = resolvers[schema.type];
+  if (!callback) throw new ValidationError(`unsupported type "${schema.type}"`, options);
+  try {
+    return callback(data, schema, options, strict);
+  } catch (error62) {
+    if (!schema.meta.loose) throw error62;
+    return [schema.meta.default];
+  }
+};
+Schema.from = function from(source) {
+  if (isNullable(source)) return Schema.any();
+  else if ([
+    "string",
+    "number",
+    "boolean"
+  ].includes(typeof source)) return Schema.const(source).required();
+  else if (source[kSchema]) return source;
+  else if (typeof source === "function") switch (source) {
+    case String:
+      return Schema.string().required();
+    case Number:
+      return Schema.number().required();
+    case Boolean:
+      return Schema.boolean().required();
+    case Function:
+      return Schema.function().required();
+    default:
+      return Schema.is(source).required();
+  }
+  else throw new TypeError(`cannot infer schema from ${source}`);
+};
+Schema.lazy = function lazy(builder) {
+  const toJSON2 = () => {
+    if (!schema.inner[kSchema]) {
+      schema.inner = schema.builder();
+      schema.inner.meta = {
+        ...schema.meta,
+        ...schema.inner.meta
+      };
+    }
+    return schema.inner.toJSON();
+  };
+  const schema = new Schema({
+    type: "lazy",
+    builder,
+    inner: { toJSON: toJSON2 }
+  });
+  return schema;
+};
+Schema.natural = function natural() {
+  return Schema.number().step(1).min(0);
+};
+Schema.percent = function percent() {
+  return Schema.number().step(0.01).min(0).max(1).role("slider");
+};
+Schema.date = function date() {
+  return Schema.union([Schema.is(Date), Schema.transform(Schema.string().role("datetime"), (value, options) => {
+    const date6 = new Date(value);
+    if (isNaN(+date6)) throw new ValidationError(`invalid date "${value}"`, options);
+    return date6;
+  }, true)]);
+};
+Schema.regExp = function regExp(flag = "") {
+  return Schema.union([Schema.is(RegExp), Schema.transform(Schema.string().role("regexp", { flag }), (value, options) => {
+    try {
+      return new RegExp(value, flag);
+    } catch (e) {
+      throw new ValidationError(e.message, options);
+    }
+  }, true)]);
+};
+Schema.arrayBuffer = function arrayBuffer(encoding) {
+  return Schema.union([
+    Schema.is(ArrayBuffer),
+    Schema.is(SharedArrayBuffer),
+    Schema.transform(Schema.any(), (value, options) => {
+      if (Binary.isSource(value)) return Binary.fromSource(value);
+      throw new ValidationError(`expected ArrayBufferSource but got ${value}`, options);
+    }, true),
+    ...encoding ? [Schema.transform(Schema.string(), (value, options) => {
+      try {
+        return encoding === "base64" ? Binary.fromBase64(value) : Binary.fromHex(value);
+      } catch (e) {
+        throw new ValidationError(e.message, options);
+      }
+    }, true)] : []
+  ]);
+};
+Schema.extend("lazy", (data, schema, options, strict) => {
+  if (!schema.inner[kSchema]) {
+    schema.inner = schema.builder();
+    schema.inner.meta = {
+      ...schema.meta,
+      ...schema.inner.meta
+    };
+    validateVolatileSchema(schema.inner, options.path, true);
+  }
+  return Schema.resolve(data, schema.inner, options, strict);
+});
+Schema.extend("any", (data) => {
+  return [data];
+});
+Schema.extend("never", (data, _, options) => {
+  throw new ValidationError(`expected nullable but got ${data}`, options);
+});
+Schema.extend("const", (data, { value }, options) => {
+  if (deepEqual(data, value)) return [value];
+  throw new ValidationError(`expected ${value} but got ${data}`, options);
+});
+function checkWithinRange(data, meta3, description, options, skipMin = false) {
+  const { max = Infinity, min = -Infinity } = meta3;
+  if (data > max) throw new ValidationError(`expected ${description} <= ${max} but got ${data}`, options);
+  if (data < min && !skipMin) throw new ValidationError(`expected ${description} >= ${min} but got ${data}`, options);
+}
+Schema.extend("string", (data, { meta: meta3 }, options) => {
+  if (typeof data !== "string") throw new ValidationError(`expected string but got ${data}`, options);
+  if (meta3.pattern) {
+    const regexp = new RegExp(meta3.pattern.source, meta3.pattern.flags);
+    if (!regexp.test(data)) throw new ValidationError(`expect string to match regexp ${regexp}`, options);
+  }
+  checkWithinRange(data.length, meta3, "string length", options);
+  return [data];
+});
+function decimalShift(data, digits) {
+  const str = data.toString();
+  if (str.includes("e")) return data * Math.pow(10, digits);
+  const index = str.indexOf(".");
+  if (index === -1) return data * Math.pow(10, digits);
+  const frac = str.slice(index + 1);
+  const integer2 = str.slice(0, index);
+  if (frac.length <= digits) return +(integer2 + frac.padEnd(digits, "0"));
+  return +(integer2 + frac.slice(0, digits) + "." + frac.slice(digits));
+}
+function isMultipleOf(data, min, step) {
+  step = Math.abs(step);
+  if (!/^\d+\.\d+$/.test(step.toString())) return (data - min) % step === 0;
+  const index = step.toString().indexOf(".");
+  const digits = step.toString().slice(index + 1).length;
+  return Math.abs(decimalShift(data, digits) - decimalShift(min, digits)) % decimalShift(step, digits) === 0;
+}
+Schema.extend("number", (data, { meta: meta3 }, options) => {
+  if (typeof data !== "number") throw new ValidationError(`expected number but got ${data}`, options);
+  checkWithinRange(data, meta3, "number", options);
+  const { step } = meta3;
+  if (step && !isMultipleOf(data, meta3.min ?? 0, step)) throw new ValidationError(`expected number multiple of ${step} but got ${data}`, options);
+  return [data];
+});
+Schema.extend("boolean", (data, _, options) => {
+  if (typeof data === "boolean") return [data];
+  throw new ValidationError(`expected boolean but got ${data}`, options);
+});
+Schema.extend("bitset", (data, { bits, meta: meta3 }, options) => {
+  let value = 0, keys = [];
+  if (typeof data === "number") {
+    value = data;
+    for (const key in bits) if (data & bits[key]) keys.push(key);
+  } else if (Array.isArray(data)) {
+    keys = data;
+    for (const key of keys) {
+      if (typeof key !== "string") throw new ValidationError(`expected string but got ${key}`, options);
+      if (key in bits) value |= bits[key];
+    }
+  } else throw new ValidationError(`expected number or array but got ${data}`, options);
+  if (value === meta3.default) return [value];
+  return [value, keys];
+});
+Schema.extend("function", (data, _, options) => {
+  if (typeof data === "function") return [data];
+  throw new ValidationError(`expected function but got ${data}`, options);
+});
+Schema.extend("is", (data, { constructor }, options) => {
+  if (typeof constructor === "function") {
+    if (data instanceof constructor) return [data];
+    throw new ValidationError(`expected ${constructor.name} but got ${data}`, options);
+  } else {
+    if (isNullable(data)) throw new ValidationError(`expected ${constructor} but got ${data}`, options);
+    let prototype = Object.getPrototypeOf(data);
+    while (prototype) {
+      if (prototype.constructor?.name === constructor) return [data];
+      prototype = Object.getPrototypeOf(prototype);
+    }
+    throw new ValidationError(`expected ${constructor} but got ${data}`, options);
+  }
+});
+function property(data, key, schema, options) {
+  try {
+    const [value, adapted] = Schema.resolve(data[key], schema, {
+      ...options,
+      path: [...options.path || [], key]
+    });
+    if (adapted !== void 0) data[key] = adapted;
+    return value;
+  } catch (e) {
+    if (!options?.autofix) throw e;
+    delete data[key];
+    return schema.meta.volatile ? createVolatile(schema.meta.default) : schema.meta.default;
+  }
+}
+Schema.extend("array", (data, { inner, meta: meta3 }, options) => {
+  if (!Array.isArray(data)) throw new ValidationError(`expected array but got ${data}`, options);
+  checkWithinRange(data.length, meta3, "array length", options, !isNullable(inner.meta.default));
+  return [data.map((_, index) => property(data, index, inner, options))];
+});
+Schema.extend("dict", (data, { inner, sKey }, options, strict) => {
+  if (!isPlainObject(data)) throw new ValidationError(`expected object but got ${data}`, options);
+  const result = {};
+  for (const key in data) {
+    let rKey;
+    try {
+      rKey = Schema.resolve(key, sKey, options)[0];
+    } catch (error62) {
+      if (strict) continue;
+      throw error62;
+    }
+    result[rKey] = property(data, key, inner, options);
+    data[rKey] = data[key];
+    if (key !== rKey) delete data[key];
+  }
+  return [result];
+});
+Schema.extend("tuple", (data, { list }, options, strict) => {
+  if (!Array.isArray(data)) throw new ValidationError(`expected array but got ${data}`, options);
+  const result = list.map((inner, index) => property(data, index, inner, options));
+  if (strict) return [result];
+  result.push(...data.slice(list.length));
+  return [result];
+});
+function merge(result, data) {
+  for (const key in data) {
+    if (key in result) continue;
+    result[key] = data[key];
+  }
+}
+Schema.extend("object", (data, { dict }, options, strict) => {
+  if (!isPlainObject(data)) throw new ValidationError(`expected object but got ${data}`, options);
+  const result = {};
+  for (const key in dict) {
+    const value = property(data, key, dict[key], options);
+    if (!isNullable(value) || key in data) result[key] = value;
+  }
+  if (!strict) merge(result, data);
+  return [result];
+});
+Schema.extend("union", (data, { list, toString: toString2 }, options, strict) => {
+  const messages = [];
+  for (const inner of list) try {
+    return Schema.resolve(data, inner, options, strict);
+  } catch (error62) {
+    messages.push(error62);
+  }
+  throw new ValidationError(`expected ${toString2()} but got ${JSON.stringify(data)}`, options);
+});
+Schema.extend("intersect", (data, { list, toString: toString2 }, options, strict) => {
+  if (!list.length) return [data];
+  let result;
+  for (const inner of list) {
+    const value = Schema.resolve(data, inner, options, true)[0];
+    if (isNullable(value)) continue;
+    if (isNullable(result)) result = value;
+    else if (typeof result !== typeof value) throw new ValidationError(`expected ${toString2()} but got ${JSON.stringify(data)}`, options);
+    else if (typeof value === "object") merge(result ??= {}, value);
+    else if (result !== value) throw new ValidationError(`expected ${toString2()} but got ${JSON.stringify(data)}`, options);
+  }
+  if (!strict && isPlainObject(data)) merge(result, data);
+  return [result];
+});
+Schema.extend("transform", (data, { inner, callback, preserve }, options) => {
+  const [result, adapted = data] = Schema.resolve(data, inner, options, true);
+  if (preserve) return [callback(result)];
+  else return [callback(result), callback(adapted)];
+});
+var formatters = {};
+function defineMethod(name2, keys, format) {
+  formatters[name2] = format;
+  Object.assign(Schema, { [name2](...args) {
+    const schema = new Schema({ type: name2 });
+    keys.forEach((key, index) => {
+      switch (key) {
+        case "sKey":
+          schema.sKey = args[index] ?? Schema.string();
+          break;
+        case "inner":
+          schema.inner = Schema.from(args[index]);
+          break;
+        case "list":
+          schema.list = args[index].map(Schema.from);
+          break;
+        case "dict":
+          schema.dict = mapValues(args[index], Schema.from);
+          break;
+        case "bits":
+          schema.bits = {};
+          for (const key2 in args[index]) {
+            if (typeof args[index][key2] !== "number") continue;
+            schema.bits[key2] = args[index][key2];
+          }
+          break;
+        case "callback": {
+          const callback = schema.callback = args[index];
+          callback["toJSON"] ||= () => callback.toString();
+          break;
+        }
+        case "constructor": {
+          const constructor = schema.constructor = args[index];
+          if (typeof constructor === "function") constructor["toJSON"] ||= () => constructor["name"];
+          break;
+        }
+        default:
+          schema[key] = args[index];
+      }
+    });
+    if (name2 === "object" || name2 === "dict") schema.meta.default = {};
+    else if (name2 === "array" || name2 === "tuple") schema.meta.default = [];
+    else if (name2 === "bitset") schema.meta.default = 0;
+    return schema;
+  } });
+}
+defineMethod("is", ["constructor"], ({ constructor }) => {
+  if (typeof constructor === "function") return constructor.name;
+  else return constructor;
+});
+defineMethod("any", [], () => "any");
+defineMethod("never", [], () => "never");
+defineMethod("const", ["value"], ({ value }) => typeof value === "string" ? JSON.stringify(value) : value);
+defineMethod("string", [], () => "string");
+defineMethod("number", [], () => "number");
+defineMethod("boolean", [], () => "boolean");
+defineMethod("bitset", ["bits"], () => "bitset");
+defineMethod("function", [], () => "function");
+defineMethod("array", ["inner"], ({ inner }) => `${inner.toString(true)}[]`);
+defineMethod("dict", ["inner", "sKey"], ({ inner, sKey }) => `{ [key: ${sKey.toString()}]: ${inner.toString()} }`);
+defineMethod("tuple", ["list"], ({ list }) => `[${list.map((inner) => inner.toString()).join(", ")}]`);
+defineMethod("object", ["dict"], ({ dict }) => {
+  if (Object.keys(dict).length === 0) return "{}";
+  return `{ ${Object.entries(dict).map(([key, inner]) => {
+    return `${key}${inner.meta.required ? "" : "?"}: ${inner.toString()}`;
+  }).join(", ")} }`;
+});
+defineMethod("union", ["list"], ({ list }, inline) => {
+  const result = list.map(({ toString: format }) => format()).join(" | ");
+  return inline ? `(${result})` : result;
+});
+defineMethod("intersect", ["list"], ({ list }) => {
+  return `${list.map((inner) => inner.toString(true)).join(" & ")}`;
+});
+defineMethod("transform", [
+  "inner",
+  "callback",
+  "preserve"
+], ({ inner }, isInner) => inner.toString(isInner));
+
+// apps/dsh/src/eda-project/plugin.ts
 import path6 from "node:path";
 
-// src/eda-project/project-store.ts
-import { mkdir, readFile, realpath, stat } from "node:fs/promises";
+// apps/dsh/src/eda-project/project-store.ts
+import { mkdir as mkdir2, readFile as readFile2, realpath, stat } from "node:fs/promises";
 import path from "node:path";
-import { withFileLock, writeFileAtomic } from "@deepseek-ai/dsh-atomic-write";
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/external.js
+// node_modules/.pnpm/@deepseek-ai+dsh-atomic-write@0.2.2-rc.1_@deepseek-ai+cordis@4.1.0/node_modules/@deepseek-ai/dsh-atomic-write/lib/index.js
+import { createHash, randomBytes } from "node:crypto";
+import { lstat, mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
+import { dirname } from "node:path";
+import { setTimeout as setTimeout$1 } from "node:timers/promises";
+var WINDOWS_TRANSIENT_RENAME_ERRORS = /* @__PURE__ */ new Set([
+  "EACCES",
+  "EBUSY",
+  "EPERM"
+]);
+var WINDOWS_RENAME_RETRY_INITIAL_MS = 20;
+var WINDOWS_RENAME_RETRY_MAX_MS = 200;
+var WINDOWS_RENAME_RETRY_LIMIT = 8;
+function isTransientWindowsRenameError(error62) {
+  if (process.platform !== "win32") return false;
+  return WINDOWS_TRANSIENT_RENAME_ERRORS.has(error62?.code ?? "");
+}
+async function renameAtomicTemp(temp, filename) {
+  let delay = WINDOWS_RENAME_RETRY_INITIAL_MS;
+  for (let retries = 0; ; retries += 1) {
+    try {
+      await rename(temp, filename);
+      return;
+    } catch (error62) {
+      if (!isTransientWindowsRenameError(error62)) throw error62;
+      if (retries >= WINDOWS_RENAME_RETRY_LIMIT) throw error62;
+    }
+    await new Promise((resolve2) => setTimeout(resolve2, delay));
+    delay = Math.min(delay * 2, WINDOWS_RENAME_RETRY_MAX_MS);
+  }
+}
+async function writeFileAtomic(filename, content, options) {
+  await mkdir(dirname(filename), {
+    recursive: true,
+    ...options.dirMode === void 0 ? {} : { mode: options.dirMode }
+  });
+  const temp = `${filename}.${randomBytes(6).toString("hex")}.tmp`;
+  try {
+    await writeFile(temp, content, {
+      mode: options.mode,
+      flag: "wx"
+    });
+    await renameAtomicTemp(temp, filename);
+  } catch (error62) {
+    await rm(temp, { force: true });
+    throw error62;
+  }
+}
+async function isLockContention(error62, lockPath) {
+  const code = error62?.code;
+  if (code === "EEXIST") return true;
+  if (code !== "EPERM") return false;
+  try {
+    await lstat(lockPath);
+    return true;
+  } catch {
+    return false;
+  }
+}
+function holderExited(record2) {
+  if (!/^\d+\n$/.test(record2)) return false;
+  const pid = Number(record2.trim());
+  if (pid === 0 || pid > 2147483647) return false;
+  if (pid === process.pid) return false;
+  try {
+    process.kill(pid, 0);
+    return false;
+  } catch (error62) {
+    return error62.code === "ESRCH";
+  }
+}
+async function readLockRecord(lockPath) {
+  try {
+    return await readFile(lockPath, "utf8");
+  } catch (error62) {
+    return;
+  }
+}
+async function takeOverExitedLock(lockPath) {
+  const record2 = await readLockRecord(lockPath);
+  if (record2 === void 0 || !holderExited(record2)) return false;
+  const claim2 = `${lockPath}.takeover-${createHash("sha256").update(record2).digest("hex").slice(0, 16)}`;
+  try {
+    await writeFile(claim2, `${process.pid}
+`, {
+      mode: 384,
+      flag: "wx"
+    });
+  } catch (error62) {
+    const code = error62.code;
+    if (code === "EEXIST" || code === "EPERM") return false;
+    throw error62;
+  }
+  try {
+    if (await readLockRecord(lockPath) !== record2 || !holderExited(record2)) return false;
+    try {
+      await rm(lockPath, { force: true });
+    } catch (error62) {
+      return false;
+    }
+    return true;
+  } finally {
+    await rm(claim2, { force: true }).catch((error62) => {
+    });
+  }
+}
+var LOCK_RETRY_INITIAL_MS = 20;
+var LOCK_RETRY_MAX_MS = 200;
+var DEFAULT_LOCK_WAIT_MS = 2e3;
+async function withFileLock(filename, operation, options) {
+  const lockPath = `${filename}.lock`;
+  const deadline = Date.now() + (options?.waitMs ?? DEFAULT_LOCK_WAIT_MS);
+  let delay = LOCK_RETRY_INITIAL_MS;
+  let retriedUnconfirmedPermissionError = false;
+  for (; ; ) {
+    options?.signal?.throwIfAborted();
+    try {
+      await writeFile(lockPath, `${process.pid}
+`, {
+        mode: 384,
+        flag: "wx"
+      });
+      break;
+    } catch (error62) {
+      if (!await isLockContention(error62, lockPath)) {
+        if (process.platform !== "win32" || error62?.code !== "EPERM" || retriedUnconfirmedPermissionError) throw error62;
+        retriedUnconfirmedPermissionError = true;
+      } else if (await takeOverExitedLock(lockPath)) continue;
+    }
+    if (Date.now() >= deadline) throw new Error(`atomic-write: timed out waiting for the writer lock at ${lockPath}`);
+    await setTimeout$1(delay, void 0, { signal: options?.signal });
+    delay = Math.min(delay * 2, LOCK_RETRY_MAX_MS);
+  }
+  try {
+    options?.signal?.throwIfAborted();
+    return await operation();
+  } finally {
+    await rm(lockPath, { force: true });
+  }
+}
+
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/external.js
 var external_exports = {};
 __export(external_exports, {
   $brand: () => $brand,
@@ -117,7 +1123,7 @@ __export(external_exports, {
   check: () => check,
   cidrv4: () => cidrv42,
   cidrv6: () => cidrv62,
-  clone: () => clone,
+  clone: () => clone2,
   codec: () => codec,
   coerce: () => coerce_exports,
   compile: () => compile,
@@ -128,7 +1134,7 @@ __export(external_exports, {
   cuid2: () => cuid22,
   currencyCode: () => currencyCode2,
   custom: () => custom,
-  date: () => date2,
+  date: () => date3,
   decode: () => decode2,
   decodeAsync: () => decodeAsync2,
   deepPartial: () => deepPartial,
@@ -175,7 +1181,7 @@ __export(external_exports, {
   jwt: () => jwt,
   keyof: () => keyof,
   ksuid: () => ksuid2,
-  lazy: () => lazy,
+  lazy: () => lazy2,
   length: () => _length,
   literal: () => literal,
   locales: () => locales_exports,
@@ -234,7 +1240,7 @@ __export(external_exports, {
   safeEncodeAsync: () => safeEncodeAsync2,
   safeParse: () => safeParse2,
   safeParseAsync: () => safeParseAsync2,
-  set: () => set,
+  set: () => set2,
   setErrorMap: () => setErrorMap,
   size: () => _size,
   slugify: () => _slugify,
@@ -276,7 +1282,7 @@ __export(external_exports, {
   xor: () => xor
 });
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/index.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/index.js
 var core_exports2 = {};
 __export(core_exports2, {
   $ZodAny: () => $ZodAny,
@@ -530,7 +1536,7 @@ __export(core_exports2, {
   base64Charset: () => base64Charset,
   base64urlCharset: () => base64urlCharset,
   canParseURL: () => canParseURL,
-  clone: () => clone,
+  clone: () => clone2,
   compile: () => compile,
   compileFn: () => compileFn,
   config: () => config,
@@ -593,7 +1599,7 @@ __export(core_exports2, {
   withParser: () => withParser
 });
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/util.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/util.js
 var util_exports = {};
 __export(util_exports, {
   BIGINT_FORMAT_RANGES: () => BIGINT_FORMAT_RANGES,
@@ -615,7 +1621,7 @@ __export(util_exports, {
   captureStackTrace: () => captureStackTrace,
   cleanEnum: () => cleanEnum,
   cleanRegex: () => cleanRegex,
-  clone: () => clone,
+  clone: () => clone2,
   cloneDef: () => cloneDef,
   codePointLength: () => codePointLength,
   constantCatch: () => constantCatch,
@@ -626,7 +1632,7 @@ __export(util_exports, {
   esc: () => esc,
   escapeRegex: () => escapeRegex,
   explicitlyAborted: () => explicitlyAborted,
-  extend: () => extend,
+  extend: () => extend2,
   finalizeIssue: () => finalizeIssue,
   floatSafeRemainder: () => floatSafeRemainder,
   getElementAtPath: () => getElementAtPath,
@@ -638,12 +1644,12 @@ __export(util_exports, {
   hide: () => hide,
   installLazyProp: () => installLazyProp,
   isObject: () => isObject,
-  isPlainObject: () => isPlainObject,
+  isPlainObject: () => isPlainObject2,
   issue: () => issue,
   joinValues: () => joinValues,
   jsonStringifyReplacer: () => jsonStringifyReplacer,
   members: () => members,
-  merge: () => merge,
+  merge: () => merge2,
   mergeDefs: () => mergeDefs,
   normalizeParams: () => normalizeParams,
   nullish: () => nullish,
@@ -654,7 +1660,7 @@ __export(util_exports, {
   own: () => own,
   parsedType: () => parsedType,
   partial: () => partial,
-  pick: () => pick,
+  pick: () => pick2,
   prefixIssues: () => prefixIssues,
   primitiveTypes: () => primitiveTypes,
   promiseAllObject: () => promiseAllObject,
@@ -880,7 +1886,7 @@ var allowsEval = /* @__PURE__ */ cached(() => {
     return false;
   }
 });
-function isPlainObject(o) {
+function isPlainObject2(o) {
   if (isObject(o) === false)
     return false;
   const ctor = o.constructor;
@@ -897,7 +1903,7 @@ function isPlainObject(o) {
   return true;
 }
 function shallowClone(o) {
-  if (isPlainObject(o))
+  if (isPlainObject2(o))
     return { ...o };
   if (Array.isArray(o))
     return [...o];
@@ -972,7 +1978,7 @@ var primitiveTypes = /* @__PURE__ */ new Set([
 function escapeRegex(str) {
   return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
-function clone(inst, def, params) {
+function clone2(inst, def, params) {
   const cl = new inst._zod.constr(def ?? inst._zod.def);
   if (!def || params?.parent)
     cl._zod.parent = inst;
@@ -1050,7 +2056,7 @@ var BIGINT_FORMAT_RANGES = {
   int64: [/* @__PURE__ */ BigInt("-9223372036854775808"), /* @__PURE__ */ BigInt("9223372036854775807")],
   uint64: [/* @__PURE__ */ BigInt(0), /* @__PURE__ */ BigInt("18446744073709551615")]
 };
-function pick(schema, mask) {
+function pick2(schema, mask) {
   const currDef = schema._zod.def;
   const checks = currDef.checks;
   const hasChecks = checks && checks.length > 0;
@@ -1059,7 +2065,7 @@ function pick(schema, mask) {
   }
   const newShape = {};
   mirrorShape(newShape, schema, maskedKeys(schema, mask));
-  return clone(schema, mergeDefs(currDef, { shape: newShape, checks: [] }));
+  return clone2(schema, mergeDefs(currDef, { shape: newShape, checks: [] }));
 }
 function maskedKeys(schema, mask) {
   const raw = sourceShape(schema);
@@ -1083,10 +2089,10 @@ function omit(schema, mask) {
   const omitted = new Set(maskedKeys(schema, mask));
   const newShape = {};
   mirrorShape(newShape, schema, Reflect.ownKeys(sourceShape(schema)).filter((key) => !omitted.has(key)));
-  return clone(schema, mergeDefs(currDef, { shape: newShape, checks: [] }));
+  return clone2(schema, mergeDefs(currDef, { shape: newShape, checks: [] }));
 }
-function extend(schema, shape) {
-  if (!isPlainObject(shape)) {
+function extend2(schema, shape) {
+  if (!isPlainObject2(shape)) {
     throw new Error("Invalid input to extend: expected a plain object");
   }
   const checks = schema._zod.def.checks;
@@ -1099,7 +2105,7 @@ function extend(schema, shape) {
       }
     }
   }
-  return clone(schema, mergeDefs(schema._zod.def, { shape: extended(schema, shape) }));
+  return clone2(schema, mergeDefs(schema._zod.def, { shape: extended(schema, shape) }));
 }
 function extended(schema, shape) {
   const newShape = {};
@@ -1108,12 +2114,12 @@ function extended(schema, shape) {
   return newShape;
 }
 function safeExtend(schema, shape) {
-  if (!isPlainObject(shape)) {
+  if (!isPlainObject2(shape)) {
     throw new Error("Invalid input to safeExtend: expected a plain object");
   }
-  return clone(schema, mergeDefs(schema._zod.def, { shape: extended(schema, shape) }));
+  return clone2(schema, mergeDefs(schema._zod.def, { shape: extended(schema, shape) }));
 }
-function merge(a, b) {
+function merge2(a, b) {
   if (!b?._zod?.def) {
     throw new Error("Invalid input to merge: expected an object schema. To merge a plain shape, use `.extend()`.");
   }
@@ -1130,7 +2136,7 @@ function merge(a, b) {
     },
     checks: b._zod.def.checks ?? []
   });
-  return clone(a, def);
+  return clone2(a, def);
 }
 function partial(Class2, schema, mask, name2 = "partial") {
   const currDef = schema._zod.def;
@@ -1142,7 +2148,7 @@ function partial(Class2, schema, mask, name2 = "partial") {
   const selected = mask ? new Set(maskedKeys(schema, mask)) : void 0;
   const newShape = {};
   mirrorShape(newShape, schema, Reflect.ownKeys(sourceShape(schema)), Class2 && ((value, key) => selected && !selected.has(key) ? value : new Class2({ type: "optional", innerType: value })));
-  return clone(schema, mergeDefs(schema._zod.def, { shape: newShape, checks: [] }));
+  return clone2(schema, mergeDefs(schema._zod.def, { shape: newShape, checks: [] }));
 }
 function required(Class2, schema, mask) {
   const selected = mask ? new Set(maskedKeys(schema, mask)) : void 0;
@@ -1151,7 +2157,7 @@ function required(Class2, schema, mask) {
     // overwrite with non-optional
     selected && !selected.has(key) ? value : new Class2({ type: "nonoptional", innerType: value })
   ));
-  return clone(schema, mergeDefs(schema._zod.def, { shape: newShape }));
+  return clone2(schema, mergeDefs(schema._zod.def, { shape: newShape }));
 }
 function aborted(x, startIndex = 0) {
   if (x.aborted === true)
@@ -1449,7 +2455,7 @@ function constantCatch(value) {
   return fn;
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/core.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/core.js
 var _a;
 var NEVER = /* @__PURE__ */ Object.freeze({
   status: "aborted"
@@ -1571,7 +2577,7 @@ function config(newConfig) {
   return globalConfig;
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/errors.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/errors.js
 function _getMessage() {
   const internals = this._zod;
   internals.message ?? (internals.message = JSON.stringify(internals.def, jsonStringifyReplacer, 2));
@@ -1763,7 +2769,7 @@ function prettifyError(error62) {
   return lines2.join("\n");
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/parse.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/parse.js
 function finalizeParams(callee, params) {
   return { callee: params?.callee ?? callee, Err: params?.Err };
 }
@@ -1923,7 +2929,7 @@ var _safeDecodeAsync = (_Err) => async (schema, value, _ctx) => {
 };
 var safeDecodeAsync = /* @__PURE__ */ _safeDecodeAsync($ZodRealError);
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/regexes.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/regexes.js
 var regexes_exports = {};
 __export(regexes_exports, {
   anyString: () => anyString,
@@ -1938,7 +2944,7 @@ __export(regexes_exports, {
   cuid: () => cuid,
   cuid2: () => cuid2,
   currencyCode: () => currencyCode,
-  date: () => date,
+  date: () => date2,
   datetime: () => datetime,
   domain: () => domain,
   duration: () => duration,
@@ -2042,7 +3048,7 @@ var dateSource = `(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][
 function anchor(source) {
   return new RegExp(`^${source}$`);
 }
-var date = /* @__PURE__ */ anchor(dateSource);
+var date2 = /* @__PURE__ */ anchor(dateSource);
 function timeSource(args) {
   const hhmm = `(?:[01]\\d|2[0-3]):[0-5]\\d`;
   const regex = typeof args.precision === "number" ? args.precision === -1 ? `${hhmm}` : args.precision === 0 ? `${hhmm}:[0-5]\\d` : `${hhmm}:[0-5]\\d\\.\\d{${args.precision}}` : args.seconds ? `${hhmm}:[0-5]\\d(?:\\.\\d+)?` : `${hhmm}(?::[0-5]\\d(?:\\.\\d+)?)?`;
@@ -2095,7 +3101,7 @@ var sha512_hex = /^[0-9a-fA-F]{128}$/;
 var sha512_base64 = /* @__PURE__ */ fixedBase64(86, "==");
 var sha512_base64url = /* @__PURE__ */ fixedBase64url(86);
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/checks.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/checks.js
 var $ZodCheck = /* @__PURE__ */ $constructor("$ZodCheck", (inst, def) => {
   var _a3;
   inst._zod ?? (inst._zod = {});
@@ -2450,8 +3456,8 @@ var $ZodCheckUpperCase = /* @__PURE__ */ $constructor("$ZodCheckUpperCase", (ins
 var $ZodCheckIncludes = /* @__PURE__ */ $constructor("$ZodCheckIncludes", (inst, def) => {
   $ZodCheck.init(inst, def);
   const escapedRegex = escapeRegex(def.includes);
-  const pattern = new RegExp(typeof def.position === "number" ? `^.{${def.position},}${escapedRegex}` : escapedRegex);
-  def.pattern = pattern;
+  const pattern2 = new RegExp(typeof def.position === "number" ? `^.{${def.position},}${escapedRegex}` : escapedRegex);
+  def.pattern = pattern2;
   inst._zod.check = (payload) => {
     if (payload.value.includes(def.includes, def.position))
       return;
@@ -2468,8 +3474,8 @@ var $ZodCheckIncludes = /* @__PURE__ */ $constructor("$ZodCheckIncludes", (inst,
 });
 var $ZodCheckStartsWith = /* @__PURE__ */ $constructor("$ZodCheckStartsWith", (inst, def) => {
   $ZodCheck.init(inst, def);
-  const pattern = new RegExp(`^${escapeRegex(def.prefix)}.*`);
-  def.pattern ?? (def.pattern = pattern);
+  const pattern2 = new RegExp(`^${escapeRegex(def.prefix)}.*`);
+  def.pattern ?? (def.pattern = pattern2);
   inst._zod.check = (payload) => {
     if (payload.value.startsWith(def.prefix))
       return;
@@ -2486,8 +3492,8 @@ var $ZodCheckStartsWith = /* @__PURE__ */ $constructor("$ZodCheckStartsWith", (i
 });
 var $ZodCheckEndsWith = /* @__PURE__ */ $constructor("$ZodCheckEndsWith", (inst, def) => {
   $ZodCheck.init(inst, def);
-  const pattern = new RegExp(`.*${escapeRegex(def.suffix)}$`);
-  def.pattern ?? (def.pattern = pattern);
+  const pattern2 = new RegExp(`.*${escapeRegex(def.suffix)}$`);
+  def.pattern ?? (def.pattern = pattern2);
   inst._zod.check = (payload) => {
     if (payload.value.endsWith(def.suffix))
       return;
@@ -2502,9 +3508,9 @@ var $ZodCheckEndsWith = /* @__PURE__ */ $constructor("$ZodCheckEndsWith", (inst,
     });
   };
 });
-function handleCheckPropertyResult(result, payload, property) {
+function handleCheckPropertyResult(result, payload, property2) {
   if (result.issues.length) {
-    payload.issues.push(...prefixIssues(property, result.issues));
+    payload.issues.push(...prefixIssues(property2, result.issues));
   }
 }
 var $ZodCheckProperty = /* @__PURE__ */ $constructor("$ZodCheckProperty", (inst, def) => {
@@ -2571,7 +3577,7 @@ var $ZodCheckOverwrite = /* @__PURE__ */ $constructor("$ZodCheckOverwrite", (ins
   };
 });
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/doc.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/doc.js
 var Doc = class {
   constructor(args = [], closed = {}) {
     this.content = [];
@@ -2612,14 +3618,14 @@ ${content.join("\n")}
   }
 };
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/versions.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/versions.js
 var version = {
   major: 4,
   minor: 6,
   patch: 7
 };
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/schemas.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/schemas.js
 var $ZodType = /* @__PURE__ */ $constructor("$ZodType", (inst, def) => {
   var _a3;
   inst ?? (inst = {});
@@ -2948,7 +3954,7 @@ var $ZodISODateTime = /* @__PURE__ */ $constructor("$ZodISODateTime", (inst, def
   $ZodStringFormat.init(inst, def);
 });
 var $ZodISODate = /* @__PURE__ */ $constructor("$ZodISODate", (inst, def) => {
-  def.pattern ?? (def.pattern = date);
+  def.pattern ?? (def.pattern = date2);
   $ZodStringFormat.init(inst, def);
 });
 var $ZodISOTime = /* @__PURE__ */ $constructor("$ZodISOTime", (inst, def) => {
@@ -3988,7 +4994,7 @@ function mergeValues(a, b) {
   if (a instanceof Date && b instanceof Date && +a === +b) {
     return { valid: true, data: a };
   }
-  if (isPlainObject(a) && isPlainObject(b)) {
+  if (isPlainObject2(a) && isPlainObject2(b)) {
     const bKeys = Object.keys(b);
     const sharedKeys = Object.keys(a).filter((key) => bKeys.indexOf(key) !== -1);
     const newObj = { ...a, ...b };
@@ -4209,7 +5215,7 @@ var $ZodRecord = /* @__PURE__ */ $constructor("$ZodRecord", (inst, def) => {
   memo2?.attach(inst);
   inst._zod.parse = (payload, ctx) => {
     const input2 = payload.value;
-    if (!isPlainObject(input2)) {
+    if (!isPlainObject2(input2)) {
       payload.issues.push({
         expected: "record",
         code: "invalid_type",
@@ -4568,8 +5574,8 @@ var $ZodOptional = /* @__PURE__ */ $constructor("$ZodOptional", (inst, def) => {
     return values ? /* @__PURE__ */ new Set([...values, void 0]) : void 0;
   });
   defineLazyInternal(inst, "pattern", (zod) => {
-    const pattern = zod.def.innerType._zod.pattern;
-    return pattern ? new RegExp(`^(${cleanRegex(pattern.source)})?$`) : void 0;
+    const pattern2 = zod.def.innerType._zod.pattern;
+    return pattern2 ? new RegExp(`^(${cleanRegex(pattern2.source)})?$`) : void 0;
   });
   inst._zod.parse = (payload, ctx) => {
     if (payload.value === void 0) {
@@ -4596,8 +5602,8 @@ var $ZodNullable = /* @__PURE__ */ $constructor("$ZodNullable", (inst, def) => {
   defineLazyInternal(inst, "optin", (zod) => zod.def.innerType._zod.optin);
   defineLazyInternal(inst, "optout", (zod) => zod.def.innerType._zod.optout);
   defineLazyInternal(inst, "pattern", (zod) => {
-    const pattern = zod.def.innerType._zod.pattern;
-    return pattern ? new RegExp(`^(${cleanRegex(pattern.source)}|null)$`) : void 0;
+    const pattern2 = zod.def.innerType._zod.pattern;
+    return pattern2 ? new RegExp(`^(${cleanRegex(pattern2.source)}|null)$`) : void 0;
   });
   defineLazyInternal(inst, "values", (zod) => {
     return zod.def.innerType._zod.values ? /* @__PURE__ */ new Set([...zod.def.innerType._zod.values, null]) : void 0;
@@ -4842,14 +5848,14 @@ function handleReadonlyResult(payload) {
 }
 function leafPattern(schema) {
   const def = schema._zod.def;
-  let pattern = def.pattern;
+  let pattern2 = def.pattern;
   let isInt = !!def.format?.includes("int");
   let minimum;
   let maximum;
   for (const ch of def.checks ?? []) {
     const d = ch._zod.def;
     if (d.pattern)
-      pattern = d.pattern;
+      pattern2 = d.pattern;
     isInt || (isInt = !!d.format?.includes("int"));
     const lo = d.minimum ?? d.length;
     const hi = d.maximum ?? d.length;
@@ -4858,8 +5864,8 @@ function leafPattern(schema) {
     if (hi !== void 0 && (maximum === void 0 || hi < maximum))
       maximum = hi;
   }
-  if (pattern)
-    return pattern.source;
+  if (pattern2)
+    return pattern2.source;
   if (minimum !== void 0 && maximum !== void 0 && minimum > maximum)
     return "(?!)";
   if (minimum !== void 0 || maximum !== void 0)
@@ -5061,7 +6067,7 @@ function handleRefineResult(result, payload, input2, inst) {
   }
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/memoizer.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/memoizer.js
 var $ZodCyclicError = class extends Error {
   constructor() {
     super(`Cannot parse a reference cycle that closes through a transform`);
@@ -5080,7 +6086,7 @@ var recursive = /* @__PURE__ */ new WeakMap();
 var NONE = 0;
 var ASSUMED = 1;
 var PROVEN = 2;
-function isRecursive(inst, stack, resolve) {
+function isRecursive(inst, stack, resolve2) {
   const cached2 = recursive.get(inst);
   if (cached2 !== void 0)
     return cached2 ? PROVEN : NONE;
@@ -5090,7 +6096,7 @@ function isRecursive(inst, stack, resolve) {
   let result = NONE;
   const check2 = (child) => {
     if (result !== PROVEN && child?._zod) {
-      const answer = isRecursive(child, stack, resolve);
+      const answer = isRecursive(child, stack, resolve2);
       if (answer > result)
         result = answer;
     }
@@ -5101,13 +6107,13 @@ function isRecursive(inst, stack, resolve) {
       const desc = Object.getOwnPropertyDescriptor(sh, key);
       if (spread && !desc.enumerable)
         continue;
-      const child = desc.get ? ASSUMED : desc.value?._zod ? isRecursive(desc.value, stack, resolve) : NONE;
+      const child = desc.get ? ASSUMED : desc.value?._zod ? isRecursive(desc.value, stack, resolve2) : NONE;
       if (child > answer)
         answer = child;
     }
     return answer;
   };
-  const merge2 = (answer) => {
+  const merge3 = (answer) => {
     if (answer > result)
       result = answer;
   };
@@ -5116,7 +6122,7 @@ function isRecursive(inst, stack, resolve) {
   switch (kind) {
     case "object": {
       const raw = rawShape(def);
-      merge2(raw ? shape(raw, true) : ASSUMED);
+      merge3(raw ? shape(raw, true) : ASSUMED);
       check2(def.catchall);
       break;
     }
@@ -5165,8 +6171,8 @@ function isRecursive(inst, stack, resolve) {
       break;
     // `$ZodLazy` caches its inner on the def, so a resolved edge is followed exactly
     case "lazy": {
-      const inner = def._cachedInner ?? (resolve ? inst._zod.innerType : void 0);
-      merge2(inner ? isRecursive(inner, stack, false) : ASSUMED);
+      const inner = def._cachedInner ?? (resolve2 ? inst._zod.innerType : void 0);
+      merge3(inner ? isRecursive(inner, stack, false) : ASSUMED);
       break;
     }
     // a leaf by choice: `parts` are regex fragments, not data positions
@@ -5338,7 +6344,7 @@ function isBackEdge(ctx, value) {
   return backEdges !== void 0 && isRef(value) && backEdges.has(value);
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/index.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/index.js
 var locales_exports = {};
 __export(locales_exports, {
   ar: () => ar_default,
@@ -5406,7 +6412,7 @@ __export(locales_exports, {
   zhTW: () => zh_TW_default
 });
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ar.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ar.js
 var error = () => {
   const Sizable = {
     string: { unit: "\u062D\u0631\u0641", verb: "\u0623\u0646 \u064A\u062D\u0648\u064A" },
@@ -5518,7 +6524,7 @@ function ar_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/az.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/az.js
 var error2 = () => {
   const Sizable = {
     string: { unit: "simvol", verb: "olmal\u0131d\u0131r" },
@@ -5629,7 +6635,7 @@ function az_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/be.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/be.js
 function getBelarusianPlural(count, one, few, many) {
   const absCount = Math.abs(count);
   const lastDigit = absCount % 10;
@@ -5798,7 +6804,7 @@ function be_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/bg.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/bg.js
 var error4 = () => {
   const Sizable = {
     string: { unit: "\u0441\u0438\u043C\u0432\u043E\u043B\u0430", verb: "\u0434\u0430 \u0441\u044A\u0434\u044A\u0440\u0436\u0430" },
@@ -5924,7 +6930,7 @@ function bg_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/bn.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/bn.js
 var error5 = () => {
   const Sizable = {
     string: { unit: "\u0985\u0995\u09CD\u09B7\u09B0", verb: "\u09A5\u09BE\u0995\u09A4\u09C7 \u09B9\u09AC\u09C7" },
@@ -6038,7 +7044,7 @@ function bn_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ca.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ca.js
 var error6 = () => {
   const Sizable = {
     string: { unit: "car\xE0cters", verb: "contenir" },
@@ -6152,7 +7158,7 @@ function ca_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ckb.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ckb.js
 var error7 = () => {
   const Sizable = {
     string: { unit: "\u067E\u06CC\u062A", verb: "\u0628\u06CE\u062A" },
@@ -6285,7 +7291,7 @@ function ckb_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/cs.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/cs.js
 var error8 = () => {
   const Sizable = {
     string: { unit: "znak\u016F", verb: "m\xEDt" },
@@ -6402,7 +7408,7 @@ function cs_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/da.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/da.js
 var error9 = () => {
   const Sizable = {
     string: { unit: "tegn", verb: "havde" },
@@ -6523,7 +7529,7 @@ function da_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/de.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/de.js
 var error10 = () => {
   const Sizable = {
     string: { unit: "Zeichen", verb: "zu haben" },
@@ -6637,7 +7643,7 @@ function de_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/el.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/el.js
 var error11 = () => {
   const Sizable = {
     string: { unit: "\u03C7\u03B1\u03C1\u03B1\u03BA\u03C4\u03AE\u03C1\u03B5\u03C2", verb: "\u03BD\u03B1 \u03AD\u03C7\u03B5\u03B9" },
@@ -6750,7 +7756,7 @@ function el_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/en.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/en.js
 var error12 = () => {
   const Sizable = {
     string: { unit: "characters", verb: "to have" },
@@ -6875,7 +7881,7 @@ function en_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/eo.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/eo.js
 var error13 = () => {
   const Sizable = {
     string: { unit: "karaktrojn", verb: "havi" },
@@ -6990,7 +7996,7 @@ function eo_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/es.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/es.js
 var error14 = () => {
   const Sizable = {
     string: { unit: "caracteres", verb: "tener" },
@@ -7127,7 +8133,7 @@ function es_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/fa.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/fa.js
 var error15 = () => {
   const Sizable = {
     string: { unit: "\u06A9\u0627\u0631\u0627\u06A9\u062A\u0631", verb: "\u062F\u0627\u0634\u062A\u0647 \u0628\u0627\u0634\u062F" },
@@ -7247,7 +8253,7 @@ function fa_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/fi.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/fi.js
 var error16 = () => {
   const Sizable = {
     string: { unit: "merkki\xE4", subject: "merkkijonon" },
@@ -7365,7 +8371,7 @@ function fi_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/fr.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/fr.js
 var error17 = () => {
   const Sizable = {
     string: { unit: "caract\xE8res", verb: "avoir" },
@@ -7495,7 +8501,7 @@ function fr_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/fr-CA.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/fr-CA.js
 var error18 = () => {
   const Sizable = {
     string: { unit: "caract\xE8res", verb: "avoir" },
@@ -7608,7 +8614,7 @@ function fr_CA_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/gu.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/gu.js
 var error19 = () => {
   const Sizable = {
     string: { unit: "\u0A85\u0A95\u0ACD\u0AB7\u0AB0", verb: "\u0AB9\u0ACB\u0AB5\u0ABE \u0A9C\u0ACB\u0A88\u0A8F" },
@@ -7722,7 +8728,7 @@ function gu_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/he.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/he.js
 var error20 = () => {
   const TypeNames = {
     string: { label: "\u05DE\u05D7\u05E8\u05D5\u05D6\u05EA", gender: "f" },
@@ -7924,7 +8930,7 @@ function he_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/hi.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/hi.js
 var error21 = () => {
   const Sizable = {
     string: { unit: "\u0905\u0915\u094D\u0937\u0930", verb: "\u0930\u0916\u0928\u0947 \u0915\u0947 \u0932\u093F\u090F" },
@@ -8036,7 +9042,7 @@ function hi_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/hr.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/hr.js
 var error22 = () => {
   const Sizable = {
     string: { unit: "znakova", verb: "imati" },
@@ -8163,7 +9169,7 @@ function hr_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/hu.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/hu.js
 var error23 = () => {
   const Sizable = {
     string: { unit: "karakter", verb: "legyen" },
@@ -8277,7 +9283,7 @@ function hu_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/hy.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/hy.js
 function getArmenianPlural(count, one, many) {
   return Math.abs(count) === 1 ? one : many;
 }
@@ -8436,7 +9442,7 @@ function hy_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/id.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/id.js
 var error25 = () => {
   const Sizable = {
     string: { unit: "karakter", verb: "memiliki" },
@@ -8548,7 +9554,7 @@ function id_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/is.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/is.js
 var error26 = () => {
   const Sizable = {
     string: { unit: "stafi", verb: "a\xF0 hafa" },
@@ -8663,7 +9669,7 @@ function is_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/it.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/it.js
 var error27 = () => {
   const Sizable = {
     string: { unit: "caratteri", verb: "avere" },
@@ -8777,7 +9783,7 @@ function it_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ja.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ja.js
 var error28 = () => {
   const Sizable = {
     string: { unit: "\u6587\u5B57", verb: "\u3067\u3042\u308B" },
@@ -8890,7 +9896,7 @@ function ja_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ka.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ka.js
 var error29 = () => {
   const Sizable = {
     string: { unit: "\u10E1\u10D8\u10DB\u10D1\u10DD\u10DA\u10DD", verb: "\u10E3\u10DC\u10D3\u10D0 \u10E8\u10D4\u10D8\u10EA\u10D0\u10D5\u10D3\u10D4\u10E1" },
@@ -9008,7 +10014,7 @@ function ka_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/km.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/km.js
 var error30 = () => {
   const Sizable = {
     string: { unit: "\u178F\u17BD\u17A2\u1780\u17D2\u179F\u179A", verb: "\u1782\u17BD\u179A\u1798\u17B6\u1793" },
@@ -9124,12 +10130,12 @@ function km_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/kh.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/kh.js
 function kh_default() {
   return km_default();
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/kn.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/kn.js
 var error31 = () => {
   const Sizable = {
     string: { unit: "\u0C85\u0C95\u0CCD\u0CB7\u0CB0\u0C97\u0CB3\u0CC1", verb: "\u0CB9\u0CCA\u0C82\u0CA6\u0CB2\u0CC1" },
@@ -9245,7 +10251,7 @@ function kn_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ko.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ko.js
 var error32 = () => {
   const Sizable = {
     string: { unit: "\uBB38\uC790", verb: "to have" },
@@ -9362,7 +10368,7 @@ function ko_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/lt.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/lt.js
 var capitalizeFirstCharacter = (text2) => {
   return text2.charAt(0).toUpperCase() + text2.slice(1);
 };
@@ -9570,7 +10576,7 @@ function lt_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/mk.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/mk.js
 var error34 = () => {
   const Sizable = {
     string: { unit: "\u0437\u043D\u0430\u0446\u0438", verb: "\u0434\u0430 \u0438\u043C\u0430\u0430\u0442" },
@@ -9685,7 +10691,7 @@ function mk_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ms.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ms.js
 var error35 = () => {
   const Sizable = {
     string: { unit: "aksara", verb: "mempunyai" },
@@ -9798,7 +10804,7 @@ function ms_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ne.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ne.js
 var error36 = () => {
   const Sizable = {
     string: { unit: "\u0905\u0915\u094D\u0937\u0930", verb: "\u0939\u0941\u0928\u0941\u092A\u0930\u094D\u091B" },
@@ -9910,7 +10916,7 @@ function ne_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/nl.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/nl.js
 var error37 = () => {
   const Sizable = {
     string: { unit: "tekens", verb: "heeft" },
@@ -10026,7 +11032,7 @@ function nl_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/nn.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/nn.js
 var error38 = () => {
   const Sizable = {
     string: { unit: "teikn", verb: "\xE5 ha" },
@@ -10140,7 +11146,7 @@ function nn_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/no.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/no.js
 var error39 = () => {
   const Sizable = {
     string: { unit: "tegn", verb: "\xE5 ha" },
@@ -10254,7 +11260,7 @@ function no_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ota.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ota.js
 var error40 = () => {
   const Sizable = {
     string: { unit: "harf", verb: "olmal\u0131d\u0131r" },
@@ -10369,7 +11375,7 @@ function ota_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ps.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ps.js
 var error41 = () => {
   const Sizable = {
     string: { unit: "\u062A\u0648\u06A9\u064A", verb: "\u0648\u0644\u0631\u064A" },
@@ -10489,7 +11495,7 @@ function ps_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/pl.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/pl.js
 var error42 = () => {
   const Sizable = {
     string: { unit: "znak\xF3w", verb: "mie\u0107" },
@@ -10604,7 +11610,7 @@ function pl_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/pt.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/pt.js
 var error43 = () => {
   const Sizable = {
     string: { unit: "caracteres" },
@@ -10748,7 +11754,7 @@ function pt_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/pt-BR.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/pt-BR.js
 var error44 = () => {
   const Sizable = {
     string: { unit: "caracteres" },
@@ -10893,7 +11899,7 @@ function pt_BR_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ro.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ro.js
 var error45 = () => {
   const Sizable = {
     string: { unit: "caractere", verb: "s\u0103 aib\u0103" },
@@ -11016,7 +12022,7 @@ function ro_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ru.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ru.js
 function getRussianPlural(count, one, few, many) {
   const absCount = Math.abs(count);
   const lastDigit = absCount % 10;
@@ -11185,7 +12191,7 @@ function ru_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/sk.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/sk.js
 var error47 = () => {
   const Sizable = {
     string: { unit: "znakov", verb: "ma\u0165" },
@@ -11302,7 +12308,7 @@ function sk_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/sl.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/sl.js
 var error48 = () => {
   const Sizable = {
     string: { unit: "znakov", verb: "imeti" },
@@ -11417,7 +12423,7 @@ function sl_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/sv.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/sv.js
 var error49 = () => {
   const Sizable = {
     string: { unit: "tecken", verb: "att ha" },
@@ -11533,7 +12539,7 @@ function sv_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ta.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ta.js
 var error50 = () => {
   const Sizable = {
     string: { unit: "\u0B8E\u0BB4\u0BC1\u0BA4\u0BCD\u0BA4\u0BC1\u0B95\u0BCD\u0B95\u0BB3\u0BCD", verb: "\u0B95\u0BCA\u0BA3\u0BCD\u0B9F\u0BBF\u0BB0\u0BC1\u0B95\u0BCD\u0B95 \u0BB5\u0BC7\u0BA3\u0BCD\u0B9F\u0BC1\u0BAE\u0BCD" },
@@ -11649,7 +12655,7 @@ function ta_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/tg.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/tg.js
 var error51 = () => {
   const Sizable = {
     string: { unit: "\u0430\u043B\u043E\u043C\u0430\u0442", verb: "\u0434\u043E\u0448\u0442\u0430 \u0431\u043E\u0448\u0430\u0434" },
@@ -11766,7 +12772,7 @@ function tg_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/th.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/th.js
 var error52 = () => {
   const Sizable = {
     string: { unit: "\u0E15\u0E31\u0E27\u0E2D\u0E31\u0E01\u0E29\u0E23", verb: "\u0E04\u0E27\u0E23\u0E21\u0E35" },
@@ -11882,7 +12888,7 @@ function th_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/tk.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/tk.js
 var error53 = () => {
   const Sizable = {
     string: { unit: "simwol", verb: "bolmaly" },
@@ -11990,7 +12996,7 @@ function tk_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/tr.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/tr.js
 var error54 = () => {
   const Sizable = {
     string: { unit: "karakter", verb: "olmal\u0131" },
@@ -12101,7 +13107,7 @@ function tr_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/uk.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/uk.js
 var error55 = () => {
   const Sizable = {
     string: { unit: "\u0441\u0438\u043C\u0432\u043E\u043B\u0456\u0432", verb: "\u043C\u0430\u0442\u0438\u043C\u0435" },
@@ -12215,12 +13221,12 @@ function uk_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ua.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ua.js
 function ua_default() {
   return uk_default();
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ur.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ur.js
 var error56 = () => {
   const Sizable = {
     string: { unit: "\u062D\u0631\u0648\u0641", verb: "\u06C1\u0648\u0646\u0627" },
@@ -12336,7 +13342,7 @@ function ur_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/uz.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/uz.js
 var error57 = () => {
   const Sizable = {
     string: { unit: "belgi", verb: "bo\u2018lishi kerak" },
@@ -12450,7 +13456,7 @@ function uz_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/vi.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/vi.js
 var error58 = () => {
   const Sizable = {
     string: { unit: "k\xFD t\u1EF1", verb: "c\xF3" },
@@ -12564,7 +13570,7 @@ function vi_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/zh-CN.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/zh-CN.js
 var error59 = () => {
   const Sizable = {
     string: { unit: "\u5B57\u7B26", verb: "\u5305\u542B" },
@@ -12679,7 +13685,7 @@ function zh_CN_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/zh-TW.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/zh-TW.js
 var error60 = () => {
   const Sizable = {
     string: { unit: "\u5B57\u5143", verb: "\u64C1\u6709" },
@@ -12792,7 +13798,7 @@ function zh_TW_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/yo.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/yo.js
 var error61 = () => {
   const Sizable = {
     string: { unit: "\xE0mi", verb: "n\xED" },
@@ -12905,7 +13911,7 @@ function yo_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/registries.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/registries.js
 var _a2;
 var $output = /* @__PURE__ */ Symbol("ZodOutput");
 var $input = /* @__PURE__ */ Symbol("ZodInput");
@@ -12955,7 +13961,7 @@ function registry() {
 (_a2 = globalThis).__zod_globalRegistry ?? (_a2.__zod_globalRegistry = registry());
 var globalRegistry = globalThis.__zod_globalRegistry;
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/compile.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/compile.js
 var INVALID = /* @__PURE__ */ Symbol.for("zod.compile.invalid");
 var FALLBACK_FLAG = /* @__PURE__ */ Symbol.for("zod.compile.fallback");
 var ZodCompileAsyncError = class extends Error {
@@ -12981,9 +13987,9 @@ function compileValidator(schema, parser) {
 function compile(schema, options) {
   try {
     const parser = compileFn(schema);
-    const clone2 = withParser(schema, parser);
-    clone2._zod.bag.validator = compileValidator(schema, parser);
-    return clone2;
+    const clone3 = withParser(schema, parser);
+    clone3._zod.bag.validator = compileValidator(schema, parser);
+    return clone3;
   } catch (err) {
     if (options?.strict)
       throw err;
@@ -12994,7 +14000,7 @@ function withParser(schema, parser) {
   if (isRecursiveSchema(schema)) {
     throw new ZodCompileUnsupportedError("a schema whose subtree contains a reference cycle");
   }
-  const clone2 = clone(schema);
+  const clone3 = clone2(schema);
   const liveRun = schema._zod.run;
   const originalRun = liveRun.__originalRun ?? liveRun;
   const wrapped = (payload, ctx) => {
@@ -13014,12 +14020,12 @@ function withParser(schema, parser) {
     return originalRun(payload, ctx);
   };
   wrapped.__originalRun = originalRun;
-  clone2._zod.bag.fallbackRun = originalRun;
-  clone2._zod.bag.validator = parser;
-  clone2._zod.run = wrapped;
+  clone3._zod.bag.fallbackRun = originalRun;
+  clone3._zod.bag.validator = parser;
+  clone3._zod.run = wrapped;
   if (!liveRun.__originalRun)
-    installCompiledUserMethods(clone2, schema, parser);
-  return clone2;
+    installCompiledUserMethods(clone3, schema, parser);
+  return clone3;
 }
 function installCompiledUserMethods(target, source, parser) {
   const targetAny = target;
@@ -14298,7 +15304,7 @@ function generateIntersectionCheck(doc, ctx, schema, accessor) {
 }
 function generateRecordCheck(doc, ctx, schema, accessor) {
   const def = schema._zod.def;
-  const isPlainObjectConst = addConstant(ctx, isPlainObject);
+  const isPlainObjectConst = addConstant(ctx, isPlainObject2);
   doc.write(`if (!${isPlainObjectConst}(${accessor})) return INVALID;`);
   const outputVar = newVar(ctx);
   const kVar = newVar(ctx);
@@ -14438,9 +15444,9 @@ function generateFileCheck(doc, accessor) {
 }
 function generateTemplateLiteralCheck(doc, ctx, schema, accessor) {
   doc.write(`if (typeof ${accessor} !== "string") return INVALID;`);
-  const pattern = schema._zod.pattern;
-  if (pattern) {
-    const patternConst = addConstant(ctx, pattern);
+  const pattern2 = schema._zod.pattern;
+  if (pattern2) {
+    const patternConst = addConstant(ctx, pattern2);
     doc.write(`${patternConst}.lastIndex = 0;`);
     doc.write(`if (!${patternConst}.test(${accessor})) return INVALID;`);
   }
@@ -14565,7 +15571,7 @@ function generateTransformCheck(doc, ctx, schema, accessor) {
   return accessor;
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/api.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/api.js
 function snapshotChecks(def) {
   if (def.checks)
     def.checks = [...def.checks];
@@ -15166,12 +16172,12 @@ function _length(length, params) {
   });
 }
 // @__NO_SIDE_EFFECTS__
-function _regex(pattern, params) {
+function _regex(pattern2, params) {
   return new $ZodCheckRegex({
     check: "string_format",
     format: "regex",
     ...normalizeParams(params),
-    pattern
+    pattern: pattern2
   });
 }
 // @__NO_SIDE_EFFECTS__
@@ -15218,10 +16224,10 @@ function _endsWith(suffix, params) {
   });
 }
 // @__NO_SIDE_EFFECTS__
-function _property(property, schema, params) {
+function _property(property2, schema, params) {
   return new $ZodCheckProperty({
     check: "property",
-    property,
+    property: property2,
     schema,
     ...normalizeParams(params)
   });
@@ -15624,7 +16630,7 @@ function _stringFormat(Class2, format, fnOrRegex, _params = {}) {
   return inst;
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/to-json-schema.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/to-json-schema.js
 function assignProps(target, ...sources) {
   for (const source of sources) {
     for (const key of Reflect.ownKeys(source)) {
@@ -15847,10 +16853,10 @@ function compactTypeUnion(schema) {
 var FOLDABLE_KEYS = /* @__PURE__ */ new Set(["type", "properties", "required", "additionalProperties"]);
 var UNION_KEYS = ["oneOf", "anyOf"];
 function undeclaredConstraint(member) {
-  const extra = member.additionalProperties;
-  if (extra === void 0 || extra === false || typeof extra !== "object" || extra === null)
+  const extra2 = member.additionalProperties;
+  if (extra2 === void 0 || extra2 === false || typeof extra2 !== "object" || extra2 === null)
     return null;
-  return Object.keys(extra).length ? extra : null;
+  return Object.keys(extra2).length ? extra2 : null;
 }
 function foldObjects(members2) {
   const objects = [];
@@ -16154,7 +17160,7 @@ var createStandardJSONSchemaMethod = (schema, io, processors = {}) => (params) =
   return finalize(ctx, schema);
 };
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/json-schema-processors.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/json-schema-processors.js
 var narrowMin = (agg, key, value) => {
   if (agg[key] === void 0 || value > agg[key])
     agg[key] = value;
@@ -16172,9 +17178,9 @@ var addDivisor = (agg, value) => {
   if (!agg.multipleOf.includes(value))
     agg.multipleOf.push(value);
 };
-var addPattern = (agg, pattern) => {
+var addPattern = (agg, pattern2) => {
   agg.patterns ?? (agg.patterns = /* @__PURE__ */ new Set());
-  agg.patterns.add(pattern);
+  agg.patterns.add(pattern2);
 };
 var intersectMime = (agg, mime) => {
   agg.mime = agg.mime ? agg.mime.filter((m) => mime.includes(m)) : [...mime];
@@ -16239,8 +17245,8 @@ function aggregateChecks(schema) {
   }
   if (bag.mime)
     intersectMime(agg, bag.mime);
-  for (const pattern of bag.patterns ?? [])
-    addPattern(agg, pattern);
+  for (const pattern2 of bag.patterns ?? [])
+    addPattern(agg, pattern2);
   return agg;
 }
 var formatMap = {
@@ -16422,11 +17428,11 @@ var nanProcessor = (schema, ctx, json3, params) => {
 };
 var templateLiteralProcessor = (schema, _ctx, json3, _params) => {
   const _json = json3;
-  const pattern = schema._zod.pattern;
-  if (!pattern)
+  const pattern2 = schema._zod.pattern;
+  if (!pattern2)
     throw new Error("Pattern not found in template literal");
   _json.type = "string";
-  _json.pattern = pattern.source;
+  _json.pattern = pattern2.source;
 };
 var fileProcessor = (schema, _ctx, json3, _params) => {
   const _json = json3;
@@ -16697,8 +17703,8 @@ var recordProcessor = (schema, ctx, _json, params) => {
       path: [...params.path, "patternProperties", "*"]
     });
     json3.patternProperties = {};
-    for (const pattern of patterns) {
-      assignProp(json3.patternProperties, exactPattern(pattern).source, valueSchema);
+    for (const pattern2 of patterns) {
+      assignProp(json3.patternProperties, exactPattern(pattern2).source, valueSchema);
     }
   } else {
     if (ctx.target === "draft-07" || ctx.target === "draft-2020-12") {
@@ -16902,7 +17908,7 @@ function toJSONSchema(input2, params) {
   return finalize(ctx, input2);
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/json-schema-generator.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/json-schema-generator.js
 var JSONSchemaGenerator = class {
   /** @deprecated Access via ctx instead */
   get metadataRegistry() {
@@ -16980,10 +17986,10 @@ var JSONSchemaGenerator = class {
   }
 };
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/json-schema.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/json-schema.js
 var json_schema_exports = {};
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/schemas.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/schemas.js
 var schemas_exports2 = {};
 __export(schemas_exports2, {
   ZodAny: () => ZodAny,
@@ -17081,7 +18087,7 @@ __export(schemas_exports2, {
   cuid2: () => cuid22,
   currencyCode: () => currencyCode2,
   custom: () => custom,
-  date: () => date2,
+  date: () => date3,
   describe: () => describe2,
   discriminatedUnion: () => discriminatedUnion,
   e164: () => e1642,
@@ -17111,7 +18117,7 @@ __export(schemas_exports2, {
   jwt: () => jwt,
   keyof: () => keyof,
   ksuid: () => ksuid2,
-  lazy: () => lazy,
+  lazy: () => lazy2,
   literal: () => literal,
   looseObject: () => looseObject,
   looseRecord: () => looseRecord,
@@ -17137,7 +18143,7 @@ __export(schemas_exports2, {
   readonly: () => readonly,
   record: () => record,
   refine: () => refine,
-  set: () => set,
+  set: () => set2,
   strictObject: () => strictObject,
   string: () => string2,
   stringFormat: () => stringFormat,
@@ -17164,7 +18170,7 @@ __export(schemas_exports2, {
   xor: () => xor
 });
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/checks.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/checks.js
 var checks_exports2 = {};
 __export(checks_exports2, {
   endsWith: () => _endsWith,
@@ -17199,7 +18205,7 @@ __export(checks_exports2, {
   uppercase: () => _uppercase
 });
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/errors.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/errors.js
 var _installedErrorProtos = /* @__PURE__ */ new WeakSet([Object.prototype, Error.prototype]);
 function _lazyMethod(proto, key, make) {
   Object.defineProperty(proto, key, {
@@ -17245,7 +18251,7 @@ var ZodRealError = /* @__PURE__ */ $constructor("ZodError", initializer2, void 0
   Parent: Error
 });
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/parse.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/parse.js
 var parse2 = /* @__PURE__ */ _parse(ZodRealError);
 var parseAsync2 = /* @__PURE__ */ _parseAsync(ZodRealError);
 var safeParse2 = /* @__PURE__ */ _safeParse(ZodRealError);
@@ -17259,7 +18265,7 @@ var safeDecode2 = /* @__PURE__ */ _safeDecode(ZodRealError);
 var safeEncodeAsync2 = /* @__PURE__ */ _safeEncodeAsync(ZodRealError);
 var safeDecodeAsync2 = /* @__PURE__ */ _safeDecodeAsync(ZodRealError);
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/schemas.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/schemas.js
 function _ensureDefaultLocale() {
   if (!globalConfig.localeError)
     config(en_default());
@@ -17288,7 +18294,7 @@ var ZodType = /* @__PURE__ */ $constructor("ZodType", (inst, def) => {
     return this.check(...chks);
   },
   clone(def, params) {
-    return clone(this, def, params);
+    return clone2(this, def, params);
   },
   brand() {
     return this;
@@ -18038,7 +19044,7 @@ var ZodDate = /* @__PURE__ */ $constructor(
     }
   }, {})
 );
-function date2(params) {
+function date3(params) {
   return _date(ZodDate, params);
 }
 var ZodArray = /* @__PURE__ */ $constructor("ZodArray", (inst, def) => {
@@ -18301,7 +19307,7 @@ var ZodSet = /* @__PURE__ */ $constructor("ZodSet", (inst, def) => {
   inst.max = (...args) => inst.check(_maxSize(...args));
   inst.size = (...args) => inst.check(_size(...args));
 });
-function set(valueType, params) {
+function set2(valueType, params) {
   return new ZodSet({
     type: "set",
     valueType,
@@ -18622,7 +19628,7 @@ var ZodLazy = /* @__PURE__ */ $constructor("ZodLazy", (inst, def) => {
   inst._zod.processJSONSchema = (ctx, json3, params) => lazyProcessor(inst, ctx, json3, params);
   inst.unwrap = () => inst._zod.def.getter();
 });
-function lazy(getter) {
+function lazy2(getter) {
   return new ZodLazy({
     type: "lazy",
     getter
@@ -18711,7 +19717,7 @@ var stringbool = (...args) => _stringbool({
   String: ZodString
 }, ...args);
 function json(params) {
-  const jsonSchema = lazy(() => {
+  const jsonSchema = lazy2(() => {
     return union([string2(params), number2(), boolean2(), _null3(), array(jsonSchema), record(string2(), jsonSchema)]);
   });
   return jsonSchema;
@@ -18724,7 +19730,7 @@ function preprocess(fn, schema) {
   });
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/compat.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/compat.js
 var ZodIssueCode = {
   invalid_type: "invalid_type",
   too_big: "too_big",
@@ -18750,14 +19756,14 @@ var ZodFirstPartyTypeKind;
 /* @__PURE__ */ (function(ZodFirstPartyTypeKind2) {
 })(ZodFirstPartyTypeKind || (ZodFirstPartyTypeKind = {}));
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/iso.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/iso.js
 var iso_exports = {};
 __export(iso_exports, {
   ZodISODate: () => ZodISODate,
   ZodISODateTime: () => ZodISODateTime,
   ZodISODuration: () => ZodISODuration,
   ZodISOTime: () => ZodISOTime,
-  date: () => date3,
+  date: () => date4,
   datetime: () => datetime2,
   duration: () => duration2,
   time: () => time2
@@ -18765,7 +19771,7 @@ __export(iso_exports, {
 function datetime2(params) {
   return _isoDateTime(ZodISODateTime, params);
 }
-function date3(params) {
+function date4(params) {
   return _isoDate(ZodISODate, params);
 }
 function time2(params) {
@@ -18775,7 +19781,7 @@ function duration2(params) {
   return _isoDuration(ZodISODuration, params);
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/from-json-schema.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/from-json-schema.js
 var z = {
   ...schemas_exports2,
   ...checks_exports2,
@@ -19278,9 +20284,9 @@ function convertBaseSchema(schema, ctx) {
         const patternProps = schema.patternProperties;
         const patternKeys = Object.keys(patternProps);
         const looseRecords = [];
-        for (const pattern of patternKeys) {
-          const patternValue = convertSchema(patternProps[pattern], ctx);
-          const keySchema = z.string().regex(new RegExp(pattern));
+        for (const pattern2 of patternKeys) {
+          const patternValue = convertSchema(patternProps[pattern2], ctx);
+          const keySchema = z.string().regex(new RegExp(pattern2));
           looseRecords.push(z.looseRecord(keySchema, patternValue));
         }
         const schemasToIntersect = [];
@@ -19304,7 +20310,7 @@ function convertBaseSchema(schema, ctx) {
           const patterns = patternKeys.map((p) => new RegExp(p));
           const basePatternSchema = zodSchema;
           zodSchema = zodSchema.check((payload) => {
-            if (!isPlainObject(payload.value))
+            if (!isPlainObject2(payload.value))
               return;
             const unrecognized = [];
             for (const key of Object.keys(payload.value)) {
@@ -19508,7 +20514,7 @@ function fromJSONSchema(schema, params) {
   return convertSchema(normalized, ctx);
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/visit.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/visit.js
 var RESOLVING = /* @__PURE__ */ Symbol("z.visit/resolving");
 function visit(schema, fnOrHandlers) {
   const fn = typeof fnOrHandlers === "function" ? fnOrHandlers : (node2, rewritten) => {
@@ -19553,11 +20559,11 @@ function visit(schema, fnOrHandlers) {
           if (newCatchall !== def.catchall)
             changed = true;
         }
-        return changed ? clone(s, { ...def, shape: newShape, catchall: newCatchall }) : s;
+        return changed ? clone2(s, { ...def, shape: newShape, catchall: newCatchall }) : s;
       }
       case "array": {
         const mapped = run(def.element);
-        return mapped === def.element ? s : clone(s, { ...def, element: mapped });
+        return mapped === def.element ? s : clone2(s, { ...def, element: mapped });
       }
       case "tuple": {
         const oldItems = def.items;
@@ -19575,17 +20581,17 @@ function visit(schema, fnOrHandlers) {
           if (newRest !== def.rest)
             changed = true;
         }
-        return changed ? clone(s, { ...def, items: newItems, rest: newRest }) : s;
+        return changed ? clone2(s, { ...def, items: newItems, rest: newRest }) : s;
       }
       case "record":
       case "map": {
         const newKey = run(def.keyType);
         const newVal = run(def.valueType);
-        return newKey === def.keyType && newVal === def.valueType ? s : clone(s, { ...def, keyType: newKey, valueType: newVal });
+        return newKey === def.keyType && newVal === def.valueType ? s : clone2(s, { ...def, keyType: newKey, valueType: newVal });
       }
       case "set": {
         const newVal = run(def.valueType);
-        return newVal === def.valueType ? s : clone(s, { ...def, valueType: newVal });
+        return newVal === def.valueType ? s : clone2(s, { ...def, valueType: newVal });
       }
       case "union": {
         const oldOptions = def.options;
@@ -19597,12 +20603,12 @@ function visit(schema, fnOrHandlers) {
             changed = true;
           newOptions.push(mapped);
         }
-        return changed ? clone(s, { ...def, options: newOptions }) : s;
+        return changed ? clone2(s, { ...def, options: newOptions }) : s;
       }
       case "intersection": {
         const newLeft = run(def.left);
         const newRight = run(def.right);
-        return newLeft === def.left && newRight === def.right ? s : clone(s, { ...def, left: newLeft, right: newRight });
+        return newLeft === def.left && newRight === def.right ? s : clone2(s, { ...def, left: newLeft, right: newRight });
       }
       case "optional":
       case "nullable":
@@ -19614,22 +20620,22 @@ function visit(schema, fnOrHandlers) {
       case "promise":
       case "success": {
         const newInner = run(def.innerType);
-        return newInner === def.innerType ? s : clone(s, { ...def, innerType: newInner });
+        return newInner === def.innerType ? s : clone2(s, { ...def, innerType: newInner });
       }
       case "pipe": {
         const newIn = run(def.in);
         const newOut = run(def.out);
-        return newIn === def.in && newOut === def.out ? s : clone(s, { ...def, in: newIn, out: newOut });
+        return newIn === def.in && newOut === def.out ? s : clone2(s, { ...def, in: newIn, out: newOut });
       }
       case "function": {
         const newInput = run(def.input);
         const newOutput = run(def.output);
-        return newInput === def.input && newOutput === def.output ? s : clone(s, { ...def, input: newInput, output: newOutput });
+        return newInput === def.input && newOutput === def.output ? s : clone2(s, { ...def, input: newInput, output: newOutput });
       }
       case "lazy": {
         const original = def.getter;
         const { _cachedInner, ...rest } = def;
-        return clone(s, { ...rest, getter: () => run(original()) });
+        return clone2(s, { ...rest, getter: () => run(original()) });
       }
       // A leaf by choice: `parts` are regex fragments, not data positions.
       case "template_literal":
@@ -19663,7 +20669,7 @@ function visit(schema, fnOrHandlers) {
   return run(schema);
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/deep-partial.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/deep-partial.js
 function deepPartial(schema) {
   return visit(schema, {
     object: (s) => s.partial(),
@@ -19675,12 +20681,12 @@ function deepPartial(schema) {
   });
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/in-out.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/in-out.js
 function withChecks(side, checks) {
   if (!checks?.length)
     return side;
   const def = side._zod.def;
-  return clone(side, mergeDefs(def, { checks: [...def.checks ?? [], ...checks] }), { parent: true });
+  return clone2(side, mergeDefs(def, { checks: [...def.checks ?? [], ...checks] }), { parent: true });
 }
 function outSide(def) {
   return withChecks(def.out, def.checks);
@@ -19705,12 +20711,12 @@ function output(schema) {
   });
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/coerce.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/coerce.js
 var coerce_exports = {};
 __export(coerce_exports, {
   bigint: () => bigint3,
   boolean: () => boolean3,
-  date: () => date4,
+  date: () => date5,
   number: () => number3,
   string: () => string3
 });
@@ -19726,11 +20732,11 @@ function boolean3(params) {
 function bigint3(params) {
   return _coercedBigint(ZodBigInt, params);
 }
-function date4(params) {
+function date5(params) {
   return _coercedDate(ZodDate, params);
 }
 
-// src/eda-project/tcl.ts
+// apps/dsh/src/eda-project/tcl.ts
 function tclWord(value) {
   return `"${value.replace(/[\\"$\[\]]/g, (c) => `\\${c}`).replace(/\r/g, "\\r").replace(/\n/g, "\\n")}"`;
 }
@@ -19745,14 +20751,14 @@ function parseTcl(text2) {
   const commands = [];
   let words = [], start = -1, line = 1, commandLine = 1, brace = 0;
   const frames = [false];
-  const push = (end) => {
+  const push2 = (end) => {
     if (start >= 0) {
       words.push({ raw: text2.slice(start, end), start, end });
       start = -1;
     }
   };
   const finish = (at) => {
-    push(at);
+    push2(at);
     if (words.length) commands.push({ words, line: commandLine });
     words = [];
   };
@@ -19774,7 +20780,7 @@ function parseTcl(text2) {
     }
     if (!brace && frames.length === 1 && !frames[0] && /\s|;/.test(c)) {
       if (c === "\n" || c === ";") finish(i);
-      else push(i);
+      else push2(i);
       if (c === "\n") line++;
       continue;
     }
@@ -19847,7 +20853,7 @@ function applyParameters(content, values) {
   return { content: next, parameters: extractParameters(next), applied: Object.keys(values) };
 }
 
-// src/eda-project/toolbox-config.ts
+// apps/dsh/src/eda-project/toolbox-config.ts
 var FLOW_STAGES = ["full", "read_link", "synthesis", "drc_check", "pre_insertion", "scan_insertion", "mbist_insertion", "mbist_simulation"];
 var EXTENSION_STAGES = ["before_analyze", "after_link", "pre", "constraints", "before_compile", "post", "before_synthesis_export", "dft_insertion", "after_test_protocol", "after_pre_drc", "before_scan_insertion", "after_scan_insertion", "dft_verification", "before_scan_export", "mbist_insertion", "tessent_dofile"];
 var ARGUMENT_TARGETS = ["compile", "set_scan_configuration", "create_test_protocol", "report_timing", "preview_dft", "insert_dft"];
@@ -20060,7 +21066,7 @@ function validateToolbox(value, projectPeriod) {
   return c;
 }
 
-// src/eda-project/metric-catalog.ts
+// apps/dsh/src/eda-project/metric-catalog.ts
 var METRIC_CATALOG = [
   {
     "id": "test_coverage",
@@ -20680,7 +21686,7 @@ var FAULT_MODELS = [
   }
 ];
 
-// src/eda-project/project-types.ts
+// apps/dsh/src/eda-project/project-types.ts
 var EDA_STAGES = [.../* @__PURE__ */ new Set(["synthesis", "constraints", "dft", "timing", "pnr", "verification", "custom", ...EXTENSION_STAGES])];
 var EDA_KINDS = ["tcl", "sdc", "do", "sh"];
 function newEdaId(prefix) {
@@ -20721,7 +21727,7 @@ function defaultEdaProject(workspace) {
   };
 }
 
-// src/eda-project/project-store.ts
+// apps/dsh/src/eda-project/project-store.ts
 var EdaProjectStore = class _EdaProjectStore {
   file;
   constructor(dataDir) {
@@ -20729,7 +21735,7 @@ var EdaProjectStore = class _EdaProjectStore {
   }
   async load() {
     try {
-      const value = JSON.parse(await readFile(this.file, "utf8"));
+      const value = JSON.parse(await readFile2(this.file, "utf8"));
       if (![1, 2].includes(value.schemaVersion) || !Array.isArray(value.projects)) throw new Error("EDA \u9879\u76EE\u5B58\u50A8\u683C\u5F0F\u65E0\u6548\uFF1B\u539F\u6587\u4EF6\u672A\u88AB\u8986\u76D6\u3002");
       return { schemaVersion: 2, projects: value.projects.map(normalizeProject), bindings: value.bindings ?? {}, ignoredWorkspaces: value.ignoredWorkspaces ?? [] };
     } catch (error62) {
@@ -20738,7 +21744,7 @@ var EdaProjectStore = class _EdaProjectStore {
     }
   }
   async transaction(fn) {
-    await mkdir(path.dirname(this.file), { recursive: true });
+    await mkdir2(path.dirname(this.file), { recursive: true });
     return withFileLock(this.file, async () => {
       const doc = await this.load(), result = await fn(doc);
       await writeFileAtomic(this.file, JSON.stringify(doc, null, 2), { mode: 384 });
@@ -20782,7 +21788,7 @@ var EdaProjectStore = class _EdaProjectStore {
     if (!(await stat(root)).isDirectory()) throw new Error("\u9879\u76EE\u6E90\u7801\u8DEF\u5F84\u5FC5\u987B\u662F\u76EE\u5F55");
     const id = newEdaId("eda-project"), workspace = input2.workspace?.trim() || path.join(root, "work", id);
     if (!path.isAbsolute(workspace)) throw new Error("\u9879\u76EE\u5DE5\u4F5C\u76EE\u5F55\u5FC5\u987B\u662F\u7EDD\u5BF9\u8DEF\u5F84");
-    await mkdir(workspace, { recursive: true });
+    await mkdir2(workspace, { recursive: true });
     const now = (/* @__PURE__ */ new Date()).toISOString();
     const project = normalizeProject({ ...seed ?? defaultEdaProject(workspace), ...input2, root, workspace: await realpath(workspace), rtlRoot: input2.rtlRoot || root, name: input2.name.trim(), id, revision: 1, archived: false, createdAt: now, updatedAt: now });
     return this.transaction((doc) => {
@@ -20890,7 +21896,7 @@ function normalizeScript(value) {
   return { ...value, id: value.id || newEdaId("eda-script"), name: value.name.trim(), content: value.content ?? "", enabled: value.enabled !== false, sourceMode: value.sourceMode ?? "inline", usage: value.usage ?? (["synthesis", "dft", "timing", "pnr", "verification"].includes(value.stage) ? "driver" : "extension"), sortOrder: value.sortOrder ?? 0, createdAt: value.createdAt || (/* @__PURE__ */ new Date()).toISOString(), updatedAt: value.updatedAt || (/* @__PURE__ */ new Date()).toISOString() };
 }
 
-// src/eda-project/synthesis-render.ts
+// apps/dsh/src/eda-project/synthesis-render.ts
 function dcSetup(p) {
   const s = p.toolbox.synthesis;
   return [
@@ -20911,8 +21917,8 @@ function dcEnvironment(p) {
   lines2.push(`set timing_enable_multiple_clocks_per_reg ${s.multiple_clocks_per_reg}`);
   if (s.fix_hold) lines2.push("set_fix_hold [all_clocks]");
   if (s.path_groups) lines2.push(`set eda_clock_ports [get_ports -quiet ${tclList(clocks.length ? clocks : [p.design.clock])}]`, "group_path -name REGOUT -to [all_outputs]", "group_path -name REGIN -from [remove_from_collection [all_inputs] $eda_clock_ports]", "group_path -name FEEDTHROUGH -from [remove_from_collection [all_inputs] $eda_clock_ports] -to [all_outputs]");
-  for (const pattern of s.dont_use) lines2.push(`set eda_cells [get_lib_cells -quiet ${tclWord(pattern)}]`, `if {[sizeof_collection $eda_cells] == 0} {error ${tclWord(`dont_use pattern did not match: ${pattern}`)}}`, "set_dont_use $eda_cells");
-  for (const pattern of s.dont_touch) lines2.push(`set eda_cells [get_cells -quiet -hierarchical ${tclWord(pattern)}]`, `if {[sizeof_collection $eda_cells] == 0} {error ${tclWord(`dont_touch pattern did not match: ${pattern}`)}}`, "set_dont_touch $eda_cells");
+  for (const pattern2 of s.dont_use) lines2.push(`set eda_cells [get_lib_cells -quiet ${tclWord(pattern2)}]`, `if {[sizeof_collection $eda_cells] == 0} {error ${tclWord(`dont_use pattern did not match: ${pattern2}`)}}`, "set_dont_use $eda_cells");
+  for (const pattern2 of s.dont_touch) lines2.push(`set eda_cells [get_cells -quiet -hierarchical ${tclWord(pattern2)}]`, `if {[sizeof_collection $eda_cells] == 0} {error ${tclWord(`dont_touch pattern did not match: ${pattern2}`)}}`, "set_dont_touch $eda_cells");
   if (s.fix_multiple_port_nets !== "none") lines2.push(`set_fix_multiple_port_nets -all -${s.fix_multiple_port_nets}`);
   if (s.gate_clock) {
     const c = s.clock_gating;
@@ -20962,7 +21968,7 @@ function timingReportCommand(p) {
   return `report_timing -max_paths ${p.toolbox.generation.timing_report_max_paths} -nworst ${r.nworst}${r.nets ? " -nets" : ""}${r.input_pins ? " -input_pins" : ""}${r.transition_time ? " -transition_time" : ""}${r.capacitance ? " -capacitance" : ""}`;
 }
 
-// src/eda-project/generator.ts
+// apps/dsh/src/eda-project/generator.ts
 function shellWord(value) {
   return `'${value.replace(/'/g, `'"'"'`)}'`;
 }
@@ -21173,7 +22179,7 @@ function renderTiming(project, inputs, scan) {
   return ["file mkdir reports", `set search_path [concat $search_path ${tclList(inputs.includes)}]`, `set link_path [concat [list *] ${tclList([...inputs.libraries, ...inputs.linkLibraries])}]`, `read_verilog ${dir}/netlist.v`, `link_design ${tclWord(project.design.top)}`, `read_sdc ${dir}/constraints.sdc`, "check_timing -verbose > reports/check_timing.rpt", `report_timing -delay_type max -max_paths ${project.toolbox.generation.timing_report_max_paths} > reports/sta_setup.rpt`, "report_timing -delay_type min -max_paths 5 > reports/sta_hold.rpt", "report_constraint -all_violators > reports/sta_constraints.rpt", "report_power > reports/sta_power.rpt", "exit", ""].join("\n");
 }
 
-// src/eda-project/project-scripts.ts
+// apps/dsh/src/eda-project/project-scripts.ts
 function generateEdaScript(project, stage) {
   if (stage === "constraints") return { kind: "sdc", content: timingSdc(project) };
   const absolute = (root, file2) => file2.startsWith("/") ? file2 : `${root}/${file2}`;
@@ -21226,20 +22232,18 @@ function workflowTaskBrief(project) {
   ].join("\n");
 }
 
-// src/eda-project/service.ts
-import { mkdir as mkdir4, readFile as readFile4, realpath as realpath3 } from "node:fs/promises";
+// apps/dsh/src/eda-project/service.ts
+import { mkdir as mkdir5, readFile as readFile5, realpath as realpath3 } from "node:fs/promises";
 import path5 from "node:path";
-import { createHash as createHash2 } from "node:crypto";
-import { writeFileAtomic as writeFileAtomic4 } from "@deepseek-ai/dsh-atomic-write";
+import { createHash as createHash3 } from "node:crypto";
 
-// src/eda-project/bundle.ts
-import { createHash, randomUUID } from "node:crypto";
+// apps/dsh/src/eda-project/bundle.ts
+import { createHash as createHash2, randomUUID } from "node:crypto";
 import { createReadStream } from "node:fs";
-import { copyFile, lstat, mkdir as mkdir2, readFile as readFile2, readdir, realpath as realpath2, rm, stat as stat2 } from "node:fs/promises";
+import { copyFile, lstat as lstat2, mkdir as mkdir3, readFile as readFile3, readdir, realpath as realpath2, rm as rm2, stat as stat2 } from "node:fs/promises";
 import path2 from "node:path";
-import { withFileLock as withFileLock2, writeFileAtomic as writeFileAtomic2 } from "@deepseek-ai/dsh-atomic-write";
 
-// src/eda-project/backend-generator.ts
+// apps/dsh/src/eda-project/backend-generator.ts
 var join = (...parts) => `[file join $root ${parts.map(tclWord).join(" ")}]`;
 var lines = (...rows) => rows.flatMap((row) => row ?? []).filter(Boolean).join("\n") + "\n";
 function checkpoint(name2, top) {
@@ -21253,10 +22257,10 @@ function renderBackend(project, input2) {
   if (c.power_grid.enabled && (!c.power_grid.vertical_layer || !c.power_grid.horizontal_layer || c.power_grid.vertical_width === null || c.power_grid.horizontal_width === null || c.power_grid.spacing === null || c.power_grid.set_distance === null)) throw new Error("\u542F\u7528 PG Stripe \u540E\u9700\u8981\u586B\u5199\u65B9\u5411\u91D1\u5C5E\u5C42\u3001\u7EBF\u5BBD\u3001\u95F4\u8DDD\u548C\u91CD\u590D\u8DDD\u79BB");
   const top = c.top_cell, header = (stage) => [`# ${comment(project.name)} \xB7 Innovus ${stage}`, `set root [file dirname [file normalize [info script]]]`, `set saveDir [file join $root save]`, `set reportDir [file join $root reports ${stage}]`, "file mkdir $saveDir $reportDir", `setMultiCpuUsage -localCpu ${c.cpu_count} -cpuAutoAdjust true`];
   const result = [];
-  const add = (name2, role, body2) => {
+  const add = (name2, role2, body2) => {
     const content = lines(header(name2), body2);
     parseTcl(content);
-    result.push({ destination: `backend/${name2}.tcl`, content, role });
+    result.push({ destination: `backend/${name2}.tcl`, content, role: role2 });
   };
   const globals = [
     `set init_lef_file ${tclList([input2.techLef, ...input2.cellLefs])}`,
@@ -21374,9 +22378,9 @@ function renderBackend(project, input2) {
   return result;
 }
 
-// src/eda-project/bundle.ts
+// apps/dsh/src/eda-project/bundle.ts
 async function fileHash(file2) {
-  const hash2 = createHash("sha256");
+  const hash2 = createHash2("sha256");
   for await (const bytes of createReadStream(file2)) hash2.update(bytes);
   return hash2.digest("hex");
 }
@@ -21391,7 +22395,7 @@ function inside(root, file2) {
 async function readScript(file2) {
   const info = await stat2(file2);
   if (!info.isFile() || info.size > 4 * 1024 * 1024) throw new Error(`\u811A\u672C\u4E0D\u662F\u666E\u901A\u6587\u4EF6\u6216\u8D85\u8FC7 4 MiB\uFF1A${file2}`);
-  return readFile2(file2, "utf8");
+  return readFile3(file2, "utf8");
 }
 function fileTokens(text2) {
   const result = text2.match(/"(?:\\.|[^"\\])*"|'[^']*'|[^\s]+/g) ?? [];
@@ -21430,33 +22434,33 @@ async function generateBundle(project, options = {}) {
   if (!options.backendOnly && !FLOW_STAGES.includes(stage)) throw new Error("\u65E0\u6548\u7684\u751F\u6210\u9636\u6BB5");
   if (project.archived) throw new Error("\u9879\u76EE\u5DF2\u5F52\u6863\uFF0C\u8BF7\u5148\u6062\u590D\u9879\u76EE");
   const base = path2.resolve(options.workingDirectory || project.workspace), directory = path2.resolve(options.directory || path2.join(base, "eda-scripts", project.id, stage === "backend" ? "backend" : "flow"));
-  await mkdir2(base, { recursive: true });
+  await mkdir3(base, { recursive: true });
   const canonicalBase = await realpath2(base), workspace = await realpath2(project.workspace);
   if (!inside(canonicalBase, directory) && !inside(workspace, directory) || [canonicalBase, workspace, project.root, project.rtlRoot].includes(directory)) throw new Error("\u751F\u6210\u76EE\u5F55\u987B\u4F4D\u4E8E\u4F1A\u8BDD\u6216\u9879\u76EE\u5DE5\u4F5C\u76EE\u5F55\u7684\u5B50\u76EE\u5F55\u5185\uFF0C\u4E0D\u80FD\u8986\u76D6\u6E90\u7801\u6839\u76EE\u5F55");
-  await mkdir2(directory, { recursive: true });
+  await mkdir3(directory, { recursive: true });
   const output2 = await realpath2(directory);
   if (!inside(canonicalBase, output2) && !inside(workspace, output2)) throw new Error("\u751F\u6210\u76EE\u5F55\u7684\u7B26\u53F7\u94FE\u63A5\u8D8A\u8FC7\u4E86\u9879\u76EE\u5DE5\u4F5C\u76EE\u5F55");
-  return withFileLock2(path2.join(output2, ".generation"), async () => {
+  return withFileLock(path2.join(output2, ".generation"), async () => {
     options.signal?.throwIfAborted();
     try {
-      const previous = JSON.parse(await readFile2(path2.join(output2, "manifest.json"), "utf8"));
+      const previous = JSON.parse(await readFile3(path2.join(output2, "manifest.json"), "utf8"));
       if (previous.projectId !== project.id) throw new Error("\u751F\u6210\u76EE\u5F55\u5DF2\u5C5E\u4E8E\u53E6\u4E00\u4E2A\u9879\u76EE");
     } catch (error62) {
       if (error62.code !== "ENOENT") throw error62;
     }
     const id = randomUUID(), temp = path2.join(output2, `.pending-${id}`);
-    await mkdir2(temp);
+    await mkdir3(temp);
     const files = [], occupied = /* @__PURE__ */ new Set(), sourceMap = /* @__PURE__ */ new Map();
-    const put = async (destination, content, role, source) => {
+    const put = async (destination, content, role2, source) => {
       options.signal?.throwIfAborted();
       safeRelative(destination);
       if (occupied.has(destination)) throw new Error(`\u751F\u6210\u6587\u4EF6\u51B2\u7A81\uFF1A${destination}`);
       occupied.add(destination);
       const target = path2.join(temp, destination);
-      await writeFileAtomic2(target, content, { mode: 384 });
-      files.push({ destination, file: path2.join(output2, destination), size: Buffer.byteLength(content), sha256: createHash("sha256").update(content).digest("hex"), role, ...source ? { source } : {}, ...role !== "rtl" && Buffer.byteLength(content) < 512 * 1024 ? { content } : {} });
+      await writeFileAtomic(target, content, { mode: 384 });
+      files.push({ destination, file: path2.join(output2, destination), size: Buffer.byteLength(content), sha256: createHash2("sha256").update(content).digest("hex"), role: role2, ...source ? { source } : {}, ...role2 !== "rtl" && Buffer.byteLength(content) < 512 * 1024 ? { content } : {} });
     };
-    const freeze = async (source, destination, role, expectedHash) => {
+    const freeze = async (source, destination, role2, expectedHash) => {
       options.signal?.throwIfAborted();
       safeRelative(destination);
       if (occupied.has(destination)) throw new Error(`\u8F93\u5165\u5FEB\u7167\u8DEF\u5F84\u51B2\u7A81\uFF1A${destination}`);
@@ -21465,11 +22469,11 @@ async function generateBundle(project, options = {}) {
       if (!info.isFile() || !info.size) throw new Error(`\u8F93\u5165\u4E0D\u5B58\u5728\u3001\u4E3A\u7A7A\u6216\u4E0D\u662F\u6587\u4EF6\uFF1A${source}`);
       if (inside(output2, await realpath2(source)) && !expectedHash) throw new Error("\u751F\u6210\u76EE\u5F55\u4E2D\u7684\u8F93\u5165\u5FC5\u987B\u901A\u8FC7\u54C8\u5E0C\u6821\u9A8C\u7684\u8986\u76D6\u8BB0\u5F55\u663E\u5F0F\u9009\u62E9");
       const target = path2.join(temp, destination);
-      await mkdir2(path2.dirname(target), { recursive: true });
+      await mkdir3(path2.dirname(target), { recursive: true });
       await copyFile(source, target);
       const hash2 = await fileHash(target);
       if (expectedHash && hash2 !== expectedHash.toLowerCase()) throw new Error(`\u8F93\u5165\u54C8\u5E0C\u4E0D\u5339\u914D\uFF1A${source}`);
-      files.push({ destination, file: path2.join(output2, destination), source, size: info.size, sha256: hash2, role });
+      files.push({ destination, file: path2.join(output2, destination), source, size: info.size, sha256: hash2, role: role2 });
       return destination;
     };
     try {
@@ -21511,16 +22515,16 @@ async function generateBundle(project, options = {}) {
         };
         for (const file2 of files) {
           const target = path2.join(output2, file2.destination), parent = path2.dirname(target);
-          await mkdir2(parent, { recursive: true });
+          await mkdir3(parent, { recursive: true });
           if (!inside(output2, await realpath2(parent))) throw new Error("\u751F\u6210\u76EE\u6807\u5B58\u5728\u8D8A\u754C\u7B26\u53F7\u94FE\u63A5");
-          await writeFileAtomic2(target, await readFile2(path2.join(temp, file2.destination)), { mode: 384 });
+          await writeFileAtomic(target, await readFile3(path2.join(temp, file2.destination)), { mode: 384 });
         }
-        await writeFileAtomic2(path2.join(output2, "manifest.json"), JSON.stringify({ ...bundle2, files: files.map(({ content, ...row }) => row) }, null, 2), { mode: 384 });
+        await writeFileAtomic(path2.join(output2, "manifest.json"), JSON.stringify({ ...bundle2, files: files.map(({ content, ...row }) => row) }, null, 2), { mode: 384 });
         return bundle2;
       }
       const resolved = await resolveInputs(project);
       c.defines = resolved.defines;
-      const sourceDestination = (source) => inside(project.rtlRoot, source) ? `rtl/${path2.relative(project.rtlRoot, source).split(path2.sep).join("/")}` : `rtl/external/${createHash("sha256").update(path2.dirname(source)).digest("hex").slice(0, 12)}/${path2.basename(source)}`;
+      const sourceDestination = (source) => inside(project.rtlRoot, source) ? `rtl/${path2.relative(project.rtlRoot, source).split(path2.sep).join("/")}` : `rtl/external/${createHash2("sha256").update(path2.dirname(source)).digest("hex").slice(0, 12)}/${path2.basename(source)}`;
       const sourceOverrides = new Map(c.source_replacements.map((row) => [safeRelative(row.destination), row]));
       const stageSource = async (source) => {
         const canonical = await realpath2(source);
@@ -21567,7 +22571,7 @@ async function generateBundle(project, options = {}) {
       }
       if (!project.targetLibraries.length) throw new Error("\u672A\u914D\u7F6E DC \u76EE\u6807 DB \u5E93");
       const libraries = [], linkLibraries = [];
-      for (const [values, outputValues, role] of [[project.targetLibraries, libraries, "target_library"], [c.link_libraries, linkLibraries, "link_library"]]) for (const file2 of values) outputValues.push(await freeze(path2.resolve(project.root, file2), `input/libraries/${files.length}-${path2.basename(file2)}`, role));
+      for (const [values, outputValues, role2] of [[project.targetLibraries, libraries, "target_library"], [c.link_libraries, linkLibraries, "link_library"]]) for (const file2 of values) outputValues.push(await freeze(path2.resolve(project.root, file2), `input/libraries/${files.length}-${path2.basename(file2)}`, role2));
       let constraint = "input/constraints.sdc";
       const timingScript = project.scripts.find((script) => script.enabled && script.generatedRole === "timing_constraints");
       const constraintOverride = c.tcl_overrides.find((row) => row.destination === constraint);
@@ -21575,7 +22579,7 @@ async function generateBundle(project, options = {}) {
       else if (c.constraint_file) await freeze(path2.resolve(project.root, c.constraint_file), constraint, "constraints");
       else if (timingScript) {
         const saved = timingScript.sourceMode === "file" && timingScript.path ? await readScript(path2.resolve(project.root, timingScript.path)) : timingScript.content;
-        const customized = !timingScript.generatedHash || createHash("sha256").update(saved).digest("hex") !== timingScript.generatedHash;
+        const customized = !timingScript.generatedHash || createHash2("sha256").update(saved).digest("hex") !== timingScript.generatedHash;
         await put(constraint, customized ? saved : timingSdc(project), "constraints");
       } else await put(constraint, timingSdc(project), "constraints");
       const extensions = {};
@@ -21611,11 +22615,11 @@ exec sh ${shellWord(inputs.mbistSimulation || "")}
       if (c.modules.verification) {
         const file2 = c.adapters.verification;
         if (!file2) throw new Error("\u542F\u7528\u4E86\u9A8C\u8BC1\u6A21\u5757\u4F46\u6CA1\u6709\u767B\u8BB0\u9A8C\u8BC1\u9002\u914D\u811A\u672C");
-        const snapshot = await adapter(file2, "verification");
+        const snapshot2 = await adapter(file2, "verification");
         generated.push({ destination: "agent_verification.sh", kind: "sh", role: "verification", content: `#!/bin/sh
 set -eu
 cd "$(dirname "$0")"
-exec sh ${shellWord(snapshot || "")}
+exec sh ${shellWord(snapshot2 || "")}
 ` });
       }
       const overrides = new Map(c.tcl_overrides.map((row) => [safeRelative(row.destination), row]));
@@ -21654,19 +22658,19 @@ ${row.content}` : row.content, row.role);
       for (const file2 of files) {
         const target = path2.join(output2, file2.destination);
         const parent = path2.dirname(target);
-        await mkdir2(parent, { recursive: true });
+        await mkdir3(parent, { recursive: true });
         if (!inside(output2, await realpath2(parent))) throw new Error("\u751F\u6210\u76EE\u6807\u5B58\u5728\u8D8A\u754C\u7B26\u53F7\u94FE\u63A5");
-        await writeFileAtomic2(target, await readFile2(path2.join(temp, file2.destination)), { mode: 384 });
+        await writeFileAtomic(target, await readFile3(path2.join(temp, file2.destination)), { mode: 384 });
       }
-      await writeFileAtomic2(path2.join(output2, "manifest.json"), JSON.stringify({ ...bundle, files: files.map(({ content, ...row }) => row) }, null, 2), { mode: 384 });
+      await writeFileAtomic(path2.join(output2, "manifest.json"), JSON.stringify({ ...bundle, files: files.map(({ content, ...row }) => row) }, null, 2), { mode: 384 });
       return bundle;
     } finally {
-      await rm(temp, { recursive: true, force: true });
+      await rm2(temp, { recursive: true, force: true });
     }
   }, { signal: options.signal });
 }
 
-// src/eda-project/project-import.ts
+// apps/dsh/src/eda-project/project-import.ts
 import path3 from "node:path";
 function importProjectDocument(document, baseDirectory) {
   const rows = Array.isArray(document?.projects) ? document.projects : [document?.project ?? document];
@@ -21707,7 +22711,7 @@ function importProjectDocument(document, baseDirectory) {
   });
 }
 
-// src/eda-project/client-api.ts
+// apps/dsh/src/eda-project/client-api.ts
 function withProjectGoal(template, goal) {
   const nodes = structuredClone(template.nodes), lines2 = structuredClone(template.lines);
   const parents = nodes.filter((node2) => node2.kind === "parent");
@@ -21722,14 +22726,13 @@ function withProjectGoal(template, goal) {
   return { nodes, lines: lines2 };
 }
 
-// src/eda-project/examples.ts
+// apps/dsh/src/eda-project/examples.ts
 import path4 from "node:path";
 import { fileURLToPath } from "node:url";
 import { existsSync } from "node:fs";
-import { mkdir as mkdir3, readFile as readFile3, readdir as readdir2, stat as stat3 } from "node:fs/promises";
-import { withFileLock as withFileLock3, writeFileAtomic as writeFileAtomic3 } from "@deepseek-ai/dsh-atomic-write";
+import { mkdir as mkdir4, readFile as readFile4, readdir as readdir2, stat as stat3 } from "node:fs/promises";
 
-// src/eda-project/example-profile.ts
+// apps/dsh/src/eda-project/example-profile.ts
 function matrixSynthesisProfile(directory) {
   const p = defaultEdaProject(directory);
   p.name = "Matrix Processor \xB7 \u7EFC\u5408\u811A\u672C\u793A\u4F8B";
@@ -21774,21 +22777,21 @@ function matrixSynthesisProfile(directory) {
   return p;
 }
 
-// src/eda-project/examples.ts
+// apps/dsh/src/eda-project/examples.ts
 var MATRIX_EXAMPLE = "matrix_processor_synthesis";
 async function installMatrixExample(project, assets = [new URL("../examples/matrix_processor/", import.meta.url), new URL("../../examples/matrix_processor/", import.meta.url)].map((url2) => fileURLToPath(url2)).find(existsSync)) {
   if (!assets) throw new Error("\u5185\u7F6E\u7EFC\u5408\u793A\u4F8B\u6587\u4EF6\u7F3A\u5931\uFF0C\u8BF7\u68C0\u67E5\u9879\u76EE\u5B89\u88C5");
   const directory = path4.join(project.workspace, "examples", MATRIX_EXAMPLE);
-  await mkdir3(directory, { recursive: true });
-  return withFileLock3(path4.join(directory, ".install"), async () => {
+  await mkdir4(directory, { recursive: true });
+  return withFileLock(path4.join(directory, ".install"), async () => {
     const put = async (name2, content) => {
       const file2 = path4.join(directory, name2);
-      await mkdir3(path4.dirname(file2), { recursive: true });
+      await mkdir4(path4.dirname(file2), { recursive: true });
       try {
-        if (!Buffer.from(await readFile3(file2)).equals(Buffer.from(content))) throw new Error(`\u793A\u4F8B\u6587\u4EF6\u5DF2\u6709\u4FEE\u6539\uFF0C\u5DF2\u4FDD\u7559\uFF1A${file2}`);
+        if (!Buffer.from(await readFile4(file2)).equals(Buffer.from(content))) throw new Error(`\u793A\u4F8B\u6587\u4EF6\u5DF2\u6709\u4FEE\u6539\uFF0C\u5DF2\u4FDD\u7559\uFF1A${file2}`);
       } catch (error62) {
         if (error62.code !== "ENOENT") throw error62;
-        await writeFileAtomic3(file2, content, { mode: 384 });
+        await writeFileAtomic(file2, content, { mode: 384 });
       }
       return { path: name2, sha256: await fileHash(file2), size: (await stat3(file2)).size };
     };
@@ -21797,35 +22800,35 @@ async function installMatrixExample(project, assets = [new URL("../examples/matr
       for (const item of await readdir2(path4.join(assets, relative), { withFileTypes: true })) {
         const name2 = path4.posix.join(relative, item.name);
         if (item.isDirectory()) await copy(name2);
-        else if (item.isFile()) files.push(await put(name2, await readFile3(path4.join(assets, name2))));
+        else if (item.isFile()) files.push(await put(name2, await readFile4(path4.join(assets, name2))));
       }
     };
     await copy("reference");
     await copy("lib");
-    files.push(await put("source_manifest.json", await readFile3(path4.join(assets, "source_manifest.json"))));
-    files.push(await put("smoke/smoke_top.sv", await readFile3(path4.join(assets, "smoke_top.sv"))));
+    files.push(await put("source_manifest.json", await readFile4(path4.join(assets, "source_manifest.json"))));
+    files.push(await put("smoke/smoke_top.sv", await readFile4(path4.join(assets, "smoke_top.sv"))));
     files.push(await put("smoke/files.f", "smoke/smoke_top.sv\n"));
     const readme = "# Matrix Processor synthesis configuration example\n\nreference/syn contains byte-for-byte copies of the provided Makefile, Tcl and SDC. The original RTL and filelist are absent. smoke/smoke_top.sv is an explicitly marked arithmetic register used only to validate generated scripts, never competition functionality.\n\nThe structured configuration reproduces CLK/vsi_clk, 3.33 ns, 0.1 ns setup/hold uncertainty, input max 1.665 ns excluding clock/reset, output max 0.333 ns, reset false path, gscl45nm typical, top wire-load, compile medium/low/none, uniquify, path groups, SVF, DDC/netlist/SDC and detailed reports.\n\nLoad project_config.json as an independent example project. Replace the smoke input and re-review reset exceptions before using a real design. Generated files use English names. No EDA job runs when installing this example.\n";
     files.push(await put("README.md", readme));
     const configFile = path4.join(directory, "project_config.json");
     let profile;
     try {
-      profile = JSON.parse(await readFile3(configFile, "utf8")).project;
+      profile = JSON.parse(await readFile4(configFile, "utf8")).project;
     } catch (error62) {
       if (error62.code !== "ENOENT") throw error62;
       profile = matrixSynthesisProfile(directory);
       profile.workspace = path4.join(directory, "work");
-      await mkdir3(profile.workspace, { recursive: true });
+      await mkdir4(profile.workspace, { recursive: true });
       await put("project_config.json", JSON.stringify({ format: "agent-studio-eda-project", version: 1, project: profile }, null, 2));
     }
     files.push({ path: "project_config.json", sha256: await fileHash(configFile), size: (await stat3(configFile)).size });
     const manifestFile = path4.join(directory, "example_manifest.json");
-    await writeFileAtomic3(manifestFile, JSON.stringify({ example: MATRIX_EXAMPLE, ownerProjectId: project.id, referenceSource: "/media/6/Projects/langgraph_dev/test_proj/matrix_processor/syn", smokeDesignOnly: true, files }, null, 2), { mode: 384 });
+    await writeFileAtomic(manifestFile, JSON.stringify({ example: MATRIX_EXAMPLE, ownerProjectId: project.id, referenceSource: "/media/6/Projects/langgraph_dev/test_proj/matrix_processor/syn", smokeDesignOnly: true, files }, null, 2), { mode: 384 });
     return { id: MATRIX_EXAMPLE, name: "Matrix Processor \xB7 \u7EFC\u5408\u811A\u672C\u793A\u4F8B", directory, configFile, manifestFile, notes: ["\u539F\u59CB\u811A\u672C\u548C SDC \u6309\u5B57\u8282\u590D\u5236\uFF0C\u5305\u542B\u6765\u6E90\u54C8\u5E0C\u3002", "\u539F\u8D44\u6599\u7F3A\u5C11 RTL/filelist\uFF1B\u6F14\u793A RTL \u4EC5\u7528\u4E8E\u811A\u672C\u9A8C\u8BC1\u3002", "\u914D\u7F6E\u72EC\u7ACB\u4FDD\u5B58\uFF0C\u4E0D\u8986\u76D6\u5F53\u524D\u9879\u76EE\u3002"] };
   });
 }
 
-// src/eda-project/service.ts
+// apps/dsh/src/eda-project/service.ts
 var EdaProjectService = class {
   constructor(ctx, store) {
     this.ctx = ctx;
@@ -21870,7 +22873,7 @@ var EdaProjectService = class {
   async directory(project, exec) {
     const service = this.ctx.get("workingDirectory");
     const directory = exec.agent && service?.ensure ? await service.ensure(exec.agent, exec.signal) : project.workspace;
-    await mkdir4(directory, { recursive: true });
+    await mkdir5(directory, { recursive: true });
     return directory;
   }
   async assertIdle(projectId) {
@@ -21909,8 +22912,8 @@ var EdaProjectService = class {
     if (action === "example_read" || action === "example_create") {
       const example = project.examples.find((row) => row.id === args.exampleId);
       if (!example) throw new Error("\u793A\u4F8B\u914D\u7F6E\u4E0D\u5B58\u5728");
-      const document = JSON.parse(await readFile4(example.configFile, "utf8"));
-      if (action === "example_read") return { ...document, manifest: JSON.parse(await readFile4(example.manifestFile, "utf8")) };
+      const document = JSON.parse(await readFile5(example.configFile, "utf8"));
+      if (action === "example_read") return { ...document, manifest: JSON.parse(await readFile5(example.manifestFile, "utf8")) };
       const existing = example.createdProjectId && (await this.store.list()).find((row) => row.id === example.createdProjectId);
       if (existing) return { project: existing };
       const profile = importProjectDocument(document, example.directory)[0].project;
@@ -21934,9 +22937,9 @@ var EdaProjectService = class {
       return this.store.remove(project.id);
     }
     if (action === "clone") {
-      const clone2 = await this.store.create({ name: args.name || `${project.name} \u526F\u672C`, root: args.root || project.root, workspace: args.workspacePath, rtlRoot: args.rtlRoot || project.rtlRoot }, project);
-      await this.registerWorkspace(clone2);
-      return clone2;
+      const clone3 = await this.store.create({ name: args.name || `${project.name} \u526F\u672C`, root: args.root || project.root, workspace: args.workspacePath, rtlRoot: args.rtlRoot || project.rtlRoot }, project);
+      await this.registerWorkspace(clone3);
+      return clone3;
     }
     if (action === "archive") {
       await this.assertIdle(project.id);
@@ -21952,16 +22955,16 @@ var EdaProjectService = class {
     }
     if (action === "update") {
       if (args.expectedRevision !== void 0 && args.expectedRevision !== project.revision) throw new Error("EDA_PROJECT_CONFLICT: \u9879\u76EE\u7248\u672C\u5DF2\u53D8\u66F4");
-      const merge2 = (target, patch) => {
+      const merge3 = (target, patch) => {
         if (!patch || typeof patch !== "object" || Array.isArray(patch)) return patch;
         const next2 = { ...target };
         for (const [key, value] of Object.entries(patch)) {
           if (["__proto__", "constructor", "prototype", "id", "revision", "createdAt"].includes(key)) throw new Error(`\u4E0D\u53EF\u4FEE\u6539\u5B57\u6BB5\uFF1A${key}`);
-          next2[key] = value && typeof value === "object" && !Array.isArray(value) ? merge2(next2[key], value) : value;
+          next2[key] = value && typeof value === "object" && !Array.isArray(value) ? merge3(next2[key], value) : value;
         }
         return next2;
       };
-      const next = merge2(project, args.patch || {});
+      const next = merge3(project, args.patch || {});
       if (next.workspace !== project.workspace || next.root !== project.root) await this.assertIdle(project.id);
       return this.store.save(next);
     }
@@ -22056,23 +23059,23 @@ var EdaProjectService = class {
       return { generated, saved: true, ...await this.store.upsertScript(key, { name: args.name || `${args.stage}.${generated.kind}`, stage: args.stage, kind: generated.kind, content: generated.content, usage: "driver" }) };
     }
     if (action === "sync_timing") {
-      const old = project.scripts.find((row) => row.generatedRole === "timing_constraints"), hash2 = (value) => createHash2("sha256").update(value).digest("hex");
+      const old = project.scripts.find((row) => row.generatedRole === "timing_constraints"), hash2 = (value) => createHash3("sha256").update(value).digest("hex");
       if (old?.generatedHash && hash2(old.content) !== old.generatedHash && !args.force) return { project, script: old, status: "customized_preserved", message: "\u5DF2\u4FDD\u7559\u4EBA\u5DE5\u4FEE\u6539\uFF1B\u672A\u7528\u8868\u5355\u8986\u76D6\u3002" };
       const content = timingSdc(project);
       return { ...await this.store.upsertScript(key, { ...old, name: old?.name && /^[\x20-\x7e]+$/.test(old.name) ? old.name : "timing_constraints.sdc", stage: "constraints", kind: "sdc", content, generatedRole: "timing_constraints", generatedHash: hash2(content), sourceMode: "inline", usage: "extension" }), status: "generated" };
     }
     if (action === "generated_edit") {
       const directory = await realpath3(String(args.directory)), destination = safeRelative(String(args.destination));
-      const manifest = JSON.parse(await readFile4(path5.join(directory, "manifest.json"), "utf8"));
+      const manifest = JSON.parse(await readFile5(path5.join(directory, "manifest.json"), "utf8"));
       if (manifest.projectId !== project.id || !manifest.files.some((row) => row.destination === destination && ["dc_driver", "timing_driver", "atpg_driver", "constraints"].includes(row.role))) throw new Error("\u53EA\u80FD\u4FEE\u6539\u672C\u9879\u76EE\u751F\u6210\u6E05\u5355\u4E2D\u7684\u9A71\u52A8\u6216\u7EA6\u675F\u811A\u672C");
       const file2 = path5.join(directory, destination);
       if (await fileHash(file2) !== args.expectedHash) throw new Error("\u751F\u6210\u6587\u4EF6\u5DF2\u53D8\u5316\uFF0C\u8BF7\u91CD\u65B0\u8BFB\u53D6");
       if (typeof args.content !== "string" || Buffer.byteLength(args.content) > 4 * 1024 * 1024) throw new Error("\u811A\u672C\u5185\u5BB9\u65E0\u6548\u6216\u8FC7\u5927");
       const actual = await realpath3(file2);
       if (actual !== file2) throw new Error("\u751F\u6210\u6587\u4EF6\u4E0D\u5141\u8BB8\u901A\u8FC7\u7B26\u53F7\u94FE\u63A5\u7F16\u8F91");
-      const hash2 = createHash2("sha256").update(args.content).digest("hex");
+      const hash2 = createHash3("sha256").update(args.content).digest("hex");
       const source = path5.join(project.workspace, "eda-overrides", project.id, destination);
-      await writeFileAtomic4(source, args.content, { mode: 384 });
+      await writeFileAtomic(source, args.content, { mode: 384 });
       const saved = await this.store.update(project.id, (row) => {
         row.toolbox.tcl_overrides = [...row.toolbox.tcl_overrides.filter((item) => item.destination !== destination), { source, destination, sha256: hash2 }];
       });
@@ -22082,12 +23085,12 @@ var EdaProjectService = class {
       const file2 = path5.resolve(project.root, String(args.path || ""));
       if (!/\.(tcl|sdc|do|sh)$/i.test(file2)) throw new Error("\u4EC5\u652F\u6301 Tcl / SDC / DO / Shell \u6587\u4EF6");
       const content = await readScript(file2);
-      if (action === "file_read") return { path: file2, content, parameters: /\.sh$/i.test(file2) ? [] : extractParameters(content), sha256: createHash2("sha256").update(content).digest("hex") };
+      if (action === "file_read") return { path: file2, content, parameters: /\.sh$/i.test(file2) ? [] : extractParameters(content), sha256: createHash3("sha256").update(content).digest("hex") };
       if (!project.scripts.some((script) => script.path && path5.resolve(project.root, script.path) === file2)) throw new Error("\u5199\u5165\u524D\u8BF7\u5148\u5C06\u6B64\u6587\u4EF6\u767B\u8BB0\u4E3A\u9879\u76EE\u811A\u672C");
-      if (args.expectedHash !== createHash2("sha256").update(content).digest("hex")) throw new Error("\u6587\u4EF6\u5DF2\u53D8\u66F4\uFF0C\u8BF7\u91CD\u65B0\u8BFB\u53D6");
+      if (args.expectedHash !== createHash3("sha256").update(content).digest("hex")) throw new Error("\u6587\u4EF6\u5DF2\u53D8\u66F4\uFF0C\u8BF7\u91CD\u65B0\u8BFB\u53D6");
       if (typeof args.content !== "string" || Buffer.byteLength(args.content) > 4 * 1024 * 1024) throw new Error("\u811A\u672C\u5185\u5BB9\u65E0\u6548\u6216\u8D85\u8FC7 4 MiB");
-      await writeFileAtomic4(file2, args.content, { mode: 384 });
-      return { path: file2, sha256: createHash2("sha256").update(args.content).digest("hex") };
+      await writeFileAtomic(file2, args.content, { mode: 384 });
+      return { path: file2, sha256: createHash3("sha256").update(args.content).digest("hex") };
     }
     if (action === "wrapper" || action === "export") {
       const ordered = project.scripts.filter((row) => row.enabled).sort((a, b) => a.sortOrder - b.sortOrder), blocks = ["# Ordered extensions only; this is not the complete EDA flow driver."];
@@ -22104,17 +23107,17 @@ var EdaProjectService = class {
       for (const { script, destination } of files) {
         const content = script.sourceMode === "file" && script.path ? await readScript(path5.resolve(project.root, script.path)) : script.content;
         const file2 = path5.join(directory, safeRelative(destination));
-        await writeFileAtomic4(file2, content, { mode: 384 });
-        written.push({ file: file2, sha256: createHash2("sha256").update(content).digest("hex") });
+        await writeFileAtomic(file2, content, { mode: 384 });
+        written.push({ file: file2, sha256: createHash3("sha256").update(content).digest("hex") });
       }
-      await writeFileAtomic4(path5.join(directory, "extensions.tcl"), blocks.join("\n") + "\n", { mode: 384 });
+      await writeFileAtomic(path5.join(directory, "extensions.tcl"), blocks.join("\n") + "\n", { mode: 384 });
       return { directory, written, completeFlow: false };
     }
     throw new Error(`\u672A\u77E5\u811A\u672C\u64CD\u4F5C\uFF1A${action}`);
   }
 };
 
-// src/eda-project/project-tools.ts
+// apps/dsh/src/eda-project/project-tools.ts
 var identity = { projectId: { type: "string", description: "Project identity returned by eda_project_get/manage. Omit to inherit the session/parent project binding." }, workspace: { type: "string", description: "Explicit absolute project workspace, for unbound standalone sessions." } };
 function registerEdaProjectTools(ctx, store, service = new EdaProjectService(ctx, store)) {
   const tools = ctx.get("tools");
@@ -22159,7 +23162,7 @@ function registerEdaProjectTools(ctx, store, service = new EdaProjectService(ctx
   register("eda_project_create_workflow", "Instantiate a chosen general workflow for this project. Automatically adds a task/prompt context node connected to the parent coordinator and binds the native session to this project configuration. Default only creates a reviewable instance; start=true explicitly runs. asTemplate=true creates a new enriched template without modifying its source. Returns sessionId/flowId for preview/navigation.", { templateId: { type: "string" }, start: { type: "boolean" }, asTemplate: { type: "boolean" } }, [], false, (args, exec) => service.instantiate(args, exec));
 }
 
-// src/eda-project/routes.ts
+// apps/dsh/src/eda-project/routes.ts
 function json2(res, value, status = 200) {
   res.writeHead(status, { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" });
   res.end(JSON.stringify(value));
@@ -22240,11 +23243,11 @@ function registerEdaProjectRoutes(ctx, server, store, service = new EdaProjectSe
   ctx.effect(() => server.register({ kind: "prefix", path: "/eda-project", handler }), "eda-project: API");
 }
 
-// src/eda-project/plugin.ts
+// apps/dsh/src/eda-project/plugin.ts
 var name = "EDA Project Toolbox";
 var inject = ["tools", "webServer"];
-var Config = z2.object({
-  dataDir: z2.string().default(path6.resolve(process.env.STUDIO_DATA_DIR || ".data/dsh")).description("EDA \u9879\u76EE\u8BBE\u7F6E\u4E0E\u811A\u672C\u5DE5\u5177\u7BB1\u7684\u6301\u4E45\u5316\u76EE\u5F55")
+var Config = Schema.object({
+  dataDir: Schema.string().default(path6.resolve(process.env.STUDIO_DATA_DIR || ".data/dsh")).description("EDA \u9879\u76EE\u8BBE\u7F6E\u4E0E\u811A\u672C\u5DE5\u5177\u7BB1\u7684\u6301\u4E45\u5316\u76EE\u5F55")
 });
 function apply(ctx, config2) {
   const store = new EdaProjectStore(config2.dataDir);

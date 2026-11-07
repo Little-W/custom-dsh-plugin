@@ -30,10 +30,5 @@
         "@deepseek-ai/dsh-client-locale"
       ]
     }
-  },
-  "dependencies": {
-    "@deepseek-ai/dsh-atomic-write": "0.2.2-rc.1",
-    "@deepseek-ai/dsh-mcp-client": "0.2.2-rc.1",
-    "@deepseek-ai/schemastery": "3.19.0"
   }
 }

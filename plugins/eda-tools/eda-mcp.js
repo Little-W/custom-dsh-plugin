@@ -1,3 +1,4 @@
+import { createRequire as __createRequire } from 'node:module'; const require = __createRequire(import.meta.url);
 var __create = Object.create;
 var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
@@ -32,9 +33,9 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/codegen/code.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/codegen/code.js
 var require_code = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/codegen/code.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/codegen/code.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.regexpCode = exports.getEsmExportName = exports.getProperty = exports.safeStringify = exports.stringify = exports.strConcat = exports.addCodeArg = exports.str = exports._ = exports.nil = exports._Code = exports.Name = exports.IDENTIFIER = exports._CodeOrName = void 0;
@@ -186,9 +187,9 @@ var require_code = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/codegen/scope.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/codegen/scope.js
 var require_scope = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/codegen/scope.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/codegen/scope.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.ValueScope = exports.ValueScopeName = exports.Scope = exports.varKinds = exports.UsedValueState = void 0;
@@ -331,9 +332,9 @@ var require_scope = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/codegen/index.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/codegen/index.js
 var require_codegen = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/codegen/index.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/codegen/index.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.or = exports.and = exports.not = exports.CodeGen = exports.operators = exports.varKinds = exports.ValueScopeName = exports.ValueScope = exports.Scope = exports.Name = exports.regexpCode = exports.stringify = exports.getProperty = exports.nil = exports.strConcat = exports.str = exports._ = void 0;
@@ -1051,9 +1052,9 @@ var require_codegen = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/util.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/util.js
 var require_util = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/util.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/util.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.checkStrictMode = exports.getErrorPath = exports.Type = exports.useFunc = exports.setEvaluated = exports.evaluatedPropsToName = exports.mergeEvaluated = exports.eachItem = exports.unescapeJsonPointer = exports.escapeJsonPointer = exports.escapeFragment = exports.unescapeFragment = exports.schemaRefOrVal = exports.schemaHasRulesButRef = exports.schemaHasRules = exports.checkUnknownRules = exports.alwaysValidSchema = exports.toHash = void 0;
@@ -1218,9 +1219,9 @@ var require_util = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/names.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/names.js
 var require_names = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/names.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/names.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -1257,9 +1258,9 @@ var require_names = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/errors.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/errors.js
 var require_errors = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/errors.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/errors.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.extendErrors = exports.resetErrorsCount = exports.reportExtraError = exports.reportError = exports.keyword$DataError = exports.keywordError = void 0;
@@ -1379,9 +1380,9 @@ var require_errors = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/validate/boolSchema.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/validate/boolSchema.js
 var require_boolSchema = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/validate/boolSchema.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/validate/boolSchema.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.boolOrEmptySchema = exports.topBoolOrEmptySchema = void 0;
@@ -1430,9 +1431,9 @@ var require_boolSchema = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/rules.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/rules.js
 var require_rules = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/rules.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/rules.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.getRules = exports.isJSONType = void 0;
@@ -1461,9 +1462,9 @@ var require_rules = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/validate/applicability.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/validate/applicability.js
 var require_applicability = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/validate/applicability.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/validate/applicability.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.shouldUseRule = exports.shouldUseGroup = exports.schemaHasRulesForType = void 0;
@@ -1484,9 +1485,9 @@ var require_applicability = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/validate/dataType.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/validate/dataType.js
 var require_dataType = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/validate/dataType.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/validate/dataType.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.reportTypeError = exports.checkDataTypes = exports.checkDataType = exports.coerceAndCheckDataType = exports.getJSONTypes = exports.getSchemaTypes = exports.DataType = void 0;
@@ -1668,9 +1669,9 @@ var require_dataType = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/validate/defaults.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/validate/defaults.js
 var require_defaults = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/validate/defaults.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/validate/defaults.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.assignDefaults = void 0;
@@ -1705,9 +1706,9 @@ var require_defaults = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/code.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/code.js
 var require_code2 = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/code.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/code.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.validateUnion = exports.validateArray = exports.usePattern = exports.callValidateCode = exports.schemaProperties = exports.allSchemaProperties = exports.noPropertyInData = exports.propertyInData = exports.isOwnProperty = exports.hasPropFunc = exports.reportMissingProp = exports.checkMissingProp = exports.checkReportMissingProp = void 0;
@@ -1838,9 +1839,9 @@ var require_code2 = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/validate/keyword.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/validate/keyword.js
 var require_keyword = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/validate/keyword.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/validate/keyword.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.validateKeywordUsage = exports.validSchemaType = exports.funcKeywordCode = exports.macroKeywordCode = void 0;
@@ -1956,9 +1957,9 @@ var require_keyword = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/validate/subschema.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/validate/subschema.js
 var require_subschema = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/validate/subschema.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/validate/subschema.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.extendSubschemaMode = exports.extendSubschemaData = exports.getSubschema = void 0;
@@ -2039,9 +2040,9 @@ var require_subschema = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/fast-deep-equal@3.1.3/node_modules/fast-deep-equal/index.js
+// node_modules/.pnpm/fast-deep-equal@3.1.3/node_modules/fast-deep-equal/index.js
 var require_fast_deep_equal = __commonJS({
-  "../../node_modules/.pnpm/fast-deep-equal@3.1.3/node_modules/fast-deep-equal/index.js"(exports, module) {
+  "node_modules/.pnpm/fast-deep-equal@3.1.3/node_modules/fast-deep-equal/index.js"(exports, module) {
     "use strict";
     module.exports = function equal(a, b) {
       if (a === b) return true;
@@ -2074,9 +2075,9 @@ var require_fast_deep_equal = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/json-schema-traverse@1.0.0/node_modules/json-schema-traverse/index.js
+// node_modules/.pnpm/json-schema-traverse@1.0.0/node_modules/json-schema-traverse/index.js
 var require_json_schema_traverse = __commonJS({
-  "../../node_modules/.pnpm/json-schema-traverse@1.0.0/node_modules/json-schema-traverse/index.js"(exports, module) {
+  "node_modules/.pnpm/json-schema-traverse@1.0.0/node_modules/json-schema-traverse/index.js"(exports, module) {
     "use strict";
     var traverse = module.exports = function(schema, opts, cb) {
       if (typeof opts == "function") {
@@ -2162,9 +2163,9 @@ var require_json_schema_traverse = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/resolve.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/resolve.js
 var require_resolve = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/resolve.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/resolve.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.getSchemaRefs = exports.resolveUrl = exports.normalizeId = exports._getFullPath = exports.getFullPath = exports.inlineRef = void 0;
@@ -2318,9 +2319,9 @@ var require_resolve = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/validate/index.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/validate/index.js
 var require_validate = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/validate/index.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/validate/index.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.getData = exports.KeywordCxt = exports.validateFunctionCode = void 0;
@@ -2826,9 +2827,9 @@ var require_validate = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/runtime/validation_error.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/runtime/validation_error.js
 var require_validation_error = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/runtime/validation_error.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/runtime/validation_error.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var ValidationError = class extends Error {
@@ -2842,9 +2843,9 @@ var require_validation_error = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/ref_error.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/ref_error.js
 var require_ref_error = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/ref_error.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/ref_error.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var resolve_1 = require_resolve();
@@ -2859,9 +2860,9 @@ var require_ref_error = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/index.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/index.js
 var require_compile = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/index.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/index.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.resolveSchema = exports.getCompilingSchema = exports.resolveRef = exports.compileSchema = exports.SchemaEnv = void 0;
@@ -3083,9 +3084,9 @@ var require_compile = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/refs/data.json
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/refs/data.json
 var require_data = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/refs/data.json"(exports, module) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/refs/data.json"(exports, module) {
     module.exports = {
       $id: "https://raw.githubusercontent.com/ajv-validator/ajv/master/lib/refs/data.json#",
       description: "Meta-schema for $data reference (JSON AnySchema extension proposal)",
@@ -3102,9 +3103,9 @@ var require_data = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/fast-uri@3.1.9/node_modules/fast-uri/lib/utils.js
+// node_modules/.pnpm/fast-uri@3.1.9/node_modules/fast-uri/lib/utils.js
 var require_utils = __commonJS({
-  "../../node_modules/.pnpm/fast-uri@3.1.9/node_modules/fast-uri/lib/utils.js"(exports, module) {
+  "node_modules/.pnpm/fast-uri@3.1.9/node_modules/fast-uri/lib/utils.js"(exports, module) {
     "use strict";
     var isUUID = RegExp.prototype.test.bind(/^[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}$/iu);
     var isIPv4 = RegExp.prototype.test.bind(/^(?:(?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]\d|\d)\.){3}(?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]\d|\d)$/u);
@@ -3636,9 +3637,9 @@ var require_utils = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/fast-uri@3.1.9/node_modules/fast-uri/lib/schemes.js
+// node_modules/.pnpm/fast-uri@3.1.9/node_modules/fast-uri/lib/schemes.js
 var require_schemes = __commonJS({
-  "../../node_modules/.pnpm/fast-uri@3.1.9/node_modules/fast-uri/lib/schemes.js"(exports, module) {
+  "node_modules/.pnpm/fast-uri@3.1.9/node_modules/fast-uri/lib/schemes.js"(exports, module) {
     "use strict";
     var { isUUID } = require_utils();
     var URN_REG = /^([\da-z][\d\-a-z]{0,31}):((?:[\w!$'()*+,\-./:;=@]|%[\da-f]{2})+)$/iu;
@@ -3847,9 +3848,9 @@ var require_schemes = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/fast-uri@3.1.9/node_modules/fast-uri/index.js
+// node_modules/.pnpm/fast-uri@3.1.9/node_modules/fast-uri/index.js
 var require_fast_uri = __commonJS({
-  "../../node_modules/.pnpm/fast-uri@3.1.9/node_modules/fast-uri/index.js"(exports, module) {
+  "node_modules/.pnpm/fast-uri@3.1.9/node_modules/fast-uri/index.js"(exports, module) {
     "use strict";
     var { normalizeIPv6, removeDotSegments, removeDotSegmentsRelative, recomposeAuthority, normalizePercentEncoding, normalizePathEncoding, serializePathEncoding, normalizeQueryFragmentEncoding, encodeQuery, encodeFragment, reescapeHostDelimiters, isIPv4, nonSimpleDomain } = require_utils();
     var { SCHEMES, getSchemeHandler } = require_schemes();
@@ -4277,9 +4278,9 @@ var require_fast_uri = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/runtime/uri.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/runtime/uri.js
 var require_uri = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/runtime/uri.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/runtime/uri.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var uri = require_fast_uri();
@@ -4288,9 +4289,9 @@ var require_uri = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/core.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/core.js
 var require_core = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/core.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/core.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.CodeGen = exports.Name = exports.nil = exports.stringify = exports.str = exports._ = exports.KeywordCxt = void 0;
@@ -4899,9 +4900,9 @@ var require_core = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/core/id.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/core/id.js
 var require_id = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/core/id.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/core/id.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var def = {
@@ -4914,9 +4915,9 @@ var require_id = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/core/ref.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/core/ref.js
 var require_ref = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/core/ref.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/core/ref.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.callRef = exports.getValidate = void 0;
@@ -5036,9 +5037,9 @@ var require_ref = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/core/index.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/core/index.js
 var require_core2 = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/core/index.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/core/index.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var id_1 = require_id();
@@ -5057,9 +5058,9 @@ var require_core2 = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/validation/limitNumber.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/validation/limitNumber.js
 var require_limitNumber = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/validation/limitNumber.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/validation/limitNumber.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -5089,9 +5090,9 @@ var require_limitNumber = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/validation/multipleOf.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/validation/multipleOf.js
 var require_multipleOf = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/validation/multipleOf.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/validation/multipleOf.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -5117,9 +5118,9 @@ var require_multipleOf = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/runtime/ucs2length.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/runtime/ucs2length.js
 var require_ucs2length = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/runtime/ucs2length.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/runtime/ucs2length.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     function ucs2length(str) {
@@ -5143,9 +5144,9 @@ var require_ucs2length = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/validation/limitLength.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/validation/limitLength.js
 var require_limitLength = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/validation/limitLength.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/validation/limitLength.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -5175,9 +5176,9 @@ var require_limitLength = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/validation/pattern.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/validation/pattern.js
 var require_pattern = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/validation/pattern.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/validation/pattern.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var code_1 = require_code2();
@@ -5212,9 +5213,9 @@ var require_pattern = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/validation/limitProperties.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/validation/limitProperties.js
 var require_limitProperties = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/validation/limitProperties.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/validation/limitProperties.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -5241,9 +5242,9 @@ var require_limitProperties = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/validation/required.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/validation/required.js
 var require_required = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/validation/required.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/validation/required.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var code_1 = require_code2();
@@ -5323,9 +5324,9 @@ var require_required = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/validation/limitItems.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/validation/limitItems.js
 var require_limitItems = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/validation/limitItems.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/validation/limitItems.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -5352,9 +5353,9 @@ var require_limitItems = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/runtime/equal.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/runtime/equal.js
 var require_equal = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/runtime/equal.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/runtime/equal.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var equal = require_fast_deep_equal();
@@ -5363,9 +5364,9 @@ var require_equal = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/validation/uniqueItems.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/validation/uniqueItems.js
 var require_uniqueItems = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/validation/uniqueItems.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/validation/uniqueItems.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var dataType_1 = require_dataType();
@@ -5430,9 +5431,9 @@ var require_uniqueItems = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/validation/const.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/validation/const.js
 var require_const = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/validation/const.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/validation/const.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -5459,9 +5460,9 @@ var require_const = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/validation/enum.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/validation/enum.js
 var require_enum = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/validation/enum.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/validation/enum.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -5508,9 +5509,9 @@ var require_enum = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/validation/index.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/validation/index.js
 var require_validation = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/validation/index.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/validation/index.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var limitNumber_1 = require_limitNumber();
@@ -5546,9 +5547,9 @@ var require_validation = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/additionalItems.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/additionalItems.js
 var require_additionalItems = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/additionalItems.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/additionalItems.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.validateAdditionalItems = void 0;
@@ -5599,9 +5600,9 @@ var require_additionalItems = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/items.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/items.js
 var require_items = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/items.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/items.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.validateTuple = void 0;
@@ -5656,9 +5657,9 @@ var require_items = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/prefixItems.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/prefixItems.js
 var require_prefixItems = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/prefixItems.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/prefixItems.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var items_1 = require_items();
@@ -5673,9 +5674,9 @@ var require_prefixItems = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/items2020.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/items2020.js
 var require_items2020 = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/items2020.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/items2020.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -5708,9 +5709,9 @@ var require_items2020 = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/contains.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/contains.js
 var require_contains = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/contains.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/contains.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -5802,9 +5803,9 @@ var require_contains = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/dependencies.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/dependencies.js
 var require_dependencies = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/dependencies.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/dependencies.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.validateSchemaDeps = exports.validatePropertyDeps = exports.error = void 0;
@@ -5896,9 +5897,9 @@ var require_dependencies = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/propertyNames.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/propertyNames.js
 var require_propertyNames = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/propertyNames.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/propertyNames.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -5939,9 +5940,9 @@ var require_propertyNames = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/additionalProperties.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/additionalProperties.js
 var require_additionalProperties = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/additionalProperties.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/additionalProperties.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var code_1 = require_code2();
@@ -6045,9 +6046,9 @@ var require_additionalProperties = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/properties.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/properties.js
 var require_properties = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/properties.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/properties.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var validate_1 = require_validate();
@@ -6103,9 +6104,9 @@ var require_properties = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/patternProperties.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/patternProperties.js
 var require_patternProperties = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/patternProperties.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/patternProperties.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var code_1 = require_code2();
@@ -6177,9 +6178,9 @@ var require_patternProperties = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/not.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/not.js
 var require_not = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/not.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/not.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var util_1 = require_util();
@@ -6208,9 +6209,9 @@ var require_not = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/anyOf.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/anyOf.js
 var require_anyOf = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/anyOf.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/anyOf.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var code_1 = require_code2();
@@ -6225,9 +6226,9 @@ var require_anyOf = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/oneOf.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/oneOf.js
 var require_oneOf = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/oneOf.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/oneOf.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -6283,9 +6284,9 @@ var require_oneOf = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/allOf.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/allOf.js
 var require_allOf = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/allOf.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/allOf.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var util_1 = require_util();
@@ -6310,9 +6311,9 @@ var require_allOf = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/if.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/if.js
 var require_if = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/if.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/if.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -6379,9 +6380,9 @@ var require_if = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/thenElse.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/thenElse.js
 var require_thenElse = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/thenElse.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/thenElse.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var util_1 = require_util();
@@ -6397,9 +6398,9 @@ var require_thenElse = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/index.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/index.js
 var require_applicator = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/index.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/applicator/index.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var additionalItems_1 = require_additionalItems();
@@ -6445,9 +6446,9 @@ var require_applicator = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/format/format.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/format/format.js
 var require_format = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/format/format.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/format/format.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -6535,9 +6536,9 @@ var require_format = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/format/index.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/format/index.js
 var require_format2 = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/format/index.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/format/index.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var format_1 = require_format();
@@ -6546,9 +6547,9 @@ var require_format2 = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/metadata.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/metadata.js
 var require_metadata = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/metadata.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/metadata.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.contentVocabulary = exports.metadataVocabulary = void 0;
@@ -6569,9 +6570,9 @@ var require_metadata = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/draft7.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/draft7.js
 var require_draft7 = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/draft7.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/draft7.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var core_1 = require_core2();
@@ -6591,9 +6592,9 @@ var require_draft7 = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/discriminator/types.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/discriminator/types.js
 var require_types = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/discriminator/types.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/discriminator/types.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.DiscrError = void 0;
@@ -6605,9 +6606,9 @@ var require_types = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/discriminator/index.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/discriminator/index.js
 var require_discriminator = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/discriminator/index.js"(exports) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/vocabularies/discriminator/index.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -6710,9 +6711,9 @@ var require_discriminator = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/refs/json-schema-draft-07.json
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/refs/json-schema-draft-07.json
 var require_json_schema_draft_07 = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/refs/json-schema-draft-07.json"(exports, module) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/refs/json-schema-draft-07.json"(exports, module) {
     module.exports = {
       $schema: "http://json-schema.org/draft-07/schema#",
       $id: "http://json-schema.org/draft-07/schema#",
@@ -6867,9 +6868,9 @@ var require_json_schema_draft_07 = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/ajv.js
+// node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/ajv.js
 var require_ajv = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/ajv.js"(exports, module) {
+  "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/ajv.js"(exports, module) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.MissingRefError = exports.ValidationError = exports.CodeGen = exports.Name = exports.nil = exports.stringify = exports.str = exports._ = exports.KeywordCxt = exports.Ajv = void 0;
@@ -6937,9 +6938,9 @@ var require_ajv = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv-formats@3.0.1_ajv@8.20.0/node_modules/ajv-formats/dist/formats.js
+// node_modules/.pnpm/ajv-formats@3.0.1_ajv@8.20.0/node_modules/ajv-formats/dist/formats.js
 var require_formats = __commonJS({
-  "../../node_modules/.pnpm/ajv-formats@3.0.1_ajv@8.20.0/node_modules/ajv-formats/dist/formats.js"(exports) {
+  "node_modules/.pnpm/ajv-formats@3.0.1_ajv@8.20.0/node_modules/ajv-formats/dist/formats.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.formatNames = exports.fastFormats = exports.fullFormats = void 0;
@@ -7140,9 +7141,9 @@ var require_formats = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv-formats@3.0.1_ajv@8.20.0/node_modules/ajv-formats/dist/limit.js
+// node_modules/.pnpm/ajv-formats@3.0.1_ajv@8.20.0/node_modules/ajv-formats/dist/limit.js
 var require_limit = __commonJS({
-  "../../node_modules/.pnpm/ajv-formats@3.0.1_ajv@8.20.0/node_modules/ajv-formats/dist/limit.js"(exports) {
+  "node_modules/.pnpm/ajv-formats@3.0.1_ajv@8.20.0/node_modules/ajv-formats/dist/limit.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.formatLimitDefinition = void 0;
@@ -7212,9 +7213,9 @@ var require_limit = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv-formats@3.0.1_ajv@8.20.0/node_modules/ajv-formats/dist/index.js
+// node_modules/.pnpm/ajv-formats@3.0.1_ajv@8.20.0/node_modules/ajv-formats/dist/index.js
 var require_dist = __commonJS({
-  "../../node_modules/.pnpm/ajv-formats@3.0.1_ajv@8.20.0/node_modules/ajv-formats/dist/index.js"(exports, module) {
+  "node_modules/.pnpm/ajv-formats@3.0.1_ajv@8.20.0/node_modules/ajv-formats/dist/index.js"(exports, module) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var formats_1 = require_formats();
@@ -7254,10 +7255,10 @@ var require_dist = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.3_zod@4.6.7/node_modules/@modelcontextprotocol/sdk/dist/esm/server/stdio.js
+// node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.3_zod@4.6.7/node_modules/@modelcontextprotocol/sdk/dist/esm/server/stdio.js
 import process2 from "node:process";
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/external.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/external.js
 var external_exports = {};
 __export(external_exports, {
   $brand: () => $brand,
@@ -7520,7 +7521,7 @@ __export(external_exports, {
   xor: () => xor
 });
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/index.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/index.js
 var core_exports2 = {};
 __export(core_exports2, {
   $ZodAny: () => $ZodAny,
@@ -7837,7 +7838,7 @@ __export(core_exports2, {
   withParser: () => withParser
 });
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/util.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/util.js
 var util_exports = {};
 __export(util_exports, {
   BIGINT_FORMAT_RANGES: () => BIGINT_FORMAT_RANGES,
@@ -8693,7 +8694,7 @@ function constantCatch(value) {
   return fn;
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/core.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/core.js
 var _a;
 var NEVER = /* @__PURE__ */ Object.freeze({
   status: "aborted"
@@ -8815,7 +8816,7 @@ function config(newConfig) {
   return globalConfig;
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/errors.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/errors.js
 function _getMessage() {
   const internals = this._zod;
   internals.message ?? (internals.message = JSON.stringify(internals.def, jsonStringifyReplacer, 2));
@@ -9007,7 +9008,7 @@ function prettifyError(error62) {
   return lines.join("\n");
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/parse.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/parse.js
 function finalizeParams(callee, params) {
   return { callee: params?.callee ?? callee, Err: params?.Err };
 }
@@ -9167,7 +9168,7 @@ var _safeDecodeAsync = (_Err) => async (schema, value, _ctx) => {
 };
 var safeDecodeAsync = /* @__PURE__ */ _safeDecodeAsync($ZodRealError);
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/regexes.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/regexes.js
 var regexes_exports = {};
 __export(regexes_exports, {
   anyString: () => anyString,
@@ -9339,7 +9340,7 @@ var sha512_hex = /^[0-9a-fA-F]{128}$/;
 var sha512_base64 = /* @__PURE__ */ fixedBase64(86, "==");
 var sha512_base64url = /* @__PURE__ */ fixedBase64url(86);
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/checks.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/checks.js
 var $ZodCheck = /* @__PURE__ */ $constructor("$ZodCheck", (inst, def) => {
   var _a3;
   inst._zod ?? (inst._zod = {});
@@ -9815,7 +9816,7 @@ var $ZodCheckOverwrite = /* @__PURE__ */ $constructor("$ZodCheckOverwrite", (ins
   };
 });
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/doc.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/doc.js
 var Doc = class {
   constructor(args = [], closed = {}) {
     this.content = [];
@@ -9856,14 +9857,14 @@ ${content.join("\n")}
   }
 };
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/versions.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/versions.js
 var version = {
   major: 4,
   minor: 6,
   patch: 7
 };
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/schemas.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/schemas.js
 var $ZodType = /* @__PURE__ */ $constructor("$ZodType", (inst, def) => {
   var _a3;
   inst ?? (inst = {});
@@ -12305,7 +12306,7 @@ function handleRefineResult(result, payload, input2, inst) {
   }
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/memoizer.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/memoizer.js
 var $ZodCyclicError = class extends Error {
   constructor() {
     super(`Cannot parse a reference cycle that closes through a transform`);
@@ -12582,7 +12583,7 @@ function isBackEdge(ctx, value) {
   return backEdges !== void 0 && isRef(value) && backEdges.has(value);
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/index.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/index.js
 var locales_exports = {};
 __export(locales_exports, {
   ar: () => ar_default,
@@ -12650,7 +12651,7 @@ __export(locales_exports, {
   zhTW: () => zh_TW_default
 });
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ar.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ar.js
 var error = () => {
   const Sizable = {
     string: { unit: "\u062D\u0631\u0641", verb: "\u0623\u0646 \u064A\u062D\u0648\u064A" },
@@ -12762,7 +12763,7 @@ function ar_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/az.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/az.js
 var error2 = () => {
   const Sizable = {
     string: { unit: "simvol", verb: "olmal\u0131d\u0131r" },
@@ -12873,7 +12874,7 @@ function az_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/be.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/be.js
 function getBelarusianPlural(count, one, few, many) {
   const absCount = Math.abs(count);
   const lastDigit = absCount % 10;
@@ -13042,7 +13043,7 @@ function be_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/bg.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/bg.js
 var error4 = () => {
   const Sizable = {
     string: { unit: "\u0441\u0438\u043C\u0432\u043E\u043B\u0430", verb: "\u0434\u0430 \u0441\u044A\u0434\u044A\u0440\u0436\u0430" },
@@ -13168,7 +13169,7 @@ function bg_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/bn.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/bn.js
 var error5 = () => {
   const Sizable = {
     string: { unit: "\u0985\u0995\u09CD\u09B7\u09B0", verb: "\u09A5\u09BE\u0995\u09A4\u09C7 \u09B9\u09AC\u09C7" },
@@ -13282,7 +13283,7 @@ function bn_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ca.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ca.js
 var error6 = () => {
   const Sizable = {
     string: { unit: "car\xE0cters", verb: "contenir" },
@@ -13396,7 +13397,7 @@ function ca_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ckb.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ckb.js
 var error7 = () => {
   const Sizable = {
     string: { unit: "\u067E\u06CC\u062A", verb: "\u0628\u06CE\u062A" },
@@ -13529,7 +13530,7 @@ function ckb_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/cs.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/cs.js
 var error8 = () => {
   const Sizable = {
     string: { unit: "znak\u016F", verb: "m\xEDt" },
@@ -13646,7 +13647,7 @@ function cs_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/da.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/da.js
 var error9 = () => {
   const Sizable = {
     string: { unit: "tegn", verb: "havde" },
@@ -13767,7 +13768,7 @@ function da_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/de.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/de.js
 var error10 = () => {
   const Sizable = {
     string: { unit: "Zeichen", verb: "zu haben" },
@@ -13881,7 +13882,7 @@ function de_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/el.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/el.js
 var error11 = () => {
   const Sizable = {
     string: { unit: "\u03C7\u03B1\u03C1\u03B1\u03BA\u03C4\u03AE\u03C1\u03B5\u03C2", verb: "\u03BD\u03B1 \u03AD\u03C7\u03B5\u03B9" },
@@ -13994,7 +13995,7 @@ function el_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/en.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/en.js
 var error12 = () => {
   const Sizable = {
     string: { unit: "characters", verb: "to have" },
@@ -14119,7 +14120,7 @@ function en_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/eo.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/eo.js
 var error13 = () => {
   const Sizable = {
     string: { unit: "karaktrojn", verb: "havi" },
@@ -14234,7 +14235,7 @@ function eo_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/es.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/es.js
 var error14 = () => {
   const Sizable = {
     string: { unit: "caracteres", verb: "tener" },
@@ -14371,7 +14372,7 @@ function es_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/fa.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/fa.js
 var error15 = () => {
   const Sizable = {
     string: { unit: "\u06A9\u0627\u0631\u0627\u06A9\u062A\u0631", verb: "\u062F\u0627\u0634\u062A\u0647 \u0628\u0627\u0634\u062F" },
@@ -14491,7 +14492,7 @@ function fa_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/fi.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/fi.js
 var error16 = () => {
   const Sizable = {
     string: { unit: "merkki\xE4", subject: "merkkijonon" },
@@ -14609,7 +14610,7 @@ function fi_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/fr.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/fr.js
 var error17 = () => {
   const Sizable = {
     string: { unit: "caract\xE8res", verb: "avoir" },
@@ -14739,7 +14740,7 @@ function fr_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/fr-CA.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/fr-CA.js
 var error18 = () => {
   const Sizable = {
     string: { unit: "caract\xE8res", verb: "avoir" },
@@ -14852,7 +14853,7 @@ function fr_CA_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/gu.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/gu.js
 var error19 = () => {
   const Sizable = {
     string: { unit: "\u0A85\u0A95\u0ACD\u0AB7\u0AB0", verb: "\u0AB9\u0ACB\u0AB5\u0ABE \u0A9C\u0ACB\u0A88\u0A8F" },
@@ -14966,7 +14967,7 @@ function gu_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/he.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/he.js
 var error20 = () => {
   const TypeNames = {
     string: { label: "\u05DE\u05D7\u05E8\u05D5\u05D6\u05EA", gender: "f" },
@@ -15168,7 +15169,7 @@ function he_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/hi.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/hi.js
 var error21 = () => {
   const Sizable = {
     string: { unit: "\u0905\u0915\u094D\u0937\u0930", verb: "\u0930\u0916\u0928\u0947 \u0915\u0947 \u0932\u093F\u090F" },
@@ -15280,7 +15281,7 @@ function hi_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/hr.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/hr.js
 var error22 = () => {
   const Sizable = {
     string: { unit: "znakova", verb: "imati" },
@@ -15407,7 +15408,7 @@ function hr_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/hu.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/hu.js
 var error23 = () => {
   const Sizable = {
     string: { unit: "karakter", verb: "legyen" },
@@ -15521,7 +15522,7 @@ function hu_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/hy.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/hy.js
 function getArmenianPlural(count, one, many) {
   return Math.abs(count) === 1 ? one : many;
 }
@@ -15680,7 +15681,7 @@ function hy_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/id.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/id.js
 var error25 = () => {
   const Sizable = {
     string: { unit: "karakter", verb: "memiliki" },
@@ -15792,7 +15793,7 @@ function id_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/is.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/is.js
 var error26 = () => {
   const Sizable = {
     string: { unit: "stafi", verb: "a\xF0 hafa" },
@@ -15907,7 +15908,7 @@ function is_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/it.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/it.js
 var error27 = () => {
   const Sizable = {
     string: { unit: "caratteri", verb: "avere" },
@@ -16021,7 +16022,7 @@ function it_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ja.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ja.js
 var error28 = () => {
   const Sizable = {
     string: { unit: "\u6587\u5B57", verb: "\u3067\u3042\u308B" },
@@ -16134,7 +16135,7 @@ function ja_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ka.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ka.js
 var error29 = () => {
   const Sizable = {
     string: { unit: "\u10E1\u10D8\u10DB\u10D1\u10DD\u10DA\u10DD", verb: "\u10E3\u10DC\u10D3\u10D0 \u10E8\u10D4\u10D8\u10EA\u10D0\u10D5\u10D3\u10D4\u10E1" },
@@ -16252,7 +16253,7 @@ function ka_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/km.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/km.js
 var error30 = () => {
   const Sizable = {
     string: { unit: "\u178F\u17BD\u17A2\u1780\u17D2\u179F\u179A", verb: "\u1782\u17BD\u179A\u1798\u17B6\u1793" },
@@ -16368,12 +16369,12 @@ function km_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/kh.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/kh.js
 function kh_default() {
   return km_default();
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/kn.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/kn.js
 var error31 = () => {
   const Sizable = {
     string: { unit: "\u0C85\u0C95\u0CCD\u0CB7\u0CB0\u0C97\u0CB3\u0CC1", verb: "\u0CB9\u0CCA\u0C82\u0CA6\u0CB2\u0CC1" },
@@ -16489,7 +16490,7 @@ function kn_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ko.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ko.js
 var error32 = () => {
   const Sizable = {
     string: { unit: "\uBB38\uC790", verb: "to have" },
@@ -16606,7 +16607,7 @@ function ko_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/lt.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/lt.js
 var capitalizeFirstCharacter = (text2) => {
   return text2.charAt(0).toUpperCase() + text2.slice(1);
 };
@@ -16814,7 +16815,7 @@ function lt_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/mk.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/mk.js
 var error34 = () => {
   const Sizable = {
     string: { unit: "\u0437\u043D\u0430\u0446\u0438", verb: "\u0434\u0430 \u0438\u043C\u0430\u0430\u0442" },
@@ -16929,7 +16930,7 @@ function mk_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ms.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ms.js
 var error35 = () => {
   const Sizable = {
     string: { unit: "aksara", verb: "mempunyai" },
@@ -17042,7 +17043,7 @@ function ms_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ne.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ne.js
 var error36 = () => {
   const Sizable = {
     string: { unit: "\u0905\u0915\u094D\u0937\u0930", verb: "\u0939\u0941\u0928\u0941\u092A\u0930\u094D\u091B" },
@@ -17154,7 +17155,7 @@ function ne_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/nl.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/nl.js
 var error37 = () => {
   const Sizable = {
     string: { unit: "tekens", verb: "heeft" },
@@ -17270,7 +17271,7 @@ function nl_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/nn.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/nn.js
 var error38 = () => {
   const Sizable = {
     string: { unit: "teikn", verb: "\xE5 ha" },
@@ -17384,7 +17385,7 @@ function nn_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/no.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/no.js
 var error39 = () => {
   const Sizable = {
     string: { unit: "tegn", verb: "\xE5 ha" },
@@ -17498,7 +17499,7 @@ function no_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ota.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ota.js
 var error40 = () => {
   const Sizable = {
     string: { unit: "harf", verb: "olmal\u0131d\u0131r" },
@@ -17613,7 +17614,7 @@ function ota_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ps.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ps.js
 var error41 = () => {
   const Sizable = {
     string: { unit: "\u062A\u0648\u06A9\u064A", verb: "\u0648\u0644\u0631\u064A" },
@@ -17733,7 +17734,7 @@ function ps_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/pl.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/pl.js
 var error42 = () => {
   const Sizable = {
     string: { unit: "znak\xF3w", verb: "mie\u0107" },
@@ -17848,7 +17849,7 @@ function pl_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/pt.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/pt.js
 var error43 = () => {
   const Sizable = {
     string: { unit: "caracteres" },
@@ -17992,7 +17993,7 @@ function pt_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/pt-BR.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/pt-BR.js
 var error44 = () => {
   const Sizable = {
     string: { unit: "caracteres" },
@@ -18137,7 +18138,7 @@ function pt_BR_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ro.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ro.js
 var error45 = () => {
   const Sizable = {
     string: { unit: "caractere", verb: "s\u0103 aib\u0103" },
@@ -18260,7 +18261,7 @@ function ro_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ru.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ru.js
 function getRussianPlural(count, one, few, many) {
   const absCount = Math.abs(count);
   const lastDigit = absCount % 10;
@@ -18429,7 +18430,7 @@ function ru_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/sk.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/sk.js
 var error47 = () => {
   const Sizable = {
     string: { unit: "znakov", verb: "ma\u0165" },
@@ -18546,7 +18547,7 @@ function sk_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/sl.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/sl.js
 var error48 = () => {
   const Sizable = {
     string: { unit: "znakov", verb: "imeti" },
@@ -18661,7 +18662,7 @@ function sl_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/sv.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/sv.js
 var error49 = () => {
   const Sizable = {
     string: { unit: "tecken", verb: "att ha" },
@@ -18777,7 +18778,7 @@ function sv_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ta.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ta.js
 var error50 = () => {
   const Sizable = {
     string: { unit: "\u0B8E\u0BB4\u0BC1\u0BA4\u0BCD\u0BA4\u0BC1\u0B95\u0BCD\u0B95\u0BB3\u0BCD", verb: "\u0B95\u0BCA\u0BA3\u0BCD\u0B9F\u0BBF\u0BB0\u0BC1\u0B95\u0BCD\u0B95 \u0BB5\u0BC7\u0BA3\u0BCD\u0B9F\u0BC1\u0BAE\u0BCD" },
@@ -18893,7 +18894,7 @@ function ta_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/tg.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/tg.js
 var error51 = () => {
   const Sizable = {
     string: { unit: "\u0430\u043B\u043E\u043C\u0430\u0442", verb: "\u0434\u043E\u0448\u0442\u0430 \u0431\u043E\u0448\u0430\u0434" },
@@ -19010,7 +19011,7 @@ function tg_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/th.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/th.js
 var error52 = () => {
   const Sizable = {
     string: { unit: "\u0E15\u0E31\u0E27\u0E2D\u0E31\u0E01\u0E29\u0E23", verb: "\u0E04\u0E27\u0E23\u0E21\u0E35" },
@@ -19126,7 +19127,7 @@ function th_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/tk.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/tk.js
 var error53 = () => {
   const Sizable = {
     string: { unit: "simwol", verb: "bolmaly" },
@@ -19234,7 +19235,7 @@ function tk_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/tr.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/tr.js
 var error54 = () => {
   const Sizable = {
     string: { unit: "karakter", verb: "olmal\u0131" },
@@ -19345,7 +19346,7 @@ function tr_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/uk.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/uk.js
 var error55 = () => {
   const Sizable = {
     string: { unit: "\u0441\u0438\u043C\u0432\u043E\u043B\u0456\u0432", verb: "\u043C\u0430\u0442\u0438\u043C\u0435" },
@@ -19459,12 +19460,12 @@ function uk_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ua.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ua.js
 function ua_default() {
   return uk_default();
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ur.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ur.js
 var error56 = () => {
   const Sizable = {
     string: { unit: "\u062D\u0631\u0648\u0641", verb: "\u06C1\u0648\u0646\u0627" },
@@ -19580,7 +19581,7 @@ function ur_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/uz.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/uz.js
 var error57 = () => {
   const Sizable = {
     string: { unit: "belgi", verb: "bo\u2018lishi kerak" },
@@ -19694,7 +19695,7 @@ function uz_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/vi.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/vi.js
 var error58 = () => {
   const Sizable = {
     string: { unit: "k\xFD t\u1EF1", verb: "c\xF3" },
@@ -19808,7 +19809,7 @@ function vi_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/zh-CN.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/zh-CN.js
 var error59 = () => {
   const Sizable = {
     string: { unit: "\u5B57\u7B26", verb: "\u5305\u542B" },
@@ -19923,7 +19924,7 @@ function zh_CN_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/zh-TW.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/zh-TW.js
 var error60 = () => {
   const Sizable = {
     string: { unit: "\u5B57\u5143", verb: "\u64C1\u6709" },
@@ -20036,7 +20037,7 @@ function zh_TW_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/yo.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/yo.js
 var error61 = () => {
   const Sizable = {
     string: { unit: "\xE0mi", verb: "n\xED" },
@@ -20149,7 +20150,7 @@ function yo_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/registries.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/registries.js
 var _a2;
 var $output = /* @__PURE__ */ Symbol("ZodOutput");
 var $input = /* @__PURE__ */ Symbol("ZodInput");
@@ -20199,7 +20200,7 @@ function registry() {
 (_a2 = globalThis).__zod_globalRegistry ?? (_a2.__zod_globalRegistry = registry());
 var globalRegistry = globalThis.__zod_globalRegistry;
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/compile.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/compile.js
 var INVALID = /* @__PURE__ */ Symbol.for("zod.compile.invalid");
 var FALLBACK_FLAG = /* @__PURE__ */ Symbol.for("zod.compile.fallback");
 var ZodCompileAsyncError = class extends Error {
@@ -21809,7 +21810,7 @@ function generateTransformCheck(doc, ctx, schema, accessor) {
   return accessor;
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/api.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/api.js
 function snapshotChecks(def) {
   if (def.checks)
     def.checks = [...def.checks];
@@ -22868,7 +22869,7 @@ function _stringFormat(Class2, format, fnOrRegex, _params = {}) {
   return inst;
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/to-json-schema.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/to-json-schema.js
 function assignProps(target, ...sources) {
   for (const source of sources) {
     for (const key of Reflect.ownKeys(source)) {
@@ -23398,7 +23399,7 @@ var createStandardJSONSchemaMethod = (schema, io, processors = {}) => (params) =
   return finalize(ctx, schema);
 };
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/json-schema-processors.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/json-schema-processors.js
 var narrowMin = (agg, key, value) => {
   if (agg[key] === void 0 || value > agg[key])
     agg[key] = value;
@@ -24146,7 +24147,7 @@ function toJSONSchema(input2, params) {
   return finalize(ctx, input2);
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/json-schema-generator.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/json-schema-generator.js
 var JSONSchemaGenerator = class {
   /** @deprecated Access via ctx instead */
   get metadataRegistry() {
@@ -24224,10 +24225,10 @@ var JSONSchemaGenerator = class {
   }
 };
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/json-schema.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/json-schema.js
 var json_schema_exports = {};
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/schemas.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/schemas.js
 var schemas_exports2 = {};
 __export(schemas_exports2, {
   ZodAny: () => ZodAny,
@@ -24408,7 +24409,7 @@ __export(schemas_exports2, {
   xor: () => xor
 });
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/checks.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/checks.js
 var checks_exports2 = {};
 __export(checks_exports2, {
   endsWith: () => _endsWith,
@@ -24443,7 +24444,7 @@ __export(checks_exports2, {
   uppercase: () => _uppercase
 });
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/errors.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/errors.js
 var _installedErrorProtos = /* @__PURE__ */ new WeakSet([Object.prototype, Error.prototype]);
 function _lazyMethod(proto, key, make) {
   Object.defineProperty(proto, key, {
@@ -24489,7 +24490,7 @@ var ZodRealError = /* @__PURE__ */ $constructor("ZodError", initializer2, void 0
   Parent: Error
 });
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/parse.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/parse.js
 var parse2 = /* @__PURE__ */ _parse(ZodRealError);
 var parseAsync2 = /* @__PURE__ */ _parseAsync(ZodRealError);
 var safeParse2 = /* @__PURE__ */ _safeParse(ZodRealError);
@@ -24503,7 +24504,7 @@ var safeDecode2 = /* @__PURE__ */ _safeDecode(ZodRealError);
 var safeEncodeAsync2 = /* @__PURE__ */ _safeEncodeAsync(ZodRealError);
 var safeDecodeAsync2 = /* @__PURE__ */ _safeDecodeAsync(ZodRealError);
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/schemas.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/schemas.js
 function _ensureDefaultLocale() {
   if (!globalConfig.localeError)
     config(en_default());
@@ -25968,7 +25969,7 @@ function preprocess(fn, schema) {
   });
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/compat.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/compat.js
 var ZodIssueCode = {
   invalid_type: "invalid_type",
   too_big: "too_big",
@@ -25994,7 +25995,7 @@ var ZodFirstPartyTypeKind;
 /* @__PURE__ */ (function(ZodFirstPartyTypeKind2) {
 })(ZodFirstPartyTypeKind || (ZodFirstPartyTypeKind = {}));
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/iso.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/iso.js
 var iso_exports = {};
 __export(iso_exports, {
   ZodISODate: () => ZodISODate,
@@ -26019,7 +26020,7 @@ function duration2(params) {
   return _isoDuration(ZodISODuration, params);
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/from-json-schema.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/from-json-schema.js
 var z = {
   ...schemas_exports2,
   ...checks_exports2,
@@ -26752,7 +26753,7 @@ function fromJSONSchema(schema, params) {
   return convertSchema(normalized, ctx);
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/visit.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/visit.js
 var RESOLVING = /* @__PURE__ */ Symbol("z.visit/resolving");
 function visit(schema, fnOrHandlers) {
   const fn = typeof fnOrHandlers === "function" ? fnOrHandlers : (node2, rewritten) => {
@@ -26907,7 +26908,7 @@ function visit(schema, fnOrHandlers) {
   return run(schema);
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/deep-partial.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/deep-partial.js
 function deepPartial(schema) {
   return visit(schema, {
     object: (s) => s.partial(),
@@ -26919,7 +26920,7 @@ function deepPartial(schema) {
   });
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/in-out.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/in-out.js
 function withChecks(side, checks) {
   if (!checks?.length)
     return side;
@@ -26949,7 +26950,7 @@ function output(schema) {
   });
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/coerce.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/coerce.js
 var coerce_exports = {};
 __export(coerce_exports, {
   bigint: () => bigint3,
@@ -26974,7 +26975,7 @@ function date4(params) {
   return _coercedDate(ZodDate, params);
 }
 
-// ../../node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.3_zod@4.6.7/node_modules/@modelcontextprotocol/sdk/dist/esm/types.js
+// node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.3_zod@4.6.7/node_modules/@modelcontextprotocol/sdk/dist/esm/types.js
 var LATEST_PROTOCOL_VERSION = "2025-11-25";
 var SUPPORTED_PROTOCOL_VERSIONS = [LATEST_PROTOCOL_VERSION, "2025-06-18", "2025-03-26", "2024-11-05", "2024-10-07"];
 var RELATED_TASK_META_KEY = "io.modelcontextprotocol/related-task";
@@ -28493,7 +28494,7 @@ var UrlElicitationRequiredError = class extends McpError {
   }
 };
 
-// ../../node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.3_zod@4.6.7/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/stdio.js
+// node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.3_zod@4.6.7/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/stdio.js
 var STDIO_DEFAULT_MAX_BUFFER_SIZE = 10 * 1024 * 1024;
 var ReadBuffer = class {
   constructor(options) {
@@ -28530,7 +28531,7 @@ function serializeMessage(message) {
   return JSON.stringify(message) + "\n";
 }
 
-// ../../node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.3_zod@4.6.7/node_modules/@modelcontextprotocol/sdk/dist/esm/server/stdio.js
+// node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.3_zod@4.6.7/node_modules/@modelcontextprotocol/sdk/dist/esm/server/stdio.js
 var StdioServerTransport = class {
   constructor(_stdin = process2.stdin, _stdout = process2.stdout, options) {
     this._stdin = _stdin;
@@ -28597,7 +28598,7 @@ var StdioServerTransport = class {
   }
 };
 
-// ../../node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.3_zod@4.6.7/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js
+// node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.3_zod@4.6.7/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js
 function isZ4Schema(s) {
   const schema = s;
   return !!schema._zod;
@@ -28660,15 +28661,15 @@ function getLiteralValue(schema) {
   return void 0;
 }
 
-// ../../node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.3_zod@4.6.7/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/interfaces.js
+// node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.3_zod@4.6.7/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/interfaces.js
 function isTerminal(status) {
   return status === "completed" || status === "failed" || status === "cancelled";
 }
 
-// ../../node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.6.7/node_modules/zod-to-json-schema/dist/esm/parsers/string.js
+// node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.6.7/node_modules/zod-to-json-schema/dist/esm/parsers/string.js
 var ALPHA_NUMERIC = new Set("ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvxyz0123456789");
 
-// ../../node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.3_zod@4.6.7/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-json-schema-compat.js
+// node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.3_zod@4.6.7/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-json-schema-compat.js
 function getMethodLiteral(schema) {
   const shape = getObjectShape(schema);
   const methodSchema = shape?.method;
@@ -28689,7 +28690,7 @@ function parseWithCompat(schema, data) {
   return result.data;
 }
 
-// ../../node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.3_zod@4.6.7/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js
+// node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.3_zod@4.6.7/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js
 var DEFAULT_REQUEST_TIMEOUT_MSEC = 6e4;
 var Protocol = class {
   constructor(_options) {
@@ -29666,7 +29667,7 @@ function mergeCapabilities(base, additional) {
   return result;
 }
 
-// ../../node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.3_zod@4.6.7/node_modules/@modelcontextprotocol/sdk/dist/esm/validation/ajv-provider.js
+// node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.3_zod@4.6.7/node_modules/@modelcontextprotocol/sdk/dist/esm/validation/ajv-provider.js
 var import_ajv = __toESM(require_ajv(), 1);
 var import_ajv_formats = __toESM(require_dist(), 1);
 function createDefaultAjvInstance() {
@@ -29734,7 +29735,7 @@ var AjvJsonSchemaValidator = class {
   }
 };
 
-// ../../node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.3_zod@4.6.7/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/server.js
+// node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.3_zod@4.6.7/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/server.js
 var ExperimentalServerTasks = class {
   constructor(_server) {
     this._server = _server;
@@ -29947,7 +29948,7 @@ var ExperimentalServerTasks = class {
   }
 };
 
-// ../../node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.3_zod@4.6.7/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/helpers.js
+// node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.3_zod@4.6.7/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/helpers.js
 function assertToolsCallTaskCapability(requests, method, entityName) {
   if (!requests) {
     throw new Error(`${entityName} does not support task creation (required for ${method})`);
@@ -29982,7 +29983,7 @@ function assertClientRequestTaskCapability(requests, method, entityName) {
   }
 }
 
-// ../../node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.3_zod@4.6.7/node_modules/@modelcontextprotocol/sdk/dist/esm/server/index.js
+// node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.3_zod@4.6.7/node_modules/@modelcontextprotocol/sdk/dist/esm/server/index.js
 var Server = class extends Protocol {
   /**
    * Initializes this server with the given name and version information.
@@ -30353,15 +30354,15 @@ var Server = class extends Protocol {
   }
 };
 
-// src/eda/jobs.ts
+// apps/dsh/src/eda/jobs.ts
 import { spawn } from "node:child_process";
 import { constants, createReadStream as createReadStream2, createWriteStream } from "node:fs";
-import { access, copyFile as copyFile2, mkdir as mkdir2, open as open2, readFile as readFile2, realpath as realpath2, rename, stat as stat2, writeFile } from "node:fs/promises";
+import { access, copyFile as copyFile2, mkdir as mkdir3, open as open2, readFile as readFile3, realpath as realpath2, rename as rename2, stat as stat2, writeFile as writeFile2 } from "node:fs/promises";
 import path2 from "node:path";
-import { createHash as createHash2, randomUUID as randomUUID2 } from "node:crypto";
+import { createHash as createHash3, randomUUID as randomUUID2 } from "node:crypto";
 import { createInterface } from "node:readline";
 
-// src/eda/contracts.ts
+// apps/dsh/src/eda/contracts.ts
 var EDA_COMMANDS = ["dc", "vcs", "verilator", "iverilog", "vvp", "vc_static", "vc_formal", "innovus", "pt", "sta"];
 var absolute = external_exports.string().min(1).refine((value) => /^(\/|[A-Za-z]:[\\/])/.test(value), "Use an absolute path");
 var relative = external_exports.string().min(1).max(512).refine((value) => !value.startsWith("/") && !value.includes("\\") && value.split("/").every((part) => part && part !== ".." && part !== "."), "Use a job-relative output path");
@@ -30391,7 +30392,7 @@ var synthesisSchema = external_exports.object({
 var jobSchema = external_exports.object({ jobId: external_exports.string().uuid() }).strict();
 var readSchema = jobSchema.extend({ file: relative.default("stdout.log"), offset: external_exports.number().int().min(0).default(0), limit: external_exports.number().int().min(1).max(65536).default(16384) });
 
-// src/eda/dc.ts
+// apps/dsh/src/eda/dc.ts
 function tclWord(value) {
   return `"${value.replace(/[\\"$\[\]]/g, (character) => `\\${character}`).replace(/\r/g, "\\r").replace(/\n/g, "\\n")}"`;
 }
@@ -30427,14 +30428,62 @@ function synthesisScript(input2) {
   ].join("\n");
 }
 
-// src/eda-project/bundle.ts
-import { createHash, randomUUID } from "node:crypto";
+// apps/dsh/src/eda-project/bundle.ts
+import { createHash as createHash2, randomUUID } from "node:crypto";
 import { createReadStream } from "node:fs";
-import { copyFile, lstat, mkdir, readFile, readdir, realpath, rm, stat } from "node:fs/promises";
+import { copyFile, lstat as lstat2, mkdir as mkdir2, readFile as readFile2, readdir, realpath, rm as rm2, stat } from "node:fs/promises";
 import path from "node:path";
-import { withFileLock, writeFileAtomic } from "@deepseek-ai/dsh-atomic-write";
 
-// src/eda-project/toolbox-config.ts
+// node_modules/.pnpm/@deepseek-ai+dsh-atomic-write@0.2.2-rc.1_@deepseek-ai+cordis@4.1.0/node_modules/@deepseek-ai/dsh-atomic-write/lib/index.js
+import { createHash, randomBytes } from "node:crypto";
+import { lstat, mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
+import { dirname } from "node:path";
+import { setTimeout as setTimeout$1 } from "node:timers/promises";
+var WINDOWS_TRANSIENT_RENAME_ERRORS = /* @__PURE__ */ new Set([
+  "EACCES",
+  "EBUSY",
+  "EPERM"
+]);
+var WINDOWS_RENAME_RETRY_INITIAL_MS = 20;
+var WINDOWS_RENAME_RETRY_MAX_MS = 200;
+var WINDOWS_RENAME_RETRY_LIMIT = 8;
+function isTransientWindowsRenameError(error62) {
+  if (process.platform !== "win32") return false;
+  return WINDOWS_TRANSIENT_RENAME_ERRORS.has(error62?.code ?? "");
+}
+async function renameAtomicTemp(temp, filename) {
+  let delay = WINDOWS_RENAME_RETRY_INITIAL_MS;
+  for (let retries = 0; ; retries += 1) {
+    try {
+      await rename(temp, filename);
+      return;
+    } catch (error62) {
+      if (!isTransientWindowsRenameError(error62)) throw error62;
+      if (retries >= WINDOWS_RENAME_RETRY_LIMIT) throw error62;
+    }
+    await new Promise((resolve) => setTimeout(resolve, delay));
+    delay = Math.min(delay * 2, WINDOWS_RENAME_RETRY_MAX_MS);
+  }
+}
+async function writeFileAtomic(filename, content, options) {
+  await mkdir(dirname(filename), {
+    recursive: true,
+    ...options.dirMode === void 0 ? {} : { mode: options.dirMode }
+  });
+  const temp = `${filename}.${randomBytes(6).toString("hex")}.tmp`;
+  try {
+    await writeFile(temp, content, {
+      mode: options.mode,
+      flag: "wx"
+    });
+    await renameAtomicTemp(temp, filename);
+  } catch (error62) {
+    await rm(temp, { force: true });
+    throw error62;
+  }
+}
+
+// apps/dsh/src/eda-project/toolbox-config.ts
 var text = external_exports.string().max(4096).refine((v) => !v.includes("\0"), "\u6587\u672C\u4E0D\u80FD\u5305\u542B NUL");
 var num = external_exports.number().finite();
 var nonnegative = num.min(0);
@@ -30594,9 +30643,9 @@ var toolboxSchema = external_exports.object({
   source_replacements: external_exports.array(override).max(512).default([])
 }).strict();
 
-// src/eda-project/bundle.ts
+// apps/dsh/src/eda-project/bundle.ts
 async function fileHash(file2) {
-  const hash2 = createHash("sha256");
+  const hash2 = createHash2("sha256");
   for await (const bytes of createReadStream(file2)) hash2.update(bytes);
   return hash2.digest("hex");
 }
@@ -30609,27 +30658,27 @@ function inside(root, file2) {
   return rel === "" || !path.isAbsolute(rel) && rel !== ".." && !rel.startsWith(`..${path.sep}`);
 }
 async function snapshotBundle(source, target, signal, tool) {
-  const directory = await realpath(source), manifest = JSON.parse(await readFile(path.join(directory, "manifest.json"), "utf8"));
+  const directory = await realpath(source), manifest = JSON.parse(await readFile2(path.join(directory, "manifest.json"), "utf8"));
   if (manifest.schemaVersion !== 1 || !Array.isArray(manifest.files) || manifest.files.length > 4096) throw new Error("EDA_BUNDLE_INVALID: manifest \u683C\u5F0F\u65E0\u6548");
-  await mkdir(target, { recursive: true });
+  await mkdir2(target, { recursive: true });
   for (const file2 of manifest.files) {
     signal?.throwIfAborted();
     const relative2 = safeRelative(file2.destination), sourceFile = path.join(directory, relative2), targetFile = path.join(target, relative2);
-    if ((await lstat(sourceFile)).isSymbolicLink() || !inside(directory, await realpath(sourceFile))) throw new Error("EDA_BUNDLE_INVALID: \u8F93\u5165\u7B26\u53F7\u94FE\u63A5\u8D8A\u754C");
-    await mkdir(path.dirname(targetFile), { recursive: true });
+    if ((await lstat2(sourceFile)).isSymbolicLink() || !inside(directory, await realpath(sourceFile))) throw new Error("EDA_BUNDLE_INVALID: \u8F93\u5165\u7B26\u53F7\u94FE\u63A5\u8D8A\u754C");
+    await mkdir2(path.dirname(targetFile), { recursive: true });
     await copyFile(sourceFile, targetFile);
     if (await fileHash(targetFile) !== file2.sha256) throw new Error(`EDA_BUNDLE_STALE: ${relative2} \u5DF2\u53D8\u66F4\uFF0C\u8BF7\u91CD\u65B0\u751F\u6210\u6216\u767B\u8BB0\u8986\u76D6`);
   }
   if (tool === "pt" || tool === "sta") {
-    const job = JSON.parse(await readFile(path.join(directory, "..", "job.json"), "utf8").catch(() => '{"status":"missing"}'));
-    const inputs = JSON.parse(await readFile(path.join(directory, "..", "inputs.json"), "utf8").catch(() => "{}"));
+    const job = JSON.parse(await readFile2(path.join(directory, "..", "job.json"), "utf8").catch(() => '{"status":"missing"}'));
+    const inputs = JSON.parse(await readFile2(path.join(directory, "..", "inputs.json"), "utf8").catch(() => "{}"));
     if (job.status !== "completed" || job.tool !== "dc" || inputs.generationId !== manifest.generationId) throw new Error("EDA_BUNDLE_STAGE_REQUIRED: \u65F6\u5E8F\u5206\u6790\u987B\u4F7F\u7528\u672C\u6B21\u5DF2\u5B8C\u6210 DC \u4F5C\u4E1A\u7684 flow \u76EE\u5F55");
     const modules = manifest.sourceSummary.modules;
     const outputs = modules?.scan && ["full", "scan_insertion"].includes(manifest.flowStage) ? "mapped_scan" : "synthesis";
     for (const relative2 of [`${outputs}/netlist.v`, `${outputs}/constraints.sdc`]) {
       const input2 = path.join(directory, relative2), output2 = path.join(target, relative2);
-      if ((await lstat(input2)).isSymbolicLink() || !inside(directory, await realpath(input2))) throw new Error("EDA_BUNDLE_INVALID: \u524D\u7F6E\u9636\u6BB5\u8F93\u51FA\u8D8A\u754C");
-      await mkdir(path.dirname(output2), { recursive: true });
+      if ((await lstat2(input2)).isSymbolicLink() || !inside(directory, await realpath(input2))) throw new Error("EDA_BUNDLE_INVALID: \u524D\u7F6E\u9636\u6BB5\u8F93\u51FA\u8D8A\u754C");
+      await mkdir2(path.dirname(output2), { recursive: true });
       await copyFile(input2, output2);
       manifest.files.push({ destination: relative2, file: output2, source: input2, size: (await stat(output2)).size, sha256: await fileHash(output2), role: "prior_stage_output" });
     }
@@ -30638,7 +30687,7 @@ async function snapshotBundle(source, target, signal, tool) {
   return manifest;
 }
 
-// src/eda/jobs.ts
+// apps/dsh/src/eda/jobs.ts
 var DEFAULT_COMMANDS = { dc: "dc_shell", vcs: "vcs", verilator: "verilator", iverilog: "iverilog", vvp: "vvp", vc_static: "vc_static", vc_formal: "vc_formal", innovus: "innovus", pt: "pt_shell", sta: "sta" };
 var EdaJobs = class {
   constructor(config3) {
@@ -30688,8 +30737,8 @@ var EdaJobs = class {
   }
   async save(job) {
     const temporary = path2.join(job.directory, `.${randomUUID2()}.json`);
-    await writeFile(temporary, JSON.stringify(job, null, 2), { mode: 384, flag: "wx" });
-    await rename(temporary, path2.join(job.directory, "job.json"));
+    await writeFile2(temporary, JSON.stringify(job, null, 2), { mode: 384, flag: "wx" });
+    await rename2(temporary, path2.join(job.directory, "job.json"));
   }
   async submit(tool, args, timeout, expectedArtifacts, synthesis, signal, workingDirectory, ownerSessionId, bundleDirectory) {
     signal?.throwIfAborted();
@@ -30700,33 +30749,33 @@ var EdaJobs = class {
       const executable = await this.executable(tool), id = randomUUID2();
       const outputRoot = workingDirectory ? path2.join(await realpath2(workingDirectory), "eda-jobs") : this.config.jobsDir;
       const directory = path2.resolve(outputRoot, id);
-      await mkdir2(this.config.jobsDir, { recursive: true });
-      await mkdir2(outputRoot, { recursive: true });
-      await mkdir2(directory, { mode: 448 });
-      if (workingDirectory) await writeFile(path2.join(this.config.jobsDir, `${id}.location.json`), JSON.stringify({ directory }), { mode: 384, flag: "wx" });
+      await mkdir3(this.config.jobsDir, { recursive: true });
+      await mkdir3(outputRoot, { recursive: true });
+      await mkdir3(directory, { mode: 448 });
+      if (workingDirectory) await writeFile2(path2.join(this.config.jobsDir, `${id}.location.json`), JSON.stringify({ directory }), { mode: 384, flag: "wx" });
       if (bundleDirectory) {
         const bundle = await snapshotBundle(bundleDirectory, path2.join(directory, "flow"), signal, tool);
         if (!expectedArtifacts.length) expectedArtifacts = bundle.runRequests.find((request) => request.tool === tool)?.expectedArtifacts ?? [];
-        await writeFile(path2.join(directory, "inputs.json"), JSON.stringify({ bundleDirectory, generationId: bundle.generationId, projectId: bundle.projectId, projectRevision: bundle.projectRevision, files: bundle.files.map(({ content, ...file2 }) => file2) }, null, 2), { flag: "wx" });
+        await writeFile2(path2.join(directory, "inputs.json"), JSON.stringify({ bundleDirectory, generationId: bundle.generationId, projectId: bundle.projectId, projectRevision: bundle.projectRevision, files: bundle.files.map(({ content, ...file2 }) => file2) }, null, 2), { flag: "wx" });
       }
       if (synthesis) {
         const files = [];
         const freeze = async (source) => {
           const target = path2.join(directory, "inputs", `${files.length}-${path2.basename(source)}`);
           await copyFile2(source, target, constants.COPYFILE_FICLONE);
-          const hash2 = createHash2("sha256");
+          const hash2 = createHash3("sha256");
           for await (const chunk of createReadStream2(target)) hash2.update(chunk);
           files.push({ source, snapshot: target, size: (await stat2(target)).size, sha256: hash2.digest("hex") });
           return target;
         };
-        await mkdir2(path2.join(directory, "inputs"));
+        await mkdir3(path2.join(directory, "inputs"));
         const frozen = { ...synthesis, sources: [], targetLibraries: [], linkLibraries: [] };
         for (const file2 of synthesis.sources) frozen.sources.push(await freeze(file2));
         for (const file2 of synthesis.targetLibraries) frozen.targetLibraries.push(await freeze(file2));
         for (const file2 of synthesis.linkLibraries) frozen.linkLibraries.push(await freeze(file2));
         if (synthesis.sdc) frozen.sdc = await freeze(synthesis.sdc);
-        await writeFile(path2.join(directory, "synthesis.tcl"), synthesisScript(frozen), { flag: "wx" });
-        await writeFile(path2.join(directory, "inputs.json"), JSON.stringify({ requested: synthesis, frozen, files, unsnapshottedIncludeDirectories: synthesis.includeDirectories }, null, 2), { flag: "wx" });
+        await writeFile2(path2.join(directory, "synthesis.tcl"), synthesisScript(frozen), { flag: "wx" });
+        await writeFile2(path2.join(directory, "inputs.json"), JSON.stringify({ requested: synthesis, frozen, files, unsnapshottedIncludeDirectories: synthesis.includeDirectories }, null, 2), { flag: "wx" });
       }
       const job = { id, tool, executable, args, directory, status: "running", ownerPid: process.pid, ownerToken: this.ownerToken, createdAt: (/* @__PURE__ */ new Date()).toISOString(), expectedArtifacts, artifacts: [], acceptance: { checked: false, passed: false, issues: [] } };
       if (ownerSessionId) job.ownerSessionId = ownerSessionId;
@@ -30817,7 +30866,7 @@ var EdaJobs = class {
       try {
         const location = await this.outputPath(job, file2), info = await stat2(location);
         if (!info.isFile() || !info.size) throw new Error("empty output");
-        const hash2 = createHash2("sha256");
+        const hash2 = createHash3("sha256");
         for await (const chunk of createReadStream2(location)) hash2.update(chunk);
         job.artifacts.push({ path: file2, size: info.size, sha256: hash2.digest("hex") });
       } catch {
@@ -30830,7 +30879,7 @@ var EdaJobs = class {
         let count = 0;
         for await (const line of lines) if (/^\s*(?:Error:|Fatal:|.*\*\*\s*ERROR)/i.test(line) && count++ < 20) job.acceptance.issues.push(line.slice(0, 2e3));
       }
-      const timing = await readFile2(path2.join(job.directory, bundle ? "flow/reports/synthesis_timing.rpt" : "reports/timing.rpt"), "utf8").catch(() => "");
+      const timing = await readFile3(path2.join(job.directory, bundle ? "flow/reports/synthesis_timing.rpt" : "reports/timing.rpt"), "utf8").catch(() => "");
       const slacks = [...timing.matchAll(/slack\s*\((?:MET|VIOLATED)\)\s*(-?[\d.]+)/gi)].map((match) => Number(match[1])).filter(Number.isFinite);
       if (slacks.length) {
         job.acceptance.timingSlack = Math.min(...slacks);
@@ -30845,12 +30894,12 @@ var EdaJobs = class {
     if (!/^[0-9a-f-]{36}$/i.test(id)) throw new Error("EDA_BAD_JOB_ID");
     let directory = path2.resolve(this.config.jobsDir, id);
     try {
-      directory = JSON.parse(await readFile2(path2.join(this.config.jobsDir, `${id}.location.json`), "utf8")).directory;
+      directory = JSON.parse(await readFile3(path2.join(this.config.jobsDir, `${id}.location.json`), "utf8")).directory;
     } catch (error62) {
       if (error62.code !== "ENOENT") throw error62;
     }
     if (!path2.isAbsolute(directory) || path2.basename(directory) !== id) throw new Error("EDA_INVALID_JOB_LOCATION");
-    const job = JSON.parse(await readFile2(path2.join(directory, "job.json"), "utf8"));
+    const job = JSON.parse(await readFile3(path2.join(directory, "job.json"), "utf8"));
     if (job.id !== id) throw new Error("EDA_INVALID_JOB_LOCATION");
     job.directory = directory;
     if (job.status === "running" && !this.active.has(id)) {
@@ -30892,14 +30941,14 @@ var EdaJobs = class {
   }
 };
 
-// src/prompts/eda-tools.ts
+// apps/dsh/src/prompts/eda-tools.ts
 var edaInstructions = `EDA tools submit real processes; they do not simulate execution. For logical synthesis use Synopsys Design Compiler through synthesize (or run with tool=dc and a project-authored Tcl script). Never substitute Yosys for the required DC result.
 Preferred simulation tools are Verilator and Synopsys VCS. Every EDA tool is individually toggleable in EDA MCP Tool settings; only enabled tools are available, and a disabled tool must never be substituted. Use eda_project_get to read the current project's design, libraries, unified targets and registered scripts; use eda_project_manage to update this project with its current revision. Use eda_project_generate_flow for the complete configured DC/DFT/ATPG drivers, RTL/library/SDC snapshots and manifest; this is the same engine as the GUI toolbox and does not run EDA. eda_project_script_manage supports extraction/literal parameter edits, timing synchronization, ordered stage extensions and reviewed generated overrides. eda_project_create_workflow instantiates a template with goals connected to the parent and binds its session/children to this project. Never change another project or infer goals from a different working directory.  Check environment first; availability means an executable was found, not that its license, technology library or project constraints are valid. Supply absolute RTL, library and SDC paths. Missing tools or inputs are blockers.
 Every invocation gets a new immutable job ID and an isolated working/output directory under the current session working directory's eda-jobs folder. DSH supplies the session directory automatically. Archive design reports, verification plans, checklists and intermediate models in the current session working directory; never hide project deliverables in application data. For a generated flow, pass its exact bundleDirectory and runRequests args to run; the full bundle is verified and copied under the fresh job flow/ directory. For downstream timing analysis use the completed DC job directory/flow as bundleDirectory, so its actual netlist and SDC become inputs. For custom run, use absolute input/script paths and job-relative output paths; shell interpolation is not supported. Submit once and retain the job ID. Inspect job and read stdout.log/stderr.log and reports; do not resubmit because a tool call or wait ended.
 completed describes process execution. Only acceptance.checked=true and acceptance.passed=true validate declared artifacts; neither is whole-project signoff or equivalence proof. DC synthesis checks netlist/reports, vendor errors and reported timing slack. The engineer must independently review constraints, coverage and SPEC compliance and archive its design/verification report and checklist with the job ID and evidence paths.
 Cancellation of an Agent turn does not cancel an EDA job. Use cancel explicitly and inspect status. Plugin shutdown terminates owned local process groups; external/container tools need their own termination confirmation.`;
 
-// src/eda/server.ts
+// apps/dsh/src/eda/server.ts
 var definitions = [
   { name: "environment", description: "Discover configured EDA executable paths without running EDA or probing licenses. No side effects. Missing tools remain explicit blockers.", schema: external_exports.object({}).strict(), readOnly: true },
   { name: "synthesize", description: "Submit real Synopsys DC logical synthesis, without DFT/scan insertion. Requires existing absolute RTL, target DB libraries and SDC or clock. Returns a job ID immediately; read its status and reports before claiming success. Missing configuration fails without a Yosys fallback.", schema: synthesisSchema, readOnly: false },
@@ -30926,7 +30975,7 @@ function createEdaMcpServer(config3) {
   return { server: server2, jobs: jobs2 };
 }
 
-// src/eda/main.ts
+// apps/dsh/src/eda/main.ts
 var config2 = JSON.parse(process.env.STUDIO_EDA_CONFIG || "{}");
 if (!config2.jobsDir || !config2.commands || !Number.isInteger(config2.maxConcurrent) || config2.maxConcurrent < 1) throw new Error("EDA_CONFIG_INVALID: launch through the EDA MCP Tool plugin");
 var { server, jobs } = createEdaMcpServer(config2);
