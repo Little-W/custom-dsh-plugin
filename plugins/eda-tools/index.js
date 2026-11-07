@@ -1,10 +1,10 @@
-// src/eda/plugin.ts
+// apps/dsh/src/eda/plugin.ts
 import * as mcp from "@deepseek-ai/dsh-mcp-client";
 import z from "@deepseek-ai/schemastery";
 import { fileURLToPath } from "node:url";
 import path2 from "node:path";
 
-// src/eda/activity.ts
+// apps/dsh/src/eda/activity.ts
 import { readFile, readdir } from "node:fs/promises";
 import path from "node:path";
 async function activeEdaJobs(jobsDir, sessionId) {
@@ -39,7 +39,7 @@ async function activeEdaJobs(jobsDir, sessionId) {
   return ids;
 }
 
-// src/eda/plugin.ts
+// apps/dsh/src/eda/plugin.ts
 var name = "EDA MCP Tool";
 var inject = ["tools"];
 var Config = z.object({

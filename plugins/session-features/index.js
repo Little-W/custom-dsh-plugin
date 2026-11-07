@@ -1,4 +1,4 @@
-// src/session-agent-loop.ts
+// apps/dsh/src/session-agent-loop.ts
 import { AgentLoop } from "@deepseek-ai/dsh-agent-loop";
 import { MessageId } from "@deepseek-ai/dsh-llm";
 import { randomUUID } from "node:crypto";

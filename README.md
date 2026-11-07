@@ -1,6 +1,6 @@
 # Custom DSH 插件
 
-面向官方 DSH `0.2.2-rc.1` 插件加载器的独立插件包。各服务端入口已打包为可直接加载的文件，不依赖 `@agent-studio/studio-core` 或其他 Agent Studio 私有运行时；前端资源也随插件提供。
+面向官方 DSH `0.2.2-rc.1` 插件加载器的独立插件包。各服务端入口已打包为可直接加载的文件，不依赖 `@agent-studio/studio-core` 或其他 Agent Studio 私有运行时；前端资源也随插件提供。Studio 使用的插件目录与本仓库发布包保持一致。
 
 ## 当前插件
 
@@ -14,4 +14,4 @@
 
 旧版会话插件保存在 `legacy/`，仅用于迁移参考，不应与新版“会话功能增加”同时启用。
 
-除 OpenCode 模型提供商外，运行依赖仅为插件实际使用的官方 DSH 包。OpenCode 提供商还需 `@opencode/*` 与 `effect` 模型运行库。
+除 OpenCode 模型提供商外，运行依赖仅为插件实际使用的官方 DSH 包。OpenCode 提供商的 OpenCode 2.2.5 与 Effect JavaScript 运行时代码已打包在插件入口中；插件清单只保留 DSH 官方接口及原生模块依赖，不需要另装 `@opencode/*`。
