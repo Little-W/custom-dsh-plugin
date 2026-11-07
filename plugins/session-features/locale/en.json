@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Session Pause and Resume",
+    "description": "Pause or resume conversations, and automatically retry temporary network failures."
+  }
+}

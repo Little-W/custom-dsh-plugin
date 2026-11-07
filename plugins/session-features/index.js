@@ -40,8 +40,11 @@ var NetworkRetryController = class {
   }
   completed(agent, status) {
     if (status !== "idle") return;
-    const latest = [...agent.session.snapshotEvents()].reverse().find((event) => event.type === "turn/end");
-    if (latest?.data?.reason?.kind === "completed") this.clear(agent.id);
+    try {
+      const latest = [...agent.session.snapshotEvents()].reverse().find((event) => event.type === "turn/end");
+      if (latest?.data?.reason?.kind === "completed") this.clear(agent.id);
+    } catch {
+    }
   }
   dispose(id) {
     this.clear(id);
@@ -83,21 +86,33 @@ var SessionAgentLoop = class extends AgentLoop {
       return void 0;
     });
     ctx.on("agent/error", ({ agent, turn, error }) => {
-      this.retries.failed(agent, turn, error);
+      try {
+        this.retries.failed(agent, turn, error);
+      } catch {
+      }
     });
     ctx.on("agent/status", ({ agent, status }) => {
-      this.retries.completed(agent, status);
+      try {
+        this.retries.completed(agent, status);
+      } catch {
+      }
     });
     ctx.effect(() => () => this.retries.disposeAll(), "session features: network retry lifecycle");
   }
   async createAgent(ctx, options) {
     const handle = await super.createAgent(ctx, options);
-    this.handles.set(handle.agent.id, handle);
+    try {
+      this.handles.set(handle.agent.id, handle);
+    } catch {
+    }
     return handle;
   }
   async resume(ctx, options) {
     const handle = await super.resume(ctx, options);
-    this.handles.set(handle.agent.id, handle);
+    try {
+      this.handles.set(handle.agent.id, handle);
+    } catch {
+    }
     return handle;
   }
 };
