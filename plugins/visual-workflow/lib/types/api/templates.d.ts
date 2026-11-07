@@ -13,6 +13,10 @@ export declare class TemplateEndpoints extends VisualWorkflowApiBase {
     }): Promise<unknown>;
     /** 工作流模板列表（全部返回，客户端按 mode 过滤；模板跨会话共享不隔离）。 */
     listFlowTemplates(): Promise<unknown>;
+    /** 导出工作流模板为包含角色、任务、数据库与工具组合的 JSON 包。 */
+    exportFlowTemplate(args: {
+        id?: unknown;
+    }): Promise<unknown>;
     /** 保存工作流模板（新建/更新统一；revision 递增 + 冲突保护）。 */
     putFlowTemplate(args: {
         template?: unknown;

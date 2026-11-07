@@ -5,6 +5,7 @@
 import { httpError } from './http.js';
 import { ERR_REVISION_CONFLICT } from '../shared/protocol.js';
 import { presentationOf, VisualWorkflowApiBase } from './boundary.js';
+import { exportFlowTemplateBundle } from '../transfer/bundle.js';
 export class TemplateEndpoints extends VisualWorkflowApiBase {
     // ---------- 模板（角色/任务/数据库） ----------
     async listTemplates(args) {
@@ -45,6 +46,13 @@ export class TemplateEndpoints extends VisualWorkflowApiBase {
     /** 工作流模板列表（全部返回，客户端按 mode 过滤；模板跨会话共享不隔离）。 */
     async listFlowTemplates() {
         return this.host.store.listFlowTemplates();
+    }
+    /** 导出工作流模板为包含角色、任务、数据库与工具组合的 JSON 包。 */
+    async exportFlowTemplate(args) {
+        const id = String(args?.id ?? '');
+        if (!id)
+            throw httpError(400, 'requires id');
+        return { json: await exportFlowTemplateBundle(this.host.store, id) };
     }
     /** 保存工作流模板（新建/更新统一；revision 递增 + 冲突保护）。 */
     async putFlowTemplate(args) {

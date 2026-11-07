@@ -191,6 +191,39 @@ export async function exportWorkflowBundle(store, sessionId, flowId) {
     };
     return JSON.stringify(bundle, null, 2);
 }
+/** 导出工作流模板为同一自包含 bundle，便于跨项目/会话迁移。 */
+export async function exportFlowTemplateBundle(store, templateId) {
+    const template = await store.getFlowTemplate(templateId);
+    if (!template)
+        throw new TransferError('TRANSFER_NOT_FOUND', `工作流模板不存在：${templateId}`);
+    const [combos, roles, tasks, databases] = await Promise.all([
+        store.listToolCombos(),
+        store.listTemplates('role'),
+        store.listTemplates('task'),
+        store.listTemplates('database'),
+    ]);
+    const graph = { nodes: template.nodes ?? [], lines: template.lines ?? [] };
+    const payload = {
+        name: template.name ?? template.id,
+        description: template.description ?? '',
+        nodes: exportClone(graph.nodes),
+        lines: exportClone(graph.lines),
+    };
+    const bundle = {
+        format: 'dsh-vw-bundle',
+        version: 2,
+        mode: template.mode,
+        ...(template.mode === 'mode2' ? { service: payload } : { workflow: payload }),
+        embedded: {
+            roles: exportClone(roles),
+            tasks: exportClone(tasks),
+            databases: exportClone(databases),
+            groups: groupsOf(graph),
+            combos: exportClone(combos),
+        },
+    };
+    return JSON.stringify(bundle, null, 2);
+}
 /**
  * 导入工作流/服务 bundle（图2 交互改造：**一律导入为工作流模板**，不直接创建实例；
  * 模板全局共享，跨会话可见，由用户在画布中「创建实例」后运行）。

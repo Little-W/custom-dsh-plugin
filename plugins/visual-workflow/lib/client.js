@@ -116,6 +116,8 @@ window.__ModuleLoader__.load({
 		const EP_DB_TEST = "dbTest";
 		/** 导出工作流端点名（v2 bundle）。 */
 		const EP_EXPORT_WORKFLOW = "exportWorkflow";
+		/** 导出工作流模板端点名（v2 自包含 bundle）。 */
+		const EP_EXPORT_FLOW_TEMPLATE = "exportFlowTemplate";
 		/** 导入工作流端点名（v2 bundle）。 */
 		const EP_IMPORT_WORKFLOW = "importWorkflow";
 		/** 导出角色模板端点名（v2 bundle）。 */
@@ -7404,6 +7406,18 @@ window.__ModuleLoader__.load({
 		function useStudioTransfer(state, dispatch, notify, toastError, t, remote, templates, flowTemplates, workflows, patchEditor, editorData, personaInputRef, groupMdInputRef, resolveFilePath) {
 			return {
 				exportCurrent: (0, react.useCallback)(async () => {
+					if (editorData?.template && editorData.templateId) {
+						try {
+							const template = currentFlowTemplateOf(state);
+							const result = await remote.call(EP_EXPORT_FLOW_TEMPLATE, { id: editorData.templateId });
+							const name = String(template?.name ?? editorData.name ?? t.exportFileName).replace(/[\\/:*?"<>|]/g, "_");
+							download(String(result?.json ?? ""), `${name}.json`);
+							notify("success", t.toastExported);
+						} catch (error) {
+							toastError(error);
+						}
+						return;
+					}
 					if (editorData?.kind === "workflow" || editorData?.kind === "service") {
 						const flow = currentFlowOf(state) ?? currentServiceOf(state);
 						if (!flow) return;
@@ -7434,7 +7448,7 @@ window.__ModuleLoader__.load({
 					notify("error", t.exportEmpty);
 				}, [
 					editorData,
-					currentFlowOf,
+					state,
 					notify,
 					remote,
 					t.exportEmpty,

@@ -109,6 +109,8 @@ export const EP_RUNTIME_CONFIG = 'runtimeConfig';
 export const EP_DB_TEST = 'dbTest';
 /** 导出工作流端点名（v2 bundle）。 */
 export const EP_EXPORT_WORKFLOW = 'exportWorkflow';
+/** 导出工作流模板端点名（v2 自包含 bundle）。 */
+export const EP_EXPORT_FLOW_TEMPLATE = 'exportFlowTemplate';
 /** 导入工作流端点名（v2 bundle）。 */
 export const EP_IMPORT_WORKFLOW = 'importWorkflow';
 /** 导出角色模板端点名（v2 bundle）。 */
@@ -459,6 +461,7 @@ export const ENDPOINT_NAMES = [
     'runtimeConfig',
     'dbTest',
     'exportWorkflow',
+    'exportFlowTemplate',
     'importWorkflow',
     'exportAgentTemplate',
     'importAgentTemplate',

@@ -8,6 +8,8 @@ export declare class TransferError extends Error {
 }
 /** 导出工作流/服务为自包含 bundle（格式化 JSON 字符串；模式二走 service 字段）。 */
 export declare function exportWorkflowBundle(store: FlowStore, sessionId: string, flowId: string): Promise<string>;
+/** 导出工作流模板为同一自包含 bundle，便于跨项目/会话迁移。 */
+export declare function exportFlowTemplateBundle(store: FlowStore, templateId: string): Promise<string>;
 /**
  * 导入工作流/服务 bundle（图2 交互改造：**一律导入为工作流模板**，不直接创建实例；
  * 模板全局共享，跨会话可见，由用户在画布中「创建实例」后运行）。

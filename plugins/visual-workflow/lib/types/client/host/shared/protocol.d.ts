@@ -90,6 +90,8 @@ export declare const EP_RUNTIME_CONFIG = "runtimeConfig";
 export declare const EP_DB_TEST = "dbTest";
 /** 导出工作流端点名（v2 bundle）。 */
 export declare const EP_EXPORT_WORKFLOW = "exportWorkflow";
+/** 导出工作流模板端点名（v2 自包含 bundle）。 */
+export declare const EP_EXPORT_FLOW_TEMPLATE = "exportFlowTemplate";
 /** 导入工作流端点名（v2 bundle）。 */
 export declare const EP_IMPORT_WORKFLOW = "importWorkflow";
 /** 导出角色模板端点名（v2 bundle）。 */
@@ -313,7 +315,7 @@ export declare const EP_SCHEDULER_TASK_DELETE = "schedulerTaskDelete";
  * 新增端点：在对应段落新增 `EP_*` 常量后，必须把字面量同步登记到本数组
  * （缺失即端点 404；多余项由契约测试的「白名单每个名字都有实现方法」断言拦住）。
  */
-export declare const ENDPOINT_NAMES: readonly ["listWorkflows", "getWorkflow", "putWorkflow", "deleteWorkflow", "listServices", "getService", "putService", "deleteService", "serviceStart", "serviceStop", "serviceStatus", "serviceDebug", "createSession", "listTemplates", "putTemplate", "deleteTemplate", "listFlowTemplates", "putFlowTemplate", "deleteFlowTemplate", "presets", "models", "toolCombos", "toolComboPut", "toolComboDelete", "pluginCatalog", "mcpPut", "mcpDelete", "mcpToggle", "toolSwitchPut", "toolSwitchPutMany", "run", "runStatus", "activeRuns", "runStop", "runHistory", "runResume", "runtimeConfig", "dbTest", "exportWorkflow", "importWorkflow", "exportAgentTemplate", "importAgentTemplate", "listAssets", "getAsset", "promoteAsset", "saveAssetVersion", "listAssetVersions", "rollbackAsset", "retireAsset", "previewAssetCascade", "restoreAsset", "listExperiences", "saveExperience", "retireExperience", "restoreExperience", "schedulerTasks", "schedulerTaskPut", "schedulerTaskDelete"];
+export declare const ENDPOINT_NAMES: readonly ["listWorkflows", "getWorkflow", "putWorkflow", "deleteWorkflow", "listServices", "getService", "putService", "deleteService", "serviceStart", "serviceStop", "serviceStatus", "serviceDebug", "createSession", "listTemplates", "putTemplate", "deleteTemplate", "listFlowTemplates", "putFlowTemplate", "deleteFlowTemplate", "presets", "models", "toolCombos", "toolComboPut", "toolComboDelete", "pluginCatalog", "mcpPut", "mcpDelete", "mcpToggle", "toolSwitchPut", "toolSwitchPutMany", "run", "runStatus", "activeRuns", "runStop", "runHistory", "runResume", "runtimeConfig", "dbTest", "exportWorkflow", "exportFlowTemplate", "importWorkflow", "exportAgentTemplate", "importAgentTemplate", "listAssets", "getAsset", "promoteAsset", "saveAssetVersion", "listAssetVersions", "rollbackAsset", "retireAsset", "previewAssetCascade", "restoreAsset", "listExperiences", "saveExperience", "retireExperience", "restoreExperience", "schedulerTasks", "schedulerTaskPut", "schedulerTaskDelete"];
 /**
  * 定时任务「常用时区」下拉建议列表（**唯一本体**）。
  *
