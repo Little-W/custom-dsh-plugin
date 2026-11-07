@@ -1,0 +1,41 @@
+{
+  "name": "@agent-studio/plugin-opencode-provider",
+  "version": "0.1.1",
+  "type": "module",
+  "description": "连接 OpenCode 模型服务，并在 DSH 工作台中使用 OpenCode 模型。",
+  "main": "./plugins/opencode-provider/index.js",
+  "exports": {
+    ".": "./plugins/opencode-provider/index.js",
+    "./client": "./plugins/opencode-provider/client.js",
+    "./locale/*.json": "./plugins/opencode-provider/locale/*.json",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "plugins/opencode-provider/index.js",
+    "plugins/opencode-provider/client.js",
+    "plugins/opencode-provider/cordis.patch.yml",
+    "plugins/opencode-provider/locale/*.json",
+    "plugins/opencode-provider/README.md"
+  ],
+  "engines": {
+    "dsh": ">=0.2.2-rc.1 <0.3.0"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./plugins/opencode-provider/cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-sidebar-right"
+      ]
+    }
+  },
+  "dependencies": {
+    "@deepseek-ai/dsh-llm": "0.2.2-rc.1",
+    "@deepseek-ai/schemastery": "3.19.0",
+    "ffi-rs": "1.3.7",
+    "@silvia-odwyer/photon-node": "0.3.4"
+  }
+}

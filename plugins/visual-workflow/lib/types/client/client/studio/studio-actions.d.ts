@@ -1,0 +1,307 @@
+import type { LibTab, LibSelKind, TemplateKind, CanvasNode, CanvasEdge, EditorRef, PanelLayout, ToastItem, PresetItem, ModelItem, GraphSnapshot, ConfirmState, LibrarySource } from './studio-types.js';
+import type { WorkflowDocument, WorkflowTemplate } from '../../host/shared/graph-model.js';
+import type { ServiceState, RoleTemplate, TaskTemplate, DatabaseTemplate, GroupTemplate, ToolCombo, RunSnapshot } from '../../host/shared/types.js';
+import type { AssetKind, AssetVersionEntry, ExperienceEntry, PromptAssetDetail, PromptAssetSummary, RoleAssetDetail, RoleAssetSummary, WorkflowAssetDetail, WorkflowAssetSummary } from '../../host/shared/asset-types.js';
+export type StudioAction = {
+    type: 'SET_SESSION';
+    sessionId: string;
+} | {
+    type: 'SET_MODE';
+    mode: 'mode1' | 'mode2';
+} | {
+    type: 'SET_LIB_TAB';
+    tab: LibTab;
+}
+/** 左侧库来源切换（模版 / 资产；画布文档类型随来源切换，复合行为由 hook 编排）。 */
+ | {
+    type: 'SET_LIBRARY_SOURCE';
+    source: LibrarySource;
+}
+/** 库搜索关键词（两态共用）。 */
+ | {
+    type: 'SET_LIB_SEARCH';
+    query: string;
+}
+/** 资产列表（活跃 + 历史（已归档） + 提示词资产）加载完成。 */
+ | {
+    type: 'ASSETS_LOADED';
+    workflows: WorkflowAssetSummary[];
+    roles: RoleAssetSummary[];
+    prompts: PromptAssetSummary[];
+    retiredWorkflows: WorkflowAssetSummary[];
+    retiredRoles: RoleAssetSummary[];
+}
+/** 工作流资产详情装载（随后由 OPEN_FLOW_ASSET 把画布切到该资产文档）。 */
+ | {
+    type: 'ASSET_DOC_LOADED';
+    detail: WorkflowAssetDetail;
+}
+/** 角色资产详情装载（属性栏编辑数据源）。 */
+ | {
+    type: 'ROLE_ASSET_LOADED';
+    detail: RoleAssetDetail;
+}
+/** 提示词资产详情装载（属性栏编辑数据源）。 */
+ | {
+    type: 'PROMPT_ASSET_LOADED';
+    detail: PromptAssetDetail;
+}
+/** 打开提示词资产（属性栏编辑；提示词没有画布形态）。 */
+ | {
+    type: 'OPEN_PROMPT_ASSET';
+    assetId: string;
+}
+/** 提示词正文编辑（只允许 prompt 字段；保存时登记新版本）。 */
+ | {
+    type: 'PROMPT_ASSET_PATCH';
+    patch: Record<string, unknown>;
+}
+/** 经验列表装载（资产态「经验」Tab 数据源；活跃与已归档一并返回）。 */
+ | {
+    type: 'EXPERIENCES_LOADED';
+    items: ExperienceEntry[];
+}
+/** 经验详情装载（属性栏编辑数据源；保存/归档/恢复后按领域返回值刷新）。 */
+ | {
+    type: 'EXPERIENCE_LOADED';
+    entry: ExperienceEntry;
+}
+/** 打开经验（属性栏编辑）。 */
+ | {
+    type: 'OPEN_EXPERIENCE';
+    experienceId: string;
+}
+/** 经验属性栏字段编辑（就地写回 experienceDoc；保存时整体投影上报）。 */
+ | {
+    type: 'EXPERIENCE_PATCH';
+    patch: Record<string, unknown>;
+}
+/** 打开工作流资产文档（画布节点/连线取自已装载的 assetDoc）。 */
+ | {
+    type: 'OPEN_FLOW_ASSET';
+    assetId: string;
+}
+/** 打开角色资产（属性栏编辑）。 */
+ | {
+    type: 'OPEN_ROLE_ASSET';
+    assetId: string;
+}
+/** 角色资产属性栏字段编辑（写回 assetRoleDoc；名称由调用方消毒为 name）。 */
+ | {
+    type: 'ROLE_ASSET_PATCH';
+    patch: Record<string, unknown>;
+}
+/** 资产版本列表装载（回滚上拉列表数据面）。 */
+ | {
+    type: 'ASSET_VERSIONS_LOADED';
+    kind: AssetKind;
+    assetId: string;
+    items: AssetVersionEntry[];
+} | {
+    type: 'ASSET_VERSIONS_CLOSED';
+}
+/** 资产关闭（退役/不可见）：清空该资产的详情槽；正打开在画布或属性栏时一并清空。 */
+ | {
+    type: 'ASSET_CLOSED';
+    assetId: string;
+} | {
+    type: 'WORKFLOWS_LOADED';
+    items: WorkflowDocument[];
+} | {
+    type: 'WORKFLOW_ADDED';
+    flow: WorkflowDocument;
+} | {
+    type: 'WORKFLOW_UPDATED';
+    flow: WorkflowDocument;
+} | {
+    type: 'WORKFLOW_REMOVED';
+    id: string;
+} | {
+    type: 'FLOW_TEMPLATES_LOADED';
+    items: WorkflowTemplate[];
+}
+/** 轮询同步（P2）：保留本地未落盘草稿，其余以服务端列表为准。 */
+ | {
+    type: 'FLOW_TEMPLATES_SYNCED';
+    items: WorkflowTemplate[];
+} | {
+    type: 'FLOW_TEMPLATE_ADDED';
+    template: WorkflowTemplate;
+} | {
+    type: 'FLOW_TEMPLATE_UPDATED';
+    template: WorkflowTemplate;
+} | {
+    type: 'FLOW_TEMPLATE_REMOVED';
+    id: string;
+} | {
+    type: 'SERVICES_LOADED';
+    items: ServiceState[];
+} | {
+    type: 'SERVICE_UPDATED';
+    service: ServiceState;
+} | {
+    type: 'SERVICE_REMOVED';
+    id: string;
+} | {
+    type: 'ACTIVE_RUNS_LOADED';
+    items: Array<{
+        flowId: string;
+        sessionId: string;
+        status: string;
+        runId: string;
+    }>;
+}
+/** 资产态一次性「开启新会话」记忆（模板态勾选/路径走模板持久化字段，不经本动作）。 */
+ | {
+    type: 'INSTANCE_OPTIONS_SET';
+    options: Partial<{
+        newSession: boolean;
+    }>;
+} | {
+    type: 'TEMPLATES_LOADED';
+    kind: TemplateKind;
+    items: Array<RoleTemplate | TaskTemplate | DatabaseTemplate | GroupTemplate>;
+} | {
+    type: 'TEMPLATE_ADDED';
+    kind: TemplateKind;
+    template: RoleTemplate | TaskTemplate | DatabaseTemplate | GroupTemplate;
+} | {
+    type: 'TEMPLATE_UPDATED';
+    kind: TemplateKind;
+    template: RoleTemplate | TaskTemplate | DatabaseTemplate | GroupTemplate;
+} | {
+    type: 'TEMPLATE_REMOVED';
+    kind: TemplateKind;
+    id: string;
+} | {
+    type: 'COMBOS_LOADED';
+    items: ToolCombo[];
+} | {
+    type: 'PRESETS_LOADED';
+    items: PresetItem[];
+} | {
+    type: 'MODELS_LOADED';
+    items: ModelItem[];
+} | {
+    type: 'OPEN_FLOW';
+    flow: WorkflowDocument;
+} | {
+    type: 'OPEN_SERVICE';
+    service: ServiceState;
+} | {
+    type: 'OPEN_FLOW_TEMPLATE';
+    template: WorkflowTemplate;
+} | {
+    type: 'CLEAR_CANVAS';
+} | {
+    type: 'GRAPH_REPLACED';
+    nodes: CanvasNode[];
+    edges: CanvasEdge[];
+    dirty: boolean;
+} | {
+    type: 'NODE_ADDED';
+    node: CanvasNode;
+} | {
+    type: 'NODE_MOVED';
+    id: string;
+    position: {
+        x: number;
+        y: number;
+    };
+} | {
+    type: 'NODE_REMOVED';
+    id: string;
+} | {
+    type: 'EDGE_ADDED';
+    edge: CanvasEdge;
+} | {
+    type: 'EDGE_REMOVED';
+    id: string;
+} | {
+    type: 'SELECT_NODE';
+    id: string;
+} | {
+    type: 'SELECT_EDGE';
+    id: string;
+} | {
+    type: 'SELECT_LIB';
+    kind: LibSelKind;
+    id: string;
+} | {
+    type: 'SELECT_EDITOR';
+    editor: EditorRef;
+} | {
+    type: 'CLEAR_SELECTION';
+} | {
+    type: 'NODE_DATA_PATCH';
+    id: string;
+    patch: Record<string, unknown>;
+} | {
+    type: 'EDGE_PATCH';
+    id: string;
+    patch: Record<string, unknown>;
+}
+/** 文档元数据编辑（名称/描述；「开启新会话/工作区」已改为临时创建选项 INSTANCE_OPTIONS_SET，不再落文档）。 */
+ | {
+    type: 'DOC_PATCH';
+    patch: {
+        name?: string;
+        description?: string;
+    };
+} | {
+    type: 'SET_DIRTY';
+    dirty: boolean;
+} | {
+    type: 'MARK_SAVED';
+} | {
+    type: 'RUN_STARTED';
+    runId: string;
+    runSessionId?: string;
+} | {
+    type: 'RUN_STOP_REQUESTED';
+    runId: string;
+    sessionId: string;
+} | {
+    type: 'RUN_STOP_SETTLED';
+    runId: string;
+    sessionId: string;
+} | {
+    type: 'RUN_SNAPSHOT';
+    snapshot: RunSnapshot;
+} | {
+    type: 'RUN_CLEARED';
+} | {
+    type: 'TOAST_PUSH';
+    toast: ToastItem;
+} | {
+    type: 'TOAST_DROP';
+    id: string;
+} | {
+    type: 'HISTORY_PUSH';
+    snapshot: GraphSnapshot;
+} | {
+    type: 'UNDO';
+} | {
+    type: 'REDO';
+} | {
+    type: 'PANELS_SET';
+    panels: Partial<PanelLayout>;
+} | {
+    type: 'CONFIRM_SET';
+    confirm: ConfirmState | null;
+} | {
+    type: 'HISTORY_OPEN';
+    open: boolean;
+} | {
+    type: 'RUN_HISTORY_LOADED';
+    items: RunSnapshot[];
+} | {
+    type: 'RUN_HISTORY_SELECT';
+    id: string;
+} | {
+    type: 'COMBO_OPEN';
+    open: boolean;
+} | {
+    type: 'SCHEDULER_OPEN';
+    open: boolean;
+};

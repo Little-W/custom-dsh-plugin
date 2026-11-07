@@ -1,0 +1,46 @@
+// src/host/workspace-path.ts
+//
+// 新会话工作区路径校验（host 级横切输入校验契约，被 GUI 端点与定时任务端点共用）。
+//
+// 为什么在 host 根而不是独立模块：本文件只校验一个用户输入字段，并不拥有「工作区」
+// 领域——沙箱工作区根由官方 dsh-sandbox-policy / session.header.cwd 拥有，受管文件
+// 路径由 storage 拥有。它与 system-language.ts 同形：多模块共用的 host 级单职责文件，
+// 不构成独立模块边界（无状态、无生命周期、无内部协作）。
+//
+//   - 官方工作区 = 会话 header.cwd（dsh-workspace 按 cwd 校验归属；dsh-sandbox-policy
+//     以 session.header.cwd 为 workspace-write 根）——因此保存配置时校验路径存在且为
+//     目录，即可保证「输入路径 → 新会话 cwd → 沙箱工作区」的联动闭环；
+//   - 空值视为未配置（返回 undefined，不校验）；
+//   - 校验失败抛明确错误（宿主保存端点转 400，运行期创建会话失败按触发失败处理）。
+import { stat } from 'node:fs/promises';
+import { resolve } from 'node:path';
+/**
+ * 校验并规范化工作区路径（可选字段）：
+ *   - 空串/未设置 → undefined；
+ *   - 非空路径必须存在且为目录，否则抛错（错误消息面向用户，含原路径）；
+ *   - 返回值恒为绝对路径：下游把它直接当作会话 cwd / 沙箱工作区根（官方以
+ *     session.header.cwd 为 workspace-write 根），相对路径会让「同一份配置」随
+ *     宿主进程 cwd 漂移到不同工作区，故按进程 cwd 解析成绝对路径后再交给下游。
+ */
+export async function resolveWorkspacePath(value) {
+    const raw = String(value ?? '').trim();
+    if (!raw)
+        return undefined;
+    const path = resolve(raw);
+    let info;
+    try {
+        info = await stat(path);
+    }
+    catch (error) {
+        const code = error?.code;
+        if (code === 'ENOENT' || code === 'EACCES' || code === 'ENOTDIR' || code === 'EPERM') {
+            throw new Error(`工作区路径不存在或不可访问：${raw}（请填写存在的绝对路径目录）`);
+        }
+        throw error;
+    }
+    if (!info.isDirectory()) {
+        throw new Error(`工作区路径不是目录：${raw}（请填写存在的绝对路径目录）`);
+    }
+    return path;
+}
+//# sourceMappingURL=workspace-path.js.map

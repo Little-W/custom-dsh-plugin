@@ -1,0 +1,261 @@
+import type { AssetVersionEntry, AssetVersionSource, ExperienceAutoRetirementReason, ExperienceEntry, ExperienceEvaluationInsertInput, ExperienceGenerationPromptEntry, ExperienceInsertCheckedInput, ExperiencePatch, ExperienceRetirementFacts, ExperienceRetrievalUpdate, ExperienceStatsEntry, ExperienceStatsRebuildInput, ExperienceType, ExperienceUsageRecordInput, PromptAssetDetail, PromptAssetSummary, RoleAssetDetail, RoleAssetReference, RoleAssetSummary, RoleAssetType, WorkflowAssetDetail, WorkflowAssetSummary } from '../shared/asset-types.js';
+import type { GraphNode, Line, WorkflowMode } from '../shared/graph-model.js';
+import type { OrgMeta } from '../shared/org-meta.js';
+import type { RoleTemplate } from '../shared/template-types.js';
+import { type ExperienceEvaluationsCheckedResult } from './experience-evaluations.js';
+import { type ExperienceEmbeddingRow, type ExperienceInsertCheckedResult } from './experiences.js';
+import { type IdGeneratorDeps } from './ids.js';
+export { AssetError } from './errors.js';
+export type { AssetErrorCode } from './errors.js';
+export { contentFingerprint, stableStringify } from './fingerprint.js';
+export { decodeEmbedding, encodeEmbedding, type EmbeddingDecode } from './embedding-blob.js';
+export { EXPERIENCE_TYPE_VALUES } from './experience-codec.js';
+export type { ExperienceEmbeddingRow, ExperienceInsertCheckedResult } from './experiences.js';
+export type { ExperienceEvaluationsCheckedResult } from './experience-evaluations.js';
+export { EXPERIENCE_LIST_MAX_LIMIT } from './experiences.js';
+export { EXPERIENCE_PROMPT_ASSET_IDS, EXPERIENCE_PROMPT_SEED_VERSION, EXPERIENCE_PROMPT_SEEDS, type ExperiencePromptSeed, } from './experience-seeds.js';
+export { PARENT_DUTIES_ASSET_ID, PARENT_DUTIES_ASSET_NAME, hasParentRoleAsset, seedParentDutiesAsset } from './parent-duties-seed.js';
+export { EXPERIENCE_EVALUATION_ID_PREFIX, EXPERIENCE_ID_PREFIX, EXPERIENCE_USAGE_ID_PREFIX, ROLE_ASSET_ID_PREFIX, WORKFLOW_ASSET_ID_PREFIX, newExperienceEvaluationId, newExperienceId, newExperienceUsageId, newRoleAssetId, newWorkflowAssetId, versionRowId, type IdGeneratorDeps, type RandomSource, } from './ids.js';
+export { ASSET_DB_FILE } from './schema.js';
+/** AssetStore 依赖：时钟与 id 生成（测试可确定化；缺省用系统实现）。 */
+export interface AssetStoreDeps {
+    /** 当前时间毫秒（缺省 Date.now）。 */
+    now?: () => number;
+    /** id 生成依赖（随机源/时间/序号；缺省系统实现）。 */
+    ids?: IdGeneratorDeps;
+    /**
+     * 只读打开通道（备份浏览 / 只读介质 / 诊断）：跳过建表与迁移，写方法由驱动层拒绝。
+     * 只读通道下读方法语义不变（`withRead`），写方法以只读库错误失败。
+     */
+    readOnly?: boolean;
+}
+/** 角色模版晋升入参。 */
+export interface RolePromoteInput {
+    templateId: string;
+    fingerprint: string;
+    role: RoleTemplate;
+    source: AssetVersionSource;
+}
+/** 工作流模版晋升入参。 */
+export interface WorkflowPromoteInput {
+    templateId: string;
+    fingerprint: string;
+    mode: WorkflowMode;
+    name: string;
+    description: string;
+    nodes: GraphNode[];
+    lines: Line[];
+    meta?: OrgMeta;
+    source: AssetVersionSource;
+}
+/** 角色资产态保存入参（登记新版本）。 */
+export interface RoleSaveInput {
+    assetId: string;
+    role: RoleTemplate;
+    source: AssetVersionSource;
+}
+/** 工作流资产态保存入参。 */
+export interface WorkflowSaveInput {
+    assetId: string;
+    mode: WorkflowMode;
+    name: string;
+    description: string;
+    nodes: GraphNode[];
+    lines: Line[];
+    meta?: OrgMeta;
+    source: AssetVersionSource;
+}
+/**
+ * 影响面预览入参（只读 discriminated union）：
+ *   - role：内容确实变更时返回引用了该角色资产的其它工作流资产；
+ *   - workflow：本次节点集会为哪些角色资产登记新版本，进而牵连哪些其它工作流资产。
+ */
+export type AssetCascadePreviewInput = {
+    kind: 'role';
+    assetId: string;
+    role: RoleTemplate;
+} | {
+    kind: 'workflow';
+    workflowAssetId: string | null;
+    nodes: GraphNode[];
+};
+/** 晋升/保存结果。 */
+export interface AssetPromoteResult {
+    assetId: string;
+    versionId: number;
+    rowId: string;
+    /** 内容与既有版本全等（或指纹短路）时为 true：未新增版本。 */
+    unchanged: boolean;
+    /** 角色资产类型（角色晋升/保存返回；工作流路径不含单个角色类型）。 */
+    roleAssetType?: RoleAssetType;
+    /** 本次操作中被合并为 shared 的角色资产 id（去重）。 */
+    sharedRoleAssetIds: string[];
+    /** 本次登记使「已无任何工作流引用」而自动归档的角色资产 id（去重）。 */
+    archivedRoleAssetIds: string[];
+}
+/**
+ * 资产库（单文件 SQLite）。
+ *
+ * 读改写语义：每个公开写方法都在**一笔写事务**内完成（进程内串行 + BEGIN IMMEDIATE），
+ * 失败整体回滚，不留半成品；读方法走只读事务（`withRead`，BEGIN DEFERRED + query_only），
+ * 不取写锁、不阻塞写路径。
+ */
+export declare class AssetStore {
+    private readonly db;
+    private readonly now;
+    private readonly ids;
+    private readonly readOnly;
+    private initialized;
+    constructor(root: string, deps?: AssetStoreDeps);
+    /** 打开库并幂等建表（重复调用无副作用）。 */
+    init(): Promise<void>;
+    /**
+     * 播种内置父代理职责资产（幂等；库中已有 parent 类型资产时不动）。
+     *
+     * 为什么由宿主在 init 后显式调用而不是在 init 内自动执行：它是**插件内置内容**的安装动作，
+     * 不是资产库的形状契约——裸库（测试夹具、备份浏览、导入工具）不该凭空多出一条角色资产，
+     * 否则任何「按列表长度/首元素」的读语义都会被内置内容干扰。
+     */
+    seedParentDuties(): Promise<void>;
+    /** 关闭连接（幂等；关闭后再次调用读接口会重新要求 init）。 */
+    close(): void;
+    /** 角色资产列表（活跃；Active 版本投影；currentTemplateFingerprint 由 API 边界填充）。 */
+    listRoleAssets(): Promise<RoleAssetSummary[]>;
+    /** 历史（已归档）角色资产列表（最新版本行投影；不进父代理召回面）。 */
+    listRetiredRoleAssets(): Promise<RoleAssetSummary[]>;
+    /** 角色资产详情（活跃取 Active 版本、归档取最新版本行，归档时带 retired 标记）。 */
+    getRoleAsset(assetId: string): Promise<RoleAssetDetail | null>;
+    /**
+     * 按角色版本行 id 取**该版本**详情；行不存在或资产已退役返回 null。
+     * 用途：目录勘察把工作流资产里钉住的角色版本标注为可召回的 `role-*` 资产
+     * （按钉住版本返回，不能读 Active，否则回滚后标注会撒谎）。
+     */
+    getRoleAssetVersion(roleRowId: string): Promise<RoleAssetDetail | null>;
+    /** 角色资产版本列表（版本号倒序；归档资产同样可列，用于重新启用）。 */
+    listRoleVersions(assetId: string): Promise<AssetVersionEntry[]>;
+    /** 回滚角色资产到指定版本（活跃资产挪 Active 指针；归档资产即重新启用）。 */
+    rollbackRoleAsset(assetId: string, versionId: number): Promise<RoleAssetDetail>;
+    /** 恢复已归档角色资产（取最新版本行重建 Active 指针；已活跃时为幂等无操作）。 */
+    restoreRoleAsset(assetId: string): Promise<RoleAssetDetail>;
+    /** 归档角色资产（删 Active 行；历史、引用统计与版本内容全部保留）。 */
+    retireRoleAsset(assetId: string): Promise<void>;
+    /** 角色模版晋升为资产（算法 C）。 */
+    promoteRole(input: RolePromoteInput): Promise<AssetPromoteResult>;
+    /** 资产态保存角色（算法 D：登记新版本；归档资产的保存只迭代版本、不重建 Active 行）。 */
+    saveRoleVersion(input: RoleSaveInput): Promise<AssetPromoteResult>;
+    /** 工作流资产列表（活跃；Active 版本投影；currentTemplateFingerprint 由 API 边界填充）。 */
+    listWorkflowAssets(): Promise<WorkflowAssetSummary[]>;
+    /** 历史（已归档）工作流资产列表（最新版本行投影；不进父代理召回面）。 */
+    listRetiredWorkflowAssets(): Promise<WorkflowAssetSummary[]>;
+    /** 工作流资产详情（活跃取 Active 版本、归档取最新版本行，归档时带 retired 标记）。 */
+    getWorkflowAsset(assetId: string): Promise<WorkflowAssetDetail | null>;
+    /** 工作流资产版本列表（版本号倒序；归档资产同样可列，用于重新启用）。 */
+    listWorkflowVersions(assetId: string): Promise<AssetVersionEntry[]>;
+    /** 回滚工作流资产到指定版本（活跃资产挪 Active 指针；归档资产即重新启用）。 */
+    rollbackWorkflowAsset(assetId: string, versionId: number): Promise<WorkflowAssetDetail>;
+    /** 恢复已归档工作流资产（取最新版本行重建 Active 指针；已活跃时为幂等无操作）。 */
+    restoreWorkflowAsset(assetId: string): Promise<WorkflowAssetDetail>;
+    /** 归档工作流资产（删 Active 行；历史行与其内联角色资产全部保留）。 */
+    retireWorkflowAsset(assetId: string): Promise<void>;
+    /**
+     * 保存前的影响面预览（只读）：本次内容会牵连哪些**其他**工作流资产。
+     * 判据与登记路径同源，因此预览结论与真实保存不会分叉。
+     */
+    previewAssetCascade(input: AssetCascadePreviewInput): Promise<RoleAssetReference[]>;
+    /** 工作流模版晋升为资产（算法 E）。 */
+    promoteWorkflow(input: WorkflowPromoteInput): Promise<AssetPromoteResult>;
+    /**
+     * 资产态保存工作流（算法 E：内容查重后登记新版本，来源绑定继承自被保存版本）。
+     *
+     * 与晋升路径的差异（用户裁决）：资产态保存**不做指纹短路**（入参无指纹，保留被保存版本
+     * 的来源绑定，使「入库按钮锁定」判据不会被一次保存静默解锁），但同样走内容查重——
+     * 名称/描述/mode/meta + 节点内容（忽略坐标）+ 连线全等即视为未变化、不新增版本。
+     */
+    saveWorkflowVersion(input: WorkflowSaveInput): Promise<AssetPromoteResult>;
+    /**
+     * 生成新的经验 id。
+     * 为什么由资产库发号：经验 id 的命名空间与格式属磁盘契约（前缀、跨进程唯一性策略），
+     * 交给调用方各自拼装必然出现多套格式。
+     */
+    nextId(): string;
+    /** 某主体类型当前生效的经验生成 Prompt（无活跃行返回 null，即该类型经验生成被关闭）。 */
+    getActivePrompt(type: ExperienceType): Promise<ExperienceGenerationPromptEntry | null>;
+    /** 全量经验生成 Prompt（含历史版本；同资产内活跃行排在前）。 */
+    listPrompts(): Promise<ExperienceGenerationPromptEntry[]>;
+    /** 提示词资产列表（两条内置资产；Active 版本投影，无历史/归档分栏）。 */
+    listPromptAssets(): Promise<PromptAssetSummary[]>;
+    /** 提示词资产详情（Active 版本；Active 指针损坏时只读回落到最新版本）。 */
+    getPromptAsset(assetId: string): Promise<PromptAssetDetail | null>;
+    /** 提示词资产版本列表（版本号倒序；不可归档，所有版本都属于同一活跃资产）。 */
+    listPromptVersions(assetId: string): Promise<AssetVersionEntry[]>;
+    /**
+     * 保存提示词资产新版本：**只接受正文**，名称/描述/主体类型从当前版本继承。
+     * 内容全等返回 unchanged（不新增版本）；空正文在领域层拒绝。
+     */
+    savePromptAssetVersion(input: {
+        assetId: string;
+        prompt: string;
+    }): Promise<AssetPromoteResult>;
+    /** 回滚提示词资产到指定版本（只移 Active 指针；不存在归档/恢复分支）。 */
+    rollbackPromptAsset(assetId: string, versionId: number): Promise<PromptAssetDetail>;
+    /** 界面经验列表（活跃与归档一并返回，条目自带 active 标记；超出上限按上限截断）。 */
+    listRows(limit: number): Promise<ExperienceEntry[]>;
+    /**
+     * 按 id 读经验（保持入参顺序，命中不到的略过）。
+     * `activeOnly` = 召回面语义：归档经验一律查不到，避免调用方各自判断归档过滤。
+     */
+    getRows(ids: string[], options?: {
+        activeOnly?: boolean;
+    }): Promise<ExperienceEntry[]>;
+    /**
+     * 某主体类型的活跃向量（召回输入：任务侧与决策侧双通道一次读盘）。
+     * 向量不可用或只有单侧的行不返回：这类行无法参与双通道召回。
+     */
+    listActiveExperienceEmbeddings(type: ExperienceType): Promise<ExperienceEmbeddingRow[]>;
+    /**
+     * 批量判重写入：该主体类型的活跃行读取、判重与写入在**同一笔事务**内完成，任一条失败整批回滚。
+     * 向量必须在调用本方法**之前**算好随行传入：远程嵌入调用与首次模型加载都不得占用写事务。
+     */
+    insertChecked(input: ExperienceInsertCheckedInput): Promise<ExperienceInsertCheckedResult>;
+    /**
+     * 编辑保存：语义字段补丁 + 事务外算好的检索投影与向量一并写入。
+     * 必填语义字段被清空即抛可行动错误（经验没有版本，改坏无从回滚）。
+     */
+    updateFields(id: string, patch: ExperiencePatch, next: ExperienceRetrievalUpdate): Promise<ExperienceEntry>;
+    /** 经验归档 / 恢复（状态写入的唯一入口；内容与检索投影一概不动）。 */
+    setActive(id: string, active: boolean): Promise<ExperienceEntry>;
+    /**
+     * 按策略自动归档（只对活跃行生效；已归档返回 false）。
+     * 手动归档与自动归档共用同一条状态写入边界，避免两套磁盘语义。
+     */
+    retireForPolicy(id: string, reason: ExperienceAutoRetirementReason): Promise<boolean>;
+    /** 全部活跃经验的退役判定事实（使用/评价历史 + 恢复基准；判定公式归经验域）。 */
+    listRetirementFacts(): Promise<ExperienceRetirementFacts[]>;
+    /**
+     * 记录使用事实（经验被显式注入 agent 上下文）：同一笔事务内插入使用行并同步统计的
+     * `recalled_count`；首次记录时按调用方给的中性口径建立统计行。
+     */
+    recordUsage(input: ExperienceUsageRecordInput): Promise<{
+        recorded: number;
+    }>;
+    /** 该主体在该经验类型下「已被显式注入」的经验 id（feedback 准入判据；保持入参顺序去重）。 */
+    listInjectedIds(input: {
+        subjectId: string;
+        experienceType: ExperienceType;
+        experienceIds: string[];
+    }): Promise<string[]>;
+    /**
+     * 批量写入评价并重算对应经验的统计（同一笔事务，任一步失败整批回滚）。
+     * 聚合器由调用方注入：公式属经验域且会演进，而「读全部历史 → 聚合 → 覆盖写」必须原子。
+     */
+    insertEvaluationsChecked(input: ExperienceEvaluationInsertInput): Promise<ExperienceEvaluationsCheckedResult>;
+    /** 读统计投影（缺行不返回：无统计即「证据不足」，读侧按中性解释，不伪造行）。 */
+    getStats(experienceIds: string[]): Promise<ExperienceStatsEntry[]>;
+    /**
+     * 全量重建统计投影（首次上线 / 调参 / 修复 / 迁移）。
+     * 一笔事务内读全部历史、重放聚合器并整表覆盖写；失败不留半成品。
+     */
+    rebuildStats(input: ExperienceStatsRebuildInput): Promise<{
+        experienceCount: number;
+    }>;
+}

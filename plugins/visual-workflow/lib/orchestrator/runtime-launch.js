@@ -1,0 +1,339 @@
+// src/host/orchestrator/runtime-launch.ts
+//
+// 编排运行时启动层（RuntimeLaunch extends RuntimeBase）：startRun（模式一/二
+// 全新启动）与 resumeRun（paused/interrupted 断点续跑）。方法体逐字移动。
+import { randomUUID } from 'node:crypto';
+import { buildResumedSnapshot, findResumableRun, rollbackFromNode } from './resume.js';
+import { createRunSnapshot, setNodeStatus, statusText } from './snapshot.js';
+import { effectiveOrgMeta, freezeOrgMeta, metaOfDocument } from '../graph/index.js';
+import { buildParentRunPrompt } from './directive.js';
+import { buildCheckpointResumePrompt, checkpointResumeSummaryOf } from '../prompts/index.js';
+import { missingStageLabels, validateFlowForRun } from './graph-facts.js';
+import { flattenSubgraphs } from '../graph/index.js';
+import { WfError, messageOf } from './errors.js';
+import { DEFAULT_SYSTEM_LANGUAGE } from '../system-language.js';
+import { RuntimeBase } from './runtime-base.js';
+export class RuntimeLaunch extends RuntimeBase {
+    /**
+     * 启动预留表（flowId → 启动在途）。
+     * 为什么需要：运行锁的「开头护栏」与「登记前重检」之间跨越多个 await（读文档/完整性
+     * 校验/注入父代理配置——后者要读 .md 文件），两个并发 startRun 都会全程做完这些工作，
+     * loser 直到登记前的同步重检才被拒。此处把互斥提前到第一个异步点之前（同步登记），
+     * loser 不再产生任何无效工作。预留只覆盖 startRun 自身生命周期；登记之后的运行期
+     * 仍由运行锁（runs 表）负责，两者语义不同、必须并存。
+     */
+    launching = new Set();
+    // ---- 编排启动 --------------------------------------------------------------
+    /**
+     * 启动一次「父代理编排」运行（模式一入口）。
+     * 流程：校验 → 运行锁 + 并发启动预留 → 建 run 状态（含编排基线）→ 构造编排指令 →
+     * followup 一次性注入+唤醒父代理 → 开始即落盘（崩溃后历史可追溯）。
+     * 工作台全局化改版：运行唯一逻辑 = 运行当前实例——run 会话即实例绑定的会话
+     * （run.sessionId === instance.sessionId）；「开启新会话」只是创建实例时的
+     * 一次性动作（createSession 端点），运行时不再新建会话。
+     */
+    async startRun(input) {
+        const sessionId = String(input.sessionId ?? '');
+        const flowId = String(input.flowId ?? '');
+        if (!sessionId || !flowId)
+            throw new WfError('requires sessionId and flowId', 'WF_BAD_ARGS');
+        // 运行锁护栏：跨会话冲突 / 同会话重复 / 暂停保留锁
+        // （登记前还会在同一同步块内重检一次，见 runs.set 前注释——杜绝并发双运行）
+        this.assertFlowLockFree(flowId, sessionId);
+        // 并发启动预留（同步，先于任何 await）：loser 在此被拒，不读文档/不注入父代理配置。
+        // 为什么放在运行锁护栏之后：已存在的运行（running/paused）应由运行锁给出更精确的
+        // 错误（WF_PAUSED / 跨会话 WF_LOCKED 且带 lockedSessionId），预留只负责「同刻两个启动」。
+        if (this.launching.has(flowId)) {
+            throw new WfError('该工作流正在启动中，请稍后重试', 'WF_LOCKED');
+        }
+        this.launching.add(flowId);
+        try {
+            return await this.startRunReserved(sessionId, flowId, input);
+        }
+        finally {
+            // 失败路径必须释放：否则该 flowId 永久停在「启动中」，后续启动全被拒
+            this.launching.delete(flowId);
+        }
+    }
+    /** startRun 本体（launching 预留保护下运行；护栏与预留语义见 startRun）。 */
+    async startRunReserved(sessionId, flowId, input) {
+        const mode = input.mode ?? 'mode1';
+        const storedFlow = mode === 'mode2'
+            ? await this.deps.store.getServiceAsFlow(flowId)
+            : await this.deps.store.getWorkflow(sessionId, flowId);
+        if (!storedFlow)
+            throw new WfError(mode === 'mode2' ? '服务不存在' : '工作流不存在', 'WF_NOT_FOUND');
+        // 运行前完整性：启动/输入与结束/输出必须齐备（保存中间态与运行分离）
+        const missing = missingStageLabels(storedFlow);
+        if (missing.length > 0) {
+            throw new WfError(`工作流不完整：缺少${missing.join('、')}节点，无法运行`, 'WF_FLOW_INCOMPLETE');
+        }
+        const validation = validateFlowForRun(storedFlow);
+        if (validation !== null)
+            throw validation;
+        // 子图在运行期展开成普通节点/连线：父代理只调度可执行 agent，画布/落盘仍是折叠形态。
+        const flow = flattenSubgraphs(storedFlow);
+        const flattenedValidation = validateFlowForRun(flow);
+        if (flattenedValidation !== null)
+            throw flattenedValidation;
+        if (!this.deps.agents.available()) {
+            throw new WfError('Agent 能力不可用；父代理编排模式需要会话根 Agent 与可延续子代理', 'WF_AGENT_UNAVAILABLE');
+        }
+        // 运行基准会话 = 实例绑定的会话（新逻辑：run 与实例同会话，不再运行期新建）
+        const runSessionId = sessionId;
+        const root = this.deps.agents.getRootAgent(runSessionId) ?? await this.deps.agents.ensureRootAgent?.(runSessionId);
+        if (!root)
+            throw new WfError(runSessionId === sessionId ? '当前会话 Agent 未激活；请先在对话区发送一条消息后重试' : '新会话 Agent 未激活，无法启动', 'WF_ROOT_INACTIVE');
+        if (root.status === 'running')
+            throw new WfError('父代理当前正在忙碌，请稍后再运行', 'WF_ROOT_BUSY');
+        // 父代理（会话根 Agent）配置注入：角色 Prompt 段（含 .md 路径读取）+ 官方系统提示词开关 +
+        // 工具散文段开关 + 模型/思考强度。非侵入：挂载到根 Agent 的 ctx，仅对本会话生效，不修改官方源码。
+        await this.bindParentConfig(flow, root, runSessionId);
+        const runId = this.deps.newRunId?.() ?? `run-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+        const snapshot = createRunSnapshot({ runId, flow, sessionId: runSessionId, mode, now: this.now() });
+        // 语言冻结进快照：本次运行后续的子代理任务、变更通知与续跑继承都读同一份事实。
+        snapshot.systemLanguage = input.systemLanguage ?? this.deps.systemLanguage?.() ?? DEFAULT_SYSTEM_LANGUAGE;
+        // 元参数三层之第三层（D-13）：把「有效值（模板 ← 实例覆盖）」冻结进快照。
+        // 为什么在 startRun 冻结而非每次读取：运行期预算须可审计、可还原；此后改模板/实例
+        // 的 meta 不影响本次运行（续跑继承旧冻结值，见 resume.ts 的 buildResumedSnapshot）。
+        freezeOrgMeta(snapshot, effectiveOrgMeta(metaOfDocument(flow)));
+        // 模式二：用户问题注入输入节点产出（无需连线即作为初始上下文；
+        // 右出 ctx 连线经 buildNodeBlocks 的 start 源分支显式传递给下游）
+        const question = typeof input.question === 'string' ? input.question.trim() : '';
+        if (mode === 'mode2' && question) {
+            const inputNode = flow.nodes.find((n) => n.kind === 'start');
+            if (inputNode) {
+                setNodeStatus(snapshot, inputNode.id, 'ok', {
+                    output: question,
+                    outputFullLimit: this.deps.config.outputFullLimit,
+                    now: this.now(),
+                });
+            }
+        }
+        const entry = {
+            controller: new AbortController(),
+            snapshot,
+            baseFlow: flow,
+            lastSyncedFlow: flow,
+            inflight: new Set(),
+            attempts: new Map(),
+            loopCounters: new Map(),
+            dispatching: new Set(),
+            callCount: 0,
+            lastActiveAt: this.now(),
+            waiters: new Map(),
+        };
+        // 运行锁登记（check-then-act 竞态收口）：重检 + runs.set 在同一同步块内完成
+        // （Node 单线程内无交错），保证同工作流最多一个激活 run。
+        // 可达条件：同 flowId 的并发 startRun 已由 launching 预留表在第一个 await 之前拦掉，
+        // 因此本重检实际覆盖的是 startRun × resumeRun/autoResumeRun 交叉并发——resume 不经
+        // 预留表，只依赖自己的锁断言（独立审核 U2 指出该路径需在补用例时一并覆盖）。
+        this.assertFlowLockFree(flowId, sessionId);
+        this.runs.set(runId, entry);
+        // 一次性注入 + 唤醒：官方 Message 契约要求 id 与 source 齐备（缺 source 父回合
+        // 以 UNKNOWN 失败——旧项目根因复盘结论，必须保留）。
+        // 三情况组装（用户评审）：按画布形态判定父代理提示词变体，输出整份自洽提示词：
+        //   - 情况1 纯编排：无执行单元，编排指令（orchestrator 变体）；
+        //   - 情况2/3 父代理被流程线连接：prepareParentExecutor 先登记执行单元（快照
+        //     标记 running、产出执行单元上下文），再按 hybrid/executor 变体组装。
+        // 拓扑不再进指令（不给宿主路径）：父代理按指令里的入口调 wf_org_catalog 召回实例骨架。
+        const executor = await this.prepareParentExecutor(flow, entry);
+        const directive = buildParentRunPrompt({
+            flow,
+            mode,
+            ...(question ? { question } : {}),
+            executor,
+            systemLanguage: snapshot.systemLanguage,
+        });
+        try {
+            this.deps.agents.followupRoot(root, {
+                id: this.deps.uuid?.() ?? randomUUID(),
+                role: 'user',
+                content: [{ type: 'text', text: directive }],
+                source: { kind: 'user' },
+            });
+        }
+        catch (error) {
+            this.runs.delete(runId);
+            throw new WfError(`编排指令注入失败：${messageOf(error)}`, 'WF_INJECT_FAILED');
+        }
+        // 运行记录：开始即落盘（中断/崩溃后历史面板仍有记录）
+        await this.persistWarn(entry);
+        return { runId, sessionId: runSessionId };
+    }
+    // ---- 断点续跑（resumeRun） --------------------------------------------------
+    /**
+     * 断点续跑：从 paused/interrupted/stopped 的旧 run 创建新 run（resumedFromRunId 继承链）。
+     * 已 ok/react-capped 节点继承状态与完整产出（resumed 标记，不重跑），其余节点
+     * 回退 pending 重新执行；断点产出随继承快照重新可用（后续节点 ctx 注入直接用
+     * 新快照，无需额外回填通道）。
+     * 旧 paused 记录保留在磁盘历史（状态不变），内存条目释放——运行锁随新 run 接管。
+     *
+     * 两条调用语义（input.silent 区分）：
+     *   - 显式启动（工作台「运行/恢复」、调度器、模式二服务）：注入编排指令唤醒父代理，
+     *     故要求父代理空闲（root.status !== 'running'，否则 WF_ROOT_BUSY）；
+     *   - 静默接续（工具路径，见 ensureActiveRun）：父代理正在自身回合内调用 wf_* 工具，
+     *     只接管运行事实与锁，不注入编排指令、不要求父代理空闲。
+     * 两条语义共用同一套校验、快照继承与编排基线初始化——区别仅在「是否注入指令」。
+     */
+    async resumeRun(input) {
+        const sessionId = String(input.sessionId ?? '');
+        const flowId = String(input.flowId ?? '');
+        const silent = input.silent === true;
+        if (!sessionId || !flowId)
+            throw new WfError('requires sessionId and flowId', 'WF_BAD_ARGS');
+        const prev = await findResumableRun(this.deps.store, { sessionId, flowId, fromRunId: input.fromRunId });
+        if (!prev) {
+            if (input.fromRunId) {
+                const run = await this.deps.store.getRun(input.fromRunId);
+                if (run && (run.sessionId !== sessionId || run.flowId !== flowId)) {
+                    throw new WfError('指定的运行不属于该工作流', 'WF_BAD_ARGS', { runId: input.fromRunId });
+                }
+                throw new WfError(run ? `该运行已${statusText(run.status)}，无法恢复` : '指定的运行不存在', run ? 'WF_NOT_RESUMABLE' : 'WF_NOT_FOUND', { runId: input.fromRunId });
+            }
+            // 自动续跑没有可恢复断点时，先看是否已有运行占用该工作流：给出 WF_LOCKED
+            // （运行中/其他会话），而不是误导性的「没有可恢复断点」。
+            this.assertResumeLockFree(flowId, sessionId);
+            throw new WfError('该工作流没有可恢复的断点（暂停或中断记录）', 'WF_NO_RESUME_POINT');
+        }
+        // 运行锁护栏：同会话 paused 允许恢复（启动后锁移交新 run）；其余冲突拒绝
+        // （登记前还会在同一同步块内重检一次，见 runs.set 前注释）
+        this.assertResumeLockFree(flowId, sessionId);
+        const storedFlow = prev.mode === 'mode2'
+            ? await this.deps.store.getServiceAsFlow(flowId)
+            : await this.deps.store.getWorkflow(sessionId, flowId);
+        if (!storedFlow)
+            throw new WfError(prev.mode === 'mode2' ? '服务不存在' : '工作流不存在', 'WF_NOT_FOUND');
+        // 运行前完整性（与全新启动同一套校验）
+        const missing = missingStageLabels(storedFlow);
+        if (missing.length > 0) {
+            throw new WfError(`工作流不完整：缺少${missing.join('、')}节点，无法运行`, 'WF_FLOW_INCOMPLETE');
+        }
+        const validation = validateFlowForRun(storedFlow);
+        if (validation !== null)
+            throw validation;
+        const flow = flattenSubgraphs(storedFlow);
+        const flattenedValidation = validateFlowForRun(flow);
+        if (flattenedValidation !== null)
+            throw flattenedValidation;
+        if (!this.deps.agents.available()) {
+            throw new WfError('Agent 能力不可用；父代理编排模式需要会话根 Agent 与可延续子代理', 'WF_AGENT_UNAVAILABLE');
+        }
+        const root = this.deps.agents.getRootAgent(sessionId) ?? await this.deps.agents.ensureRootAgent?.(sessionId);
+        if (!root)
+            throw new WfError('当前会话 Agent 未激活；请先在对话区发送一条消息后重试', 'WF_ROOT_INACTIVE');
+        // 忙碌检查只对「注入编排指令唤醒父代理」的显式启动语义成立：静默接续不注入指令，
+        // 而工具路径下父代理必然正忙于自身回合（root.status === 'running'），若在此拦下
+        // 就永远无法自行接管断点（这正是「必须人工点运行」的根因）。
+        if (!silent && root.status === 'running')
+            throw new WfError('父代理当前正在忙碌，请稍后再运行', 'WF_ROOT_BUSY');
+        // 父代理（会话根 Agent）配置注入：角色 Prompt 段（含 .md 路径读取）+ 官方系统提示词开关 +
+        // 工具散文段开关 + 模型/思考强度。非侵入：挂载到根 Agent 的 ctx，仅对本会话生效，不修改官方源码。
+        await this.bindParentConfig(flow, root, sessionId);
+        const runId = this.deps.newRunId?.() ?? `run-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+        const snapshot = buildResumedSnapshot({ prev, runId, flow, sessionId, mode: prev.mode, now: this.now() });
+        // 续跑语言继承旧快照；显式 UI 切换只影响本次续跑（写回新快照，不改旧记录）。
+        snapshot.systemLanguage = input.systemLanguage ?? prev.systemLanguage ?? this.deps.systemLanguage?.() ?? DEFAULT_SYSTEM_LANGUAGE;
+        // 可选回滚：目标节点及其流程下游失效后从目标重跑；其余已完成分支保持继承。
+        // 回滚发生在快照构建之后、运行登记之前——失败时不产生新 run/不占锁。
+        let invalidatedNodeIds;
+        const rollbackToNodeId = input.rollbackToNodeId === undefined || input.rollbackToNodeId === null
+            ? ''
+            : String(input.rollbackToNodeId).trim();
+        if (rollbackToNodeId) {
+            try {
+                invalidatedNodeIds = rollbackFromNode({
+                    snapshot,
+                    flow,
+                    targetNodeId: rollbackToNodeId,
+                    ...(typeof input.rollbackReason === 'string' ? { reason: input.rollbackReason } : {}),
+                    now: this.now(),
+                });
+            }
+            catch (error) {
+                throw new WfError(`WF_INVALID_ROLLBACK_TARGET: ${messageOf(error)}`, 'WF_INVALID_ROLLBACK_TARGET');
+            }
+        }
+        const entry = {
+            controller: new AbortController(),
+            snapshot,
+            baseFlow: flow,
+            lastSyncedFlow: flow,
+            inflight: new Set(),
+            attempts: new Map(),
+            loopCounters: new Map(),
+            dispatching: new Set(),
+            callCount: 0,
+            lastActiveAt: this.now(),
+            waiters: new Map(),
+        };
+        // 运行锁登记（check-then-act 竞态收口）：并发 resumeRun/startRun 可能已在本
+        // 请求的 await 期间登记同一 flowId 的 run；重检 + 写入同一同步块内完成。
+        this.assertResumeLockFree(flowId, sessionId);
+        this.runs.set(runId, entry);
+        // 断点继续指令（仅显式启动注入）：isResume 动态态注入末段（已 ok 不重跑；从
+        // resumeFromNodeId 继续）。起点必须取自 buildResumedSnapshot 计算出的新快照
+        // （resume.ts 已推断：暂停断点用 prev.resumeFromNodeId，interrupted 中断无暂停点时
+        // 取首个未完成节点）——若直接用 prev.resumeFromNodeId，宿主重启中断的恢复会因
+        // undefined 注入「（未指定）」，父代理无从定位起点、可能从头重调度已 ok 节点
+        // （违反 §4.7 规则 6 已执行节点不重跑）。
+        // 三情况组装与 startRun 一致；prepareParentExecutor 内部对已 ok/react-capped 的
+        // 继承态直接返回 null（不重跑）→ buildParentRunPrompt 按「父单元已完成」以
+        // orchestrator 变体组装（剩余运行只有编排/收尾，无自执行任务内容）。
+        // 执行单元登记（父代理节点 running）是运行事实初始化，静默接续同样必须执行。
+        await this.prepareParentExecutor(flow, entry);
+        if (silent) {
+            // 静默接续：只接管运行事实与锁；不向会话注入编排指令，父代理在自身回合内继续调度
+            this.log().info(`[visual-workflow] 断点静默接续：run=${runId}（resumedFrom=${prev.id}）session=${sessionId} flow=${flowId}`);
+        }
+        else {
+            // 显式「继续/恢复运行」只注入检查点恢复指令，不再重复首次运行的完整编排提示词：
+            // 工作流目标/上游契约/任务块已经存在于父代理会话历史中，重复注入会稀释上下文。
+            const directive = buildCheckpointResumePrompt({
+                runId,
+                resumedFromRunId: prev.id,
+                resumeFromNodeId: snapshot.resumeFromNodeId,
+                mode: prev.mode,
+                systemLanguage: snapshot.systemLanguage,
+            });
+            try {
+                this.deps.agents.followupRoot(root, {
+                    id: this.deps.uuid?.() ?? randomUUID(),
+                    role: 'user',
+                    content: [{ type: 'text', text: directive }],
+                    // Native notices retain model context and audit history without impersonating human input.
+                    source: { kind: 'visual-workflow-resume', form: 'notice', summary: checkpointResumeSummaryOf(snapshot.systemLanguage) },
+                });
+            }
+            catch (error) {
+                this.runs.delete(runId);
+                throw new WfError(`编排指令注入失败：${messageOf(error)}`, 'WF_INJECT_FAILED');
+            }
+        }
+        await this.persistWarn(entry);
+        // 释放同工作流的旧 paused 内存条目（磁盘历史保留；锁随新 run 接管）。
+        // 为什么走 releaseRunMemory 而不是裸 this.runs.delete：终态/接管收尾只允许一个入口
+        // ——它同时退役该 run 的 childIndex/childByNode 归属；否则旧 child 会因
+        // sessionId/flowId 与新 run 相同而继续通过协作越权校验（投递到已废弃的子代理会话）。
+        for (const [oldId, oldEntry] of [...this.runs]) {
+            const old = oldEntry.snapshot;
+            if (oldId !== runId && old.sessionId === sessionId && old.flowId === flowId && old.status === 'paused') {
+                try {
+                    oldEntry.controller.abort('resumed');
+                }
+                catch {
+                    // 忽略清理期错误
+                }
+                this.rejectWaiters(oldEntry);
+                this.releaseRunMemory(oldId);
+            }
+        }
+        return {
+            runId,
+            resumedFromRunId: prev.id,
+            ...(rollbackToNodeId ? { rollbackToNodeId } : {}),
+            ...(invalidatedNodeIds === undefined ? {} : { invalidatedNodeIds }),
+        };
+    }
+}
+//# sourceMappingURL=runtime-launch.js.map

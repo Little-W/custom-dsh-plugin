@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Batch Plugin Installer",
+    "description": "Select a local plugin folder and install all valid DSH plugins at once."
+  }
+}

@@ -1,6 +1,6 @@
 {
   "meta": {
     "title": "Session Features",
-    "description": "Save conversation task lists and plans, resume paused sessions, and retry temporary network failures."
+    "description": "Save conversation task plans and resume from checkpoints without adding a prompt; DSH handles same-step network retries natively."
   }
 }

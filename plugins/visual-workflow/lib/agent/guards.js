@@ -1,0 +1,175 @@
+// src/host/agent/guards.ts
+//
+// ReAct 软截停护栏
+//
+// 机制：
+// ① agent/pre-step 计步（waterfall，每步≈一次思考-行动迭代）：达到迭代上限时，将本步进入消息替换为「强制收尾指令」，让模型直接产出最终结论（官方 runtime-types L231 pre-step 可替换 messages，PreStepDecision enter 分支）；
+// ② tools.guard()（child scope，官方 core/tools L1110）：触达上限后同步拒绝该子代理一切工具调用（原因「已达迭代上限」），模型无视指令也会被拒，双保险迫使输出结论。
+// 软截停后回合正常结束（stopReason=completed），节点标记 react-capped（非失败，正常产出）。
+//
+// 生命周期（按 childId 隔离）：贡献由宿主在子代理创建窗口内安装到 childCtx（官方 0.1.2 起已移除
+// registerContinuableSetup，安装/撤销归宿主，见同目录 AGENTS.md § 状态所有权）；每回合开始（turn 变化）重置计数与标记；标记由编排器经 consumeCapped 在 subagent/end 消费；若 child 不属于任何运行，下回合 pre-step 重置会自然清掉未消费标记，不残留。
+//
+// 为何用 tools.guard 而非 tools.restrict：guard 是运行时判定拒绝，仅软截停窗口内拒绝、回合结束自动恢复；restrict 是声明式掩码，需成对 disposer 管理且 unknown 名称抛错。软截停是瞬态窗口，guard 语义精确匹配。
+import { randomUUID } from 'node:crypto';
+import { REACT_CAP_DENY_REASON, REACT_CAP_MESSAGE } from '../prompts/index.js';
+// 软截停的两条模型可见文本集中在 prompts/texts/rule-soft-stop.ts；此处 re-export 保持既有导出面。
+export { REACT_CAP_DENY_REASON, REACT_CAP_MESSAGE };
+/**
+ * 注入消息的来源插件标识。
+ *
+ * 【0.1.7-rc.1 取证】官方 `MessageSourceMap`（dsh-llm/lib/types/message.d.ts L101-108）
+ * 只有 `user` / `model` / `tool` / `system-prompt` 四个基础分支，注释明确
+ * 「there is no shared catch-all `plugin` kind」——0.1.5-rc.3 时代的 `plugin` 分支已被移除。
+ * 本插件保持发送该 kind 的依据：该 map 是 **merge-extensible** sum type，官方消费端对
+ * 未知 kind 一律 fall-through（同上注释 L98-99「consumers fall through unknown kinds」），
+ * 且插件零官方运行时依赖、无法在官方的 `MessageSourceMap` 上做模块增强声明。
+ * 保留 `plugin` 使转录归因行为与 0.1.5-rc.3 完全一致（同为默认标签，不改为 `user`
+ * 以免把插件指令伪装成用户发言）。若官方未来对未知 kind 收紧为硬校验，需改为
+ * `{ kind: 'user' }`。
+ */
+const PLUGIN_SOURCE_ID = 'visual-workflow';
+/**
+ * 创建软截停护栏：返回桥（runner 登记上限/编排器消费标记）与贡献
+ * （贡献签名为 `(childCtx) => disposer`；由宿主在子代理创建窗口内对 childCtx 调用，
+ * 撤销函数归宿主持有——本模块不持有作用域撤销表，见同目录 AGENTS.md § 状态所有权）。
+ */
+export function createReactGuard() {
+    // childId → ReAct 上限（仅本插件创建的子代理；其他插件子代理不在表内即旁路）
+    const limits = new Map();
+    // childCtx → 回合状态（identity 键：同一 childCtx 对象即同一子代理）
+    const states = new WeakMap();
+    // childId → 待消费的软截停标记（编排器 subagent/end 观察时消费）
+    const cappedFlags = new Set();
+    const bridge = {
+        setLimit(childId, limit) {
+            limits.set(childId, limit);
+        },
+        drop(childId) {
+            limits.delete(childId);
+            cappedFlags.delete(childId);
+        },
+        consumeCapped(childId) {
+            return cappedFlags.delete(childId);
+        },
+    };
+    /** 读取 payload 中的 childId（官方 payload 携带 agent 对象）。 */
+    function agentIdOf(payload) {
+        return String(payload?.agent?.id ?? '');
+    }
+    /** 取某 childCtx 的回合状态（惰性建表）。 */
+    function stateOf(ctx) {
+        let state = states.get(ctx);
+        if (!state) {
+            state = { turn: -1, steps: 0, capped: false };
+            states.set(ctx, state);
+        }
+        return state;
+    }
+    /** 取 childCtx 上的 tools 服务（child scope；直接字段或经 get 回退）。 */
+    function toolsOf(childCtx) {
+        const direct = childCtx.tools;
+        if (direct && typeof direct.guard === 'function')
+            return direct;
+        if (typeof childCtx.get === 'function') {
+            const viaGet = childCtx.get('tools');
+            if (viaGet && typeof viaGet.guard === 'function')
+                return viaGet;
+        }
+        return null;
+    }
+    const contribution = (rawChildCtx) => {
+        // 官方契约 childCtx 为 unknown：运行时守卫收窄到最小结构
+        const childCtx = rawChildCtx;
+        const disposers = [];
+        // ① pre-step 计步 + 触达上限后替换本步消息为强制收尾指令（waterfall 透传放行）
+        // 【取证】官方 dsh-agent runtime-types 'agent/pre-step'：payload { agent, messages, turn, step, signal }，
+        // waterfall 返回 PreStepDecision（enter = 以给定 messages 进入本步）。
+        try {
+            disposers.push(childCtx.on('agent/pre-step', async (rawPayload, next) => {
+                const payload = rawPayload;
+                const childId = agentIdOf(payload);
+                const limit = limits.get(childId);
+                // 非本插件子代理或未设限：放行（保留 next 链）
+                if (limit === undefined) {
+                    if (next)
+                        return next();
+                    return undefined;
+                }
+                const state = stateOf(childCtx);
+                const turn = Number(payload?.turn ?? -1);
+                // 回合变化：新回合重置预算与软截停标记（未消费的旧标记在此自然清除）
+                if (turn !== state.turn) {
+                    state.turn = turn;
+                    state.steps = 0;
+                    state.capped = false;
+                    cappedFlags.delete(childId);
+                }
+                state.steps += 1;
+                if (state.steps >= limit && !state.capped) {
+                    state.capped = true;
+                    cappedFlags.add(childId);
+                }
+                if (!state.capped) {
+                    if (next)
+                        return next();
+                    return undefined;
+                }
+                // 软截停：替换本步消息为强制收尾指令（enter 分支，官方 PreStepDecision）
+                return {
+                    kind: 'enter',
+                    messages: [
+                        {
+                            // id 为官方 UserMessage 的必填字段（dsh-llm message.d.ts 的 MessageBase.id）：
+                            // 官方官方构造器 createUserMessage 始终注入新 MessageId（dsh-llm/lib/index.js
+                            // L37-40 `brandString(randomUUID())`）。此处按同一口径自造，保证消息在会话日志、
+                            // surface 投影与转录中具备稳定唯一身份——缺失会让追加进 user/message 的消息
+                            // 无稳定身份（dsh-agent-loop/lib/index.js L1046 按 lossless-JSON 契约写入）。
+                            id: randomUUID(),
+                            role: 'user',
+                            content: [{ type: 'text', text: REACT_CAP_MESSAGE }],
+                            // source 必须满足官方 plugin 来源的全部必填字段（见 PLUGIN_SOURCE_ID 取证）
+                            source: { kind: 'plugin', plugin: PLUGIN_SOURCE_ID },
+                        },
+                    ],
+                };
+            }));
+        }
+        catch {
+            // childCtx 形状不符（理论上不出现）：计步线失效，拒绝线仍可注册（降级不阻塞）
+        }
+        // ② tools.guard：软截停窗口内拒绝本子代理的工具调用（双保险；child scope 专属）。
+        // 判定以 cappedFlags 为准（drop/回合重置都会清除——不读 state.capped，避免
+        // drop 后残留状态误拒）；exec.agent.id 定位子代理（官方 ToolExecution.agent）。
+        try {
+            const tools = toolsOf(childCtx);
+            if (tools) {
+                disposers.push(tools.guard((exec) => {
+                    const childId = String(exec?.agent?.id ?? '');
+                    if (childId && cappedFlags.has(childId))
+                        return REACT_CAP_DENY_REASON;
+                    return undefined;
+                }));
+            }
+        }
+        catch {
+            // tools 服务缺失：拒绝线失效，pre-step 指令线仍有效（软截停降级但不失效）
+        }
+        return () => {
+            for (const dispose of disposers) {
+                try {
+                    dispose();
+                }
+                catch {
+                    // 清理尽力而为
+                }
+            }
+        };
+    };
+    return { bridge, contribution };
+}
+/** 从 bridge 派生 NodeRunner.consumeReactCapped 适配（runner 装配用）。 */
+export function consumeReactCappedOf(bridge) {
+    return (childId) => bridge.consumeCapped(childId);
+}
+//# sourceMappingURL=guards.js.map

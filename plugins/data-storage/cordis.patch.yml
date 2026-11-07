@@ -1,0 +1,3 @@
+- insert:
+    - id: studio-data-storage
+      name: '@agent-studio/plugin-data-storage'

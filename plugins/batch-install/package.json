@@ -1,0 +1,25 @@
+{
+  "name": "@agent-studio/plugin-batch-install",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "扫描本地插件目录并一次安装其中的 DSH 插件。",
+  "main": "./index.js",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./icon": "./icon.svg",
+    "./locale/*.json": "./locale/*.json",
+    "./package.json": "./package.json"
+  },
+  "files": ["index.js", "client.js", "cordis.patch.yml", "icon.svg", "locale/*.json", "README.md"],
+  "dsh": {
+    "bundle": { "patch": "./cordis.patch.yml" },
+    "client": {
+      "platform": "web",
+      "inject": ["@deepseek-ai/dsh-client-locale", "@deepseek-ai/dsh-client-ui-sidebar-right", "remote", "remote.directoryPicker"]
+    }
+  },
+  "dependencies": {
+    "@deepseek-ai/dsh-host-webserver": "0.2.2-rc.1"
+  }
+}

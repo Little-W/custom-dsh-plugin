@@ -1,0 +1,267 @@
+import { Context, Service } from '@deepseek-ai/cordis';
+import type { Config } from './config.js';
+import { FlowStore } from './storage/flow-store.js';
+import { AssetStore } from './assets/index.js';
+import { OrchestratorRuntime, type RootAgentLike, type RootInjectedMessage } from './orchestrator/index.js';
+import { CordisAgentHost, NodeAgentRunner } from './agent/index.js';
+import { ToolSwitchStore } from './tools/index.js';
+import type { ExperienceDomainFace } from './api/index.js';
+import { EmbeddingService } from './embedding/engine.js';
+import { ServiceManager } from './service/index.js';
+import { SchedulerEngine, SchedulerTaskStore } from './scheduler/index.js';
+import { CordisSessionProvider } from './sessions/session-provider.js';
+export declare const VisualWorkflowHostServiceName = "visualWorkflowHost";
+/**
+ * 宿主 service：持有解析后的 config、FlowStore 与编排运行时，挂载事件观察、
+ * 看护定时器与清理。内存运行态（运行锁/快照/子代理表）由编排运行时与节点
+ * 执行引擎（NodeAgentRunner）接管。
+ */
+export declare class VisualWorkflowHost extends Service {
+    readonly config: Config;
+    /** FlowStore 实例（dataDir 落盘数据层）。 */
+    readonly store: FlowStore;
+    /**
+     * 资产库（SQLite；资产与经验两类事实的唯一持久化持有者）。
+     * 私有：对外只经 `assets` getter 与各能力缝暴露，避免绕过可用性判定直接用未初始化的库。
+     */
+    private readonly assetStore;
+    /** 资产库是否就绪（init 成功）。 */
+    private assetStoreReady;
+    /** 编排运行时（运行锁/快照/状态机/wait 阻塞/暂停门）。 */
+    readonly orchestrator: OrchestratorRuntime;
+    /** 节点子代理执行引擎（startContinuable 创建/签名复用/白名单解析）。 */
+    readonly runner: NodeAgentRunner;
+    /** 会话根 Agent 宿主能力（wf_* 工具层归属校验/提问借 root 身份）。 */
+    readonly agents: CordisAgentHost;
+    /** 模式二服务管理器（fork 子进程生命周期/端口池/自动恢复）。 */
+    readonly serviceManager: ServiceManager;
+    /** 定时任务引擎（触发/窗口挂起/续跑；新功能本阶段）。 */
+    readonly scheduler: SchedulerEngine;
+    /** 定时任务存储（scheduler-tasks.json）。 */
+    readonly schedulerTaskStore: SchedulerTaskStore;
+    /** 全局工具开关存储（tool-switches.json；父代理工具白名单「关闭」侧，全局即时生效）。 */
+    readonly toolSwitches: ToolSwitchStore;
+    /** 新会话创建缝（「开启新会话」一次性动作：创建实例时新建主会话；API 端点使用）。 */
+    readonly sessionProvider: CordisSessionProvider;
+    /** 会话工作目录解析（新会话继承创建者 cwd 用；API 端点使用）。 */
+    readonly sessionCwdOf: (sessionId: string) => Promise<string | undefined>;
+    /** ReAct 软截停护栏（桥供 runner/编排器，贡献注入子代理）。 */
+    private readonly reactGuard;
+    /** 思考强度模型选择装配。 */
+    private readonly modelSelection;
+    /** 子代理系统提示词与协作 Prompt 注入装配。 */
+    private readonly childPrompt;
+    /**
+     * 子代理工具白名单装配（创建窗口内安装 allow）。
+     * 普通节点子代理由官方创建请求携带白名单；Team 成员无法携带，只能由本装配在窗口内安装。
+     */
+    private readonly childToolFilter;
+    /**
+     * 每子代理作用域装配撤销表（agentId → disposer）：由 `agent/created` 处理器在
+     * 子代理创建窗口内安装四类贡献（角色提示词/工具可见性/模型选择/软截停），
+     * `agent/disposed` 或宿主 dispose 时撤销。持 key 的是 agent id（而非 childId）。
+     */
+    private readonly childScopeDisposers;
+    /**
+     * 每个视觉工作流子代理的提示词状态（agentId → ChildPromptState）。在首次 `agent/created`
+     * 时写入；此后即使子代理被重发布/恢复（`agent/created` 再次触发、但不在 withPending
+     * 作用域内）也能据此状态重新安装四类贡献——避免「第二轮被官方提示词顶替、贡献被卸载」的
+     * 二次重置 BUG。
+     * 【关键生命周期】`agent/disposed` **不再**删除此状态：可延续子代理（startContinuable）在
+     * 回合间会因官方 watchSettlement（空闲+settled）被销毁并触发 `agent/disposed`，第二轮父代理
+     * 再派发时经 coldResume 冷恢复（重新发布 → 再次 `agent/created`）。若在 dispose 时删除
+     * 状态，重发布将找不到该子代理的 ChildPromptState → 四类贡献不再重装 → 第二轮回退官方提示词。
+     * 条目为极小字符串、会话内数量有限，仅随宿主 dispose 统一清理即可。
+     */
+    private readonly childPromptStates;
+    /** 本地嵌入引擎（外部端点 > 本地资产 > BM25 降级；惰性加载）。 */
+    private readonly embedding;
+    /**
+     * 经验域服务（校验/投影/向量/判重/召回/主体解析的唯一起点）。
+     * 为什么由宿主组装而不是让工具与 API 各自 new：经验域只声明最小端口，端口到
+     * AssetStore / 嵌入引擎 / 运行事实的适配必须在一处完成，否则同一套语义会有多份实现。
+     */
+    private readonly experienceService;
+    /** API 边界的经验域能力缝（资产端点与经验端点共用同一份判据）。 */
+    private readonly experienceDomain;
+    /** 已清理标记（dispose 后为 true；重复 dispose 幂等）。 */
+    private _disposed;
+    /** 跳过磁盘对账（服务进程装配用：运行记录对账属主进程职责）。 */
+    private readonly skipReconcile;
+    /** 已清理标记（dispose 后为 true；重复 dispose 幂等）。 */
+    get disposed(): boolean;
+    constructor(ctx: Context, config: Config, options?: {
+        skipReconcile?: boolean;
+    });
+    /** 按会话取根 Agent（wf_* 工具层提问/校验用；转发至 agents 适配）。 */
+    getRootAgent(sessionId: string): RootAgentLike | null;
+    /**
+     * 系统语言名（从 DSH 用户设置 locale.preference 读取）。
+     * 单一读取路径：编排提示词注入、/arrange 规划提示词注入与 GUI 呈现文案共用，
+     * 避免同一读取表达式散落两处（口径分叉时界面与提示词语言会不一致）。
+     * 公开供 API 边界能力缝（ApiHost.systemLanguage）消费。
+     */
+    systemLanguage(): string;
+    /**
+     * 在子代理创建窗口内安装四类每子代理作用域贡献，返回合并 disposer（host 管理生命周期）。
+     * 与官方 installModelSelection(agentCtx) 的「拿到 child 的 ctx 后安装」范式一致：
+     *   - wf_* 可见性双保险（wf_run_node/wf_finish deny）；
+     *   - ReAct 软截停护栏；
+     *   - 模型选择（provider/model/reasoning）；
+     *   - 角色提示词段 + 开关过滤。
+     * 因在 `agent/created`（agents.create 发布、首轮组装之前串行 await）执行，
+     * 四类贡献在首轮即可见——修复「系统提示词/工具第二轮才更新」的同源时序 BUG。
+     * 单个贡献失败则跳过（其余照装），返回的 disposer 为已成功安装贡献的合并撤销。
+     */
+    private installChildScope;
+    /** 撤销某 child 已安装的作用域装配（幂等；agent/disposed / 重建路径用）。 */
+    private dropChildScope;
+    /**
+     * 监听官方 `agent/created`：子代理创建/重发布窗口（startContinuable 内部、first assembly
+     * 之前，**串行 await**）触发。
+     *   - 首建：此时 `withPending` 状态仍在作用域内 → `peekPending()` 取到本次创建的 ChildPromptState；
+     *   - 重发布/恢复：`agent/created` 再次触发但不在 withPending 作用域内 → 从
+     *     `childPromptStates`（首建时持久化）取回状态。
+     * 据此在其 ctx 上提前（重新）安装四类贡献，使首轮 + 后续每轮系统提示词与工具集都保持就位，
+     * 不会「第二轮被官方提示词顶替、贡献被卸载」（二次重置 BUG）。
+     *
+     * 【0.1.7-rc.1 取证】事件名与 payload 见 `src/host/events.d.ts` 的 `agent/created` 条目；
+     * 官方对该事件**按序 await 监听器，且监听器抛错会让创建失败**（dsh-agent/lib/index.js
+     * L579 的 `ctx.serial`），故本处理器全程同步且不抛错（贡献安装由 installChildScope
+     * 逐项 try/catch 隔离）。根 Agent 创建（source='startup'）同样触发本事件：此时
+     * `peekPending()` 为空且 `childPromptStates` 无该 id → 直接返回，无副作用。
+     */
+    private onAgentCreated;
+    /**
+     * 子代理被销毁时回收其作用域装配（重建配置签名变化 / 正常运行结束）。
+     * 【关键】**不删除** `childPromptStates`：可延续子代理在回合间会因官方 watchSettlement
+     * （空闲+settled）被销毁并触发 `agent/disposed`，第二轮父代理再派发时经 coldResume 冷恢复
+     * （重新发布 → 再次 `agent/created`）。若此处删除持久化状态，重发布时将无法找到该
+     * 子代理的 ChildPromptState，四类贡献（角色提示词段/工具可见性/模型选择/软截停）不会重装
+     * → 第二轮回退官方提示词（「系统提示词和工具已更新」二次重置 BUG）。状态仅随宿主 dispose
+     * 统一清理。
+     */
+    private onAgentDisposed;
+    /** 按会话 id 取子代理 agent（wf_send_message 投递缝用；转发至 agents 适配）。 */
+    getChildAgent(childId: string): RootAgentLike | null;
+    /** 冷态投递：复用子代理派发协作消息（subagents 服务惰性解析；缺失报明确错误）。 */
+    followupChild(parent: RootAgentLike, childId: string, content: unknown[], options: {
+        source: unknown;
+        signal?: AbortSignal;
+    }): Promise<unknown>;
+    /** 父代理空闲时唤醒投递（wf_send_message 投递缝；转发至 agents 适配）。 */
+    followupRoot(agent: RootAgentLike, message: RootInjectedMessage): void;
+    /**
+     * 官方 Team 成员投递（wf_send_message 的成员通道）：按官方成员名寻址，直接调用官方
+     * Team 服务。
+     *
+     * 为什么不走官方 send_message 工具：工具通道可被全局工具开关关闭（插件默认关闭官方
+     * send_message），而成员间通信必须继续可用；宿主直接调用官方服务不经过工具注册与
+     * 开关，因此不受影响。
+     */
+    sendToTeammate(parent: RootAgentLike, memberName: string, content: unknown[], options: {
+        signal?: AbortSignal;
+    }): Promise<unknown>;
+    /** 数据根目录（数据工具索引落盘位置）。 */
+    get dataDir(): string;
+    /**
+     * 资产库（API 边界缝；未就绪时为 undefined，资产端点据此返回 501）。
+     * 为什么不让边界直接拿 AssetStore：可用性判定只能有一处，端点不得使用未初始化的库。
+     */
+    get assets(): AssetStore | undefined;
+    /**
+     * 取资产库，未就绪时抛可行动错误。
+     * 为什么抛错而不是返回空集：目录勘察把「库不可用」伪装成「没有资产」会让父代理基于空目录
+     * 做出错误编排（与既有「核心清单读失败必须上抛」同口径）。
+     */
+    private requireAssetStore;
+    /**
+     * 经验域 Store 端口适配：每次调用重新判定资产库可用性（未就绪抛可行动错误），
+     * 避免把「库不可用」伪装成空结果；方法名与经验域契约逐字对应，不做语义加工。
+     */
+    private experienceStorePort;
+    /** 经验域运行事实端口：只经编排器的语义化 seam 读取运行事实，不触达其内部结构。 */
+    private experienceRuntimePort;
+    /** 工具层经验能力缝（learn / recall / feedback 三工具共用经验域服务同一实例）。 */
+    private experienceHost;
+    /**
+     * 经验域能力缝（API 边界消费）：资产库未就绪时返回 undefined，
+     * 使经验端点以「未装配」明确失败，而不是返回一个与事实不符的空列表。
+     */
+    get experience(): ExperienceDomainFace | undefined;
+    /** 服务 apiKey（调试流式代理鉴权用；密钥仅 Host 持有，不下发浏览器）。 */
+    get apiKey(): string | null;
+    /** 嵌入引擎（数据工具向量检索用）。 */
+    get engine(): EmbeddingService;
+    /**
+     * 运行期配置下发（API 边界缝）：只透传配置事实，前端据以调整轮询节奏与画布约束。
+     * 前端在缺失/非法时的缺省回退由前端决定，Host 不在此伪造取值。
+     */
+    runtimeConfig(): {
+        runPollMs: number;
+        teamMemberLimit: number;
+    };
+    /** 启动装配（Service.init 语义：初始化失败让 fiber 失败，不吞错）。 */
+    [Service.init](): Promise<void>;
+    /**
+     * 播种内置父代理模板（幂等）：模板库中没有任何 kind==='parent' 模板时写入一条。
+     *
+     * 为什么由宿主播种而不是 Client：模板是持久化事实，Client 只在 boot 时补齐会让落盘
+     * 文案随「当次界面语言」漂移，且插件未开界面时角色 Tab 无父代理模板。
+     * 存在性判据只有 kind==='parent'（不比对语言与内容）：库中已有任意父代理模板
+     * （用户自建或历史版本播种过的）时本次不补齐、不覆盖用户改动。
+     */
+    private ensureBuiltinParentTemplate;
+    /**
+     * 自主编排工具的宿主能力适配（P1）：把宿主 service 的 store / 运行时 / 生态枚举
+     * 收敛成两个工具所需的最小缝。为什么要一层适配而不是把 service 直接传出：
+     * 工具只应看到自己需要的能力（单测可替换 fake），避免工具层反向依赖宿主内部结构。
+     */
+    private ecosystemAdapters;
+    /** subagent/end 观察：回写 run 节点状态（ok/fail + output）并唤醒 wait 阻塞。 */
+    onSubagentEnd(payload: {
+        runId?: unknown;
+        provider?: unknown;
+        id?: unknown;
+        local?: unknown;
+        stopReason?: unknown;
+        lastAssistantMessage?: unknown;
+    }): void;
+    /**
+     * agent/error 观察：**只记录，不终止运行**（用户裁决）。
+     * 为什么撤销旧的「快速失败通道」：官方 ISession.cancel（对话区停止按钮）会让父代理
+     * 当前回合以 error/aborted 收尾，而 payload.error 对「用户取消」与「真实故障」并无
+     * 稳定可判的形状；旧的快速通道因而把「打断修正」误判成「编排已死」并释放运行锁。
+     * 现在运行终止只由两处承担：工作台停止按钮（stopRun）与空闲看护；真实编排错误仍由
+     * watchdog 的 latestTurnEnd（kind==='error'）权威判定为 failed（15s 内收敛）。
+     */
+    onAgentError(payload: {
+        agent?: {
+            id?: unknown;
+        };
+        turn?: unknown;
+        step?: unknown;
+        error?: unknown;
+    }): void;
+    /**
+     * agent/status 观察：父代理转为 running（在干活）→ 刷新其在编运行的空闲基准。
+     * payload 全字段运行时守卫（官方词表/形状漂移时静默忽略，绝不抛错）：
+     *   - status 只认 'running'（'idle' 表示父代理空闲，不能算作活跃）；
+     *   - 会话 id 取 agent.id（父代理会话 id 即根会话 id）。
+     * 非本会话在编运行（子代理状态事件、其他会话）不影响：touchRunForSession 按
+     * 会话 + status==='running' 精确匹配。
+     */
+    onAgentStatus(payload: {
+        agent?: {
+            id?: unknown;
+        };
+        status?: unknown;
+    }): void;
+    /**
+     * 清理运行时资源（幂等）。
+     * fiber 卸载时需尽力中止全部运行（abort controller + 阻塞等待 reject）、清理
+     * 子代理表与护栏登记；运行中的子代理由编排运行时统一中止后由官方 seam 收尾；
+     * 模式二服务进程的停止逻辑在服务管理阶段接入。
+     */
+    dispose(): void;
+}

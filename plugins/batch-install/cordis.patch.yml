@@ -1,0 +1,3 @@
+- insert:
+    - id: studio-plugin-batch-install
+      name: '@agent-studio/plugin-batch-install'

@@ -1,0 +1,123 @@
+/** 嵌入来源：local 本地模型 / remote 外部端点 / bm25 降级（无向量能力）。 */
+export type EmbeddingSource = 'local' | 'remote' | 'bm25';
+/** 嵌入引擎接口（索引器/数据工具依赖；单测可注入 fake）。 */
+export interface EmbeddingEngine {
+    /** 当前来源。 */
+    readonly source: EmbeddingSource;
+    /** 可诊断原因（bm25 降级或远程嵌入超时时写入；未提供为 null）。 */
+    readonly degradeReason?: string | null;
+    /** 向量维度（bm25 降级时为 0）。 */
+    readonly dimension: number;
+    /**
+     * 确保引擎就绪（惰性加载入口；返回值即就绪后的来源，可忽略）。
+     *
+     * 为什么进契约：实现是惰性的，就绪**之前** source 恒为 bm25（初始值）——那表达的是
+     * 「尚未探测」而不是「已降级」。凡读 source/dimension 做能力判定的调用方都必须先就绪，
+     * 否则会把「尚未加载」误判成「不可用」（索引被永久写成词法索引、写入被拒绝）。
+     */
+    ensureReady(): Promise<unknown>;
+    /** 批量嵌入（返回单位长度向量；bm25 降级时抛明确错误）。 */
+    embed(texts: string[]): Promise<Float64Array[]>;
+    /** 释放本地模型等资源（幂等）。 */
+    dispose(): void;
+}
+/** L2 归一化（内积即余弦相似度；零向量返回全零）。 */
+export declare function normalizeVector(values: number[] | Float64Array | Float32Array): Float64Array;
+/**
+ * 向量内积（两向量均归一化时即余弦相似度）。
+ *
+ * 维度不一致返回 `NaN`：内积只对同一维度空间中的向量有定义，按较短向量截断会给出
+ * 「看起来正常的错分数」（换嵌入模型/端点后旧索引与当前查询维度不同即触发）。
+ * 调用方据此跳过不可比的行（召回取值路径见 `VectorIndex.search`）。
+ */
+export declare function dotProduct(a: Float64Array, b: Float64Array): number;
+/** 本地 transformers.js feature-extraction pipeline 的最小使用面（惰性 import；加载缝亦复用）。 */
+export interface LocalExtractorLike {
+    (texts: string[], options: {
+        pooling: 'cls';
+        normalize: true;
+    }): Promise<{
+        data: Float32Array | Float64Array;
+        dims: number[];
+    }>;
+    dispose?(): Promise<void>;
+}
+/** 嵌入引擎配置。 */
+export interface EmbeddingServiceOptions {
+    /** 本地模型资产目录；null 用随包分发资产。 */
+    modelDir?: string | null;
+    /** 外部 OpenAI 兼容 /embeddings 端点 URL；非空时优先。 */
+    endpoint?: string | null;
+    /** 日志缝。 */
+    logger?: {
+        warn(message: string): void;
+    };
+    /** fetch 实现注入（单测远程端点用；缺省全局 fetch）。 */
+    fetchImpl?: typeof fetch;
+    /**
+     * 远程端点单次请求超时（毫秒；缺省 {@link DEFAULT_REMOTE_EMBEDDING_TIMEOUT_MS}）。
+     * 非正/非法值一律回落默认值——超时是兜底护栏，不允许配置成「永不超时」。
+     */
+    remoteTimeoutMs?: number;
+    /**
+     * 本地 extractor 加载缝（单测用受控加载：验证并发单飞与释放竞态）。
+     * 缺省走真实路径：资产快速失败校验 + 动态 import transformers.js。
+     */
+    loadExtractor?: (modelDir: string) => Promise<LocalExtractorLike>;
+}
+/**
+ * 嵌入服务实现：按配置与资产可用性惰性选择来源。
+ * - ensureReady() 单飞（同一时刻只加载一次），不抛错：降级 bm25 是产品级路径；
+ * - embed() 在 bm25 降级态或已释放时抛错（调用方据此降级检索并标注）；
+ * - dispose() 释放本地模型（幂等，多调用安全；加载途中释放则加载完成后立即释放模型）。
+ */
+export declare class EmbeddingService implements EmbeddingEngine {
+    private readonly options;
+    private sourceValue;
+    private dimensionValue;
+    /** 当前嵌入来源（只读投影；就绪准备后由内部切换，外部无从改写）。 */
+    get source(): EmbeddingSource;
+    /** 当前向量维度（只读投影；bm25 降级态为 0）。 */
+    get dimension(): number;
+    private local;
+    /** 就绪单飞：同一实例的并发就绪/嵌入请求共享同一次加载。 */
+    private readyPromise;
+    private disposed;
+    constructor(options?: EmbeddingServiceOptions);
+    /**
+     * 确保嵌入能力就绪（惰性、幂等、单飞）：
+     * remote 端点存在 → 采用 remote；否则尝试本地资产；再失败 → bm25 降级。
+     * 加载失败不抛错——降级是产品级路径（界面标注「相似度检索（非语义）」）。
+     * 并发调用共享同一次加载（后到者等待，不会看到加载中的 bm25 中间态）。
+     */
+    ensureReady(): Promise<EmbeddingSource>;
+    /** 批量嵌入（单位长度向量）。bm25 降级态或引擎已释放时抛明确错误。 */
+    embed(texts: string[]): Promise<Float64Array[]>;
+    /** 释放本地模型（幂等）。 */
+    dispose(): void;
+    /** 降级原因（加载失败时的可诊断信息；未降级为 null）。 */
+    private degrade;
+    /**
+     * 降级原因：source 为 bm25 时说明「为什么」。
+     * 为什么不只写日志：日志是否落盘取决于宿主，而降级事实必须能被使用者与调用方拿到
+     * （写入被拒、召回退化时都要能看到原因），否则排障只能靠主动探针复现。
+     */
+    get degradeReason(): string | null;
+    /** 就绪准备（单飞入口内的实际加载；只由 ensureReady 触发一次）。 */
+    private prepare;
+    /** 解析本地资产目录：显式配置 > 随包分发资产。 */
+    private resolveModelDir;
+    /** 惰性加载本地 extractor（加载缝缺省走真实路径：快速失败校验 + 动态 import）。 */
+    private loadLocal;
+    /** 本地推理：CLS 池化 + 归一化，产出 [batch, 512]。 */
+    private embedLocal;
+    /** 外部端点：POST {input: texts}，解析 { data: [{ embedding }] } 并归一化。 */
+    private embedRemote;
+}
+/** 端点超时的默认值（毫秒）：远小于模型侧工具等待上限，同时给正常批嵌入留足余量。 */
+export declare const DEFAULT_REMOTE_EMBEDDING_TIMEOUT_MS = 10000;
+/**
+ * 便捷构造：确保就绪后返回引擎（embed 前必须 await ensureReady）。
+ * 供非 TS 侧的维护脚本复用「就绪后引擎」这一契约（scripts/build-products-index.mjs）。
+ */
+export declare function createEmbeddingEngine(options: EmbeddingServiceOptions): Promise<EmbeddingEngine>;

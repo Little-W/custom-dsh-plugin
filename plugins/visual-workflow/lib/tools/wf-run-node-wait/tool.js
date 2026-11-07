@@ -1,0 +1,55 @@
+// src/host/tools/wf-run-node-wait/tool.ts
+//
+// wf_run_node_wait 工具注册（模式二后台服务：阻塞等待节点完成，返回 ok/fail + 最终输出）。
+//
+// 职责边界：
+//   - 本文件只做「注册（defineTool DSL）+ 身份派生（callerOf）+ 归属校验」，
+//     阻塞等待/快照/护栏/暂停门全部收敛在编排运行时；
+//   - 与 wf_run_node 的差异仅两点：expectedMode 为 mode2、运行时参数追加 wait: true；
+//     两者共用同一运行时入口（host.orchestrator.wfRunNode），不互相调用；
+//   - 工具可见性：仅父代理可见（子代理侧经白名单剔除 + tools.restrict 双保险隐藏，
+//     本层再以 callerOf 归属校验兜底 WF_NOT_ROOT）。
+//
+// 提示词规范：description 与参数说明使用官方标准英文，第一句写明「何时调用」，
+// 随后是前置条件/失败语义（WF_* 稳定错误码）/副作用（阻塞等待）；目标 ≤ 120 tokens。
+import { WF_RUN_NODE_WAIT } from '../../shared/protocol.js';
+import { callerOf } from '../infrastructure/caller.js';
+import { defineTool } from '../infrastructure/define-tool.js';
+import { registerTool, requireToolsService } from '../infrastructure/register-tool.js';
+import { textRender } from '../infrastructure/text-render.js';
+/**
+ * 注册 wf_run_node_wait（全局层；ctx.tools.register）。
+ * 返回 disposer：注销失败尽力而为。
+ */
+export function registerWfRunNodeWait(ctx, host) {
+    const tools = requireToolsService(ctx, WF_RUN_NODE_WAIT);
+    const definition = defineTool({
+        name: WF_RUN_NODE_WAIT,
+        description: 'Start one agent node of a mode2 service run and block until it finishes. ' +
+            'Returns ok/fail with the child final output, or paused for a pause-node id. ' +
+            'Team cards and Team member nodes are rejected: mode2 does not support Team collaboration. ' +
+            'A paused, stopped, or interrupted run is resumed before the node starts.',
+        parameters: {
+            nodeId: { type: 'string', required: true, description: 'Node id from the flow definition file (nodes[].id). A proxy node is a real flow step: pass the proxy id and never skip a proxy or pass its source node id instead.' },
+            thinking: { type: 'string', description: 'Optional reasoning-effort override for this node run.' },
+            iterationLimit: { type: 'number', description: 'Optional ReAct iteration-limit override (soft cap: the child concludes).' },
+            retryLimit: { type: 'number', description: 'Optional per-node retry-limit override (hard guard).' },
+        },
+        output: {
+            schema: {
+                type: 'object',
+                additionalProperties: false,
+                properties: {
+                    nodeId: { type: 'string', required: true, description: 'The resolved node id that was started.' },
+                    status: { type: 'string', required: true, enum: ['paused', 'ok', 'fail'], description: 'ok/fail: blocked wait result; paused: pause gate.' },
+                    childId: { type: 'string', description: 'The node child session id (wait path).' },
+                    output: { type: 'string', description: 'Final child output summary (ok/fail wait path).' },
+                },
+            },
+            render: textRender,
+        },
+        execute: (args, exec) => host.orchestrator.wfRunNode(callerOf(exec), { ...(args ?? {}), wait: true }, exec.signal, { expectedMode: 'mode2' }),
+    });
+    return registerTool(tools, definition);
+}
+//# sourceMappingURL=tool.js.map

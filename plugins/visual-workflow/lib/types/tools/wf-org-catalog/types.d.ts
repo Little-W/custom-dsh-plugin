@@ -1,0 +1,357 @@
+import type { ConditionType, Handle } from '../../shared/graph-model.js';
+import type { OrgMeta } from '../../shared/types.js';
+/** 工作流资产 id 前缀：可召回完整骨架。 */
+export declare const WORKFLOW_ID_PREFIX = "flow-";
+/** 角色资产 id 前缀：可召回完整 systemPrompt。 */
+export declare const ROLE_ID_PREFIX = "role-";
+/** 工作流资产内联角色复合键分隔符：`<工作流资产 id>#<节点 id>`。 */
+export declare const INLINE_ROLE_SEPARATOR = "#";
+/**
+ * 实例保留字：当前会话**正在运行**的实例。
+ *
+ * 为什么是保留字而不是资产 id：运行实例是运行期事实（同一会话至多一条、运行后才存在），
+ * 不是资产——它没有版本、不进资产库、也不能在规划期被参考。因此本工具只认这一个字面量，
+ * 不提供「按 id 枚举任意实例」的入口：其他实例（历史 run、其他会话）一律不可达。
+ */
+export declare const INSTANCE_ID = "instance";
+/** ID 约定文本（判据本体；索引与错误提示共用同一份）。 */
+export declare const ID_CONVENTION: {
+    readonly workflow: "flow-* = workflow asset -> complete skeleton (stage nodes / roles and groups / lines / data-node bodies)";
+    readonly role: "role-* = sub-agent role asset -> full systemPrompt plus its mapping fields (the parent agent's prompt is never recallable)";
+    readonly inlineRole: "flow-xxx#<node id> = inline sub-agent role pinned in that workflow asset -> full systemPrompt of that fixed version (the parent node is not recallable)";
+};
+/** 条目上限与摘要口径（超限截断并置 truncated，不做静默丢弃）。 */
+export declare const CATALOG_LIMITS: {
+    /** 角色资产条目上限。 */
+    readonly roleAssets: 60;
+    /** 工作流资产条目上限。 */
+    readonly workflowAssets: 40;
+    /** 组合条目上限。 */
+    readonly combos: 30;
+    /** 官方 preset 条目上限。 */
+    readonly presets: 40;
+    /** 模型条目上限。 */
+    readonly models: 60;
+    /** 单次详情召回的 id 上限：超限拒绝并提示分批，避免一次拉爆上下文。 */
+    readonly detailIds: 20;
+};
+/** 组合条目：组合 id 是节点 presetId 的取值来源，必须携带工具清单。 */
+export interface CatalogComboEntry {
+    id: string;
+    name: string;
+    tools: string[];
+    mcpServers: string[];
+}
+/** 官方 preset 条目（节点 presetId 的另一取值来源）。 */
+export interface CatalogPresetEntry {
+    id: string;
+    name: string;
+    description?: string;
+}
+/** 模型条目：provider/model 配对 + 思考强度档位（节点 data.reasoning 的取值来源）。 */
+export interface CatalogModelEntry {
+    provider: string;
+    model: string;
+    efforts?: Array<{
+        id: string;
+        name: string;
+    }>;
+}
+/**
+ * 工作流资产索引条目。
+ * 只给「够不够拿来参考」的判据（名称 + 描述 + 版本），完整骨架按 id 召回。
+ */
+export interface WorkflowAssetEntry {
+    id: string;
+    name: string;
+    description: string;
+    /** Active 版本号（展示为 vN）。 */
+    versionId: number;
+}
+/**
+ * 角色资产索引条目。
+ * `roleAssetType` 决定改动代价：inline 可自由改，shared 的修改会级联到多个工作流资产。
+ */
+export interface RoleAssetEntry {
+    id: string;
+    name: string;
+    kind: 'parent' | 'agent';
+    versionId: number;
+    roleAssetType: 'standalone' | 'inline' | 'shared';
+    /** systemPrompt 前 N 字截断：只够判断职责，不替代完整提示词召回。 */
+    summary: string;
+}
+/** 索引里的资产段（工作流资产 + 角色资产）。 */
+export interface CatalogAssetIndex {
+    workflows: WorkflowAssetEntry[];
+    roles: RoleAssetEntry[];
+}
+/**
+ * 编排规则段：图语义与**写图契约**（设计方法启用后作为可选槽位返回）。
+ * 为什么写图契约放在这里而不是工具描述里：字段形状与提交规则体积大且只在动手改图前才需要，
+ * 常驻描述要为每次请求付费；放在按需召回的目录里可让描述只保留一份指引。
+ * 文本本体在工具层基础设施的单一来源模块，此处只声明槽位（不复制常量）。
+ */
+export interface CatalogRules {
+    graphSemantics: string;
+    /** 设计方法段：正文为空时装配层省略该字段（不向模型返回空槽位）。 */
+    designMethod?: string;
+    /** 写图契约：提交规则、op 字段形状与角色节点 data 契约。 */
+    patchContract: string;
+}
+/** 资产索引（第一次调用的返回体）。 */
+export interface CatalogIndex {
+    kind: 'index';
+    idConvention: typeof ID_CONVENTION;
+    detailHint: string;
+    combos: CatalogComboEntry[];
+    presets: CatalogPresetEntry[];
+    models: CatalogModelEntry[];
+    assets: CatalogAssetIndex;
+    rules: CatalogRules;
+    truncated: boolean;
+}
+/** 阶段节点条目。 */
+export interface CatalogStageNodeEntry {
+    id: string;
+    kind: 'start' | 'end' | 'pause';
+    label: string;
+}
+/**
+ * 角色节点条目。
+ * 为什么不含 systemPrompt：它是最长字段，走「复合 id 按需召回」；其余字段不可二次
+ * 召回，必须一次性给全，否则骨架拼不出完整工作流。
+ * `roleAssetId`/`roleVersionId` 指向工作流资产固定引用的角色资产与版本——同一个角色资产在
+ * 不同工作流资产里可以钉在不同版本上，骨架必须交代清楚钉的是哪一版。
+ */
+export interface CatalogRoleNodeEntry {
+    id: string;
+    kind: 'agent' | 'parent';
+    label: string;
+    presetId: string | null;
+    provider: string;
+    model: string;
+    reasoning?: string;
+    inputSchema: string;
+    outputSchema: string;
+    /** 角色 Prompt 来源文件名（画布展示用；无来源时省略）。 */
+    systemPromptSource?: string;
+    groupId: string | null;
+    /**
+     * 该节点是否**可调度**：为 false 表示父代理不应把它派发出去。
+     *
+     * 为什么需要显式标注：画布允许存在「未接流程线」的孤立节点（用户留作草稿/备选），
+     * 而骨架按定义返回全量节点——没有本字段，父代理只能自行从 lines 推断，proxy 与
+     * Team 卡片这类间接连线极易推错。取值口径与运行期编排清单（orchestrationNodeList）
+     * 完全同源，等价于把服务端过滤改为显式标注。
+     * 仅 agent 标注：parent 是编排者本人，其执行身份由运行期指令给出，不属「可调度单元」。
+     */
+    schedulable?: boolean;
+    /** 该节点引用的角色资产 id（无角色版本行映射时省略）。 */
+    roleAssetId?: string;
+    /**
+     * 该节点固定引用的角色资产**版本号**（vN；无映射时省略）。
+     * 注意与持久化层的 `WorkflowAssetRoleRef.roleVersionId` 区分：后者是**版本行 id**
+     * （`<角色资产id>@<版本号>`，用于数据库引用），这里对模型公布的是可读版本号。
+     */
+    roleVersionId?: number;
+}
+/** 虚拟节点条目（主节点别名引用 + 画布显示名）。 */
+export interface CatalogProxyNodeEntry {
+    id: string;
+    kind: 'proxy';
+    label: string;
+    proxySourceId: string;
+    /** Proxy entries are visual aliases; dispatch proxySourceId, never the alias itself. */
+    schedulable?: boolean;
+}
+/** Team 条目（collabPrompt 不可二次召回，一次性给全）。 */
+export interface CatalogGroupNodeEntry {
+    id: string;
+    kind: 'group';
+    label: string;
+    collabPrompt: string;
+    memberIds: string[];
+    /**
+     * 恒为 false：Team 卡片是包裹层，不是调度目标（对它调用 wf_run_node 会被运行时拒绝）。
+     * 成员节点才是可调度单元，各自带自己的 schedulable。
+     */
+    schedulable?: boolean;
+}
+/** 子图节点条目（仅在未展开的资产骨架中出现；运行期实例骨架已展开为内部节点）。 */
+export interface CatalogSubgraphNodeEntry {
+    id: string;
+    kind: 'subgraph';
+    label: string;
+    description?: string;
+    innerNodeCount: number;
+    innerLineCount: number;
+}
+/** 流程性任务节点条目（与前置提示词区分：位于流程路径上、后置注入）。 */
+export interface CatalogStepNodeEntry {
+    id: string;
+    kind: 'step';
+    label: string;
+    content?: string;
+}
+/** 任务节点条目（任务描述无二次召回通道，一次性给全）。 */
+export interface CatalogTaskNodeEntry {
+    id: string;
+    kind: 'task';
+    label: string;
+    content?: string;
+}
+/** 数据库数据源条目（连接信息一次性给全；密钥字段已脱敏）。 */
+export interface CatalogDatabaseNodeEntry {
+    id: string;
+    kind: 'database';
+    label: string;
+    description: string;
+    dbType: 'local' | 'server';
+    dbKind: string;
+    localPath?: string;
+    conn?: Record<string, unknown>;
+    vectorSource?: string;
+    vectorOptions?: Record<string, unknown>;
+}
+/** 骨架里的节点条目（按 kind 判别）。 */
+export type CatalogNodeEntry = CatalogStageNodeEntry | CatalogRoleNodeEntry | CatalogProxyNodeEntry | CatalogGroupNodeEntry | CatalogSubgraphNodeEntry | CatalogStepNodeEntry | CatalogTaskNodeEntry | CatalogDatabaseNodeEntry;
+/** 连线条目（条件分支语义是编排事实，必须给全）。 */
+export interface CatalogLineEntry {
+    id: string;
+    source: string;
+    target: string;
+    sourceHandle: Handle;
+    targetHandle: Handle;
+    condition?: {
+        type: ConditionType;
+        label?: string;
+    };
+}
+/** 工作流资产骨架（`flow-*` 的返回体）。 */
+export interface CatalogWorkflowDetail {
+    type: 'workflow';
+    id: string;
+    /** 等于 id（显式给出，避免模型在两种字段名之间猜测）。 */
+    assetId: string;
+    /** Active 版本号（展示为 vN）。 */
+    versionId: number;
+    name: string;
+    description: string;
+    mode: 'mode1' | 'mode2';
+    meta?: OrgMeta;
+    nodes: CatalogNodeEntry[];
+    lines: CatalogLineEntry[];
+    /** 该骨架内可直接召回的复合 id 清单（角色 systemPrompt 的召回入口）。 */
+    inlineRoles: string[];
+    note: string;
+}
+/**
+ * 当前运行实例骨架（`instance` 召回的第 2 层）。
+ *
+ * 与资产骨架的差别：实例没有版本，也没有「角色资产固定引用」——实例节点的角色 Prompt
+ * 是内联快照，因此第 3 层（`instance#<nodeId>`）直接取节点正文。
+ * 语义边界：只指**当前会话正在运行**的那一个实例；历史 run 与其他会话的实例不可达
+ * （判据层就不提供形状，故规划期无法借本工具参考不稳定实例）。
+ */
+export interface CatalogInstanceDetail {
+    type: 'instance';
+    id: typeof INSTANCE_ID;
+    name: string;
+    description: string;
+    mode: 'mode1' | 'mode2';
+    meta?: OrgMeta;
+    nodes: CatalogNodeEntry[];
+    lines: CatalogLineEntry[];
+    /** 该骨架内可直接召回的复合 id 清单（`instance#<nodeId>`）。 */
+    inlineRoles: string[];
+    note: string;
+}
+/**
+ * 无活跃实例时的**禁令体**（不是错误，而是运行期事实：规划阶段没有实例可参考）。
+ *
+ * 为什么返回正文而不是空数组或报错：空数组会让模型以为 id 打错了，进而自行另寻出路
+ * （例如去翻运行目录）；这里要表达的语义是「现在没在跑，且规划期不得参考实例」。
+ */
+export interface CatalogInstanceUnavailable {
+    type: 'instance';
+    id: typeof INSTANCE_ID;
+    available: false;
+    message: string;
+}
+/** 角色资产详情（systemPrompt 完整返回，不截断）。 */
+export interface CatalogRoleDetail {
+    type: 'role';
+    id: string;
+    /** 等于 id（与 CatalogWorkflowDetail 同口径）。 */
+    assetId: string;
+    versionId: number;
+    /** 角色资产类型：shared 的修改会级联到引用它的工作流资产。 */
+    roleAssetType: 'standalone' | 'inline' | 'shared';
+    name: string;
+    kind: 'agent' | 'parent';
+    presetId: string | null;
+    provider: string;
+    model: string;
+    reasoning?: string;
+    inputSchema: string;
+    outputSchema: string;
+    systemPromptSource?: string;
+    systemPrompt: string;
+}
+/** 工作流资产内联角色详情（systemPrompt 完整返回，并标明它属于哪个工作流与节点）。 */
+export interface CatalogInlineRoleDetail {
+    type: 'inlineRole';
+    id: string;
+    containerId: string;
+    nodeId: string;
+    /** 该节点引用的角色资产 id（无角色版本行映射时省略）。 */
+    roleAssetId?: string;
+    /** 该节点固定引用的角色版本号（无角色版本行映射时省略）。 */
+    roleVersionId?: number;
+    label: string;
+    presetId: string | null;
+    provider: string;
+    model: string;
+    reasoning?: string;
+    inputSchema: string;
+    outputSchema: string;
+    groupId: string | null;
+    systemPromptSource?: string;
+    systemPrompt: string;
+}
+/** 资产详情条目。 */
+export type CatalogAssetDetail = CatalogWorkflowDetail | CatalogRoleDetail | CatalogInlineRoleDetail;
+/**
+ * 详情通道的条目：三类资产 + 运行实例的两种形态（骨架 / 禁令体）。
+ * 实例与资产共用同一通道（都是「传 ids 召回」），但两者不混召：传 `instance` 时
+ * 只回实例条目，不掺任何资产内容。
+ */
+export type CatalogDetailEntry = CatalogAssetDetail | CatalogInstanceDetail | CatalogInstanceUnavailable;
+/** 坏 id 条目：单条失败不阻塞其余召回。 */
+export interface CatalogDetailError {
+    id: string;
+    code: string;
+    message: string;
+}
+/** 资产详情（第二次调用的返回体）。 */
+export interface CatalogDetails {
+    kind: 'details';
+    assets: CatalogDetailEntry[];
+    errors: CatalogDetailError[];
+}
+/** preset 数据源条目。 */
+export interface CatalogPresetSource {
+    id: string;
+    name?: string;
+    description?: string;
+}
+/** 模型数据源条目（efforts 为思考强度档位；适配器未公布时省略）。 */
+export interface CatalogModelSource {
+    provider: string;
+    model: string;
+    efforts?: Array<{
+        id: string;
+        name: string;
+    }>;
+}

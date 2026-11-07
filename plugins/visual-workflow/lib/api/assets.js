@@ -1,0 +1,325 @@
+// src/host/api/assets.ts
+//
+// GUI API 资产端点组（AssetEndpoints）：模版晋升入库、资产态保存、版本列表、
+// 回滚、归档、影响面预览、列表与详情。资产事实由 assets 模块的 AssetStore（SQLite）拥有，
+// 本层只做「请求 → 领域调用 → 稳定响应/错误码」的翻译。
+//
+// 提示词资产复用同一组端点（kind='prompt'）：保存只接受正文；归档/恢复被明确拒绝，
+// 因为它的 Active 指针必须始终存在。
+import { ERR_ASSET_BAD_ARGS, ERR_ASSET_NOT_FOUND, ERR_PROMPT_ASSET_ACTIVE_ONLY } from '../shared/protocol.js';
+import { contentFingerprint } from '../assets/index.js';
+import { NODE_KINDS } from '../graph/index.js';
+import { httpError } from './http.js';
+import { presentationOf, requireAssets, VisualWorkflowApiBase } from './boundary.js';
+/**
+ * 边界的参数错误：status 由传输层决定，code 用资产领域稳定码，
+ * 让客户端按 ERR_ASSET_BAD_ARGS 分支（而领域模块抛出的同一 code 也进同一响应形状）。
+ */
+function assetBadArgs(message) {
+    return httpError(400, message, ERR_ASSET_BAD_ARGS);
+}
+/** 取必填字符串字段（形状非法即 400；返回窄化后的值供直接构造领域入参）。 */
+function requireString(payload, field, subject) {
+    const value = payload[field];
+    if (typeof value !== 'string')
+        throw assetBadArgs(`${subject} payload requires string ${field}`);
+    return value;
+}
+/** 取资产库能力缝；未装配时明确 501（不静默降级为「空资产库」）。 */
+const assetsOf = (host) => requireAssets(host);
+/** 校验并归一化资产种类（必填，取值域闭集）。 */
+function requireKind(args) {
+    const kind = String(args?.kind ?? '');
+    if (kind !== 'workflow' && kind !== 'role' && kind !== 'prompt') {
+        throw httpError(400, 'requires kind: workflow|role|prompt');
+    }
+    return kind;
+}
+/** 提示词资产只能保持活跃：归档 / 恢复属于明确拒绝，而不是 404 或静默无操作。 */
+function promptAssetActiveOnly() {
+    return httpError(409, '经验生成提示词资产必须保持活跃：不支持归档 / 恢复，只能切换版本', ERR_PROMPT_ASSET_ACTIVE_ONLY);
+}
+/** 取必填的 payload 对象（晋升/保存/预览共用同一形状校验）。 */
+function requirePayload(payload) {
+    if (!payload || typeof payload !== 'object' || Array.isArray(payload))
+        throw assetBadArgs('requires a payload object');
+    return payload;
+}
+/** payload → 角色模版（字段域与 RoleAssetDetail 一致；assetId 由端点参数定位，不进内容）。 */
+function roleTemplateOf(payload, assetId) {
+    return {
+        ...payload,
+        id: assetId,
+        kind: payload.kind === 'parent' ? 'parent' : 'agent',
+        name: requireString(payload, 'name', 'role'),
+        systemPrompt: requireString(payload, 'systemPrompt', 'role'),
+        provider: requireString(payload, 'provider', 'role'),
+        model: requireString(payload, 'model', 'role'),
+        retryLimit: typeof payload.retryLimit === 'number' ? payload.retryLimit : 3,
+    };
+}
+/**
+ * payload → 工作流节点数组（保存与影响面预览共用同一形状校验）。
+ *
+ * 为什么端点必须校验节点身份：`Array.isArray` 只挡住「不是数组」，元素为 null /
+ * 缺 id / kind 越界的节点会一路进入资产库（内容指纹、版本行、级联推演都按 id 与
+ * kind 取数），保存成功但资产不可用。此处只判「是否是一个节点」这一最小形状，
+ * 节点内部结构（data 字段、position、连接点）的判定仍归 graph 模块，端点不重定义。
+ */
+function requireNodes(payload) {
+    const nodes = payload.nodes;
+    if (!Array.isArray(nodes))
+        throw assetBadArgs('workflow payload requires nodes array');
+    nodes.forEach((node, index) => {
+        if (!node || typeof node !== 'object' || Array.isArray(node)) {
+            throw assetBadArgs(`workflow payload nodes[${index}] must be an object`);
+        }
+        const candidate = node;
+        if (typeof candidate.id !== 'string' || !candidate.id.trim()) {
+            throw assetBadArgs(`workflow payload nodes[${index}] requires a non-empty string id`);
+        }
+        // kind 取值域的唯一本体是 graph 模块的 NODE_KINDS（新增节点种类只改那一处）
+        if (typeof candidate.kind !== 'string' || !NODE_KINDS.includes(candidate.kind)) {
+            throw assetBadArgs(`workflow payload nodes[${index}] has unsupported kind: ${String(candidate.kind)}`);
+        }
+    });
+    return nodes;
+}
+/** 取可选 meta（形状必须是普通对象；取值域归一化归 graph 模块，端点不重定义）。 */
+function optionalMeta(value) {
+    if (value === undefined || value === null)
+        return undefined;
+    if (typeof value !== 'object' || Array.isArray(value))
+        throw assetBadArgs('workflow payload meta must be an object');
+    return value;
+}
+/** 校验并归一化资产 id（必填）。 */
+function requireAssetId(args) {
+    const assetId = String(args?.assetId ?? '').trim();
+    if (!assetId)
+        throw httpError(400, 'requires assetId');
+    return assetId;
+}
+/** 校验回滚目标版本号（必须是正整数）。 */
+function requireVersionId(args) {
+    const versionId = args?.versionId;
+    if (typeof versionId !== 'number' || !Number.isInteger(versionId) || versionId <= 0) {
+        throw assetBadArgs('requires a positive integer versionId');
+    }
+    return versionId;
+}
+/**
+ * 为什么本层填指纹：AssetStore 不读模版（资产库只有入库时的来源指纹），
+ * 「模版是否已被改过」的事实只能由持有模版库的一方回答。
+ * 模版不存在时省略该字段：客户端据此视为「未锁定」，而非「已同步」。
+ */
+async function fillCurrentFingerprints(items, readTemplate) {
+    return Promise.all(items.map(async (item) => {
+        const templateId = item.sourceTemplateId;
+        if (!templateId)
+            return item;
+        const template = await readTemplate(templateId);
+        if (template === null || template === undefined)
+            return item;
+        return { ...item, currentTemplateFingerprint: contentFingerprint(template) };
+    }));
+}
+export class AssetEndpoints extends VisualWorkflowApiBase {
+    // ---------- 资产列表与详情 ----------
+    /**
+     * 资产列表：活跃与历史（已归档）分开返回，两类各自按 kind 拆分。
+     * 分开是契约要求而非展示细节——活跃列表是父代理召回面，归档资产绝不进召回面。
+     */
+    async listAssets(args) {
+        // kind 缺省即「全部返回」；给了值就必须在取值域内（此处先校验，能力缝缺失时才轮得到 501）。
+        const rawKind = args?.kind;
+        const kind = rawKind === undefined || rawKind === null || rawKind === '' ? null : requireKind(args);
+        const assets = assetsOf(this.host);
+        const wantWorkflow = kind === null || kind === 'workflow';
+        const wantRole = kind === null || kind === 'role';
+        const wantPrompt = kind === null || kind === 'prompt';
+        const [workflows, roles, prompts, retiredWorkflows, retiredRoles] = await Promise.all([
+            wantWorkflow ? assets.listWorkflowAssets() : [],
+            wantRole ? assets.listRoleAssets() : [],
+            wantPrompt ? assets.listPromptAssets() : [],
+            wantWorkflow ? assets.listRetiredWorkflowAssets() : [],
+            wantRole ? assets.listRetiredRoleAssets() : [],
+        ]);
+        return {
+            workflows: await fillCurrentFingerprints(workflows, (templateId) => this.host.store.getFlowTemplate(templateId)),
+            roles: await fillCurrentFingerprints(roles, (templateId) => this.host.store.getTemplate('role', templateId)),
+            // 提示词资产没有来源模版，也没有归档列表（指针必须保持活跃）
+            prompts,
+            retiredWorkflows: await fillCurrentFingerprints(retiredWorkflows, (templateId) => this.host.store.getFlowTemplate(templateId)),
+            retiredRoles: await fillCurrentFingerprints(retiredRoles, (templateId) => this.host.store.getTemplate('role', templateId)),
+        };
+    }
+    async getAsset(args) {
+        const kind = requireKind(args);
+        const assetId = requireAssetId(args);
+        const assets = assetsOf(this.host);
+        const detail = kind === 'workflow'
+            ? await assets.getWorkflowAsset(assetId)
+            : kind === 'role'
+                ? await assets.getRoleAsset(assetId)
+                : await assets.getPromptAsset(assetId);
+        if (!detail)
+            throw httpError(404, presentationOf(this.host, `资产不存在或已退役：${assetId}`, `Asset does not exist or was retired: ${assetId}`), ERR_ASSET_NOT_FOUND);
+        return detail;
+    }
+    // ---------- 入库与资产态保存 ----------
+    async promoteAsset(args) {
+        const kind = requireKind(args);
+        const templateId = String(args?.templateId ?? '').trim();
+        if (!templateId)
+            throw httpError(400, 'requires templateId');
+        if (kind === 'prompt')
+            throw assetBadArgs('经验生成提示词资产是内置资产，不能由模版入库晋升');
+        const assets = assetsOf(this.host);
+        // 入库来源恒为人类动作；agent 来源（代理生成资产）V1 不开放。
+        return kind === 'role' ? this.promoteRoleTemplate(assets, templateId) : this.promoteWorkflowTemplate(assets, templateId);
+    }
+    /** 角色模版入库：模版内容整体作为首个资产版本的来源。 */
+    async promoteRoleTemplate(assets, templateId) {
+        const role = (await this.host.store.getTemplate('role', templateId));
+        if (!role)
+            throw httpError(404, presentationOf(this.host, `角色模版不存在：${templateId}`, `Role template does not exist: ${templateId}`), ERR_ASSET_NOT_FOUND);
+        const input = { templateId, fingerprint: contentFingerprint(role), role, source: 'human' };
+        return assets.promoteRole(input);
+    }
+    /** 工作流模版入库：模版图整体作为首个资产版本的来源（meta 缺省不落约束）。 */
+    async promoteWorkflowTemplate(assets, templateId) {
+        const template = await this.host.store.getFlowTemplate(templateId);
+        if (!template)
+            throw httpError(404, presentationOf(this.host, `工作流模版不存在：${templateId}`, `Workflow template does not exist: ${templateId}`), ERR_ASSET_NOT_FOUND);
+        const input = {
+            templateId,
+            fingerprint: contentFingerprint(template),
+            mode: template.mode,
+            name: template.name,
+            description: template.description,
+            nodes: template.nodes,
+            lines: template.lines,
+            ...(template.meta === undefined || template.meta === null ? {} : { meta: template.meta }),
+            source: 'human',
+        };
+        return assets.promoteWorkflow(input);
+    }
+    async saveAssetVersion(args) {
+        const kind = requireKind(args);
+        const assetId = requireAssetId(args);
+        const payload = requirePayload(args?.payload);
+        const assets = assetsOf(this.host);
+        // 资产态保存由资产库登记新版本（永不覆盖历史版本），故这里只校验形状、不落盘。
+        if (kind === 'prompt') {
+            // 用户裁决：提示词资产只有正文可改；名称 / 描述 / 主体类型是固定身份，
+            // 出现其他字段说明调用方在尝试改不可变事实，明确拒绝而不是静默忽略。
+            const unexpected = Object.keys(payload).filter((field) => field !== 'prompt');
+            if (unexpected.length > 0) {
+                throw assetBadArgs(`prompt asset only accepts the prompt field; immutable fields: ${unexpected.join(', ')}`);
+            }
+            const prompt = requireString(payload, 'prompt', 'prompt');
+            return assets.savePromptAssetVersion({ assetId, prompt });
+        }
+        if (kind === 'role') {
+            const input = { assetId, role: roleTemplateOf(payload, assetId), source: 'human' };
+            return assets.saveRoleVersion(input);
+        }
+        const name = requireString(payload, 'name', 'workflow');
+        const description = requireString(payload, 'description', 'workflow');
+        const nodes = requireNodes(payload);
+        if (!Array.isArray(payload.lines))
+            throw assetBadArgs('workflow payload requires lines array');
+        const meta = optionalMeta(payload.meta);
+        const input = {
+            assetId,
+            mode: payload.mode === 'mode2' ? 'mode2' : 'mode1',
+            name,
+            description,
+            nodes,
+            lines: payload.lines,
+            ...(meta === undefined ? {} : { meta }),
+            source: 'human',
+        };
+        return assets.saveWorkflowVersion(input);
+    }
+    /**
+     * 影响面预览（只读，不落库）：按本次要保存的内容推演哪些**其他**工作流资产会被牵连。
+     *
+     * 为什么必须是独立端点而不是让客户端自行推演：角色字段映射、源资产存活性与共享判定
+     * 全部是 Host 的事实；客户端复制一份就会在「预览说没事、保存却级联」时分叉。
+     */
+    async previewAssetCascade(args) {
+        const kind = requireKind(args);
+        const assetId = String(args?.assetId ?? '').trim() || null;
+        if (kind === 'prompt') {
+            throw assetBadArgs('经验生成提示词资产没有工作流引用影响面，不提供级联预览');
+        }
+        const payload = requirePayload(args?.payload);
+        const assets = assetsOf(this.host);
+        if (kind === 'role') {
+            if (!assetId)
+                throw assetBadArgs('requires assetId for role preview');
+            const affected = await assets.previewAssetCascade({ kind: 'role', assetId, role: roleTemplateOf(payload, assetId) });
+            return { kind, affected };
+        }
+        const affected = await assets.previewAssetCascade({
+            kind: 'workflow',
+            workflowAssetId: assetId,
+            nodes: requireNodes(payload),
+        });
+        return { kind, affected };
+    }
+    // ---------- 版本列表、回滚与退役 ----------
+    async listAssetVersions(args) {
+        const kind = requireKind(args);
+        const assetId = requireAssetId(args);
+        const assets = assetsOf(this.host);
+        if (kind === 'role')
+            return assets.listRoleVersions(assetId);
+        if (kind === 'workflow')
+            return assets.listWorkflowVersions(assetId);
+        return assets.listPromptVersions(assetId);
+    }
+    async rollbackAsset(args) {
+        const kind = requireKind(args);
+        const assetId = requireAssetId(args);
+        const versionId = requireVersionId(args);
+        const assets = assetsOf(this.host);
+        // 回滚只改 Active 指针；历史版本内容由资产库保证不被改写。
+        if (kind === 'role')
+            return assets.rollbackRoleAsset(assetId, versionId);
+        if (kind === 'workflow')
+            return assets.rollbackWorkflowAsset(assetId, versionId);
+        return assets.rollbackPromptAsset(assetId, versionId);
+    }
+    async retireAsset(args) {
+        const kind = requireKind(args);
+        const assetId = requireAssetId(args);
+        // 提示词资产必须保持活跃：明确 409，而不是调用一个不存在的删除入口
+        if (kind === 'prompt')
+            throw promptAssetActiveOnly();
+        const assets = assetsOf(this.host);
+        if (kind === 'role')
+            await assets.retireRoleAsset(assetId);
+        else
+            await assets.retireWorkflowAsset(assetId);
+        return { kind, assetId, retired: true };
+    }
+    /**
+     * 恢复历史（已归档）资产：取**最新版本行**重建 Active 指针。
+     *
+     * 与回滚的职责分工（用户裁决）：本端点只管状态转换（归档 → 活跃），回滚只管版本与
+     * Active 指针；恢复不接版本号，需要旧版本时恢复后再回滚。
+     */
+    async restoreAsset(args) {
+        const kind = requireKind(args);
+        const assetId = requireAssetId(args);
+        // 提示词资产没有归档态，恢复同样被明确拒绝（页面也不提供该入口）
+        if (kind === 'prompt')
+            throw promptAssetActiveOnly();
+        const assets = assetsOf(this.host);
+        return kind === 'role' ? assets.restoreRoleAsset(assetId) : assets.restoreWorkflowAsset(assetId);
+    }
+}
+//# sourceMappingURL=assets.js.map

@@ -1,0 +1,267 @@
+import type { WorkflowDocument, WorkflowTemplate } from '../../host/shared/graph-model.js';
+import type { ServiceState, RoleTemplate, TaskTemplate, DatabaseTemplate, GroupTemplate, ToolCombo, RunSnapshot } from '../../host/shared/types.js';
+import type { AssetKind, AssetVersionEntry, ExperienceEntry, PromptAssetDetail, PromptAssetSummary, RoleAssetDetail, RoleAssetSummary, WorkflowAssetDetail, WorkflowAssetSummary } from '../../host/shared/asset-types.js';
+import type { CanvasEdge, CanvasNode } from '../lib/canvas-model.js';
+import type { ModelCatalogEntry } from '../../host/shared/model-catalog.js';
+/** 左侧栏 Tab：工作流 / 角色 / 数据（任务+数据库）/ 其他（阶段+Team）。
+ *  资产态下「数据」以「经验」呈现、「其他」显示经验生成提示词资产
+ *  （同一 Tab key，语义与内容随库来源切换）。 */
+export type LibTab = 'workflow' | 'role' | 'data' | 'other';
+/** 左侧库来源：模版（可随意修改的草稿）/ 资产（带版本控制的晋升形态）。 */
+export type LibrarySource = 'template' | 'asset';
+/** 左侧库选中种类（模板 kind + 固定卡片 + 工作流模板 + 资产 + 经验 + 提示词资产）。 */
+export type LibSelKind = 'workflow' | 'service' | 'workflowTemplate' | 'role' | 'task' | 'database' | 'parentTemplate' | 'stage' | 'groupTemplate' | 'flowAsset' | 'roleAsset' | 'experience' | 'promptAsset';
+/** 模板种类（与后端 listTemplates 契约一致；group 为 Team 模板）。 */
+export type TemplateKind = 'role' | 'task' | 'database' | 'group';
+/**
+ * 画布节点/连线投影类型的**本体在 lib/canvas-model.ts**（渲染、布局、连接校验共用
+ * 同一份形状）；此处再导出，使既有调用方（studio 内各模块、组件、hooks）的
+ * import 路径保持不变。
+ */
+export type { CanvasNode, CanvasEdge };
+/** 图快照（撤销重做栈元素）。 */
+export interface GraphSnapshot {
+    nodes: CanvasNode[];
+    edges: CanvasEdge[];
+}
+/** 生态枚举条目（对齐后端 presets 端点返回结构）。 */
+export interface PresetItem {
+    id: string;
+    name?: string;
+    description?: string;
+    trust?: string;
+}
+/** 生态模型条目（对齐后端 models 端点返回结构：provider/model + 思考强度档位）。 */
+export type ModelItem = ModelCatalogEntry;
+/**
+ * 本地草稿标记（前端 UI 状态，绝不落盘——后端 put* 端点经 stripClientMeta 剥除）。
+ * 以交叉类型表达「带草稿标记的持久化对象」，替代旧实现
+ * `...({ _draft: true } as object)` + `as unknown as X` 的双重类型逃逸
+ * （后者完全绕过类型检查，掩盖数据模型不一致）。
+ */
+export type Drafted<T> = T & {
+    _draft: true;
+};
+/** 编辑器引用（右侧面板编辑对象）。 */
+export type EditorRef = {
+    source: 'workflow';
+    id: string;
+} | {
+    source: 'service';
+    id: string;
+} | {
+    source: 'flowTemplate';
+    id: string;
+} | {
+    source: 'flowAsset';
+    id: string;
+} | {
+    source: 'roleAsset';
+    id: string;
+} | {
+    source: 'promptAsset';
+    id: string;
+} | {
+    source: 'experience';
+    id: string;
+} | {
+    source: 'template';
+    kind: TemplateKind;
+    id: string;
+} | {
+    source: 'node';
+    id: string;
+} | {
+    source: 'edge';
+    id: string;
+} | null;
+/** 对话框状态（未保存守卫/确认/导入冲突）。 */
+export interface ConfirmState {
+    kind: 'unsaved' | 'confirmText' | 'importConflict';
+    title?: string;
+    message?: string;
+    /** 确认后的回调（未保存守卫：保存/放弃后继续执行）。 */
+    proceed?: () => void;
+    /** 确认回调（confirmText）。 */
+    onConfirm?: () => void;
+    /** 确认按钮文案（confirmText 定制；缺省"删除"）。 */
+    confirmLabel?: string;
+    /** 导入冲突补充：导入类型（workflow/agent）。 */
+    kind2?: string;
+    /** 导入冲突补充：原始 JSON 文本。 */
+    json?: string;
+    /** 导入冲突补充：已存在名称。 */
+    name?: string;
+}
+/** 轻提示。 */
+export interface ToastItem {
+    id: string;
+    kind: 'info' | 'success' | 'error';
+    text: string;
+}
+/** 面板几何（localStorage 持久化由 usePanelLayout 负责）。
+ * 左栏/底栏显隐由「折叠切换循环位置 mode」（0..2）推导，右侧属性栏显隐由
+ * 选中对象是否具备属性推导（见 studio-selectors.inspectorOpenOf）。
+ * 本次改造：折叠按钮不再控制右侧栏，只控制左栏/底栏的展开、折叠、切换（3 态循环）。 */
+export interface PanelLayout {
+    /** 折叠/切换循环位置 0..2：
+     *  0=左栏展开 1=底栏展开 2=全隐（左栏与底栏均收起）。
+     *  默认 0（左栏展开）；next = (mode + 1) % 3。 */
+    mode: number;
+    leftWidth: number;
+    rightWidth: number;
+    /** 底栏高度（px）。 */
+    bottomHeight: number;
+}
+export interface StudioState {
+    /** 绑定的会话 id（不提供下拉）。
+     *  工作台全局化改版：这是「当前主会话」（会话树根），仅用于——① 实例列表
+     *  「当前」标签；② 进入工作台时画布默认选中；③ 未勾选新会话时创建实例的
+     *  目标会话。**不再**作为实例列表的过滤条件（列表为全部会话实例）。 */
+    sessionId: string;
+    /** 左侧栏 Tab。 */
+    libTab: LibTab;
+    /** 左侧库来源（模版 / 资产）：切换同时切左侧库来源与画布文档类型。 */
+    librarySource: LibrarySource;
+    /** 库搜索关键词（两态常驻、共用同一关键词；过滤当前 Tab 下全部分区卡片）。 */
+    libSearch: string;
+    /**
+     * 资产列表：活跃与历史（已归档）分开持有。
+     * 为什么分开而不是一条带标志位的列表：活跃列表是父代理召回面，历史资产只能出现在
+     * 左侧「历史资产」分栏，两者混存会让「召回什么」在界面上不可见。
+     */
+    assets: {
+        workflows: WorkflowAssetSummary[];
+        roles: RoleAssetSummary[];
+        /** 经验生成提示词资产（两块内置资产；只能保持活跃，无历史分栏）。 */
+        prompts: PromptAssetSummary[];
+        retiredWorkflows: WorkflowAssetSummary[];
+        retiredRoles: RoleAssetSummary[];
+    };
+    /** 资产态画布打开的资产文档（画布节点/连线的事实源；未打开为 null）。 */
+    assetDoc: WorkflowAssetDetail | null;
+    /** 资产态属性栏编辑的角色资产详情（打开/拖入角色资产时装载）。 */
+    assetRoleDoc: RoleAssetDetail | null;
+    /** 属性栏编辑的提示词资产详情（点击「其他」Tab 的提示词卡片时装载）。 */
+    promptDoc: PromptAssetDetail | null;
+    /**
+     * 经验列表（资产态「经验」Tab 的数据源）：活跃与已归档一并持有，条目自带 active 标记。
+     * 与资产拆两份列表不同——经验的召回面是 catalog 索引（另一条查询），此处只服务人工管理。
+     */
+    experiences: ExperienceEntry[];
+    /** 属性栏编辑的经验详情（点击经验卡片时装载；未打开为 null）。 */
+    experienceDoc: ExperienceEntry | null;
+    /** 回滚上拉列表数据（打开时装载，关闭置空）。 */
+    assetVersions: {
+        kind: AssetKind;
+        assetId: string;
+        items: AssetVersionEntry[];
+    } | null;
+    /** 当前编辑对象模式（新建草稿的默认模式）。 */
+    mode: 'mode1' | 'mode2';
+    workflows: WorkflowDocument[];
+    services: ServiceState[];
+    /** 全部会话的活跃 run 摘要（工作台全局化：实例列表状态徽标；running/paused 保留锁）。 */
+    activeRuns: Array<{
+        flowId: string;
+        sessionId: string;
+        status: string;
+        runId: string;
+    }>;
+    /**
+     * 「从模板创建实例」新会话选项的**临时界面记忆**（仅服务资产态/旧界面记忆；
+     * 模板态的唯一事实源是模板文档的 startNewSession/workspacePath 持久化字段，
+     * 见 studio-selectors.newSessionOptionsOf）。创建实例时消费：
+     *   - newSession=true → 先新建主会话（createSession 端点），实例绑定该新会话；
+     *   - newSession=false → 当前主会话，目标会话已有实例时弹覆盖确认。
+     * 资产没有模板文档可持久化归属，故路径不在此记录（路径恒空、继承当前会话工作区）。
+     */
+    instanceOptions: {
+        newSession: boolean;
+    };
+    /** 工作流模板列表（全局共享；部分仅含当前 mode 的模板，模板拖入画布后经「创建实例」转实例）。 */
+    flowTemplates: WorkflowTemplate[];
+    templates: Record<TemplateKind, Array<RoleTemplate | TaskTemplate | DatabaseTemplate | GroupTemplate>>;
+    combos: ToolCombo[];
+    presets: PresetItem[];
+    models: ModelItem[];
+    /** 当前画布对象（工作流/服务实例，或工作流模板，或工作流资产文档）。 */
+    currentId: string | null;
+    currentKind: 'workflow' | 'service' | 'flowTemplate' | 'flowAsset' | null;
+    canvas: {
+        nodes: CanvasNode[];
+        edges: CanvasEdge[];
+    };
+    selection: {
+        nodeId: string | null;
+        edgeId: string | null;
+        lib: {
+            kind: LibSelKind;
+            id: string;
+        } | null;
+    };
+    editor: EditorRef;
+    /** 未保存修改标记（未保存守卫用）。 */
+    dirty: boolean;
+    /** 最近一次「已保存」的画布图快照：打开文档/保存成功时更新；
+     *  UNDO/REDO 用它精确判定是否回到已保存状态（避免撤销回初始
+     *  保存状态仍被误判为未保存而弹确认框）。 */
+    savedGraph: GraphSnapshot | null;
+    run: {
+        runId: string | null;
+        sessionId: string | null;
+        snapshot: RunSnapshot | null;
+        stopping?: boolean;
+    };
+    toasts: ToastItem[];
+    history: {
+        past: GraphSnapshot[];
+        future: GraphSnapshot[];
+    };
+    panels: PanelLayout;
+    confirm: ConfirmState | null;
+    historyOpen: boolean;
+    runHistory: RunSnapshot[];
+    selectedRunId: string | null;
+    comboOpen: boolean;
+    /** 定时任务管理弹层开关（新功能本阶段；与组合管理并列入口）。 */
+    schedulerOpen: boolean;
+}
+/** 编辑器数据（右侧面板渲染源；Inspector 按 kind 分发表单）。 */
+export interface EditorData {
+    kind: 'workflow' | 'service' | 'role' | 'task' | 'step' | 'database' | 'group' | 'subgraph' | 'stage' | 'proxy' | 'edge' | 'experience' | 'prompt';
+    data: Record<string, unknown>;
+    name: string;
+    template?: boolean;
+    templateId?: string;
+    /** 角色模板/节点是否为父代理（模式仅 preset + 高级项裁剪）。 */
+    isParent?: boolean;
+    /** 工作流资产来源标记（属性栏按资产语义渲染；保存/退役由 T6 接线）。 */
+    asset?: boolean;
+    /** 角色资产来源标记（同上）。 */
+    roleAsset?: boolean;
+    /** 经验来源标记（属性栏按经验语义渲染：只有保存与归档/恢复，**无回滚**）。 */
+    experience?: boolean;
+    /** 提示词资产来源标记（只有正文可编辑；有保存与回滚，无归档/恢复）。 */
+    promptAsset?: boolean;
+    /** 资产 id（保存新版本 / 回滚 / 归档 / 恢复按此定位；与当前画布 currentId 同源）。 */
+    assetId?: string;
+    /** 经验 id（保存 / 归档 / 恢复按此定位）。 */
+    experienceId?: string;
+    /** 已归档（历史资产 / 非活跃经验）：属性栏据此把「归档」换成「恢复」。 */
+    retired?: boolean;
+    /** 画布角色节点绑定的来源角色资产 id（拖入角色资产时写入；无回滚按钮的判据）。 */
+    sourceAssetId?: string;
+    /** 画布节点 id（node 来源编辑器）。 */
+    nodeId?: string;
+    /** 虚拟节点主节点名称。 */
+    mainLabel?: string;
+    /** 阶段节点种类与所属模式（属性面板按当前界面语言渲染阶段名）。 */
+    stageKind?: 'start' | 'end' | 'pause';
+    mode?: 'mode1' | 'mode2';
+    /** Team 成员（画布节点解析）。 */
+    members?: Array<{
+        id: string;
+        label: string;
+    }>;
+}

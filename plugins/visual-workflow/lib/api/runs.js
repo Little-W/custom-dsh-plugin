@@ -1,0 +1,152 @@
+// src/host/api/runs.ts
+//
+// GUI API 运行、数据库与导入导出端点组（RunEndpoints）：运行启停/状态/历史/断点续跑、
+// 数据库连接测试、v2 bundle 导入导出与角色模板往返（导入导出领域逻辑归 transfer 模块，
+// 端点只做参数校验与响应映射）。
+import { findResumableRun } from '../orchestrator/index.js';
+import { testDatabaseConnection } from '../tools/index.js';
+import { exportAgentTemplate, exportWorkflowBundle, importAgentTemplate, importWorkflowBundle } from '../transfer/bundle.js';
+import { systemLanguageFromLocale } from '../system-language.js';
+import { httpError } from './http.js';
+import { presentationOf, VisualWorkflowApiBase } from './boundary.js';
+/**
+ * 校验并归一化导入冲突策略：取值域闭集，缺省（未给 / null / 空串）交由 transfer 取默认策略。
+ * 为什么在端点内校验：`as 'rename' | 'overwrite'` 只是编译期断言，非法字符串会被
+ * 静默当成「非 overwrite」处理（导入行为与用户所选策略不一致且无任何提示）。
+ */
+function optionalConflictMode(value) {
+    if (value === undefined || value === null || value === '')
+        return undefined;
+    if (value !== 'rename' && value !== 'overwrite')
+        throw httpError(400, 'conflictMode must be rename or overwrite');
+    return value;
+}
+export class RunEndpoints extends VisualWorkflowApiBase {
+    // ---------- 运行（父代理编排） ----------
+    /**
+     * 启动运行（工作台全局化改版）：运行唯一逻辑 = 运行当前实例——存在可恢复断点
+     * （暂停/中断）时自动续跑，否则全新启动；运行会话 = 实例绑定的会话
+     * （run.sessionId === instance.sessionId，不再支持运行期新建会话——「开启新会话」
+     * 只是创建实例时的一次性动作，见 createSession 端点）。
+     */
+    async run(args) {
+        const sessionId = String(args?.sessionId ?? '');
+        const flowId = String(args?.flowId ?? '');
+        if (!sessionId || !flowId)
+            throw httpError(400, 'requires sessionId and flowId');
+        const systemLanguage = systemLanguageFromLocale(args?.language);
+        const language = systemLanguage ? { systemLanguage } : {};
+        const prev = await findResumableRun(this.host.store, { sessionId, flowId });
+        if (prev) {
+            return this.host.orchestrator.resumeRun({ sessionId, flowId, fromRunId: prev.id, ...language });
+        }
+        return this.host.orchestrator.startRun({ sessionId, flowId, ...language });
+    }
+    /** 运行状态轮询：内存快照优先，终态（内存已释放）回退磁盘历史。会话归属校验。 */
+    async runStatus(args) {
+        const sessionId = String(args?.sessionId ?? '');
+        const runId = String(args?.runId ?? '');
+        if (!sessionId || !runId)
+            throw httpError(400, 'requires sessionId and runId');
+        const snapshot = this.host.orchestrator.runSnapshot(runId);
+        if (snapshot) {
+            if (snapshot.sessionId !== sessionId)
+                throw httpError(404, presentationOf(this.host, `运行不存在：${runId}`, `Run not found: ${runId}`));
+            return snapshot;
+        }
+        const disk = await this.host.store.getRun(runId);
+        if (!disk || disk.sessionId !== sessionId)
+            throw httpError(404, presentationOf(this.host, `运行不存在：${runId}`, `Run not found: ${runId}`));
+        return disk;
+    }
+    /**
+     * 活跃 run 列表（工作台全局化改版）：sessionId 缺省时返回**全部会话**的活跃
+     * run（工作台全局面板实例列表状态徽标用；running/paused 保留锁）；传入时按
+     * 会话过滤（旧单会话面板兼容调用）。
+     */
+    async activeRuns(args) {
+        const sessionId = args?.sessionId === undefined || args.sessionId === null
+            ? undefined
+            : String(args.sessionId);
+        return this.host.orchestrator.activeRunsForSession(sessionId);
+    }
+    async runStop(args) {
+        const sessionId = String(args?.sessionId ?? '');
+        const runId = String(args?.runId ?? '');
+        if (!sessionId || !runId)
+            throw httpError(400, 'requires sessionId and runId');
+        // 会话归属校验：内存激活 run 直接比对；已释放的终态 run 回退磁盘比对
+        // （越权会话不得停止他人运行；不匹配按不存在处理，不泄露 runId 是否存在）。
+        const entry = this.host.orchestrator.entryFor(runId);
+        if (entry) {
+            if (entry.snapshot.sessionId !== sessionId)
+                throw httpError(404, presentationOf(this.host, `运行不存在：${runId}`, `Run not found: ${runId}`));
+            await this.host.orchestrator.stopRun(runId);
+            return { stopped: true };
+        }
+        const disk = await this.host.store.getRun(runId);
+        if (!disk || disk.sessionId !== sessionId)
+            throw httpError(404, presentationOf(this.host, `运行不存在：${runId}`, `Run not found: ${runId}`));
+        // 无内存条目（宿主重启/终态已释放）：仍要中断该会话的父子智能体族，
+        // 否则点击停止只会改磁盘状态，残留 child 会被 inbox 消息再次唤醒。
+        await this.host.orchestrator.stopRun(runId);
+        return { stopped: true };
+    }
+    async runHistory(args) {
+        const sessionId = String(args?.sessionId ?? '');
+        const flowId = String(args?.flowId ?? '');
+        if (!sessionId || !flowId)
+            throw httpError(400, 'requires sessionId and flowId');
+        // 会话隔离（Bug 14）：运行历史必须限定当前会话，否则可按 flowId 读到
+        // 其他会话的 run 记录（多租户隔离，架构文档 §9）。
+        return this.host.store.listRuns(flowId, sessionId);
+    }
+    /** 断点续跑（历史面板「恢复」入口；runId 缺省取该工作流最近可恢复记录）。 */
+    async runResume(args) {
+        const sessionId = String(args?.sessionId ?? '');
+        const flowId = String(args?.flowId ?? '');
+        if (!sessionId || !flowId)
+            throw httpError(400, 'requires sessionId and flowId');
+        const systemLanguage = systemLanguageFromLocale(args?.language);
+        const result = await this.host.orchestrator.resumeRun({
+            ...(systemLanguage ? { systemLanguage } : {}),
+            sessionId,
+            flowId,
+            ...(args?.runId ? { fromRunId: String(args.runId) } : {}),
+        });
+        return result;
+    }
+    // ---------- 数据库（GUI 面板） ----------
+    /** 连接测试（本地/服务器驱动均可；返回可展示消息）。 */
+    async dbTest(args) {
+        const node = args?.node;
+        if (!node || node.kind !== 'database')
+            throw httpError(400, 'requires a database node');
+        return testDatabaseConnection(node);
+    }
+    // ---------- 导入导出（v2 bundle） ----------
+    async exportWorkflow(args) {
+        const sessionId = String(args?.sessionId ?? '');
+        const id = String(args?.id ?? '');
+        if (!sessionId || !id)
+            throw httpError(400, 'requires sessionId and id');
+        return { json: await exportWorkflowBundle(this.host.store, sessionId, id) };
+    }
+    async importWorkflow(args) {
+        // 图2 交互改造：导入一律落为「工作流模板」（全局共享），不再直接创建实例——
+        // 用户需在画布中「创建实例」后才能运行（sessionId 参数不再需要）。
+        const conflictMode = optionalConflictMode(args?.conflictMode);
+        return importWorkflowBundle(this.host.store, args?.json, { conflictMode });
+    }
+    async exportAgentTemplate(args) {
+        const id = String(args?.id ?? '');
+        if (!id)
+            throw httpError(400, 'requires id');
+        return { json: await exportAgentTemplate(this.host.store, id) };
+    }
+    async importAgentTemplate(args) {
+        const conflictMode = optionalConflictMode(args?.conflictMode);
+        return importAgentTemplate(this.host.store, args?.json, { conflictMode });
+    }
+}
+//# sourceMappingURL=runs.js.map

@@ -1,0 +1,183 @@
+// src/host/orchestrator/snapshot.ts
+//
+// 运行快照纯函数（T-021）：创建/更新/终态化/截断/最终文本提取。
+//
+// 上下文：run 快照（RunSnapshot，shared/types.ts）是一次运行的全量持久化状态，
+//       亦是断点（§4.7）与运行历史面板的数据源。本文件只放纯函数——不读时钟以外的
+//       全局、不碰存储、不依赖运行时，便于状态机单测逐函数断言（T-021 DoD）。
+//
+// 语义依据（需求文档 §4.7）：
+//   - 节点输出记录：完整输出（默认上限 100KB，outputFullLimit 配置）用于断点/上下文
+//     传递；界面展示截断摘要（默认 6000 字，OUTPUT_SUMMARY_LIMIT）。
+//   - 节点状态：pending/running/ok/fail/skipped/react-capped（架构文档 §6.1；
+//     NodeRunStatus 词表内没有 stopped——被停止的运行以 run 级状态区分，运行中
+//     被打断的节点收敛为 fail：非 ok 即不继承，续跑时重试，语义精确）。
+//
+// 为什么终态化把 running 收敛为 fail 而不是 skipped（§4.7 规则 6）：skipped 语义
+// 是「从未执行」，被终止时正在执行的节点已消耗一次尝试且产出不可信，必须重跑；
+// 只有从未启动的 pending 才记 skipped。
+/** 输出摘要截断上限（字符，架构文档 §6.1 nodes[].outputSummary；需求 §4.7 规则 7）。 */
+export const OUTPUT_SUMMARY_LIMIT = 6000;
+/** 节点完整输出兜底截断上限（config.outputFullLimit 缺省时使用）。 */
+const DEFAULT_OUTPUT_FULL_LIMIT = 102400;
+/** run 状态中文文案（错误提示/历史面板共用）。 */
+export function statusText(status) {
+    switch (status) {
+        case 'running': return '运行中';
+        case 'paused': return '已暂停';
+        case 'completed': return '完成';
+        case 'failed': return '失败';
+        case 'stopped': return '已停止';
+        case 'interrupted': return '已中断';
+        /* v8 ignore next 2 -- 判别联合穷尽，防御未来词表扩展 */
+        default: return String(status);
+    }
+}
+/** 文本截断：超限时保留前缀并追加中文截断标记（与旧项目 truncate 同语义）。 */
+export function truncateText(text, limit) {
+    const value = String(text ?? '');
+    return value.length > limit ? `${value.slice(0, limit)}…（已截断）` : value;
+}
+/**
+ * 创建全新 run 快照（§6.1 逐字段）：全部节点 pending、attempts 0、无输出。
+ * 断点字段（resumedFromRunId/resumeFromNodeId）由续跑任务（T-027）回填。
+ */
+export function createRunSnapshot(input) {
+    const startedAt = new Date(input.now ?? Date.now()).toISOString();
+    return {
+        id: input.runId,
+        flowId: input.flow.id,
+        flowName: input.flow.name ?? input.flow.id,
+        sessionId: input.sessionId,
+        mode: input.mode,
+        status: 'running',
+        startedAt,
+        endedAt: null,
+        summary: '',
+        // 注意：保留全量节点执行记录——mode2 输入节点承载用户问题（question 预填产出）、
+        // 阶段节点终态化（pending→skipped）、上游产出回填（start/file 产出作为下游自动注入的来源）
+        // 都依赖快照节点记录；「仅角色节点显示状态」由客户端按节点类型过滤，不在此剔除记录。
+        nodes: (input.flow.nodes ?? []).map((node) => ({
+            nodeId: node.id,
+            status: 'pending',
+            attempts: 0,
+            startedAt: null,
+            endedAt: null,
+            output: '',
+            outputSummary: '',
+        })),
+    };
+}
+/**
+ * 该节点状态是否携带**本回合产出**。
+ * 产出回写（setNodeStatus）与下游 ctx 注入（graph-facts）共用同一判定：两处若各写一份
+ * 谓词，一旦口径漂移就会静默形成信息断链（Team 成员产出传不到下游）。
+ * react-capped 是软截停的正常产出（T-022）；armed 是 Team 成员回合结束的待命态
+ * （仍可被唤醒，但本回合结论已产出）；fail/skipped 没有可交接的产出。
+ */
+export function hasProducedOutput(status) {
+    return status === 'ok' || status === 'react-capped' || status === 'armed';
+}
+/**
+ * 更新快照中某节点的运行状态（与旧项目 setNodeStatus 同语义，扩展 armed/回合明细）：
+ *   - running 且无 startedAt → 补开始时间；
+ *   - hasProducedOutput 为真的三种状态（ok/react-capped/armed）均回写完整输出（output）与
+ *     展示摘要（outputSummary）——丢掉产出会让下游 ctx 注入读到空串，静默形成信息断链；
+ *   - fail/skipped 不写产出：本回合没有可交接的产出，失败事实由 stopReason 表达；
+ *   - 终态与 armed 一并刷新 endedAt（最近结束时间）；
+ *   - recordTurn=true 时追记回合明细，endedAt 随最近回合刷新（P0-2，不再冻结）。
+ */
+export function setNodeStatus(snapshot, nodeId, status, options = {}) {
+    const entry = snapshot.nodes.find((node) => node.nodeId === nodeId);
+    if (!entry)
+        return;
+    const now = options.now ?? Date.now();
+    const prevStatus = entry.status;
+    entry.status = status;
+    if (options.attempts !== undefined)
+        entry.attempts = options.attempts;
+    // 本回合是否产出了可交接内容：决定产出回写与回合摘要的取值来源（一处判定，两处消费）。
+    const producedOutput = hasProducedOutput(status);
+    if (producedOutput) {
+        const text = String(options.output ?? '');
+        entry.output = truncateText(text, options.outputFullLimit ?? DEFAULT_OUTPUT_FULL_LIMIT);
+        entry.outputSummary = truncateText(text, OUTPUT_SUMMARY_LIMIT);
+    }
+    if (status === 'running' && !entry.startedAt)
+        entry.startedAt = new Date(now).toISOString();
+    const terminalOrArmed = status === 'ok' || status === 'fail' || status === 'skipped' || status === 'react-capped' || status === 'armed';
+    if (terminalOrArmed) {
+        // P0-2：endedAt 随回合刷新（最近完成时间），不再冻结在首次完成。
+        entry.endedAt = new Date(now).toISOString();
+    }
+    if (options.recordTurn && (terminalOrArmed || prevStatus === 'running')) {
+        entry.turns ??= [];
+        entry.turns.push({
+            startedAt: entry.startedAt,
+            endedAt: new Date(now).toISOString(),
+            stopReason: options.stopReason,
+            // 回合摘要必须取自**本回合**的事实：fail/skipped 不回写节点产出，若沿用
+            // entry.outputSummary 会把上一回合的产出记到本回合名下（失败回合看似有产出，
+            // 与 terminalizeNodes 对中断回合记空摘要的口径一致）。
+            outputSummary: producedOutput ? entry.outputSummary : '',
+        });
+    }
+    if (options.stopReason !== undefined)
+        entry.stopReason = options.stopReason;
+}
+/**
+ * 终态化节点清单（运行收尾/终止时调用）：从未启动的 pending → skipped，
+ * 正在执行的 running → fail（非 ok 不继承，续跑时重试，见文件头语义说明）；
+ * 待命 armed（仍在 Team 内可唤醒）→ 运行收尾即视为可唤醒状态结束，normalize 为 ok
+ * （已产出回合，非失败）。
+ * @param stopReason 终止原因（stop/interrupt/fail/…），写入仍在 running 的节点的回合记录，
+ *                   供父代理区分「用户停止」与「异常失败」，避免误重启（P2-5）。
+ */
+export function terminalizeNodes(snapshot, now, stopReason) {
+    const endedAt = new Date(now ?? Date.now()).toISOString();
+    for (const node of snapshot.nodes) {
+        if (node.status === 'pending')
+            node.status = 'skipped';
+        else if (node.status === 'running') {
+            node.status = 'fail';
+            if (!node.endedAt)
+                node.endedAt = endedAt;
+            if (stopReason) {
+                node.stopReason = stopReason;
+                node.turns ??= [];
+                node.turns.push({ startedAt: node.startedAt, endedAt, stopReason, outputSummary: '' });
+            }
+        }
+        else if (node.status === 'armed') {
+            node.status = 'ok';
+            if (!node.endedAt)
+                node.endedAt = endedAt;
+        }
+    }
+}
+/** 深拷贝快照（对外只读查询用，防调用方改写内部状态）。 */
+export function cloneSnapshot(snapshot) {
+    return structuredClone(snapshot);
+}
+/**
+ * 从官方 subagent/end 的 lastAssistantMessage（ContentBlock[]）提取纯文本。
+ * 只认 { type: 'text', text } 块（官方 §8 #21 取证）；limit 为 0/负值时不截断。
+ *
+ * 调用约定（2026.09 修复后）：节点产出回写路径必须传 **0**（取全量），由
+ * setNodeStatus 按 outputFullLimit（完整产出）与 OUTPUT_SUMMARY_LIMIT（展示摘要）
+ * 两套口径分别截断——若在提取阶段就按摘要口径截断，outputFullLimit 会失效。
+ */
+export function lastAssistantText(blocks, limit) {
+    const text = (Array.isArray(blocks) ? blocks : [])
+        .map((block) => {
+        const value = block;
+        return value && value.type === 'text' ? String(value.text ?? '') : '';
+    })
+        .filter(Boolean)
+        .join('\n')
+        .trim();
+    if (!text)
+        return '';
+    return limit > 0 ? truncateText(text, limit) : text;
+}
+//# sourceMappingURL=snapshot.js.map

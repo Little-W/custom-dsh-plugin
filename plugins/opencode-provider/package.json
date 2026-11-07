@@ -1,8 +1,8 @@
 {
   "name": "@agent-studio/plugin-opencode-provider",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
-  "description": "连接 OpenCode 模型服务，并在工作台中选择和配置可用模型。",
+  "description": "连接 OpenCode 模型服务，配置模型并通过 DSH 原生检查点重试恢复网络中断。",
   "main": "./index.js",
   "exports": {
     ".": "./index.js",
@@ -17,6 +17,9 @@
     "locale/*.json",
     "README.md"
   ],
+  "engines": {
+    "dsh": ">=0.2.2-rc.1 <0.3.0"
+  },
   "dsh": {
     "bundle": {
       "patch": "./cordis.patch.yml"
@@ -32,8 +35,6 @@
   "dependencies": {
     "@deepseek-ai/dsh-llm": "0.2.2-rc.1",
     "@deepseek-ai/schemastery": "3.19.0",
-    "@anthropic-ai/claude-agent-sdk": "0.3.301",
-    "@anthropic-ai/sdk": "0.129.0",
     "ffi-rs": "1.3.7",
     "@silvia-odwyer/photon-node": "0.3.4"
   }

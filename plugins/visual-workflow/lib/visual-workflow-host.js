@@ -1,0 +1,923 @@
+// src/host/visual-workflow-host.ts
+//
+// Host Service（visualWorkflowHost）：装配 FlowStore、编排运行时、节点子代理
+// 执行引擎、护栏/提示词/模型选择贡献、wf_* 工具与路由挂载；承载体持解析后的
+// config 与全部质检组件，随 fiber 生命周期管理（init 失败让 fiber 失败）。
+import { Context, Service } from '@deepseek-ai/cordis';
+import { FlowStore } from './storage/flow-store.js';
+import { AssetStore } from './assets/index.js';
+import { PARENT_ROLE_DUTIES } from './prompts/index.js';
+import { installBuiltinFlowTemplates } from './builtin-templates/install.js';
+import { OrchestratorRuntime, messageOf, reconcileStaleRuns, scheduleIdleWatchdog, } from './orchestrator/index.js';
+import { CordisAgentHost, CordisToolsView, NodeAgentRunner, agentsServiceLike, childVisibilityContribution, createChildPromptSetup, createChildToolFilterSetup, createModelSelectionSetup, createReactGuard, resolveRolePrompt, subagentsServiceLike, } from './agent/index.js';
+import { systemLanguageOf } from './system-language.js';
+import { agentTeamsServiceLike } from './team/index.js';
+import { listAgentPresets, listEcosystemModels } from './ecosystem-directory.js';
+import { ToolSwitchStore, ensureDatabaseIndexes, registerToolSwitchFilter, registerWfAskUser, registerWfDbQuery, registerWfDecide, registerWfExperienceFeedback, registerWfExperienceLearn, registerWfExperienceRecall, registerWfFinish, registerWfGraphPatch, registerWfOrgCatalog, registerWfResume, registerWfRunNode, registerWfRunNodeWait, registerWfWaitAgent, registerWfLoopCounter, registerWfSendMessage, } from './tools/index.js';
+import { registerArrangeCommand } from './commands/arrange.js';
+import { registerRoutes } from './api/index.js';
+import { ExperienceService, scheduleExperienceRetirementSweep } from './experience/index.js';
+import { EmbeddingService } from './embedding/engine.js';
+import { ServiceManager } from './service/index.js';
+import { createConditionScriptRunner, SchedulerEngine, SchedulerTaskStore } from './scheduler/index.js';
+import { CordisSessionProvider, sessionCwdResolver } from './sessions/session-provider.js';
+export const VisualWorkflowHostServiceName = 'visualWorkflowHost';
+/**
+ * 宿主 service：持有解析后的 config、FlowStore 与编排运行时，挂载事件观察、
+ * 看护定时器与清理。内存运行态（运行锁/快照/子代理表）由编排运行时与节点
+ * 执行引擎（NodeAgentRunner）接管。
+ */
+export class VisualWorkflowHost extends Service {
+    config;
+    /** FlowStore 实例（dataDir 落盘数据层）。 */
+    store;
+    /**
+     * 资产库（SQLite；资产与经验两类事实的唯一持久化持有者）。
+     * 私有：对外只经 `assets` getter 与各能力缝暴露，避免绕过可用性判定直接用未初始化的库。
+     */
+    assetStore;
+    /** 资产库是否就绪（init 成功）。 */
+    assetStoreReady = false;
+    /** 编排运行时（运行锁/快照/状态机/wait 阻塞/暂停门）。 */
+    orchestrator;
+    /** 节点子代理执行引擎（startContinuable 创建/签名复用/白名单解析）。 */
+    runner;
+    /** 会话根 Agent 宿主能力（wf_* 工具层归属校验/提问借 root 身份）。 */
+    agents;
+    /** 模式二服务管理器（fork 子进程生命周期/端口池/自动恢复）。 */
+    serviceManager;
+    /** 定时任务引擎（触发/窗口挂起/续跑；新功能本阶段）。 */
+    scheduler;
+    /** 定时任务存储（scheduler-tasks.json）。 */
+    schedulerTaskStore;
+    /** 全局工具开关存储（tool-switches.json；父代理工具白名单「关闭」侧，全局即时生效）。 */
+    toolSwitches;
+    /** 新会话创建缝（「开启新会话」一次性动作：创建实例时新建主会话；API 端点使用）。 */
+    sessionProvider;
+    /** 会话工作目录解析（新会话继承创建者 cwd 用；API 端点使用）。 */
+    sessionCwdOf;
+    /** ReAct 软截停护栏（桥供 runner/编排器，贡献注入子代理）。 */
+    reactGuard = createReactGuard();
+    /** 思考强度模型选择装配。 */
+    modelSelection = createModelSelectionSetup();
+    /** 子代理系统提示词与协作 Prompt 注入装配。 */
+    childPrompt = createChildPromptSetup();
+    /**
+     * 子代理工具白名单装配（创建窗口内安装 allow）。
+     * 普通节点子代理由官方创建请求携带白名单；Team 成员无法携带，只能由本装配在窗口内安装。
+     */
+    childToolFilter = createChildToolFilterSetup();
+    /**
+     * 每子代理作用域装配撤销表（agentId → disposer）：由 `agent/created` 处理器在
+     * 子代理创建窗口内安装四类贡献（角色提示词/工具可见性/模型选择/软截停），
+     * `agent/disposed` 或宿主 dispose 时撤销。持 key 的是 agent id（而非 childId）。
+     */
+    childScopeDisposers = new Map();
+    /**
+     * 每个视觉工作流子代理的提示词状态（agentId → ChildPromptState）。在首次 `agent/created`
+     * 时写入；此后即使子代理被重发布/恢复（`agent/created` 再次触发、但不在 withPending
+     * 作用域内）也能据此状态重新安装四类贡献——避免「第二轮被官方提示词顶替、贡献被卸载」的
+     * 二次重置 BUG。
+     * 【关键生命周期】`agent/disposed` **不再**删除此状态：可延续子代理（startContinuable）在
+     * 回合间会因官方 watchSettlement（空闲+settled）被销毁并触发 `agent/disposed`，第二轮父代理
+     * 再派发时经 coldResume 冷恢复（重新发布 → 再次 `agent/created`）。若在 dispose 时删除
+     * 状态，重发布将找不到该子代理的 ChildPromptState → 四类贡献不再重装 → 第二轮回退官方提示词。
+     * 条目为极小字符串、会话内数量有限，仅随宿主 dispose 统一清理即可。
+     */
+    childPromptStates = new Map();
+    /** 本地嵌入引擎（外部端点 > 本地资产 > BM25 降级；惰性加载）。 */
+    embedding;
+    /**
+     * 经验域服务（校验/投影/向量/判重/召回/主体解析的唯一起点）。
+     * 为什么由宿主组装而不是让工具与 API 各自 new：经验域只声明最小端口，端口到
+     * AssetStore / 嵌入引擎 / 运行事实的适配必须在一处完成，否则同一套语义会有多份实现。
+     */
+    experienceService;
+    /** API 边界的经验域能力缝（资产端点与经验端点共用同一份判据）。 */
+    experienceDomain;
+    /** 已清理标记（dispose 后为 true；重复 dispose 幂等）。 */
+    _disposed = false;
+    /** 跳过磁盘对账（服务进程装配用：运行记录对账属主进程职责）。 */
+    skipReconcile;
+    /** 已清理标记（dispose 后为 true；重复 dispose 幂等）。 */
+    get disposed() {
+        return this._disposed;
+    }
+    constructor(ctx, config, options = {}) {
+        super(ctx, VisualWorkflowHostServiceName);
+        this.config = config;
+        this.skipReconcile = options.skipReconcile === true;
+        this.store = new FlowStore(config.dataDir);
+        this.assetStore = new AssetStore(config.dataDir);
+        this.toolSwitches = new ToolSwitchStore(config.dataDir);
+        this.agents = new CordisAgentHost(ctx);
+        // 会话工作目录解析（调度器使用；子智能体共享同一会话工作区，不在工具层切换目录）。
+        this.sessionCwdOf = sessionCwdResolver(ctx);
+        this.embedding = new EmbeddingService({
+            modelDir: config.embeddingModelDir,
+            endpoint: config.embeddingEndpoint,
+            logger: { warn: (message) => ctx.logger.warn(message) },
+        });
+        this.runner = new NodeAgentRunner({
+            store: this.store,
+            agents: () => agentsServiceLike(ctx),
+            subagents: () => subagentsServiceLike(ctx),
+            // 官方 Agent Team 服务（Team 成员路径）；未挂载时返回 null，成员降级为普通子代理
+            teams: () => agentTeamsServiceLike(ctx),
+            // 官方会话级成员名额上限的镜像（新建成员前预检；须与部署层 agent-team.maxMembers 同步）
+            teamMemberLimit: config.teamMemberLimit,
+            toolsView: new CordisToolsView(ctx),
+            // 全局关闭工具快照：取值前先跨进程刷新（ensureFresh）——模式二服务进程是 fork 的
+            // 独立 DSH 实例，只读一次 init 快照会让 GUI 里翻的开关在该进程里永远不生效。
+            toolSwitches: async () => {
+                await this.toolSwitches.ensureFresh();
+                return this.toolSwitches.currentDisabled();
+            },
+            react: this.reactGuard.bridge,
+            modelSelection: this.modelSelection,
+            toolFilter: this.childToolFilter,
+            promptSetup: this.childPrompt,
+            logger: cordisLogger(ctx),
+        });
+        this.orchestrator = new OrchestratorRuntime({
+            store: this.store,
+            runner: this.runner,
+            agents: this.agents,
+            promptSetup: this.childPrompt,
+            modelSelection: this.modelSelection,
+            // 角色 Prompt 读取（agent 能力经缝注入：编排器不反向依赖 agent 运行时）
+            resolveRolePrompt: (node) => resolveRolePrompt(node),
+            config: {
+                outputFullLimit: config.outputFullLimit,
+                documentTextLimit: config.documentTextLimit,
+                runIdleTimeoutMs: config.runIdleTimeoutMs,
+                retryLimitDefault: config.retryLimitDefault,
+                reactIterationLimitDefault: config.reactIterationLimitDefault,
+                pauseSlaMs: config.pauseSlaMs,
+                contentDecisionGate: config.contentDecisionGate,
+            },
+            // 索引预建能力经缝注入（具体数据工具域实现不进编排器；best-effort 语义由其内部保证）
+            dbIndexer: {
+                ensureIndexes: (nodeId, flow) => ensureDatabaseIndexes(config.dataDir, nodeId, flow, this.embedding, cordisLogger(ctx)),
+            },
+            // 系统语言名：从 DSH 用户设置（locale.preference）读取，供提示词注入语言规则
+            systemLanguage: () => this.systemLanguage(),
+            logger: cordisLogger(ctx),
+        });
+        // 经验域服务：端口全部在此适配（Store 走资产库、Embedding 走既有引擎、运行事实走编排器 seam），
+        // 领域层因此不反向依赖任何模块内部实现。
+        this.experienceService = new ExperienceService({
+            store: this.experienceStorePort(),
+            runtime: this.experienceRuntimePort(),
+            embedding: this.embedding,
+            now: () => Date.now(),
+            logger: cordisLogger(ctx),
+        });
+        // API 边界只经此能力缝读改经验；未就绪时 getter 返回 undefined，边界据此给出 501。
+        this.experienceDomain = {
+            list: (input) => this.experienceService.list(input),
+            update: (input) => this.experienceService.update(input),
+            retire: (input) => this.experienceService.retire(input),
+            restore: (input) => this.experienceService.restore(input),
+        };
+        // 新会话创建缝：装配到宿主（API createSession 端点使用；运行器不再消费——
+        // 工作台全局化改版后运行只认实例绑定的会话，新会话仅在创建实例时创建）。
+        this.sessionProvider = new CordisSessionProvider(ctx);
+        this.serviceManager = new ServiceManager({
+            store: this.store,
+            dataDir: config.dataDir,
+            config: {
+                servicePortBase: config.servicePortBase,
+                apiKey: config.apiKey,
+                maxConcurrentPerService: config.maxConcurrentPerService,
+            },
+            logger: {
+                info: (message) => ctx.logger.info(message),
+                warn: (message) => ctx.logger.warn(message),
+                error: (message) => ctx.logger.error(message),
+            },
+        });
+        this.schedulerTaskStore = new SchedulerTaskStore(config.dataDir);
+        this.scheduler = new SchedulerEngine({
+            taskStore: this.schedulerTaskStore,
+            flowStore: this.store,
+            orchestrator: this.orchestrator,
+            sessionProvider: new CordisSessionProvider(ctx),
+            sessionCwdOf: sessionCwdResolver(ctx),
+            conditionRunner: createConditionScriptRunner(),
+            logger: {
+                info: (message) => ctx.logger.info(message),
+                warn: (message) => ctx.logger.warn(message),
+                error: (message) => ctx.logger.error(message),
+            },
+        });
+    }
+    /** 按会话取根 Agent（wf_* 工具层提问/校验用；转发至 agents 适配）。 */
+    getRootAgent(sessionId) {
+        return this.agents.getRootAgent(sessionId);
+    }
+    /**
+     * 系统语言名（从 DSH 用户设置 locale.preference 读取）。
+     * 单一读取路径：编排提示词注入、/arrange 规划提示词注入与 GUI 呈现文案共用，
+     * 避免同一读取表达式散落两处（口径分叉时界面与提示词语言会不一致）。
+     * 公开供 API 边界能力缝（ApiHost.systemLanguage）消费。
+     */
+    systemLanguage() {
+        return systemLanguageOf(this.ctx.get('settings'));
+    }
+    // ---- 每子代理作用域装配（agent/created 创建窗口内提前安装） ----------------
+    /**
+     * 在子代理创建窗口内安装四类每子代理作用域贡献，返回合并 disposer（host 管理生命周期）。
+     * 与官方 installModelSelection(agentCtx) 的「拿到 child 的 ctx 后安装」范式一致：
+     *   - wf_* 可见性双保险（wf_run_node/wf_finish deny）；
+     *   - ReAct 软截停护栏；
+     *   - 模型选择（provider/model/reasoning）；
+     *   - 角色提示词段 + 开关过滤。
+     * 因在 `agent/created`（agents.create 发布、首轮组装之前串行 await）执行，
+     * 四类贡献在首轮即可见——修复「系统提示词/工具第二轮才更新」的同源时序 BUG。
+     * 单个贡献失败则跳过（其余照装），返回的 disposer 为已成功安装贡献的合并撤销。
+     */
+    installChildScope(childCtx, agentId) {
+        const contributions = [
+            childVisibilityContribution(),
+            this.reactGuard.contribution,
+            this.modelSelection.contribution,
+            this.childToolFilter.contribution,
+            this.childPrompt.contribution,
+        ];
+        const disposers = [];
+        for (const contribution of contributions) {
+            try {
+                const dispose = contribution(childCtx);
+                if (typeof dispose === 'function')
+                    disposers.push(dispose);
+            }
+            catch {
+                // 单个贡献因 childCtx 形状不符失败：跳过（其余照装），功能局部降级
+            }
+        }
+        // 重发布（冷恢复）时把已记住的成员级组成写回：创建窗口内写入的模型选择与工具白名单
+        // 不跨子代理销毁存活，而官方冷恢复只依据持久描述符重建路由与工具面，故必须由我方留存重装。
+        // 无记录（普通节点子代理）时两处调用都是空操作。
+        try {
+            this.modelSelection.restore(agentId, childCtx);
+        }
+        catch {
+            // 重装失败：模型选择退回官方路由，不阻断其余贡献
+        }
+        try {
+            const disposeToolFilter = this.childToolFilter.restore(agentId, childCtx);
+            if (typeof disposeToolFilter === 'function')
+                disposers.push(disposeToolFilter);
+        }
+        catch {
+            // 重装失败：工具可见性退回继承面，不阻断其余贡献
+        }
+        return () => {
+            for (const dispose of disposers) {
+                try {
+                    dispose();
+                }
+                catch {
+                    // 撤销尽力而为
+                }
+            }
+        };
+    }
+    /** 撤销某 child 已安装的作用域装配（幂等；agent/disposed / 重建路径用）。 */
+    dropChildScope(agentId) {
+        const dispose = this.childScopeDisposers.get(agentId);
+        if (!dispose)
+            return;
+        this.childScopeDisposers.delete(agentId);
+        try {
+            dispose();
+        }
+        catch {
+            // 撤销尽力而为
+        }
+    }
+    /**
+     * 监听官方 `agent/created`：子代理创建/重发布窗口（startContinuable 内部、first assembly
+     * 之前，**串行 await**）触发。
+     *   - 首建：此时 `withPending` 状态仍在作用域内 → `peekPending()` 取到本次创建的 ChildPromptState；
+     *   - 重发布/恢复：`agent/created` 再次触发但不在 withPending 作用域内 → 从
+     *     `childPromptStates`（首建时持久化）取回状态。
+     * 据此在其 ctx 上提前（重新）安装四类贡献，使首轮 + 后续每轮系统提示词与工具集都保持就位，
+     * 不会「第二轮被官方提示词顶替、贡献被卸载」（二次重置 BUG）。
+     *
+     * 【0.1.7-rc.1 取证】事件名与 payload 见 `src/host/events.d.ts` 的 `agent/created` 条目；
+     * 官方对该事件**按序 await 监听器，且监听器抛错会让创建失败**（dsh-agent/lib/index.js
+     * L579 的 `ctx.serial`），故本处理器全程同步且不抛错（贡献安装由 installChildScope
+     * 逐项 try/catch 隔离）。根 Agent 创建（source='startup'）同样触发本事件：此时
+     * `peekPending()` 为空且 `childPromptStates` 无该 id → 直接返回，无副作用。
+     */
+    onAgentCreated(payload) {
+        // 卸载后不再安装任何新贡献：dispose() 已清空 childScopeDisposers 且不再遍历，
+        // 此时安装的监听器持有 childCtx 与其子树却永远没有撤销点（泄漏到进程结束）。
+        if (this._disposed)
+            return;
+        const agent = payload?.agent;
+        if (!agent || typeof agent !== 'object')
+            return;
+        const childCtx = agent.ctx;
+        if (!childCtx)
+            return;
+        const agentId = String(agent.id ?? '');
+        if (!agentId)
+            return;
+        // 状态优先级：仍在 withPending（首建）→ 用本次 pending；否则用首建持久化的对应该子代理状态（重发布/恢复）
+        const state = this.childPrompt.peekPending() ?? this.childPromptStates.get(agentId);
+        if (!state)
+            return; // 非视觉工作流子代理（既不处于首建 pending，也不是已知视觉工作流子代理）
+        this.dropChildScope(agentId); // 同 id 二次发布先撤销旧装配，防重复
+        // 用 withPending 包裹，使 contribution 读到该 state（首建嵌套于 runner 的 pending，取最内层值）
+        void this.childPrompt.withPending(state, async () => {
+            const dispose = this.installChildScope(childCtx, agentId);
+            if (typeof dispose === 'function')
+                this.childScopeDisposers.set(agentId, dispose);
+            return dispose;
+        });
+        this.childPromptStates.set(agentId, state);
+    }
+    /**
+     * 子代理被销毁时回收其作用域装配（重建配置签名变化 / 正常运行结束）。
+     * 【关键】**不删除** `childPromptStates`：可延续子代理在回合间会因官方 watchSettlement
+     * （空闲+settled）被销毁并触发 `agent/disposed`，第二轮父代理再派发时经 coldResume 冷恢复
+     * （重新发布 → 再次 `agent/created`）。若此处删除持久化状态，重发布时将无法找到该
+     * 子代理的 ChildPromptState，四类贡献（角色提示词段/工具可见性/模型选择/软截停）不会重装
+     * → 第二轮回退官方提示词（「系统提示词和工具已更新」二次重置 BUG）。状态仅随宿主 dispose
+     * 统一清理。
+     */
+    onAgentDisposed(payload) {
+        // 与其余三个事件处理器同口径：卸载后宿主不再接收事件（dispose 已清表，重复撤销无意义）。
+        if (this._disposed)
+            return;
+        const agentId = String(payload?.agent?.id ?? '');
+        if (!agentId)
+            return;
+        this.dropChildScope(agentId);
+    }
+    /** 按会话 id 取子代理 agent（wf_send_message 投递缝用；转发至 agents 适配）。 */
+    getChildAgent(childId) {
+        return this.agents.getChildAgent(childId);
+    }
+    /** 冷态投递：复用子代理派发协作消息（subagents 服务惰性解析；缺失报明确错误）。 */
+    async followupChild(parent, childId, content, options) {
+        const subagents = subagentsServiceLike(this.ctx);
+        if (!subagents) {
+            throw new Error('subagents 服务不可用，无法冷恢复目标子代理');
+        }
+        const blocks = (Array.isArray(content) ? content : []);
+        // 0.1.5-rc.1 适配：SubagentRuntime 的 followup（rc.2 面）早已移除，官方现无该方法。
+        // sendMessage（live 父 → direct child）为首选；queuePrompt（host distinct turn，
+        // 0.1.5 其 source/signal 为必填，属旧版兼容兜底）仅在 sendMessage 缺失时使用。
+        if (typeof subagents.sendMessage === 'function') {
+            return subagents.sendMessage(parent, childId, blocks, options.signal ? { signal: options.signal } : {});
+        }
+        if (typeof subagents.queuePrompt === 'function') {
+            return subagents.queuePrompt(parent, childId, blocks, options.source, options.signal);
+        }
+        throw new Error('subagents 服务不支持协作投递（缺少 sendMessage/queuePrompt）');
+    }
+    /** 父代理空闲时唤醒投递（wf_send_message 投递缝；转发至 agents 适配）。 */
+    followupRoot(agent, message) {
+        this.agents.followupRoot(agent, message);
+    }
+    /**
+     * 官方 Team 成员投递（wf_send_message 的成员通道）：按官方成员名寻址，直接调用官方
+     * Team 服务。
+     *
+     * 为什么不走官方 send_message 工具：工具通道可被全局工具开关关闭（插件默认关闭官方
+     * send_message），而成员间通信必须继续可用；宿主直接调用官方服务不经过工具注册与
+     * 开关，因此不受影响。
+     */
+    async sendToTeammate(parent, memberName, content, options) {
+        const teams = agentTeamsServiceLike(this.ctx);
+        if (!teams)
+            throw new Error('官方 Team 服务不可用，无法投递消息给成员');
+        const blocks = (Array.isArray(content) ? content : []);
+        // 官方投递请求要求 signal 必填；调用方缺省时给一个永不中止的信号（投递本身即刻返回）
+        return teams.sendMessage(parent, {
+            target: memberName,
+            content: blocks,
+            signal: options.signal ?? new AbortController().signal,
+        });
+    }
+    /** 数据根目录（数据工具索引落盘位置）。 */
+    get dataDir() {
+        return this.config.dataDir;
+    }
+    /**
+     * 资产库（API 边界缝；未就绪时为 undefined，资产端点据此返回 501）。
+     * 为什么不让边界直接拿 AssetStore：可用性判定只能有一处，端点不得使用未初始化的库。
+     */
+    get assets() {
+        return this.assetStoreReady ? this.assetStore : undefined;
+    }
+    /**
+     * 取资产库，未就绪时抛可行动错误。
+     * 为什么抛错而不是返回空集：目录勘察把「库不可用」伪装成「没有资产」会让父代理基于空目录
+     * 做出错误编排（与既有「核心清单读失败必须上抛」同口径）。
+     */
+    requireAssetStore() {
+        if (!this.assetStoreReady) {
+            throw new Error('[visual-workflow] 资产库不可用（assets.db 初始化失败）：请检查数据目录可写性与磁盘状态后重启插件');
+        }
+        return this.assetStore;
+    }
+    /**
+     * 经验域 Store 端口适配：每次调用重新判定资产库可用性（未就绪抛可行动错误），
+     * 避免把「库不可用」伪装成空结果；方法名与经验域契约逐字对应，不做语义加工。
+     */
+    experienceStorePort() {
+        const store = () => this.requireAssetStore();
+        return {
+            nextId: () => store().nextId(),
+            getActivePrompt: (type) => store().getActivePrompt(type),
+            listPrompts: () => store().listPrompts(),
+            listRows: (limit) => store().listRows(limit),
+            getRows: (ids, options) => store().getRows(ids, options),
+            listActiveEmbeddings: (type) => store().listActiveExperienceEmbeddings(type),
+            insertChecked: (input) => store().insertChecked(input),
+            updateFields: (id, patch, next) => store().updateFields(id, patch, next),
+            setActive: (id, active) => store().setActive(id, active),
+            retireForPolicy: (id, reason) => store().retireForPolicy(id, reason),
+            listRetirementFacts: () => store().listRetirementFacts(),
+            recordUsage: (input) => store().recordUsage(input),
+            listInjectedIds: (input) => store().listInjectedIds(input),
+            insertEvaluationsChecked: (input) => store().insertEvaluationsChecked(input),
+            getStats: (ids) => store().getStats(ids),
+            rebuildStats: (input) => store().rebuildStats(input),
+        };
+    }
+    /** 经验域运行事实端口：只经编排器的语义化 seam 读取运行事实，不触达其内部结构。 */
+    experienceRuntimePort() {
+        return {
+            activeRunForSession: (sessionId) => this.orchestrator.activeExperienceRunForSession(sessionId),
+            runForChild: (childId) => this.orchestrator.experienceRunForChild(childId),
+            // 评分者模型取自模型选择装配（节点子代理创建时确定、会话内父代理可改）：
+            // 取不到即空串——「不知道模型名」是真实事实，伪造一个默认模型会让校准数据变成假证据。
+            modelForCaller: (caller) => {
+                const childId = caller.isChild ? String(caller.childId ?? '').trim() : '';
+                const selection = childId
+                    ? this.modelSelection.modelOf(childId)
+                    : this.modelSelection.parentModelOf(caller.sessionId);
+                return selection?.model.trim() ?? '';
+            },
+        };
+    }
+    /** 工具层经验能力缝（learn / recall / feedback 三工具共用经验域服务同一实例）。 */
+    experienceHost() {
+        return {
+            experience: {
+                initializePrompt: (input) => this.experienceService.initializePrompt(input),
+                submit: (input) => this.experienceService.submit(input),
+                recall: (input) => this.experienceService.recall(input),
+                feedback: (input) => this.experienceService.feedback(input),
+            },
+        };
+    }
+    /**
+     * 经验域能力缝（API 边界消费）：资产库未就绪时返回 undefined，
+     * 使经验端点以「未装配」明确失败，而不是返回一个与事实不符的空列表。
+     */
+    get experience() {
+        return this.assetStoreReady ? this.experienceDomain : undefined;
+    }
+    /** 服务 apiKey（调试流式代理鉴权用；密钥仅 Host 持有，不下发浏览器）。 */
+    get apiKey() {
+        return this.config.apiKey;
+    }
+    /** 嵌入引擎（数据工具向量检索用）。 */
+    get engine() {
+        return this.embedding;
+    }
+    /**
+     * 运行期配置下发（API 边界缝）：只透传配置事实，前端据以调整轮询节奏与画布约束。
+     * 前端在缺失/非法时的缺省回退由前端决定，Host 不在此伪造取值。
+     */
+    runtimeConfig() {
+        return { runPollMs: this.config.runPollMs, teamMemberLimit: this.config.teamMemberLimit };
+    }
+    /** 启动装配（Service.init 语义：初始化失败让 fiber 失败，不吞错）。 */
+    async [Service.init]() {
+        // dataDir 必须非空：真实运行由 patch 层的 dshHomePath 在 Loader 求值期解析为
+        // 绝对路径；单测/独立嵌入需显式传入（不静默回退 cwd）。
+        if (!this.config.dataDir || !this.config.dataDir.trim()) {
+            throw new Error('[visual-workflow] 配置缺失：dataDir 未指定（cordis.patch.yml 未加载？）');
+        }
+        // 数据目录结构初始化（幂等）
+        await this.store.init();
+        // 内置父代理模板：模板库为空时播种（正文=五维职责唯一源）。模板侧无版本记账、
+        // 用户可随意改；版本化迭代走角色资产侧（见资产库播种与入库逻辑）。
+        // 失败只告警：模板播种失败不应让整个插件启动失败（用户仍可手工新建角色）。
+        try {
+            await this.ensureBuiltinParentTemplate();
+        }
+        catch (error) {
+            this.ctx.logger.warn(`[visual-workflow] 内置父代理模板播种失败（不影响启动）：${error instanceof Error ? error.message : String(error)}`);
+        }
+        // 内置预设模板（流程设计指南）：首次启动播种一份普通模板，之后与用户模板同权。
+        // 播种由「已播种标记」驱动（builtin-seeds.json）：用户删除/修改后不再写回；
+        // 已有数据目录的老用户升级后也会补上一次。语言按当前界面语言选择（英文界面注入
+        // 英文版，其余回退中文）。失败只告警，不阻断插件启动。
+        try {
+            const installed = await installBuiltinFlowTemplates(this.store, this.systemLanguage());
+            if (installed.length > 0) {
+                this.ctx.logger.info(`[visual-workflow] 已安装内置预设模板：${installed.join(', ')}`);
+            }
+        }
+        catch (error) {
+            this.ctx.logger.warn(`[visual-workflow] 内置预设模板播种失败（不影响启动）：${error instanceof Error ? error.message : String(error)}`);
+        }
+        // 资产库（SQLite）初始化：失败降级为「不可用」而不是让 fiber 失败——模版编排、运行、
+        // 定时任务等既有能力不依赖资产库，让新能力拖垮整个插件不划算；但降级必须显式：
+        // 目录勘察与资产端点都以明确错误失败（见 requireAssetStore / ApiHost.assets 缺失 → 501），
+        // 绝不伪装成「没有资产」。
+        try {
+            await this.assetStore.init();
+            // 内置父代理职责资产：首次安装播种一条 kind='parent' 的角色资产（V1 = 五维职责正文）。
+            // 播种幂等且不覆盖既有内容；失败与库初始化同口径降级（资产能力整体不可用）。
+            await this.assetStore.seedParentDuties();
+            this.assetStoreReady = true;
+        }
+        catch (error) {
+            this.ctx.logger.error(`[visual-workflow] 资产库初始化失败（资产/经验能力不可用）：${error instanceof Error ? error.message : String(error)}`);
+        }
+        // 全局工具开关装载：磁盘快照 → 内存权威集；随后注册 system-prompt/assemble
+        // 全局瀑布（unscoped ctx 对所有 agent 组装生效），关闭工具即时从所有会话
+        // 的代理上下文中剔除（独立于工作流运行状态，正菜单交互语义）。
+        await this.toolSwitches.load();
+        this.ctx.effect(() => registerToolSwitchFilter(this.ctx, this.toolSwitches), 'visualWorkflowHost.toolSwitches');
+        // 角色提示词首轮注入全局瀑布（unscoped，与工具开关瀑布同构）：子代理首轮组装在
+        // startContinuable 内部、withPending 状态仍活跃时发生（详见 prompt-setup.ts），
+        // 全局瀑布据此注入角色 Prompt 段并应用开关过滤，使子代理【第一轮】即用角色 Prompt
+        // 替换官方身份/人设段——修复「初始提示词未被用户自设替换、第二轮才替换」的 BUG。
+        // 后续回合由 per-agent 贡献（contribution/bindParent）持久生效，本瀑布只介入首轮。
+        this.ctx.effect(() => this.childPrompt.registerGlobalAssemblyHook(this.ctx), 'visualWorkflowHost.promptGlobalHook');
+        // 陈旧记录对账与模式二服务自动恢复（上次运行中 status=running 的服务重启）。
+        // 服务进程装配（skipReconcile）整块跳过：磁盘运行记录与服务状态属主进程，
+        // 服务进程不接管——否则服务进程启动后会扫描到「自己」（主进程 fork 前已把
+        // 该服务置为 running）并再次 start 自身 -> 自我 fork，子进程无限复制。
+        // 自动恢复失败仅告警，不阻断主进程启动。
+        if (!this.skipReconcile) {
+            await reconcileStaleRuns(this.store);
+            try {
+                await this.serviceManager.autoRecover();
+            }
+            catch (error) {
+                this.ctx.logger.warn(`[visual-workflow] 服务自动恢复失败：${error instanceof Error ? error.message : String(error)}`);
+            }
+        }
+        // 事件观察：
+        //   - subagent/end：节点子代理结束回写（ok/fail/react-capped + output + wait 唤醒）
+        //   - agent/error：父代理回合报错（只记录，不终止运行——对话区停止=打断修正，
+        //     真实错误终态由 watchdog 的 latestTurnEnd 权威判定）
+        //   - agent/created：子代理创建窗口内提前安装四类每子代理作用域贡献
+        //     （角色提示词/工具可见性/模型选择/软截停），使首轮系统提示词与工具集就位
+        //     【0.1.7-rc.1】官方 `agent/session-start` 已移除，改为异步串行的
+        //     `agent/created`（payload { agent, source, signal }）——语义等价：同为
+        //     factory setup 完成后、首轮提示词组装之前的创建窗口，且本插件处理器在其
+        //     内部包裹 withPending，AsyncLocalStorage 状态仍在作用域内。
+        //   - agent/disposed：撤销对应子代理的作用域装配（重建/正常销毁回收）
+        //   - agent/status：**运行活性基准刷新**（自主编排方案 §5.1）。父代理只在调用 wf_*
+        //     工具时刷新 lastActiveAt（runtime-execute.ts），规划/思考/读写文件期间不刷新
+        //     → 长规划可能被空闲看护（runIdleTimeoutMs，默认 30 分钟）误判为空闲并自动
+        //     stopped。官方 agent/status 在父代理转为 running 时触发，据此把「父代理在
+        //     干活」翻译成「运行不空闲」。子代理转 running 不触发本路径（会话 id 不是
+        //     父代理会话，touchRunForSession 内部按会话+status 精确匹配）。
+        // ctx.on 随本 fiber 自动反注册，无需手动 removeListener。
+        this.ctx.on('subagent/end', (payload) => this.onSubagentEnd(payload));
+        this.ctx.on('agent/error', (payload) => this.onAgentError(payload));
+        this.ctx.on('agent/created', (payload) => this.onAgentCreated(payload));
+        this.ctx.on('agent/disposed', (payload) => this.onAgentDisposed(payload));
+        this.ctx.on('agent/status', (payload) => this.onAgentStatus(payload));
+        // 0.1.2 适配：rc.2 的 registerContinuableSetup 已从官方移除。每子代理作用域装配改为
+        // 由 host 监听 `agent/created`（0.1.7 前名为 `agent/session-start`；子代理创建窗口内
+        // 串行 await 触发）提前安装四类贡献（见 onAgentCreated / installChildScope），
+        // 不再由 runner 在 startContinuable 返回后安装——否则首轮系统提示词/工具尚未就位、
+        // 第二轮才更新。此处仅检测 subagents 服务可用性并提示。
+        if (!subagentsServiceLike(this.ctx)) {
+            this.ctx.logger.warn('[visual-workflow] subagents 服务不可用：子代理执行/护栏将受限（运行时按需报错或降级）');
+        }
+        // wf_* 工具注册：全局层按工具分别注册 wf_run_node / wf_run_node_wait / wf_finish / wf_ask_user；
+        // 子代理侧可见性由白名单解析 + tools.restrict 双保险控制。每个注册返回的 disposer 归
+        // ctx.effect —— 服务卸载时工具随 fiber 注销；注册失败按工具隔离（单个工具失败不影响其余）。
+        try {
+            this.ctx.effect(() => registerWfRunNode(this.ctx, this), 'visualWorkflowHost.wfRunNode');
+        }
+        catch (error) {
+            this.ctx.logger.warn(`[visual-workflow] wf_run_node 工具注册失败：${error instanceof Error ? error.message : String(error)}`);
+        }
+        try {
+            this.ctx.effect(() => registerWfRunNodeWait(this.ctx, this), 'visualWorkflowHost.wfRunNodeWait');
+            this.ctx.effect(() => registerWfWaitAgent(this.ctx, this), 'visualWorkflowHost.wfWaitAgent');
+            this.ctx.effect(() => registerWfLoopCounter(this.ctx, this), 'visualWorkflowHost.wfLoopCounter');
+        }
+        catch (error) {
+            this.ctx.logger.warn(`[visual-workflow] wf_run_node_wait 工具注册失败：${error instanceof Error ? error.message : String(error)}`);
+        }
+        try {
+            this.ctx.effect(() => registerWfFinish(this.ctx, this), 'visualWorkflowHost.wfFinish');
+        }
+        catch (error) {
+            this.ctx.logger.warn(`[visual-workflow] wf_finish 工具注册失败：${error instanceof Error ? error.message : String(error)}`);
+        }
+        try {
+            this.ctx.effect(() => registerWfResume(this.ctx, this), 'visualWorkflowHost.wfResume');
+        }
+        catch (error) {
+            this.ctx.logger.warn(`[visual-workflow] wf_resume 工具注册失败：${error instanceof Error ? error.message : String(error)}`);
+        }
+        try {
+            this.ctx.effect(() => registerWfDecide(this.ctx, this), 'visualWorkflowHost.wfDecide');
+        }
+        catch (error) {
+            this.ctx.logger.warn(`[visual-workflow] wf_decide 工具注册失败：${error instanceof Error ? error.message : String(error)}`);
+        }
+        try {
+            this.ctx.effect(() => registerWfAskUser(this.ctx, this), 'visualWorkflowHost.wfAsk');
+        }
+        catch (error) {
+            this.ctx.logger.warn(`[visual-workflow] wf_ask_user 工具注册失败：${error instanceof Error ? error.message : String(error)}`);
+        }
+        // wf_send_message 注册（单向持久消息；父代理与子代理均可调用，可选注入）。
+        try {
+            this.ctx.effect(() => registerWfSendMessage(this.ctx, this), 'visualWorkflowHost.wfSendMessage');
+        }
+        catch (error) {
+            this.ctx.logger.warn(`[visual-workflow] wf_send_message 注册失败：${error instanceof Error ? error.message : String(error)}`);
+        }
+        // 数据工具注册：wf_db_query（单工具三模式）。子代理侧可见性由白名单按
+        // db-in 连线注入（有连线才进工具集）；执行期再做归属与连线双校验兜底。
+        try {
+            this.ctx.effect(() => registerWfDbQuery(this.ctx, this), 'visualWorkflowHost.dataTools');
+        }
+        catch (error) {
+            this.ctx.logger.warn(`[visual-workflow] 数据工具注册失败：${error instanceof Error ? error.message : String(error)}`);
+        }
+        // 自主编排工具注册：wf_org_catalog（只读勘察）+ wf_graph_patch（写图）。
+        // 两者**默认开启**（与其他工具同口径；历史「默认关闭种子」已被用户裁决删除），
+        // 由用户在组合管理中按需关闭。
+        // **父代理专属**：子代理侧经 CHILD_AGENT_HIDDEN_TOOLS 永久隐藏（allow 剔除 +
+        // tools.restrict 双保险，见 runner.ts），工具内另有调用者身份校验（WF_NOT_ROOT）。
+        try {
+            this.ctx.effect(() => registerWfOrgCatalog(this.ctx, this.ecosystemAdapters()), 'visualWorkflowHost.wfOrgCatalog');
+        }
+        catch (error) {
+            this.ctx.logger.warn(`[visual-workflow] wf_org_catalog 注册失败：${error instanceof Error ? error.message : String(error)}`);
+        }
+        try {
+            this.ctx.effect(() => registerWfGraphPatch(this.ctx, this.ecosystemAdapters()), 'visualWorkflowHost.wfGraphPatch');
+        }
+        catch (error) {
+            this.ctx.logger.warn(`[visual-workflow] wf_graph_patch 注册失败：${error instanceof Error ? error.message : String(error)}`);
+        }
+        // 元编排自进化工具注册：wf_experience_learn（单工具双态——空集取当前主体的生成 Prompt、
+        // 传候选即校验后入库）、wf_experience_recall（两阶段语义召回）与 wf_experience_feedback
+        // （任务收尾阶段提交已使用经验的四维评价）。
+        // 三者都是「主体自身的学习、回忆与复盘」，因此进可选注入集（子代理经组合勾选可用），
+        // 不再与父代理专属工具同口径永久隐藏；工具内另有调用者身份与职责类型二次校验。
+        // 资产库未就绪时不注册：工具只会在调用时抛「资产库不可用」，不如干脆不可见（组合管理里也不会勾到）。
+        if (this.assetStoreReady) {
+            const experienceHost = this.experienceHost();
+            try {
+                this.ctx.effect(() => registerWfExperienceLearn(this.ctx, experienceHost), 'visualWorkflowHost.wfExperienceLearn');
+            }
+            catch (error) {
+                this.ctx.logger.warn(`[visual-workflow] wf_experience_learn 注册失败：${error instanceof Error ? error.message : String(error)}`);
+            }
+            try {
+                this.ctx.effect(() => registerWfExperienceRecall(this.ctx, experienceHost), 'visualWorkflowHost.wfExperienceRecall');
+            }
+            catch (error) {
+                this.ctx.logger.warn(`[visual-workflow] wf_experience_recall 注册失败：${error instanceof Error ? error.message : String(error)}`);
+            }
+            try {
+                this.ctx.effect(() => registerWfExperienceFeedback(this.ctx, experienceHost), 'visualWorkflowHost.wfExperienceFeedback');
+            }
+            catch (error) {
+                this.ctx.logger.warn(`[visual-workflow] wf_experience_feedback 注册失败：${error instanceof Error ? error.message : String(error)}`);
+            }
+        }
+        else {
+            this.ctx.logger.warn('[visual-workflow] 资产库不可用：经验工具未注册（经验学习、召回与反馈能力不可用）');
+        }
+        // `/arrange` 斜杠命令（P2 编排 SOP）：规划期「只采集 + 注入」入口——采集用户意图
+        // 与系统语言，注入规划提示词（三层 SOP），**绝不改图**（不写 store、不建实例、不启动运行）。
+        // commands 服务未组合（headless / 模式二服务进程）时内部静默跳过，不影响既有行为。
+        try {
+            this.ctx.effect(() => registerArrangeCommand(this.ctx, { systemLanguage: () => this.systemLanguage() }), 'visualWorkflowHost.arrangeCommand');
+        }
+        catch (error) {
+            this.ctx.logger.warn(`[visual-workflow] /arrange 命令注册失败：${error instanceof Error ? error.message : String(error)}`);
+        }
+        // 看护定时器：空闲超时自动停止 / 父代理回合终态收尾（ctx.effect 持有 disposer）
+        this.ctx.effect(() => scheduleIdleWatchdog(this.orchestrator), 'visualWorkflowHost.watchdog');
+        // 定时任务引擎：tick 扫描（触发/窗口挂起/续跑；disposer 随 fiber 注销）
+        this.ctx.effect(() => this.scheduler.start(), 'visualWorkflowHost.scheduler');
+        // 经验退役扫描：启动延迟后跑一次，之后每 24h 一次；disposer 随 fiber 注销。
+        // 只治理「活跃经验」的状态，归档写入由经验域做条件更新（并发恢复/手动归档不会互相覆盖）。
+        // 资产库未就绪时不启动：没有可治理的数据，扫描只会在每轮留下失败告警。
+        if (this.assetStoreReady) {
+            try {
+                this.ctx.effect(() => scheduleExperienceRetirementSweep({
+                    sweep: () => this.experienceService.sweepRetirements(),
+                    logger: {
+                        warn: (message) => this.ctx.logger.warn(message),
+                        info: (message) => this.ctx.logger.info(message),
+                    },
+                }), 'visualWorkflowHost.experienceRetirement');
+            }
+            catch (error) {
+                this.ctx.logger.warn(`[visual-workflow] 经验退役扫描启动失败：${error instanceof Error ? error.message : String(error)}`);
+            }
+        }
+        // GUI API 路由：webServer 可用时挂载端点白名单分发
+        // （webServer 缺失时 register 内部告警降级；disposer 随 fiber 注销）
+        try {
+            this.ctx.effect(() => registerRoutes(this.ctx, this), 'visualWorkflowHost.routes');
+        }
+        catch (error) {
+            this.ctx.logger.warn(`[visual-workflow] GUI API 路由挂载失败：${error instanceof Error ? error.message : String(error)}`);
+        }
+        // 显式清理通道：fiber 卸载时执行（中止运行/阻塞等待 reject/停止看护）。
+        this.ctx.effect(() => () => this.dispose(), 'visualWorkflowHost.dispose');
+        this.ctx.logger.info(`[visual-workflow] host service ready at ${this.config.dataDir}`);
+    }
+    /**
+     * 播种内置父代理模板（幂等）：模板库中没有任何 kind==='parent' 模板时写入一条。
+     *
+     * 为什么由宿主播种而不是 Client：模板是持久化事实，Client 只在 boot 时补齐会让落盘
+     * 文案随「当次界面语言」漂移，且插件未开界面时角色 Tab 无父代理模板。
+     * 存在性判据只有 kind==='parent'（不比对语言与内容）：库中已有任意父代理模板
+     * （用户自建或历史版本播种过的）时本次不补齐、不覆盖用户改动。
+     */
+    async ensureBuiltinParentTemplate() {
+        const roles = await this.store.listTemplates('role');
+        if (roles.some((role) => role.kind === 'parent'))
+            return;
+        await this.store.saveTemplate('role', {
+            id: 'role-parent-builtin',
+            kind: 'parent',
+            name: '父代理',
+            systemPrompt: PARENT_ROLE_DUTIES,
+            provider: '',
+            model: '',
+            presetId: 'standard',
+            retryLimit: 3,
+            reactLimit: null,
+            inputSchema: '',
+            outputSchema: '',
+        });
+    }
+    /**
+     * 自主编排工具的宿主能力适配（P1）：把宿主 service 的 store / 运行时 / 生态枚举
+     * 收敛成两个工具所需的最小缝。为什么要一层适配而不是把 service 直接传出：
+     * 工具只应看到自己需要的能力（单测可替换 fake），避免工具层反向依赖宿主内部结构。
+     */
+    ecosystemAdapters() {
+        const ctx = this.ctx;
+        return {
+            store: this.store,
+            // 资产缝：勘察工具只召回**资产**（经验召回已按用户裁决移交 wf_experience_recall；
+            // 模版索引此前已移除）。资产库未就绪时每个方法都抛可行动错误（不返回空集，理由见 requireAssetStore）。
+            assets: {
+                listWorkflowAssets: () => this.requireAssetStore().listWorkflowAssets(),
+                listRoleAssets: () => this.requireAssetStore().listRoleAssets(),
+                getWorkflowAsset: (assetId) => this.requireAssetStore().getWorkflowAsset(assetId),
+                getRoleAsset: (assetId) => this.requireAssetStore().getRoleAsset(assetId),
+                // 按钉住版本回溯角色资产：工作流资产骨架据此标注每个角色节点的 roleAssetId
+                getRoleAssetVersion: (roleRowId) => this.requireAssetStore().getRoleAssetVersion(roleRowId),
+            },
+            // 工具组合不是资产事实：仍由宿主数据层提供（勘察索引的 combos 段）。
+            listToolCombos: () => this.store.listToolCombos(),
+            // 运行实例骨架（instance 召回）：只暴露当前会话正在运行的实例——历史 run 与其他
+            // 会话的实例没有取数路径。取数走编排器的语义化查询，工具层不触达运行表。
+            getActiveRunFlow: (sessionId) => this.orchestrator.activeRunFlow(sessionId),
+            // 注：勘察工具只做静态资产盘点，因此不注入可用工具总清单（节点工具集只由 presetId
+            // 决定）、工具开关全量清单与运行态探针——工作流实例事实由运行期编排指令提供。
+            // preset/模型清单的官方服务投影与 GUI 生态端点共用同一实现（ecosystem-directory），
+            // 本处只做「工具需要的最小子集」收敛 + 勘察路径的 best-effort 降级。
+            listPresets: async () => {
+                try {
+                    const presets = await listAgentPresets(ctx);
+                    return (presets ?? [])
+                        .map((item) => ({ id: String(item.id ?? ''), name: String(item.name ?? item.id ?? '') }))
+                        .filter((item) => item.id);
+                }
+                catch {
+                    return [];
+                }
+            },
+            listModels: async () => {
+                try {
+                    const models = await listEcosystemModels(ctx);
+                    // 思考强度档位随模型一并透出（节点 data.reasoning 的取值来源）；适配器未公布时省略。
+                    return models.map((item) => ({
+                        provider: item.provider,
+                        model: item.model,
+                        ...(item.efforts && item.efforts.length > 0 ? { efforts: item.efforts } : {}),
+                    }));
+                }
+                catch {
+                    return [];
+                }
+            },
+            orchestrator: this.orchestrator,
+        };
+    }
+    /** subagent/end 观察：回写 run 节点状态（ok/fail + output）并唤醒 wait 阻塞。 */
+    onSubagentEnd(payload) {
+        if (this._disposed)
+            return;
+        void this.orchestrator.handleSubagentEnd(payload).catch((error) => {
+            this.ctx.logger.warn(`[visual-workflow] subagent/end handling failed: ${error instanceof Error ? error.message : String(error)}`);
+        });
+    }
+    /**
+     * agent/error 观察：**只记录，不终止运行**（用户裁决）。
+     * 为什么撤销旧的「快速失败通道」：官方 ISession.cancel（对话区停止按钮）会让父代理
+     * 当前回合以 error/aborted 收尾，而 payload.error 对「用户取消」与「真实故障」并无
+     * 稳定可判的形状；旧的快速通道因而把「打断修正」误判成「编排已死」并释放运行锁。
+     * 现在运行终止只由两处承担：工作台停止按钮（stopRun）与空闲看护；真实编排错误仍由
+     * watchdog 的 latestTurnEnd（kind==='error'）权威判定为 failed（15s 内收敛）。
+     */
+    onAgentError(payload) {
+        if (this._disposed)
+            return;
+        const sessionId = String(payload?.agent?.id ?? '');
+        if (!sessionId)
+            return;
+        if (!this.orchestrator.activeRunForSession(sessionId))
+            return;
+        const message = messageOf(payload?.error);
+        this.ctx.logger.warn(`[visual-workflow] 父代理回合报错（不终止运行，交由看护判定终态）：${message}`);
+    }
+    /**
+     * agent/status 观察：父代理转为 running（在干活）→ 刷新其在编运行的空闲基准。
+     * payload 全字段运行时守卫（官方词表/形状漂移时静默忽略，绝不抛错）：
+     *   - status 只认 'running'（'idle' 表示父代理空闲，不能算作活跃）；
+     *   - 会话 id 取 agent.id（父代理会话 id 即根会话 id）。
+     * 非本会话在编运行（子代理状态事件、其他会话）不影响：touchRunForSession 按
+     * 会话 + status==='running' 精确匹配。
+     */
+    onAgentStatus(payload) {
+        if (this._disposed)
+            return;
+        if (String(payload?.status ?? '') !== 'running')
+            return;
+        const sessionId = String(payload?.agent?.id ?? '');
+        if (!sessionId)
+            return;
+        this.orchestrator.touchRunForSession(sessionId);
+    }
+    /**
+     * 清理运行时资源（幂等）。
+     * fiber 卸载时需尽力中止全部运行（abort controller + 阻塞等待 reject）、清理
+     * 子代理表与护栏登记；运行中的子代理由编排运行时统一中止后由官方 seam 收尾；
+     * 模式二服务进程的停止逻辑在服务管理阶段接入。
+     */
+    dispose() {
+        if (this._disposed)
+            return;
+        this._disposed = true;
+        this.scheduler.dispose();
+        this.orchestrator.dispose();
+        this.runner.dispose();
+        // 回收所有已安装的子代理作用域装配（角色提示词/工具可见性/模型选择/软截停）
+        for (const dispose of this.childScopeDisposers.values()) {
+            try {
+                dispose();
+            }
+            catch {
+                // 撤销尽力而为
+            }
+        }
+        this.childScopeDisposers.clear();
+        this.childPromptStates.clear();
+        // 经验初始化状态是进程内内存态，随宿主卸载整体释放（不随运行终态清理）
+        this.experienceService.clearAllSessions();
+        this.embedding.dispose();
+        // 资产库连接回收（close 幂等；未 init 成功时也安全）
+        try {
+            this.assetStore.close();
+        }
+        catch (error) {
+            this.ctx.logger.warn(`[visual-workflow] 资产库关闭失败：${error instanceof Error ? error.message : String(error)}`);
+        }
+        this.assetStoreReady = false;
+        this.serviceManager.dispose();
+        this.ctx.logger.info('[visual-workflow] host disposed');
+    }
+}
+/** cordis ctx.logger 适配为编排器日志缝（结构化参数收敛为字符串，语义不丢）。 */
+function cordisLogger(ctx) {
+    return {
+        warn: (message, ...args) => ctx.logger.warn(message, ...args),
+        info: (message, ...args) => ctx.logger.info(message, ...args),
+        debug: (message, ...args) => ctx.logger.debug(message, ...args),
+    };
+}
+//# sourceMappingURL=visual-workflow-host.js.map

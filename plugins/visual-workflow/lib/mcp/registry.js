@@ -1,0 +1,547 @@
+// src/host/mcp/registry.ts
+//
+// MCP 服务器注册表（Host 侧 MCP 配置领域）：行托管在 profile 的 cordis.patch.yml 内，用注释标记的托管区
+// 隔离（# >>> dsh-visual-workflow ... # <<< dsh-visual-workflow），行结构与官方
+// dsh-mcp-client 一致（mcp-* id），工具公开名 mcp__<serverName>__<tool>。
+// 修改后需重启 dsh web 生效。profile 定位：$DSH_HOME/profiles/<profile>/cordis.patch.yml。
+import { readFile, writeFile, mkdir, rename } from 'node:fs/promises';
+import { readdirSync, statSync } from 'node:fs';
+import { basename, dirname, join } from 'node:path';
+import { homedir } from 'node:os';
+import { randomBytes } from 'node:crypto';
+import { WfError } from '../orchestrator/index.js';
+const MCP_CLIENT = '@deepseek-ai/dsh-mcp-client';
+const START = '# >>> dsh-visual-workflow';
+const END = '# <<< dsh-visual-workflow';
+function dshHome() {
+    const env = process.env.DSH_HOME;
+    if (env && env.trim() !== '')
+        return env;
+    return join(homedir(), '.dsh');
+}
+/** 定位 profile 的 cordis.patch.yml（优先 "web"，回退第一个含该文件的 profile 目录）。 */
+export function hostPatchPath() {
+    const profilesRoot = join(dshHome(), 'profiles');
+    const candidates = [];
+    try {
+        for (const entry of readdirSync(profilesRoot)) {
+            if (entry.startsWith('.') || entry === 'node_modules')
+                continue;
+            const path = join(profilesRoot, entry);
+            try {
+                if (statSync(path).isDirectory())
+                    candidates.push(entry);
+            }
+            catch {
+                // 忽略
+            }
+        }
+    }
+    catch {
+        candidates.push('web');
+    }
+    if (candidates.length === 0)
+        candidates.push('web');
+    // 明确优先 web profile（注释约定的首选运行面），避免 readdir 顺序把 headless
+    // 排到 web 前面时读到空 patch，导致组合管理页看不到 MCP 服务器。
+    const webPatch = join(profilesRoot, 'web', 'cordis.patch.yml');
+    try {
+        statSync(webPatch);
+        return webPatch;
+    }
+    catch {
+        // web 不存在时再回退到第一个含 patch 的 profile
+    }
+    for (const name of candidates) {
+        const patch = join(profilesRoot, name, 'cordis.patch.yml');
+        try {
+            statSync(patch);
+            return patch;
+        }
+        catch {
+            // 继续
+        }
+    }
+    return join(profilesRoot, candidates[0], 'cordis.patch.yml');
+}
+/**
+ * id 规范化（**宽松解析**）：补 `mcp-` 前缀，不做字符校验。
+ * 为什么保持宽松：本函数被写入、删除、停用三条路径共用。删除/停用必须能处理历史上
+ * 已落盘的任意 id（含早于本校验的非规范值），否则这些遗留条目永远无法清理。
+ * 写入路径的严格校验见 requireValidMcpId（只作用于新增/更新）。
+ */
+function normalizeMcpId(nameOrId) {
+    const value = String(nameOrId ?? '').trim();
+    // 只剥「非空」前缀名：'mcp' / 'mcp-' 视作裸名（补前缀得 mcp-mcp），
+    // 与 '' / 非 mcp 前缀同口径，避免产出无后缀的非法 id（官方要求 mcp- 后 1–32 字符）。
+    if (!value.startsWith('mcp-'))
+        return `mcp-${value}`;
+    const bare = value.slice('mcp-'.length);
+    return bare ? value : `mcp-${value}`;
+}
+/**
+ * 写入路径的 id 严格校验（D01-01 双保险之一：**校验**）。
+ *
+ * 为什么必须严格：`id` 会被不加引号插值进用户 profile 的 YAML（`renderRegion`），
+ * 含换行即成为顶层数组的新条目（YAML 注入），含 `:`/`#`/引号则让整份配置解析失败、
+ * dsh 起不来。口径与官方一致（serverName 同族）：`mcp-` + 1–32 位 `[A-Za-z0-9_-]`。
+ * 失败抛稳定错误码 WF_BAD_ARGS 并给出可行动提示（调用方据此修正入参）。
+ */
+function requireValidMcpId(id) {
+    const normalized = normalizeMcpId(id);
+    if (!/^mcp-[A-Za-z0-9_-]{1,32}$/.test(normalized)) {
+        throw new WfError(`WF_BAD_ARGS: invalid MCP server id ${JSON.stringify(id)}; expected "mcp-" followed by 1-32 characters from [A-Za-z0-9_-] (no spaces, colons, quotes or newlines)`, 'WF_BAD_ARGS');
+    }
+    return normalized;
+}
+/**
+ * serverName 规范化：对齐官方校验口径。
+ *
+ * 【0.1.7-rc.1 取证】官方 dsh-mcp-client 的 serverName 正则为
+ * `/^[A-Za-z0-9_-]{1,32}$/`（lib/index.js L767，schema 见 L782/L793）：仅允许
+ * 字母/数字/下划线/连字符，长度 1–32。旧实现替换规则放行 `.` 且不设长度上限，
+ * 含点或超长的名字写入 profile 行后会在挂载时 schemastery 校验失败。
+ * 此处按官方口径替换非法字符并截断到 32 字符；全非法输入退化为固定兜底名，
+ * 保证结果始终合法且非空（官方要求 ≥1 字符）。
+ */
+export function normalizeServerName(name) {
+    const normalized = String(name ?? '').trim().replace(/[^A-Za-z0-9_-]/g, '-').slice(0, 32);
+    return normalized || 'mcp';
+}
+/** 命令行拆分（引号感知）：可执行名与参数分离（MCP SDK 把 command 当可执行名）。 */
+function splitCommandLine(commandLine) {
+    const line = String(commandLine ?? '').trim();
+    if (!line)
+        return { command: '', args: [] };
+    const tokens = [];
+    let current = '';
+    let quote = null;
+    let tokenStarted = false;
+    for (const char of line) {
+        if (quote !== null) {
+            if (char === quote)
+                quote = null;
+            else
+                current += char;
+            tokenStarted = true;
+            continue;
+        }
+        if (char === '"' || char === "'") {
+            quote = char;
+            tokenStarted = true;
+            continue;
+        }
+        if (/\s/.test(char)) {
+            if (tokenStarted) {
+                tokens.push(current);
+                current = '';
+                tokenStarted = false;
+            }
+            continue;
+        }
+        current += char;
+        tokenStarted = true;
+    }
+    if (tokenStarted)
+        tokens.push(current);
+    if (tokens.length === 0)
+        return { command: '', args: [] };
+    return { command: tokens[0], args: tokens.slice(1) };
+}
+/**
+ * 判断某条命令在目标平台是否需要 shell 包装。
+ * Windows 下很多「命令」其实是 .cmd/.ps1 包装（npx、任意 npm 全局 bin 如 codegraph），
+ * MCP SDK 的 stdio 用非 shell spawn 直接拉起会失败（Node≥20.12 对 .cmd/.bat 有
+ * CVE-2024-27980 加固，spawn('npx') → ENOENT）。规则：
+ *  - .ps1 → powershell.exe -File（包装）
+ *  - .cmd/.bat → cmd.exe /c（包装）
+ *  - 显式 .exe（含完整路径 + .exe）→ 直接 spawn
+ *  - node / node.exe → 直接 spawn（node.exe 是真实可执行，spawn('node') 实测可用）
+ *  - 其余裸命令（npx/npm/yarn/pnpm/任意全局 bin）→ 一律 cmd.exe /c，保证任一全局工具可拉起
+ * Unix 下无需包装（launcher 本身可执行），直接 spawn。
+ */
+function needsShellWrap(exec, platform) {
+    if (String(platform) !== 'win32')
+        return false;
+    const lower = String(exec).toLowerCase();
+    if (/\.ps1$/i.test(lower))
+        return true;
+    if (/\.(cmd|bat)$/i.test(lower))
+        return true;
+    if (/\.exe$/i.test(lower))
+        return false;
+    const base = basename(lower);
+    if (base === 'node' || base === 'node.exe')
+        return false;
+    return true;
+}
+/**
+ * 把一条可粘贴的命令行解析为官方式可 spawn 的 {command, args}。
+ * - Windows + .ps1 → powershell.exe -NoProfile -ExecutionPolicy Bypass -File <exec> <args>
+ * - Windows + .cmd/.bat 或裸命令（npx/npm/任意全局 bin）→ cmd.exe /d /c <exec> <args>
+ * - Windows + 显式 .exe / node → 直接 spawn
+ * - Unix → 直接 spawn（launcher 可执行）
+ * platform 默认 process.platform；单测传入可确定分支。
+ */
+export function resolveSpawnCommandLine(commandLine, platform = process.platform) {
+    const split = splitCommandLine(commandLine);
+    if (!split.command)
+        return { command: '', args: [] };
+    const exec = split.command;
+    const rest = split.args;
+    if (needsShellWrap(exec, platform)) {
+        if (/\.ps1$/i.test(exec)) {
+            return { command: 'powershell.exe', args: ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', exec, ...rest] };
+        }
+        return { command: 'cmd.exe', args: ['/d', '/c', exec, ...rest] };
+    }
+    return { command: exec, args: rest };
+}
+/** 单个 shell token 加引号：token 含空格/引号等才包裹，便于回填后再次切分。 */
+function quoteShellToken(token) {
+    const value = String(token);
+    // 无空格、无引号、无非 ASCII 空白的「安全 token」无需引号（反斜杠在 Windows 路径里是字面量，不转义）
+    if (/^[A-Za-z0-9_./\\:=@%+,\[\]{}#-]+$/.test(value) && !/["']/.test(value))
+        return value;
+    // 含空格/特殊字符：用双引号包裹。splitCommandLine 不做反斜杠转义，故不 double 反斜杠；
+    // 若 token 本身含双引号，则回退单引号；两者都有才反转义双引号。
+    if (!value.includes('"'))
+        return `"${value}"`;
+    if (!value.includes("'"))
+        return `'${value}'`;
+    return `"${value.replace(/"/g, '\\"')}"`;
+}
+/**
+ * 把 {command, args} 还原成一整行可粘贴的命令行（编辑表单回填用）。
+ * 含空格的路径自动加双引号，保证再次经 splitCommandLine 切分仍是一个完整 token。
+ */
+export function renderCommandLine(command, args) {
+    const tokens = [String(command), ...(Array.isArray(args) ? args : []).map((arg) => String(arg))];
+    return tokens.filter((token) => token !== '').map(quoteShellToken).join(' ');
+}
+/**
+ * 解析 YAML 文本中的 MCP 行（托管区内 + 全文中 mcp-* 行）。
+ *
+ * 引号边界（IF-3 判定，零行为变更）：单引号标量只剥首尾引号，**不做** YAML `''` 反转义。
+ * 生产不可达：进入托管区的 id 一律过 requireValidMcpId（`mcp-[A-Za-z0-9_-]{1,32}`，字符集
+ * 无单引号），yamlScalar 的 `''` 翻倍只是纵深防御；删除/停用路径也只回读既有 id、不产出新 id。
+ * 手工编辑 profile 写入 `'mc''x'` 这类转义标量时会保留翻倍形态——那是越过写侧校验的场景，
+ * 而本解析对遗留非规范 id 的职责是「原样保留以便清理」，静默反转义等于改写用户磁盘事实。
+ * 若将来放宽 id 字符集，必须同步在此反转义。
+ */
+export function parseMcpRows(text) {
+    const rows = new Map();
+    const toggles = new Map();
+    const lines = String(text ?? '').split(/\r?\n/);
+    let current = null;
+    const push = () => {
+        if (current && current.insert && current.id && current.name === MCP_CLIENT) {
+            rows.set(current.id, { config: current.config ?? {} });
+        }
+        if (current && !current.insert && current.id && current.disabled !== undefined) {
+            toggles.set(current.id, current.disabled === true);
+        }
+    };
+    for (const line of lines) {
+        const indent = line.match(/^(\s*)/)?.[1]?.length ?? 0;
+        const trimmed = line.trim();
+        if (trimmed === '')
+            continue;
+        if (indent === 0 && trimmed.startsWith('- insert:')) {
+            push();
+            current = { insert: true };
+            continue;
+        }
+        if (indent === 0 && trimmed.startsWith('- id:')) {
+            push();
+            current = { id: trimmed.replace(/^- id:\s*/, '').replace(/^["']|["']$/g, '') };
+            continue;
+        }
+        if (!current)
+            continue;
+        if (current.insert && indent >= 2 && trimmed.startsWith('- id:')) {
+            current.id = trimmed.replace(/^- id:\s*/, '').replace(/^["']|["']$/g, '');
+            continue;
+        }
+        if (current.insert && indent >= 8 && trimmed.startsWith('- ')) {
+            const item = trimmed.slice(2).trim().replace(/^["']|["']$/g, '');
+            if (current.lastArrayKey && current.config) {
+                current.config[current.lastArrayKey] = [...(current.config[current.lastArrayKey] ?? []), item];
+            }
+            continue;
+        }
+        // 嵌套对象块（env / headers 共用）：缩进更深时收集子键为字符串值。
+        // nestedKey 记录当前块名，故两种块共用同一段状态机（D01-02 读侧）。
+        if (current.insert && current.nestedKey && current.nestedDepth !== undefined && indent > current.nestedDepth) {
+            const kv = trimmed.match(/^([A-Za-z0-9_.-]+):\s*(.*)$/);
+            if (kv) {
+                if (!current.config)
+                    current.config = {};
+                const existingBlock = current.config[current.nestedKey];
+                if (!existingBlock || typeof existingBlock !== 'object')
+                    current.config[current.nestedKey] = {};
+                current.config[current.nestedKey][kv[1]] = kv[2].replace(/^["']|["']$/g, '');
+            }
+            continue;
+        }
+        // 键正则放宽到 [A-Za-z0-9_-]：headers 允许 X-Trace 这类连字符键，否则整行会被丢弃。
+        const match = trimmed.match(/^([A-Za-z0-9_-]+):\s*(.*)$/);
+        if (!match)
+            continue;
+        const [, key, rawValue] = match;
+        const value = rawValue.replace(/^["']|["']$/g, '');
+        // 块级嵌套键（env / headers）在缩进回退时复位，避免块内 KV 继续污染后续同级键。
+        if (current.insert && current.nestedKey && current.nestedDepth !== undefined && indent <= current.nestedDepth) {
+            current.nestedKey = undefined;
+            current.nestedDepth = undefined;
+            current.lastArrayKey = null;
+        }
+        if (indent >= 6 && current.insert && ['serverName', 'transport', 'command', 'url'].includes(key)) {
+            if (!current.config)
+                current.config = {};
+            current.config[key] = value;
+            current.lastArrayKey = null;
+        }
+        else if (indent >= 6 && current.insert && key === 'args') {
+            if (!current.config)
+                current.config = {};
+            current.config.args = [];
+            current.lastArrayKey = 'args';
+        }
+        else if (indent >= 6 && current.insert && (key === 'env' || key === 'headers')) {
+            // env 与 headers 同构：写侧都用 inline JSON（renderConfig 的 object 分支），
+            // 手写文件则可能是缩进对象块——两种形态都要能读回（D01-02）。
+            if (!current.config)
+                current.config = {};
+            if (rawValue.trim().startsWith('{')) {
+                try {
+                    current.config[key] = JSON.parse(rawValue);
+                }
+                catch {
+                    current.config[key] = {};
+                }
+                current.lastArrayKey = null;
+            }
+            else {
+                current.config[key] = {};
+                current.nestedKey = key;
+                current.nestedDepth = indent;
+                current.lastArrayKey = null;
+            }
+        }
+        else if (indent >= 4 && current.insert && key === 'name') {
+            current.name = value;
+            current.lastArrayKey = null;
+        }
+        else if (indent >= 4 && current.insert && key === 'id') {
+            current.id = value;
+            current.lastArrayKey = null;
+        }
+        else if (indent >= 2 && !current.insert && key === 'disabled') {
+            current.disabled = value === 'true';
+        }
+    }
+    push();
+    return [...rows.entries()].map(([id, row]) => {
+        const config = row.config;
+        return {
+            id,
+            serverName: String(config.serverName ?? id.replace(/^mcp-/, '')),
+            transport: config.transport === 'streamable-http' ? 'streamable-http' : 'stdio',
+            command: String(config.command ?? ''),
+            args: Array.isArray(config.args) ? config.args.map((item) => String(item)) : [],
+            env: (config.env ?? {}),
+            headers: (config.headers ?? {}),
+            url: String(config.url ?? ''),
+            disabled: toggles.get(id) ?? false,
+        };
+    });
+}
+/** 读取当前托管区（含全文中已有的 mcp-* 行）。 */
+export async function listMcpServers() {
+    const patch = hostPatchPath();
+    let text = '';
+    try {
+        text = await readFile(patch, 'utf8');
+    }
+    catch {
+        return [];
+    }
+    return parseMcpRows(text);
+}
+function renderRegion(rows, toggles) {
+    const body = rows
+        .map((row) => {
+        const config = { serverName: row.serverName, transport: row.transport ?? 'stdio' };
+        if ((row.transport ?? 'stdio') === 'streamable-http') {
+            if (row.url)
+                config.url = row.url;
+            // headers 是 streamable-http 的唯一鉴权手段，必须落盘（renderConfig 的 object
+            // 分支以 inline JSON 输出）；否则「保存当次即丢」，界面回读恒为 {}。
+            // 刻意不做掩码：掩码会把密文写进配置，凭据语义由调用方（D07-05）统一。
+            if (row.headers && typeof row.headers === 'object' && Object.keys(row.headers).length > 0)
+                config.headers = row.headers;
+        }
+        else {
+            if (row.command)
+                config.command = row.command;
+            if (Array.isArray(row.args) && row.args.length > 0)
+                config.args = row.args;
+            if (row.env && typeof row.env === 'object' && Object.keys(row.env).length > 0)
+                config.env = row.env;
+        }
+        // 双保险之二（**转义**）：id 一律经 yamlScalar 输出为带引号标量——即使校验被绕过，
+        // 换行/冒号/引号也只会留在单引号标量内部，不会变成 YAML 结构。
+        return `- insert:\n    - id: ${yamlScalar(row.id)}\n      name: '${MCP_CLIENT}'\n      config:${renderConfig(config)}`;
+    })
+        .join('\n');
+    // toggle 行的 id 与 insert 行同口径（带引号 YAML 标量）：历史遗留的非规范 id 同样不会
+    // 破坏 YAML 结构；parseMcpRows 剥离首尾引号后可正确反解析。
+    const toggleLines = toggles.map(([id, disabled]) => `- id: ${yamlScalar(id)}\n  disabled: ${disabled}`);
+    const content = [...(body ? [body] : []), ...toggleLines].join('\n');
+    return content ? `${START}\n${content}\n${END}` : '';
+}
+/**
+ * YAML 单引号字符串转义（单引号内反斜杠为字面量，只有 ' 需翻倍）。
+ * 为什么不用 JSON.stringify：双引号包裹时反斜杠需成对转义，写盘文件里
+ * 出现 16 层反斜杠（双重转义事故），MCP 命令路径解析错误导致工具无法加载。
+ */
+function yamlScalar(value) {
+    return `'${String(value).replace(/'/g, "''")}'`;
+}
+function renderConfig(config) {
+    const lines = [];
+    for (const [key, value] of Object.entries(config ?? {})) {
+        if (value === undefined || value === null || value === '')
+            continue;
+        if (Array.isArray(value) && value.length > 0) {
+            lines.push(`        ${key}:`);
+            for (const item of value)
+                lines.push(`          - ${yamlScalar(String(item))}`);
+        }
+        else if (typeof value === 'object') {
+            if (Object.keys(value).length === 0)
+                continue;
+            lines.push(`        ${key}: ${JSON.stringify(value)}`);
+        }
+        else {
+            lines.push(`        ${key}: ${yamlScalar(String(value))}`);
+        }
+    }
+    return lines.length ? `\n${lines.join('\n')}` : ' {}';
+}
+/** 从行集推导禁用清单（写盘口径的唯一实现：只写 disabled 行，启用态不出现）。 */
+function disabledTogglesOf(rows) {
+    return rows.filter((row) => row.disabled).map((row) => [row.id, true]);
+}
+/** 写回托管区（读全文件 → 替换 region → 原子写）。 */
+async function writeRegion(nextRows, nextToggles) {
+    const patch = hostPatchPath();
+    await mkdir(dirname(patch), { recursive: true });
+    let text = '';
+    try {
+        text = await readFile(patch, 'utf8');
+    }
+    catch {
+        text = '';
+    }
+    const startIdx = text.indexOf(START);
+    const endIdx = text.indexOf(END, startIdx >= 0 ? startIdx : 0);
+    let head = text;
+    let tail = '';
+    if (startIdx >= 0 && endIdx >= startIdx) {
+        head = text.slice(0, startIdx).replace(/\s*$/, '\n');
+        tail = text.slice(endIdx + END.length);
+    }
+    else if (text.trim() === '') {
+        head = '';
+        tail = '';
+    }
+    else {
+        head = text.replace(/\s*$/, '\n');
+        tail = '';
+    }
+    // DSH 生成的 patch 顶层可能是空数组占位 `[]`：托管区条目须成为顶层数组内容
+    head = head.replace(/\[\]\s*$/, '');
+    const region = renderRegion(nextRows, nextToggles) || '[]';
+    const next = [head.trimEnd(), region, tail.replace(/^\s+/, '')].filter((part) => part !== '').join('\n') + '\n';
+    // 临时名含 pid + 随机后缀：并发 upsert/remove/toggle（GUI 串行为主，但同一
+    // profile patch 的双写竞态理论上存在）时各写独立临时文件，rename 源互不干扰
+    const temporary = `${patch}.${process.pid}.${randomBytes(6).toString('hex')}.tmp`;
+    await writeFile(temporary, next, 'utf8');
+    await rename(temporary, patch);
+}
+function validateEntry(input) {
+    const serverName = normalizeServerName(String(input.serverName ?? ''));
+    // 兜底守卫：normalizeServerName 已保证非空，此处仅在实现被改动后仍拒绝空名（入参类错误）。
+    if (!serverName) {
+        throw new WfError('WF_MCP_BAD_ARGS: MCP 服务器名称不能为空；请填写 serverName（或提供可推导出名称的 id）', 'WF_MCP_BAD_ARGS');
+    }
+    const transport = input.transport === 'streamable-http' ? 'streamable-http' : 'stdio';
+    const config = { serverName, transport };
+    if (transport === 'streamable-http') {
+        if (!String(input.url ?? '').trim()) {
+            throw new WfError('WF_MCP_BAD_ARGS: streamable-http 服务器需要 url；请填写 url，或把 transport 改为 stdio', 'WF_MCP_BAD_ARGS');
+        }
+        config.url = String(input.url).trim();
+        if (input.headers && typeof input.headers === 'object')
+            config.headers = input.headers;
+    }
+    else {
+        // 优先整行可粘贴的 commandLine，其次旧的 command（+ args）字段
+        const raw = String(input.commandLine ?? input.command ?? '').trim();
+        const split = resolveSpawnCommandLine(raw);
+        if (!split.command) {
+            throw new WfError('WF_MCP_BAD_ARGS: stdio 服务器需要 command 或 commandLine；请填写可粘贴的启动命令（例如 npx -y <server 包名>）', 'WF_MCP_BAD_ARGS');
+        }
+        config.command = split.command;
+        const explicitArgs = Array.isArray(input.args) ? input.args.map((v) => String(v)) : [];
+        config.args = [...split.args, ...explicitArgs];
+        if (input.env && typeof input.env === 'object')
+            config.env = input.env;
+    }
+    return { id: requireValidMcpId(String(input.id ?? serverName)), config };
+}
+/** 新建/更新一个 MCP 服务器（托管区 upsert）。 */
+export async function upsertMcpServer(input) {
+    const entry = validateEntry((input ?? {}));
+    const existing = await listMcpServers();
+    const next = existing.filter((row) => row.id !== entry.id);
+    next.push({
+        id: entry.id,
+        serverName: String(entry.config.serverName),
+        transport: entry.config.transport === 'streamable-http' ? 'streamable-http' : 'stdio',
+        command: String(entry.config.command ?? ''),
+        args: Array.isArray(entry.config.args) ? entry.config.args.map((item) => String(item)) : [],
+        env: (entry.config.env ?? {}),
+        headers: (entry.config.headers ?? {}),
+        url: String(entry.config.url ?? ''),
+        disabled: existing.find((row) => row.id === entry.id)?.disabled ?? false,
+    });
+    await writeRegion(next, disabledTogglesOf(next));
+    return next.find((row) => row.id === entry.id);
+}
+/** 删除一个 MCP 服务器。 */
+export async function removeMcpServer(nameOrId) {
+    const id = normalizeMcpId(nameOrId);
+    const existing = await listMcpServers();
+    const next = existing.filter((row) => row.id !== id);
+    if (next.length === existing.length)
+        return { deleted: false };
+    await writeRegion(next, disabledTogglesOf(next));
+    return { deleted: true };
+}
+/** 启用/停用一个 MCP 服务器。 */
+export async function toggleMcpServer(nameOrId, disabled) {
+    const id = normalizeMcpId(nameOrId);
+    const existing = await listMcpServers();
+    const found = existing.find((row) => row.id === id);
+    if (!found) {
+        // 资源不存在（与入参非法区分）：HTTP 404 的映射由 api 边界按本稳定码完成
+        throw new WfError(`WF_MCP_NOT_FOUND: MCP 服务器不存在：${id}；请刷新列表后改用现有服务器的 id 或名称`, 'WF_MCP_NOT_FOUND');
+    }
+    const next = existing.map((row) => (row.id === id ? { ...row, disabled: disabled !== false } : row));
+    await writeRegion(next, disabledTogglesOf(next));
+    return next.find((row) => row.id === id);
+}
+//# sourceMappingURL=registry.js.map

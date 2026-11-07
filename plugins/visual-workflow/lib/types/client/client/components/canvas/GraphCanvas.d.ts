@@ -1,0 +1,77 @@
+import type { LineAppearance } from '../../../host/shared/graph-model.js';
+import type { Dict } from '../../i18n.js';
+import type { CanvasEdge, CanvasNode } from '../../studio/studio-state.js';
+export type { CanvasApi } from './use-canvas-viewport.js';
+export interface GraphCanvasProps {
+    /** Explicit route optimization on fixed card positions; never part of the saved workflow. */
+    routingRevision?: number;
+    nodes: CanvasNode[];
+    edges: CanvasEdge[];
+    copy: Dict & {
+        modeName(id: string | null | undefined): string;
+    };
+    mode: 'mode1' | 'mode2';
+    selectedNode: string | null;
+    selectedEdge: string | null;
+    runStatusByNode: Record<string, {
+        status: string;
+        attempts: number;
+        outputSummary: string;
+    }>;
+    highlightedNodeIds: string[];
+    /** Running the displayed document: execution focus takes priority over selection emphasis. */
+    runtimeFocus?: boolean;
+    /**
+     * 运行中锁定项（已完成流程不可变更；模式一 running 时由 run-locks 计算）：
+     * 节点显示锁角标、被锁连线渲染为灰化虚线，点击不选中（属性栏不展开）。
+     */
+    lockedNodeIds?: ReadonlySet<string>;
+    lockedEdgeIds?: ReadonlySet<string>;
+    /** P4：最近一次父代理补丁（origin='agent'）改动的节点 id → 显示「AI 调整」角标。 */
+    agentPatchedNodeIds?: string[];
+    onInit(api: import('./use-canvas-viewport.js').CanvasApi): void;
+    onNodeDragStart(): void;
+    onNodeMove(id: string, position: {
+        x: number;
+        y: number;
+    }): void;
+    /** 角色节点拖入 Team。 */
+    onNodeDropToGroup(nodeId: string, groupId: string): void;
+    onNodeSelect(id: string): void;
+    onEdgeSelect(id: string): void;
+    onPaneClick(): void;
+    onConnect(connection: {
+        source: string;
+        target: string;
+        sourceHandle: string;
+        targetHandle: string;
+        appearance?: LineAppearance;
+    }): void;
+    onEdgeEditStart?(): void;
+    onEdgeAppearanceChange?(id: string, patch: LineAppearance): void;
+    onNodeDuplicate?(): void;
+    onNodeReference?(): void;
+    onNodeDelete?(id: string): void;
+    onEdgeDelete?(id: string): void;
+    /** 子图节点展开：打开全屏预览。 */
+    onOpenSubgraph?(id: string): void;
+    /** 只读画布（子图预览）：禁用拖拽/连线/编辑工具栏，只保留平移缩放与 fit。 */
+    readOnly?: boolean;
+    onConnectionRejected(): void;
+    onGroupResize(id: string, size: {
+        w: number;
+        h: number;
+    }): void;
+    /** 交换节点左右连接点（用户批注：美化布线防交叉）。 */
+    onSwapPorts(id: string): void;
+    /** 左栏拖拽悬停的 Team id（Team 卡片高亮 + 「放开以入组」提示）。 */
+    dropTargetGroupId?: string | null;
+    fitLabel: string;
+    zoomInLabel: string;
+    zoomOutLabel: string;
+    emptyHint: string;
+    /** 画布左上角工作流名称角标（实例/模板 + 名称）。 */
+    workflowCaption?: string;
+    documentKey?: string;
+}
+export declare function GraphCanvas(props: GraphCanvasProps): import("react").JSX.Element;

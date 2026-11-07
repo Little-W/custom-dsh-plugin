@@ -1,0 +1,23709 @@
+window.__ModuleLoader__.load({
+	id: "dsh-visual-workflow",
+	factory: (require) => {
+		var module = { exports: {} };
+		var exports = module.exports;
+		Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
+		Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
+		// \0rolldown/runtime.js
+		var __create = Object.create;
+		var __defProp = Object.defineProperty;
+		var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+		var __getOwnPropNames = Object.getOwnPropertyNames;
+		var __getProtoOf = Object.getPrototypeOf;
+		var __hasOwnProp = Object.prototype.hasOwnProperty;
+		var __copyProps = (to, from, except, desc) => {
+			if (from && typeof from === "object" || typeof from === "function") for (var keys = __getOwnPropNames(from), i = 0, n = keys.length, key; i < n; i++) {
+				key = keys[i];
+				if (!__hasOwnProp.call(to, key) && key !== except) __defProp(to, key, {
+					get: ((k) => from[k]).bind(null, key),
+					enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable
+				});
+			}
+			return to;
+		};
+		var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(isNodeMode || !mod || !mod.__esModule || !__hasOwnProp.call(mod, "default") ? __defProp(target, "default", {
+			value: mod,
+			enumerable: true
+		}) : target, mod));
+		let react = require("react");
+		react = __toESM(react, 1);
+		let react_dom_client = require("react-dom/client");
+		let react_jsx_runtime = require("react/jsx-runtime");
+		// src/host/shared/protocol.ts
+		/** 工作流列表端点名。 */
+		const EP_LIST_WORKFLOWS = "listWorkflows";
+		/** 获取单个工作流。 */
+		const EP_GET_WORKFLOW = "getWorkflow";
+		/** 保存工作流（含创建工作流）。 */
+		const EP_PUT_WORKFLOW = "putWorkflow";
+		/** 删除工作流。 */
+		const EP_DELETE_WORKFLOW = "deleteWorkflow";
+		/** 服务列表端点名。 */
+		const EP_LIST_SERVICES = "listServices";
+		/** 获取单个服务。 */
+		const EP_GET_SERVICE = "getService";
+		/** 保存服务。 */
+		const EP_PUT_SERVICE = "putService";
+		/** 删除服务。 */
+		const EP_DELETE_SERVICE = "deleteService";
+		/** 启动服务（模式二 fork 子进程）。 */
+		const EP_SERVICE_START = "serviceStart";
+		/** 停止服务。 */
+		const EP_SERVICE_STOP = "serviceStop";
+		/** 查询服务状态。 */
+		const EP_SERVICE_STATUS = "serviceStatus";
+		/**
+		* 服务调试流式端点名（服务控制台调试框：代理运行中服务的 /v1/chat/completions，
+		* SSE 逐块转发回浏览器打字机渲染）。
+		* 为什么走 Host 代理而非浏览器直连：服务进程无 CORS 头，同源代理避免跨域失败；
+		* apiKey 鉴权由 Host 侧配置持有，不落浏览器。
+		*/
+		const EP_SERVICE_DEBUG = "serviceDebug";
+		/**
+		* 创建会话端点名（「开启新会话」一次性动作：从模板创建实例时先新建主会话，
+		* 实例绑定该新会话 id——官方 agents.create 不传 parentSession 即无父根会话）。
+		* 参数 { sessionId?, workspacePath? }，返回 { sessionId }。
+		* 会话标题不在此定义：官方 agents.create 的会话元信息不接受自定义字段，故不带 label 入参。
+		*/
+		const EP_CREATE_SESSION = "createSession";
+		/** 模板列表端点名（角色/任务/数据库三类共用）。 */
+		const EP_LIST_TEMPLATES = "listTemplates";
+		/** 保存模板。 */
+		const EP_PUT_TEMPLATE = "putTemplate";
+		/** 删除模板。 */
+		const EP_DELETE_TEMPLATE = "deleteTemplate";
+		/** 工作流模板列表端点名（图2 交互改造：工作流模板全局共享，跨会话可见）。 */
+		const EP_LIST_FLOW_TEMPLATES = "listFlowTemplates";
+		/** 保存工作流模板（新建/更新统一；模板全局共享，不按会话隔离）。 */
+		const EP_PUT_FLOW_TEMPLATE = "putFlowTemplate";
+		/** 删除工作流模板。 */
+		const EP_DELETE_FLOW_TEMPLATE = "deleteFlowTemplate";
+		/** 官方预设列表端点名。 */
+		const EP_PRESETS = "presets";
+		/** 模型列表端点名（思考强度列表来自适配器公布的 reasoning efforts）。 */
+		const EP_MODELS = "models";
+		/** 工具组合列表端点名。 */
+		const EP_TOOL_COMBOS = "toolCombos";
+		/** 保存工具组合。 */
+		const EP_TOOL_COMBO_PUT = "toolComboPut";
+		/** 删除工具组合。 */
+		const EP_TOOL_COMBO_DELETE = "toolComboDelete";
+		/** 插件目录列表端点名（组合管理用）。 */
+		const EP_PLUGIN_CATALOG = "pluginCatalog";
+		/** 保存 MCP 服务器。 */
+		const EP_MCP_PUT = "mcpPut";
+		/** 删除 MCP 服务器。 */
+		const EP_MCP_DELETE = "mcpDelete";
+		/** 切换 MCP 服务器启用状态。 */
+		const EP_MCP_TOGGLE = "mcpToggle";
+		/** 运行状态轮询端点名。 */
+		const EP_RUN_STATUS = "runStatus";
+		/** 会话活跃 run 列表端点名（工作台进入时自动选中运行中实例用；running/paused 保留锁）。 */
+		const EP_ACTIVE_RUNS = "activeRuns";
+		/** 运行停止端点名。 */
+		const EP_RUN_STOP = "runStop";
+		/** 运行历史端点名。 */
+		const EP_RUN_HISTORY = "runHistory";
+		/** 断点续跑端点名。 */
+		const EP_RUN_RESUME = "runResume";
+		/**
+		* 运行期配置下发端点名（host 插件配置 → 前端可调参数；前端不得自读 host config）。
+		* 响应 `{ runPollMs }`：运行状态回显轮询间隔毫秒数——消费方在缺失/非法时回退自持缺省（600ms）。
+		*/
+		const EP_RUNTIME_CONFIG = "runtimeConfig";
+		/** 数据库连接测试端点名。 */
+		const EP_DB_TEST = "dbTest";
+		/** 导出工作流端点名（v2 bundle）。 */
+		const EP_EXPORT_WORKFLOW = "exportWorkflow";
+		/** 导入工作流端点名（v2 bundle）。 */
+		const EP_IMPORT_WORKFLOW = "importWorkflow";
+		/** 导出角色模板端点名（v2 bundle）。 */
+		const EP_EXPORT_AGENT_TEMPLATE = "exportAgentTemplate";
+		/** 导入角色模板端点名（v2 bundle）。 */
+		const EP_IMPORT_AGENT_TEMPLATE = "importAgentTemplate";
+		/**
+		* 列出资产端点名（按 kind 取 Active 版本索引：工作流 / 角色 / 经验生成提示词资产）。
+		* 提示词资产只有活跃项（指针必须保持活跃），因此响应中的 prompts 没有历史分栏。
+		*/
+		const EP_LIST_ASSETS = "listAssets";
+		/** 取单个资产端点名（Active 版本详情；属性栏编辑与资产态画布打开共用）。 */
+		const EP_GET_ASSET = "getAsset";
+		/** 资产入库端点名（模版 → 资产版本；同一模版再次入库即同一 asset 的新版本）。 */
+		const EP_PROMOTE_ASSET = "promoteAsset";
+		/**
+		* 资产态保存端点名（登记该资产的新版本；不覆盖历史版本）。
+		* 提示词资产只接受 `prompt` 正文，名称 / 描述等固定身份不可随载荷修改。
+		*/
+		const EP_SAVE_ASSET_VERSION = "saveAssetVersion";
+		/** 资产版本列表端点名（回滚上拉列表；含 Active 标记）。 */
+		const EP_LIST_ASSET_VERSIONS = "listAssetVersions";
+		/** 资产回滚端点名（改 Active 指针指向历史版本；不新增版本）。 */
+		const EP_ROLLBACK_ASSET = "rollbackAsset";
+		/**
+		* 资产退役（归档）端点名（Active 移除、历史版本保留；UI 侧二次确认；不删除任何版本行）。
+		* 提示词资产必须保持活跃：该端点对 `kind='prompt'` 返回 `ERR_PROMPT_ASSET_ACTIVE_ONLY`。
+		*/
+		const EP_RETIRE_ASSET = "retireAsset";
+		/**
+		* 资产级联影响预览端点名（保存前的影响面告知）。
+		*
+		* 只读：按「本次要保存的内容」推演哪些**其他**工作流资产会受牵连（共享角色资产将被登记
+		* 新版本），不落库、不改 Active 指针。为什么不由客户端自行推演：角色字段映射与共享判定
+		* 都是 Host 的事实，客户端复制一份必然漂移。
+		*/
+		const EP_PREVIEW_ASSET_CASCADE = "previewAssetCascade";
+		/**
+		* 资产恢复端点名（历史资产 → 活跃资产）。
+		*
+		* 与回滚的职责分工（用户裁决）：`restore` 管**状态转换**（把归档资产恢复为活跃），
+		* `rollback` 只管**版本与 Active 指针**。恢复取该资产的最新版本行重建 Active 指针。
+		* 提示词资产没有归档态，该端点对 `kind='prompt'` 明确拒绝（同 `ERR_PROMPT_ASSET_ACTIVE_ONLY`）。
+		*/
+		const EP_RESTORE_ASSET = "restoreAsset";
+		/** 列出经验端点名（活跃 + 已归档，一次返回；条目自带 active 标记）。 */
+		const EP_LIST_EXPERIENCES = "listExperiences";
+		/** 保存经验端点名（就地改写可编辑字段；无版本语义，不产生历史行）。 */
+		const EP_SAVE_EXPERIENCE = "saveExperience";
+		/** 归档经验端点名（置为非活跃：退出父代理召回面，内容全部保留）。 */
+		const EP_RETIRE_EXPERIENCE = "retireExperience";
+		/** 恢复经验端点名（置为活跃：重新进入父代理召回面）。 */
+		const EP_RESTORE_EXPERIENCE = "restoreExperience";
+		/**
+		* 官方保留的 Code Mode presentation transport 名（run_code）：
+		*  - 官方 core/tools 在非 native 模式为每个 scope 自动注入（子代理本就自带，无需勾选）；
+		*  - tools.restrict 的 allow/deny 名单禁止出现该名（官方校验抛错，见 @repo packages/core/tools/src/index.ts L1085）；
+		*  - 因此组合管理可选列表必须剔除、resolveAgentTools 的 allow 名单必须剔除（双保险）。
+		*/
+		const RESERVED_TRANSPORT_TOOL = "run_code";
+		/** Persisted unfinished runs can continue in their original instance and session. */
+		const RESUMABLE_RUN_STATUSES = [
+			"paused",
+			"interrupted",
+			"stopped",
+			"failed"
+		];
+		/** 定时任务列表端点名（含运行态合并视图）。 */
+		const EP_SCHEDULER_TASKS = "schedulerTasks";
+		/** 保存定时任务端点名（新建/更新统一）。 */
+		const EP_SCHEDULER_TASK_PUT = "schedulerTaskPut";
+		/** 删除定时任务端点名。 */
+		const EP_SCHEDULER_TASK_DELETE = "schedulerTaskDelete";
+		/**
+		* 定时任务「常用时区」下拉建议列表（**唯一本体**）。
+		*
+		* 为什么放在共享协议层：该清单同时服务两端——host 侧的任务配置默认值/文档示例与
+		* client 侧的下拉候选。此前 host 与 client 各维护一份逐项相同的字面量，
+		* 任一端增删都会静默漂移（同一语义只允许一处本体）。
+		*
+		* 语义限定：这是**展示建议**，不是校验白名单——时区合法性一律由
+		* `Intl.DateTimeFormat` 的 IANA 名称解析裁决，本列表
+		* 只决定下拉里先给出哪些候选，用户可以填任意合法 IANA 时区。
+		* 排序：按使用频次（Asia 主要时区 → 欧美 → UTC 兜底）。
+		*
+		* 类型标注为 `readonly string[]`（而非字面量联合）：调用方要往候选里插入本机时区
+		* （`Intl` 解析出的任意 IANA 名），字面量联合会让 includes/unshift 需要窄化断言。
+		*/
+		const SCHEDULER_TIMEZONE_SUGGESTIONS = [
+			"Asia/Shanghai",
+			"Asia/Hong_Kong",
+			"Asia/Tokyo",
+			"Asia/Singapore",
+			"Asia/Seoul",
+			"Asia/Taipei",
+			"Asia/Kolkata",
+			"Europe/London",
+			"Europe/Paris",
+			"Europe/Berlin",
+			"America/New_York",
+			"America/Chicago",
+			"America/Los_Angeles",
+			"America/Sao_Paulo",
+			"Australia/Sydney",
+			"UTC"
+		];
+		/** 输出契约的默认文本（新建 agent 节点时写入 `data.outputSchema`）。 */
+		const DEFAULT_OUTPUT_CONTRACT_TEXT = "结论 / 产出文件路径 / 关键决策 / 未决问题";
+		/** 乐观锁冲突：资源在客户端加载后已被别的写入修改（HTTP 409）。 */
+		const ERR_REVISION_CONFLICT = "FLOW_REVISION_CONFLICT";
+		/** Persisted stage labels are a storage contract, independent of the UI language. */
+		const STAGE_LABELS = {
+			mode1: {
+				start: "启动",
+				end: "结束",
+				pause: "暂停"
+			},
+			mode2: {
+				start: "输入",
+				end: "输出",
+				pause: "暂停"
+			}
+		};
+		// src/client/lib/remote.ts
+		/** 传输层超时错误码（client 侧专有；后端业务码见共享协议 ERR_* 常量）。 */
+		const REMOTE_TIMEOUT_CODE = "REMOTE_TIMEOUT";
+		const REMOTE_CONNECTION_CODE = "REMOTE_CONNECTION";
+		const REMOTE_HTTP_STATUS_CODE = "REMOTE_HTTP_STATUS";
+		const REMOTE_EMPTY_STREAM_CODE = "REMOTE_EMPTY_STREAM";
+		/** 成功响应（HTTP 200）的解包失败码（响应体不可解析或缺 value）。 */
+		const REMOTE_PARSE_CODE = "REMOTE_PARSE";
+		/**
+		* 乐观锁冲突判定（稳定错误码本体在共享协议常量）：保存路径据此走「冲突语义」
+		* （刷新列表 + 明确提示用户重试），而不是仅展示通用 message 后静默继续。
+		*/
+		function isRevisionConflict(error) {
+			return error?.code === ERR_REVISION_CONFLICT;
+		}
+		function createDeadline(options) {
+			const timeoutMs = options?.timeoutMs ?? 12e4;
+			const external = options?.signal;
+			const controller = new AbortController();
+			let timedOut = false;
+			const onExternalAbort = () => controller.abort();
+			if (external) {
+				if (external.aborted) controller.abort();
+				else external.addEventListener("abort", onExternalAbort);
+			}
+			const timer = timeoutMs > 0 ? setTimeout(() => {
+				timedOut = true;
+				controller.abort();
+			}, timeoutMs) : null;
+			return {
+				signal: controller.signal,
+				didTimeout: () => timedOut,
+				abortedByCaller: () => external?.aborted === true && !timedOut,
+				dispose: () => {
+					if (timer !== null) clearTimeout(timer);
+					external?.removeEventListener("abort", onExternalAbort);
+				}
+			};
+		}
+		/** Normalize transport failures without coupling the network boundary to UI copy. */
+		function connectionFailure(error) {
+			const detail = error instanceof Error ? error.message : String(error);
+			const failure = /* @__PURE__ */ new Error(REMOTE_CONNECTION_CODE);
+			failure.code = REMOTE_CONNECTION_CODE;
+			failure.transportKind = "connection";
+			failure.detail = detail;
+			return failure;
+		}
+		function transportFailure(error, endpoint, deadline) {
+			if (deadline.didTimeout()) {
+				const timeout = /* @__PURE__ */ new Error(REMOTE_TIMEOUT_CODE);
+				timeout.code = REMOTE_TIMEOUT_CODE;
+				timeout.transportKind = "timeout";
+				timeout.endpoint = endpoint;
+				return timeout;
+			}
+			if (deadline.abortedByCaller() || error?.name === "AbortError") return error;
+			return connectionFailure(error);
+		}
+		/** 读取 200 响应体：非 JSON / 非对象一律返回 null（由调用方按解析失败处理）。 */
+		async function readSuccessPayload(response) {
+			try {
+				const parsed = await response.json();
+				if (parsed === null || typeof parsed !== "object") return null;
+				return parsed;
+			} catch {
+				return null;
+			}
+		}
+		/** 200 响应体形状不合法（不可解析或缺 value）：按失败返回，避免 undefined 被写入状态机。 */
+		function parseFailure(endpoint) {
+			const failure = /* @__PURE__ */ new Error(REMOTE_PARSE_CODE);
+			failure.code = REMOTE_PARSE_CODE;
+			failure.transportKind = "parse";
+			failure.endpoint = endpoint;
+			return failure;
+		}
+		/** Keep Host error payloads outside the transport-localization path. */
+		function responseError(payload, status) {
+			const hostError = payload?.error;
+			const hasHostError = hostError !== void 0 && hostError !== null;
+			const rawMessage = hostError?.message;
+			const message = rawMessage ? String(rawMessage) : void 0;
+			const rawCode = hostError?.code;
+			const code = typeof rawCode === "string" && rawCode ? rawCode : void 0;
+			const fallback = code ?? (hasHostError ? `HTTP ${status}` : "REMOTE_HTTP_STATUS");
+			const error = new Error(message ?? fallback);
+			if (code) error.code = code;
+			else if (!hasHostError && !message) error.code = REMOTE_HTTP_STATUS_CODE;
+			if (!hasHostError && !message) {
+				error.transportKind = "http";
+				error.status = status;
+			}
+			return error;
+		}
+		async function errorFromResponse(response) {
+			let payload = {};
+			try {
+				payload = await response.json();
+			} catch {}
+			return responseError(payload, response.status);
+		}
+		/**
+		* 同源 API 路径：以 document.baseURI 为基准解析相对路径。
+		*
+		* 为什么不能写死 `/visual-workflow/...`：官方 Web 在 index 注入 `<base href="./">`，
+		* 以支持 `--public-url` 的带路径前缀反向代理；固定根路径会绕过该前缀。base 不可用/
+		* 非法时回退根路径，保证普通根部署与测试环境行为不变。
+		* @param endpoint - 端点名（共享协议常量）。
+		* @param baseUri - 解析基准；缺省读取 document.baseURI（非浏览器环境回退根路径）。
+		* @returns 同源绝对路径（如 `/visual-workflow/run` 或 `/dsh/visual-workflow/run`）。
+		*/
+		function visualWorkflowPath(endpoint, baseUri) {
+			const fallback = `/visual-workflow/${endpoint}`;
+			let base = baseUri;
+			if (base === void 0 && typeof document !== "undefined") base = document.baseURI;
+			if (!base) return fallback;
+			try {
+				const parsed = new URL(base);
+				if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return fallback;
+				if (!parsed.pathname.endsWith("/")) parsed.pathname += "/";
+				parsed.search = "";
+				parsed.hash = "";
+				return new URL(`visual-workflow/${endpoint}`, parsed).pathname;
+			} catch {
+				return fallback;
+			}
+		}
+		/** 调用 Host API（同源 fetch；超时与取消见 RemoteCallOptions）。 */
+		async function remoteCall(endpoint, args = {}, options) {
+			const deadline = createDeadline(options);
+			try {
+				let response;
+				try {
+					response = await fetch(visualWorkflowPath(endpoint), {
+						method: "POST",
+						headers: { "Content-Type": "application/json" },
+						body: JSON.stringify({ args }),
+						signal: deadline.signal
+					});
+				} catch (error) {
+					throw transportFailure(error, endpoint, deadline);
+				}
+				if (!response.ok) throw await errorFromResponse(response);
+				const payload = await readSuccessPayload(response);
+				if (payload === null) throw parseFailure(endpoint);
+				if (payload.ok === false) throw responseError(payload, response.status);
+				if (!("value" in payload)) throw parseFailure(endpoint);
+				return payload.value;
+			} finally {
+				deadline.dispose();
+			}
+		}
+		/**
+		* 流式调用 Host API（SSE 透传）：POST /visual-workflow/<endpoint>，把服务端
+		* SSE 的 data 行文本逐行回调（解析归调用方）；流结束 resolve。
+		* 非 2xx（未写流头）抛出后端 message（含稳定 code）；AbortError 静默返回（调用方主动停止）。
+		* 说明：SSE 是长连接，不设整体超时——生命周期由调用方 signal 掌握（谁创建谁释放）。
+		*/
+		async function streamCall(endpoint, args, onLine, signal) {
+			let response;
+			try {
+				response = await fetch(visualWorkflowPath(endpoint), {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({ args }),
+					signal
+				});
+			} catch (error) {
+				if (error?.name === "AbortError") return;
+				throw connectionFailure(error);
+			}
+			if (!response.ok) throw await errorFromResponse(response);
+			if (!response.body) {
+				const empty = /* @__PURE__ */ new Error(REMOTE_EMPTY_STREAM_CODE);
+				empty.code = REMOTE_EMPTY_STREAM_CODE;
+				empty.transportKind = "emptyStream";
+				throw empty;
+			}
+			const reader = response.body.getReader();
+			const decoder = new TextDecoder();
+			let buffer = "";
+			try {
+				for (;;) {
+					const { done, value } = await reader.read();
+					if (done) break;
+					buffer += decoder.decode(value, { stream: true });
+					let index;
+					while ((index = buffer.indexOf("\n")) >= 0) {
+						const line = buffer.slice(0, index).replace(/\r$/, "");
+						buffer = buffer.slice(index + 1);
+						if (line.trim()) onLine(line);
+					}
+				}
+				if (buffer.trim()) onLine(buffer.replace(/\r$/, ""));
+			} catch (error) {
+				if (error?.name === "AbortError") return;
+				throw error;
+			}
+		}
+		// src/client/hooks/useRunProgress.ts
+		function useRunProgress(flow, trackedRunId, dispatch, remote) {
+			const flowId = flow?.id, sessionId = flow?.sessionId;
+			(0, react.useEffect)(() => {
+				if (!flowId || !sessionId || trackedRunId) return;
+				const control = new AbortController();
+				(async () => {
+					const history = await remote.call(EP_RUN_HISTORY, {
+						sessionId,
+						flowId
+					}, { signal: control.signal });
+					if (control.signal.aborted || !Array.isArray(history)) return;
+					const latest = history.find((run) => run.flowId === flowId && run.sessionId === sessionId);
+					if (latest) dispatch({
+						type: "RUN_SNAPSHOT",
+						snapshot: latest
+					});
+				})().catch(() => {});
+				return () => control.abort();
+			}, [
+				dispatch,
+				remote,
+				flowId,
+				sessionId,
+				trackedRunId
+			]);
+		}
+		// src/client/studio/studio-initial.ts
+		/** 初始面板几何：默认「左栏展开」（折叠切换循环位置 0），右侧属性栏默认隐藏（由选中推导）。
+		*  底栏默认高度 170px，左右两侧栏默认宽度 230px（用户裁决）。 */
+		function defaultPanels() {
+			return {
+				mode: 0,
+				leftWidth: 230,
+				rightWidth: 230,
+				bottomHeight: 170
+			};
+		}
+		/** 初始状态（会话 id 由调用方注入）。 */
+		function createInitialState(sessionId) {
+			return {
+				sessionId,
+				libTab: "workflow",
+				librarySource: "template",
+				libSearch: "",
+				assets: {
+					workflows: [],
+					roles: [],
+					prompts: [],
+					retiredWorkflows: [],
+					retiredRoles: []
+				},
+				assetDoc: null,
+				assetRoleDoc: null,
+				promptDoc: null,
+				experiences: [],
+				experienceDoc: null,
+				assetVersions: null,
+				mode: "mode1",
+				workflows: [],
+				services: [],
+				activeRuns: [],
+				instanceOptions: { newSession: false },
+				flowTemplates: [],
+				templates: {
+					role: [],
+					task: [],
+					database: [],
+					group: []
+				},
+				combos: [],
+				presets: [],
+				models: [],
+				currentId: null,
+				currentKind: null,
+				canvas: {
+					nodes: [],
+					edges: []
+				},
+				selection: {
+					nodeId: null,
+					edgeId: null,
+					lib: null
+				},
+				editor: null,
+				dirty: false,
+				savedGraph: null,
+				run: {
+					runId: null,
+					sessionId: null,
+					snapshot: null
+				},
+				toasts: [],
+				history: {
+					past: [],
+					future: []
+				},
+				panels: defaultPanels(),
+				confirm: null,
+				historyOpen: false,
+				runHistory: [],
+				selectedRunId: null,
+				comboOpen: false,
+				schedulerOpen: false
+			};
+		}
+		/**
+		* 解析宿主下发的 Team 成员上限（缺失 / 形态非法 / 非正整数一律回退回退值）。
+		* 与 resolveRunPollMs 同口径：下发值不可信时宁可用保守值，也不把非法值当上限用。
+		*/
+		function resolveTeamMemberLimit(value) {
+			const raw = value?.teamMemberLimit;
+			return typeof raw === "number" && Number.isSafeInteger(raw) && raw > 0 ? raw : 8;
+		}
+		/**
+		* 合并重复节点（修复历史数据中 Team 节点被重复追加的缺陷）：
+		*  - 同 id 的 Team 节点合并为一个，memberIds 取**并集**（不丢任何成员），其余字段保留后出现者；
+		*  - 每个 Team 节点的 memberIds **一律去重**（即便单组内出现重复 id，也会被清理）。
+		* 非 Team 节点同 id 直接保留最后出现者。返回合并后的新数组。
+		*/
+		function consolidateGroups(nodes) {
+			const result = [];
+			const indexBy = /* @__PURE__ */ new Map();
+			const forEachNode = (node) => {
+				const idx = indexBy.get(node.id);
+				if (idx === void 0) {
+					indexBy.set(node.id, result.length);
+					result.push(node);
+					return;
+				}
+				const existing = result[idx];
+				const nodeKind = node.kind;
+				if (existing.kind === "group" && nodeKind === "group") {
+					const union = [.../* @__PURE__ */ new Set([...Array.isArray(existing.data.memberIds) ? existing.data.memberIds : [], ...Array.isArray(node.data.memberIds) ? node.data.memberIds : []])];
+					result[idx] = {
+						...node,
+						data: {
+							...node.data,
+							memberIds: union
+						}
+					};
+				} else result[idx] = node;
+			};
+			return (() => {
+				for (const node of nodes) forEachNode(node);
+				return result;
+			})().map((n) => n.kind === "group" ? {
+				...n,
+				data: {
+					...n.data,
+					memberIds: [...new Set(Array.isArray(n.data.memberIds) ? n.data.memberIds : [])]
+				}
+			} : n);
+		}
+		/**
+		* 原子入组：一次变更同时设置「成员节点 data.groupId」与「Team data.memberIds（追加去重）」。
+		* 入组限定角色节点（parent/agent），返回新 nodes 数组；非角色/非组则原样返回。
+		* 先把重复的 Team 节点合并（并集），再在**唯一**的组上追加，杜绝「删 1 个移出多个 / 只显示一个」的不一致。
+		* 供左栏模板拖入与画布内节点拖入两条路径共用。
+		*/
+		function joinNodeToGroup(nodes, nodeId, groupId) {
+			const base = consolidateGroups(nodes);
+			const node = base.find((n) => n.id === nodeId);
+			const group = base.find((n) => n.id === groupId);
+			const nodeKind = node?.kind;
+			const groupKind = group?.kind;
+			if (!node || !group || groupKind !== "group") return base;
+			if (nodeKind !== "parent" && nodeKind !== "agent") return base;
+			const members = Array.isArray(group.data.memberIds) ? group.data.memberIds : [];
+			const nextMembers = members.includes(nodeId) ? members : [...members, nodeId];
+			return base.map((n) => {
+				if (n.id === nodeId) return {
+					...n,
+					data: {
+						...n.data,
+						groupId
+					}
+				};
+				if (n.id === groupId) return {
+					...n,
+					data: {
+						...n.data,
+						memberIds: nextMembers
+					}
+				};
+				return n;
+			});
+		}
+		/**
+		* 移除指定节点的流程连线（角色拖入 Team 后仅保留上下文/数据库线）：
+		* 组内成员只有上下文/数据库连接点，无流程接点；已连的流程线在入组时自动断开。
+		*/
+		function dropNodeFlowLines(lines, nodeId) {
+			return lines.filter((line) => !(line.source === nodeId && (line.sourceHandle ?? "") === "flow-out" || line.target === nodeId && (line.targetHandle ?? "") === "flow-in"));
+		}
+		// src/client/lib/graph-edges.ts
+		/** 条件连线标签：方括号包裹，内容条件截断到 12 字。 */
+		function conditionLabel(condition, labels) {
+			if (!condition) return "";
+			if (condition.type === "pass") return `[${labels.pass}]`;
+			if (condition.type === "fail") return `[${labels.fail}]`;
+			if (condition.type === "content") return `[${String(condition.label ?? labels.content).slice(0, 12)}]`;
+			return "";
+		}
+		/**
+		* 连线颜色 class（条件 pass|fail|content / 通道 db / ctx / 默认 flow 空串）。
+		* 优先级（用户裁决 2026-02）：**条件优先**——用户显式设了条件就显示条件颜色，
+		* 否则按通道着色。画布渲染与投影共用本函数（唯一本体）。
+		*/
+		function lineColorClass(line) {
+			const condition = line?.condition?.type;
+			if (condition === "pass") return "is-pass";
+			if (condition === "fail") return "is-fail";
+			if (condition === "content") return "is-content";
+			const sourceHandle = line?.sourceHandle ?? "";
+			const targetHandle = line?.targetHandle ?? "";
+			if (sourceHandle === "db-out" || targetHandle === "db-in") return "is-db";
+			if (sourceHandle === "ctx-out" || targetHandle === "ctx-in") return "is-ctx";
+			return "";
+		}
+		/**
+		* 存储连线 → 画布连线（唯一映射本体）：只保留语义字段，条件对象浅拷贝
+		* （视图编辑不得回写文档内对象）。
+		*/
+		function lineToCanvasEdge(line) {
+			return {
+				id: line.id,
+				source: line.source,
+				target: line.target,
+				sourceHandle: line.sourceHandle,
+				targetHandle: line.targetHandle,
+				...line.condition ? { condition: { ...line.condition } } : {},
+				...line.appearance ? { appearance: {
+					...line.appearance,
+					...line.appearance.waypoints ? { waypoints: line.appearance.waypoints.map((p) => ({ ...p })) } : {}
+				} } : {}
+			};
+		}
+		// src/client/studio/studio-projection.ts
+		/**
+		* 文档 → 画布投影的唯一实现：工作流文档、模板与服务文档同构（nodes/lines 全量内联），
+		* 字段口径只在这里定义一次，两条投影路径不得各自复写。
+		*/
+		function documentToCanvas(doc) {
+			return {
+				nodes: consolidateGroups((doc.nodes ?? []).map((node) => ({
+					id: node.id,
+					kind: node.kind,
+					position: node.position ?? {
+						x: 120,
+						y: 80
+					},
+					data: node.data ?? {},
+					...node.proxySourceId !== void 0 ? { proxySourceId: node.proxySourceId } : {}
+				}))),
+				edges: (doc.lines ?? []).map((line) => lineToCanvasEdge(line))
+			};
+		}
+		/** 工作流文档/模板 → 画布投影（节点全量内联，位置缺省落默认格点）。 */
+		function flowToCanvas(flow) {
+			return documentToCanvas(flow);
+		}
+		/** 服务文档 → 画布投影（与工作流同构）。 */
+		function serviceToCanvas(service) {
+			return documentToCanvas(service);
+		}
+		// src/client/studio/studio-snapshot.ts
+		/**
+		* 当前图快照（撤销重做栈元素构造）。
+		* 必须产出与 state.canvas 完全独立的副本：历史栈（past/future）保存的是
+		* 「图标量」而非引用——若直接返回数组/对象引用，任何后续对 canvas 节点的
+		* 原地修改（拖拽缓存、组件副作用）都会污染历史记录，undo/redo 退化为
+		* 同一对象的覆盖式恢复（撤销失效）。考虑 node.data/edge.condition 为嵌套
+		* 对象，逐层浅拷贝断开引用即可（元素内容不可变约定下即快照语义）。
+		*/
+		function graphSnapshotOf(state) {
+			return {
+				nodes: state.canvas.nodes.map((node) => ({
+					...node,
+					position: { ...node.position },
+					data: { ...node.data }
+				})),
+				edges: state.canvas.edges.map((edge) => ({
+					...edge,
+					...edge.condition ? { condition: { ...edge.condition } } : {},
+					...edge.appearance ? { appearance: {
+						...edge.appearance,
+						...edge.appearance.waypoints ? { waypoints: edge.appearance.waypoints.map((p) => ({ ...p })) } : {}
+					} } : {}
+				}))
+			};
+		}
+		/**
+		* 图快照是否一致（dirty 精确判定用）。
+		* 快照元素均为「内容不可变」结构（节点位置/数据、连线/条件），
+		* 直接序列化比较即可（节点/连线顺序即文档事实源顺序）。
+		*/
+		function graphSnapshotsEqual(a, b) {
+			if (a === b) return true;
+			if (!a || !b) return false;
+			return JSON.stringify(a) === JSON.stringify(b);
+		}
+		// src/client/studio/studio-reducer.ts
+		/** 打开工作流/服务/模板时的选中、编辑器与历史栈重置（可选保留画布选择）。 */
+		function openDocument(state, canvas, kind, id) {
+			const libKind = kind === "workflow" ? "workflow" : kind === "service" ? "service" : "workflowTemplate";
+			const editor = kind === "workflow" ? {
+				source: "workflow",
+				id
+			} : kind === "service" ? {
+				source: "service",
+				id
+			} : {
+				source: "flowTemplate",
+				id
+			};
+			return {
+				...state,
+				currentKind: kind,
+				currentId: id,
+				canvas,
+				dirty: false,
+				savedGraph: graphSnapshotOf({
+					...state,
+					canvas
+				}),
+				run: {
+					runId: null,
+					sessionId: null,
+					snapshot: null
+				},
+				selection: {
+					nodeId: null,
+					edgeId: null,
+					lib: {
+						kind: libKind,
+						id
+					}
+				},
+				editor,
+				history: {
+					past: [],
+					future: []
+				}
+			};
+		}
+		function studioReducer(state, action) {
+			switch (action.type) {
+				case "SET_SESSION": return {
+					...state,
+					sessionId: action.sessionId
+				};
+				case "SET_MODE": return {
+					...state,
+					mode: action.mode
+				};
+				case "SET_LIB_TAB": return {
+					...state,
+					libTab: action.tab
+				};
+				case "SET_LIBRARY_SOURCE": return {
+					...state,
+					librarySource: action.source
+				};
+				case "SET_LIB_SEARCH": return {
+					...state,
+					libSearch: action.query
+				};
+				case "ASSETS_LOADED": return {
+					...state,
+					assets: {
+						workflows: action.workflows,
+						roles: action.roles,
+						prompts: action.prompts,
+						retiredWorkflows: action.retiredWorkflows,
+						retiredRoles: action.retiredRoles
+					}
+				};
+				case "ASSET_DOC_LOADED": return {
+					...state,
+					assetDoc: action.detail
+				};
+				case "ROLE_ASSET_LOADED": return {
+					...state,
+					assetRoleDoc: action.detail
+				};
+				case "PROMPT_ASSET_LOADED": return {
+					...state,
+					promptDoc: action.detail
+				};
+				case "OPEN_PROMPT_ASSET": return {
+					...state,
+					selection: {
+						nodeId: null,
+						edgeId: null,
+						lib: {
+							kind: "promptAsset",
+							id: action.assetId
+						}
+					},
+					editor: {
+						source: "promptAsset",
+						id: action.assetId
+					}
+				};
+				case "PROMPT_ASSET_PATCH": return state.promptDoc && typeof action.patch.prompt === "string" ? {
+					...state,
+					promptDoc: {
+						...state.promptDoc,
+						prompt: action.patch.prompt
+					}
+				} : state;
+				case "EXPERIENCES_LOADED": return {
+					...state,
+					experiences: action.items
+				};
+				case "EXPERIENCE_LOADED": {
+					const items = state.experiences.some((item) => item.id === action.entry.id) ? state.experiences.map((item) => item.id === action.entry.id ? action.entry : item) : state.experiences;
+					return {
+						...state,
+						experiences: items,
+						experienceDoc: action.entry
+					};
+				}
+				case "OPEN_EXPERIENCE": return {
+					...state,
+					selection: {
+						nodeId: null,
+						edgeId: null,
+						lib: {
+							kind: "experience",
+							id: action.experienceId
+						}
+					},
+					editor: {
+						source: "experience",
+						id: action.experienceId
+					}
+				};
+				case "EXPERIENCE_PATCH": return state.experienceDoc ? {
+					...state,
+					experienceDoc: {
+						...state.experienceDoc,
+						...action.patch
+					}
+				} : state;
+				case "OPEN_FLOW_ASSET": {
+					const detail = state.assetDoc;
+					if (!detail || detail.assetId !== action.assetId) return state;
+					const canvas = flowToCanvas(detail);
+					return {
+						...state,
+						currentKind: "flowAsset",
+						currentId: detail.assetId,
+						canvas,
+						dirty: false,
+						savedGraph: graphSnapshotOf({
+							...state,
+							canvas
+						}),
+						run: {
+							runId: null,
+							sessionId: null,
+							snapshot: null
+						},
+						selection: {
+							nodeId: null,
+							edgeId: null,
+							lib: {
+								kind: "flowAsset",
+								id: detail.assetId
+							}
+						},
+						editor: {
+							source: "flowAsset",
+							id: detail.assetId
+						},
+						instanceOptions: { newSession: false },
+						history: {
+							past: [],
+							future: []
+						}
+					};
+				}
+				case "OPEN_ROLE_ASSET": return {
+					...state,
+					selection: {
+						nodeId: null,
+						edgeId: null,
+						lib: {
+							kind: "roleAsset",
+							id: action.assetId
+						}
+					},
+					editor: {
+						source: "roleAsset",
+						id: action.assetId
+					}
+				};
+				case "ROLE_ASSET_PATCH": return state.assetRoleDoc ? {
+					...state,
+					assetRoleDoc: {
+						...state.assetRoleDoc,
+						...action.patch
+					}
+				} : state;
+				case "ASSET_VERSIONS_LOADED": return {
+					...state,
+					assetVersions: {
+						kind: action.kind,
+						assetId: action.assetId,
+						items: action.items
+					}
+				};
+				case "ASSET_VERSIONS_CLOSED": return {
+					...state,
+					assetVersions: null
+				};
+				case "ASSET_CLOSED": {
+					const assetId = action.assetId;
+					const next = {
+						...state,
+						assetDoc: state.assetDoc?.assetId === assetId ? null : state.assetDoc,
+						assetRoleDoc: state.assetRoleDoc?.assetId === assetId ? null : state.assetRoleDoc,
+						promptDoc: state.promptDoc?.assetId === assetId ? null : state.promptDoc,
+						assetVersions: state.assetVersions?.assetId === assetId ? null : state.assetVersions
+					};
+					const closesCanvas = state.currentKind === "flowAsset" && state.currentId === assetId;
+					const closesEditor = state.editor?.source === "roleAsset" && state.editor.id === assetId || state.editor?.source === "flowAsset" && state.editor.id === assetId || state.editor?.source === "promptAsset" && state.editor.id === assetId;
+					if (!closesCanvas && !closesEditor) return next;
+					return {
+						...next,
+						...closesCanvas ? {
+							currentId: null,
+							currentKind: null,
+							canvas: {
+								nodes: [],
+								edges: []
+							},
+							dirty: false,
+							run: {
+								runId: null,
+								sessionId: null,
+								snapshot: null
+							},
+							history: {
+								past: [],
+								future: []
+							}
+						} : {},
+						selection: {
+							nodeId: null,
+							edgeId: null,
+							lib: null
+						},
+						editor: null
+					};
+				}
+				case "WORKFLOWS_LOADED": return {
+					...state,
+					workflows: action.items
+				};
+				case "WORKFLOW_ADDED": return {
+					...state,
+					workflows: [action.flow, ...state.workflows]
+				};
+				case "WORKFLOW_UPDATED": return {
+					...state,
+					workflows: state.workflows.map((flow) => flow.id === action.flow.id ? action.flow : flow)
+				};
+				case "WORKFLOW_REMOVED": return {
+					...state,
+					workflows: state.workflows.filter((flow) => flow.id !== action.id)
+				};
+				case "FLOW_TEMPLATES_LOADED": return {
+					...state,
+					flowTemplates: action.items
+				};
+				case "FLOW_TEMPLATES_SYNCED": {
+					const drafts = state.flowTemplates.filter((item) => item._draft === true);
+					return {
+						...state,
+						flowTemplates: [...drafts, ...action.items]
+					};
+				}
+				case "FLOW_TEMPLATE_ADDED": return {
+					...state,
+					flowTemplates: [action.template, ...state.flowTemplates]
+				};
+				case "FLOW_TEMPLATE_UPDATED": return {
+					...state,
+					flowTemplates: state.flowTemplates.map((template) => template.id === action.template.id ? action.template : template)
+				};
+				case "FLOW_TEMPLATE_REMOVED": return {
+					...state,
+					flowTemplates: state.flowTemplates.filter((template) => template.id !== action.id)
+				};
+				case "SERVICES_LOADED": return {
+					...state,
+					services: action.items
+				};
+				case "SERVICE_UPDATED": return {
+					...state,
+					services: state.services.map((service) => service.id === action.service.id ? action.service : service)
+				};
+				case "SERVICE_REMOVED": return {
+					...state,
+					services: state.services.filter((service) => service.id !== action.id)
+				};
+				case "ACTIVE_RUNS_LOADED": return {
+					...state,
+					activeRuns: action.items.filter((item) => {
+						const known = state.run.snapshot;
+						return !(known && known.id === item.runId && known.sessionId === item.sessionId && known.status !== "running" && item.status === "running");
+					})
+				};
+				case "INSTANCE_OPTIONS_SET": return {
+					...state,
+					instanceOptions: {
+						...state.instanceOptions,
+						...action.options
+					}
+				};
+				case "TEMPLATES_LOADED": return {
+					...state,
+					templates: {
+						...state.templates,
+						[action.kind]: action.items
+					}
+				};
+				case "TEMPLATE_ADDED": return {
+					...state,
+					templates: {
+						...state.templates,
+						[action.kind]: [action.template, ...state.templates[action.kind]]
+					}
+				};
+				case "TEMPLATE_UPDATED": return {
+					...state,
+					templates: {
+						...state.templates,
+						[action.kind]: state.templates[action.kind].map((item) => item.id === action.template.id ? action.template : item)
+					}
+				};
+				case "TEMPLATE_REMOVED": return {
+					...state,
+					templates: {
+						...state.templates,
+						[action.kind]: state.templates[action.kind].filter((item) => item.id !== action.id)
+					}
+				};
+				case "COMBOS_LOADED": return {
+					...state,
+					combos: action.items
+				};
+				case "PRESETS_LOADED": return {
+					...state,
+					presets: action.items
+				};
+				case "MODELS_LOADED": return {
+					...state,
+					models: action.items
+				};
+				case "OPEN_FLOW": {
+					const workflows = state.workflows.some((flow) => flow.id === action.flow.id) ? state.workflows.map((flow) => flow.id === action.flow.id ? action.flow : flow) : [action.flow, ...state.workflows];
+					return openDocument({
+						...state,
+						workflows
+					}, flowToCanvas(action.flow), "workflow", action.flow.id);
+				}
+				case "OPEN_SERVICE": {
+					const services = state.services.some((service) => service.id === action.service.id) ? state.services.map((service) => service.id === action.service.id ? action.service : service) : [action.service, ...state.services];
+					return openDocument({
+						...state,
+						services
+					}, serviceToCanvas(action.service), "service", action.service.id);
+				}
+				case "OPEN_FLOW_TEMPLATE": {
+					const flowTemplates = state.flowTemplates.some((template) => template.id === action.template.id) ? state.flowTemplates.map((template) => template.id === action.template.id ? action.template : template) : [action.template, ...state.flowTemplates];
+					return openDocument({
+						...state,
+						flowTemplates
+					}, flowToCanvas(action.template), "flowTemplate", action.template.id);
+				}
+				case "CLEAR_CANVAS": return {
+					...state,
+					currentId: null,
+					currentKind: null,
+					canvas: {
+						nodes: [],
+						edges: []
+					},
+					selection: {
+						nodeId: null,
+						edgeId: null,
+						lib: null
+					},
+					editor: null,
+					dirty: false,
+					run: {
+						runId: null,
+						sessionId: null,
+						snapshot: null
+					},
+					history: {
+						past: [],
+						future: []
+					}
+				};
+				case "GRAPH_REPLACED": return {
+					...state,
+					canvas: {
+						nodes: action.nodes,
+						edges: action.edges
+					},
+					dirty: action.dirty
+				};
+				case "NODE_ADDED": return {
+					...state,
+					canvas: {
+						...state.canvas,
+						nodes: [...state.canvas.nodes, action.node]
+					},
+					dirty: true
+				};
+				case "NODE_MOVED": return {
+					...state,
+					canvas: {
+						...state.canvas,
+						nodes: state.canvas.nodes.map((node) => node.id === action.id ? {
+							...node,
+							position: action.position
+						} : node)
+					},
+					dirty: true
+				};
+				case "NODE_REMOVED": {
+					const removed = /* @__PURE__ */ new Set([action.id]);
+					const main = state.canvas.nodes.find((node) => node.id === action.id);
+					if (main?.kind === "group") {
+						for (const node of state.canvas.nodes) if (node.data.groupId === main.id || (main.data.memberIds ?? []).includes(node.id)) removed.add(node.id);
+					}
+					for (const node of state.canvas.nodes) if (node.kind === "proxy" && node.proxySourceId && removed.has(node.proxySourceId)) removed.add(node.id);
+					return {
+						...state,
+						canvas: {
+							nodes: state.canvas.nodes.filter((node) => !removed.has(node.id)),
+							edges: state.canvas.edges.filter((edge) => !removed.has(edge.source) && !removed.has(edge.target))
+						},
+						dirty: true
+					};
+				}
+				case "EDGE_ADDED": return {
+					...state,
+					canvas: {
+						...state.canvas,
+						edges: [...state.canvas.edges, action.edge]
+					},
+					dirty: true
+				};
+				case "EDGE_REMOVED": return {
+					...state,
+					canvas: {
+						...state.canvas,
+						edges: state.canvas.edges.filter((edge) => edge.id !== action.id)
+					},
+					dirty: true
+				};
+				case "SELECT_NODE": return {
+					...state,
+					selection: {
+						nodeId: action.id,
+						edgeId: null,
+						lib: null
+					},
+					editor: {
+						source: "node",
+						id: action.id
+					}
+				};
+				case "SELECT_EDGE": return {
+					...state,
+					selection: {
+						nodeId: null,
+						edgeId: action.id,
+						lib: null
+					},
+					editor: {
+						source: "edge",
+						id: action.id
+					}
+				};
+				case "SELECT_LIB": return {
+					...state,
+					selection: {
+						nodeId: null,
+						edgeId: null,
+						lib: {
+							kind: action.kind,
+							id: action.id
+						}
+					}
+				};
+				case "SELECT_EDITOR": return {
+					...state,
+					editor: action.editor
+				};
+				case "CLEAR_SELECTION": return {
+					...state,
+					selection: {
+						nodeId: null,
+						edgeId: null,
+						lib: null
+					},
+					editor: null
+				};
+				case "NODE_DATA_PATCH": return {
+					...state,
+					canvas: {
+						...state.canvas,
+						nodes: state.canvas.nodes.map((node) => node.id === action.id ? {
+							...node,
+							data: {
+								...node.data,
+								...action.patch
+							}
+						} : node)
+					},
+					dirty: true
+				};
+				case "EDGE_PATCH": return {
+					...state,
+					canvas: {
+						...state.canvas,
+						edges: state.canvas.edges.map((edge) => edge.id === action.id ? {
+							...edge,
+							...action.patch
+						} : edge)
+					},
+					dirty: true
+				};
+				case "DOC_PATCH": return state.currentKind === "workflow" ? {
+					...state,
+					workflows: state.workflows.map((flow) => flow.id === state.currentId ? {
+						...flow,
+						...action.patch.name !== void 0 ? { name: action.patch.name } : {},
+						...action.patch.description !== void 0 ? { description: action.patch.description } : {}
+					} : flow),
+					dirty: true
+				} : state.currentKind === "flowTemplate" ? {
+					...state,
+					flowTemplates: state.flowTemplates.map((template) => template.id === state.currentId ? {
+						...template,
+						...action.patch.name !== void 0 ? { name: action.patch.name } : {},
+						...action.patch.description !== void 0 ? { description: action.patch.description } : {}
+					} : template),
+					dirty: true
+				} : state.currentKind === "service" ? {
+					...state,
+					services: state.services.map((service) => service.id === state.currentId ? {
+						...service,
+						...action.patch.name !== void 0 ? { name: action.patch.name } : {},
+						...action.patch.description !== void 0 ? { description: action.patch.description } : {}
+					} : service),
+					dirty: true
+				} : state.currentKind === "flowAsset" && state.assetDoc?.assetId === state.currentId ? {
+					...state,
+					assetDoc: {
+						...state.assetDoc,
+						...action.patch.name !== void 0 ? { name: action.patch.name } : {},
+						...action.patch.description !== void 0 ? { description: action.patch.description } : {}
+					},
+					dirty: true
+				} : state;
+				case "SET_DIRTY": return {
+					...state,
+					dirty: action.dirty
+				};
+				case "MARK_SAVED": return {
+					...state,
+					dirty: false,
+					savedGraph: graphSnapshotOf(state)
+				};
+				case "RUN_STARTED":
+					if (state.run.stopping || state.run.snapshot?.id === action.runId && state.run.snapshot.status !== "running") return state;
+					return {
+						...state,
+						run: {
+							runId: action.runId,
+							sessionId: action.runSessionId ?? null,
+							snapshot: null
+						}
+					};
+				case "RUN_STOP_REQUESTED":
+					if (state.run.runId !== action.runId || state.run.sessionId !== action.sessionId) return state;
+					return {
+						...state,
+						run: {
+							...state.run,
+							stopping: true
+						}
+					};
+				case "RUN_STOP_SETTLED": {
+					if (state.run.sessionId !== action.sessionId || state.run.runId !== action.runId && state.run.snapshot?.id !== action.runId) return state;
+					const { stopping: _stopping, ...run } = state.run;
+					return {
+						...state,
+						run
+					};
+				}
+				case "RUN_SNAPSHOT": {
+					const snapshot = action.snapshot;
+					const flow = state.currentKind === "workflow" ? state.workflows.find((item) => item.id === state.currentId) : null;
+					if (!flow || snapshot.flowId !== flow.id || snapshot.sessionId !== flow.sessionId) return state;
+					if (state.run.runId && state.run.runId !== snapshot.id) return state;
+					if (state.run.snapshot?.id === snapshot.id && state.run.snapshot.status !== "running" && snapshot.status === "running") return state;
+					const activeRuns = snapshot.status === "running" ? state.activeRuns : state.activeRuns.filter((item) => item.runId !== snapshot.id || item.sessionId !== snapshot.sessionId || item.status !== "running");
+					return {
+						...state,
+						activeRuns,
+						run: {
+							runId: snapshot.status === "running" ? snapshot.id : null,
+							sessionId: snapshot.sessionId,
+							snapshot,
+							...state.run.stopping ? { stopping: true } : {}
+						}
+					};
+				}
+				case "RUN_CLEARED": return {
+					...state,
+					run: {
+						runId: null,
+						sessionId: null,
+						snapshot: null
+					}
+				};
+				case "TOAST_PUSH": return {
+					...state,
+					toasts: [...state.toasts, action.toast]
+				};
+				case "TOAST_DROP": return {
+					...state,
+					toasts: state.toasts.filter((toast) => toast.id !== action.id)
+				};
+				case "HISTORY_PUSH": {
+					const past = [...state.history.past, action.snapshot];
+					if (past.length > 60) past.shift();
+					return {
+						...state,
+						history: {
+							past,
+							future: []
+						}
+					};
+				}
+				case "UNDO": {
+					const previous = state.history.past.at(-1);
+					if (!previous) return state;
+					const next = {
+						...state,
+						canvas: {
+							nodes: previous.nodes,
+							edges: previous.edges
+						},
+						history: {
+							past: state.history.past.slice(0, -1),
+							future: [...state.history.future, graphSnapshotOf(state)]
+						}
+					};
+					return {
+						...next,
+						...sanitizeSelectionAfterCanvas(next),
+						dirty: !graphSnapshotsEqual(next.canvas, state.savedGraph)
+					};
+				}
+				case "REDO": {
+					const next = state.history.future.at(-1);
+					if (!next) return state;
+					const applied = {
+						...state,
+						canvas: {
+							nodes: next.nodes,
+							edges: next.edges
+						},
+						history: {
+							past: [...state.history.past, graphSnapshotOf(state)],
+							future: state.history.future.slice(0, -1)
+						}
+					};
+					return {
+						...applied,
+						...sanitizeSelectionAfterCanvas(applied),
+						dirty: !graphSnapshotsEqual(applied.canvas, state.savedGraph)
+					};
+				}
+				case "PANELS_SET": return {
+					...state,
+					panels: {
+						...state.panels,
+						...action.panels
+					}
+				};
+				case "CONFIRM_SET": return {
+					...state,
+					confirm: action.confirm
+				};
+				case "HISTORY_OPEN": return {
+					...state,
+					historyOpen: action.open
+				};
+				case "RUN_HISTORY_LOADED": return {
+					...state,
+					runHistory: action.items,
+					selectedRunId: action.items[0]?.id ?? state.selectedRunId
+				};
+				case "RUN_HISTORY_SELECT": return {
+					...state,
+					selectedRunId: action.id
+				};
+				case "COMBO_OPEN": return {
+					...state,
+					comboOpen: action.open
+				};
+				case "SCHEDULER_OPEN": return {
+					...state,
+					schedulerOpen: action.open
+				};
+				default: return state;
+			}
+		}
+		/**
+		* 画布变化后的选中/编辑器校验：UNDO/REDO 恢复画布后，selection 与
+		* editor 可能仍指向已不存在的节点/连线（如 REDO 一个删除操作后选中残留），
+		* 返回清理后的 selection/editor —— 引用失效的项置空，避免键盘删除误删与
+		* Inspector 渲染空数据。
+		*/
+		function sanitizeSelectionAfterCanvas(state) {
+			const nodeExists = (id) => id != null && state.canvas.nodes.some((node) => node.id === id);
+			const edgeExists = (id) => id != null && state.canvas.edges.some((edge) => edge.id === id);
+			const selection = {
+				nodeId: nodeExists(state.selection.nodeId) ? state.selection.nodeId : null,
+				edgeId: edgeExists(state.selection.edgeId) ? state.selection.edgeId : null,
+				lib: state.selection.lib
+			};
+			let editor = state.editor;
+			if (editor) {
+				if (editor.source === "node" && !nodeExists(editor.id)) editor = null;
+				else if (editor.source === "edge" && !edgeExists(editor.id)) editor = null;
+			}
+			return {
+				selection,
+				editor
+			};
+		}
+		// src/client/lib/canvas-model.ts
+		/** 画布节点 kind 统一读取（顶层 kind 优先，兼容 data.kind 历史数据）。 */
+		function nodeKindOf(node) {
+			const kind = node?.kind;
+			if (typeof kind === "string" && kind) return kind;
+			const dataKind = node?.data?.kind;
+			return typeof dataKind === "string" && dataKind ? dataKind : "agent";
+		}
+		// src/client/lib/graph-handles.ts
+		const HANDLES = {
+			parent: {
+				inputs: [
+					"db-in",
+					"ctx-in",
+					"flow-in"
+				],
+				outputs: ["ctx-out", "flow-out"]
+			},
+			agent: {
+				inputs: [
+					"db-in",
+					"ctx-in",
+					"flow-in"
+				],
+				outputs: ["ctx-out", "flow-out"]
+			},
+			proxy: {
+				inputs: [
+					"db-in",
+					"ctx-in",
+					"flow-in"
+				],
+				outputs: ["ctx-out", "flow-out"]
+			},
+			task: {
+				inputs: [],
+				outputs: ["ctx-out"]
+			},
+			step: {
+				inputs: ["flow-in"],
+				outputs: ["flow-out"]
+			},
+			database: {
+				inputs: [],
+				outputs: ["db-out"]
+			},
+			start: {
+				inputs: [],
+				outputs: ["flow-out"]
+			},
+			end: {
+				inputs: ["flow-in"],
+				outputs: []
+			},
+			pause: {
+				inputs: ["flow-in"],
+				outputs: ["flow-out"]
+			},
+			group: {
+				inputs: ["ctx-in", "flow-in"],
+				outputs: ["flow-out"]
+			},
+			subgraph: {
+				inputs: ["flow-in"],
+				outputs: ["flow-out"]
+			}
+		};
+		/** Stage labels are injected by UI callers so this pure graph helper stays locale-agnostic. */
+		function stageLabels(mode, copy) {
+			const isMode2 = mode === "mode2";
+			return {
+				start: isMode2 ? copy.input : copy.start,
+				end: isMode2 ? copy.output : copy.end,
+				pause: copy.pause
+			};
+		}
+		/** 单个阶段节点在当前模式与界面语言下的显示名（存储值仍是中文规范值）。 */
+		function stageNodeLabelOf(mode, kind, copy) {
+			if (kind === "pause") return copy.pause;
+			return stageLabels(mode, copy)[kind];
+		}
+		/** Stage nodes available in each mode (mode 2 has no pause node). */
+		function stageTemplateKinds(mode, copy) {
+			const labels = stageLabels(mode, copy);
+			const out = [{
+				kind: "start",
+				label: labels.start
+			}, {
+				kind: "end",
+				label: labels.end
+			}];
+			if (mode !== "mode2") out.push({
+				kind: "pause",
+				label: labels.pause
+			});
+			return out;
+		}
+		function defaultOutputHandle(kind) {
+			const def = HANDLES[kind] ?? HANDLES.agent;
+			return def.outputs[def.outputs.length - 1] ?? "flow-out";
+		}
+		function defaultInputHandle(kind) {
+			const def = HANDLES[kind] ?? HANDLES.agent;
+			return def.inputs[def.inputs.length - 1] ?? "flow-in";
+		}
+		// src/client/lib/connection-rules.ts
+		/** 连接校验：在画布上建立一条连线（sourceHandle → targetHandle）。 */
+		function connectionProblem(nodes, lines, connection) {
+			if (!connection?.source || !connection?.target) return {
+				valid: false,
+				code: "invalidConnection"
+			};
+			if (connection.source === connection.target) return {
+				valid: false,
+				code: "selfLoop"
+			};
+			const source = nodes.find((node) => node.id === connection.source);
+			const target = nodes.find((node) => node.id === connection.target);
+			if (!source || !target) return {
+				valid: false,
+				code: "invalidConnection"
+			};
+			const sourceKind = nodeKindOf(source);
+			const targetKind = nodeKindOf(target);
+			const sourceHandle = connection.sourceHandle ?? defaultOutputHandle(sourceKind);
+			const targetHandle = connection.targetHandle ?? defaultInputHandle(targetKind);
+			const sourceDef = HANDLES[sourceKind] ?? HANDLES.agent;
+			const targetDef = HANDLES[targetKind] ?? HANDLES.agent;
+			if (!sourceDef.outputs.includes(sourceHandle)) return {
+				valid: false,
+				code: "invalidHandle"
+			};
+			if (!targetDef.inputs.includes(targetHandle)) return {
+				valid: false,
+				code: "invalidHandle"
+			};
+			const channel = sourceHandle.replace(/-out$/, "");
+			if (targetHandle !== `${channel}-in`) return {
+				valid: false,
+				code: "channelMismatch"
+			};
+			const memberSource = (sourceKind === "parent" || sourceKind === "agent") && Boolean(source.data?.groupId);
+			const memberTarget = (targetKind === "parent" || targetKind === "agent") && Boolean(target.data?.groupId);
+			if (channel === "flow" && (memberSource || memberTarget)) return {
+				valid: false,
+				code: "groupMemberFlow"
+			};
+			if (targetKind === "start") return {
+				valid: false,
+				code: "startInput"
+			};
+			if (sourceKind === "end") return {
+				valid: false,
+				code: "endOutput"
+			};
+			if (lines.some((line) => line.source === connection.source && line.target === connection.target && (line.sourceHandle ?? "") === sourceHandle && (line.targetHandle ?? "") === targetHandle && line.id !== connection.lineId)) return {
+				valid: false,
+				code: "duplicateConnection"
+			};
+			return {
+				valid: true,
+				code: "ok",
+				branch: sourceHandle
+			};
+		}
+		function connectionProblemMessage(problem, copy) {
+			if (!problem || problem.valid) return "";
+			return {
+				selfLoop: copy.selfLoop,
+				duplicateConnection: copy.duplicateConnection,
+				channelMismatch: copy.invalidConnection,
+				groupMemberFlow: copy.groupMemberFlowLine ?? copy.invalidConnection,
+				startInput: copy.invalidConnection,
+				endOutput: copy.invalidConnection,
+				invalidHandle: copy.invalidConnection,
+				invalidConnection: copy.invalidConnection
+			}[problem.code] ?? copy.invalidConnection;
+		}
+		// src/client/lib/manual-connection.ts
+		function channelHandles(channel) {
+			return {
+				sourceHandle: `${channel}-out`,
+				targetHandle: `${channel}-in`
+			};
+		}
+		/** Unsupported purposes stay visible but disabled in the inspector. Duplicates are checked on apply. */
+		function availableConnectionChannels(nodes, edge) {
+			return [
+				"flow",
+				"ctx",
+				"db"
+			].filter((channel) => connectionProblem(nodes, [], {
+				...edge,
+				...channelHandles(channel)
+			}).valid);
+		}
+		/** Physical sockets may carry several channels. Resolve direction and a shared semantic channel. */
+		function connectPorts(first, second, type, channel) {
+			if (first.nodeId === second.nodeId) return null;
+			const forward = first.handles.some((handle) => handle.endsWith("-out"));
+			const source = forward ? first : second, target = forward ? second : first;
+			const sourceHandle = (channel ? [channelHandles(channel).sourceHandle] : [
+				"flow-out",
+				"ctx-out",
+				"db-out"
+			]).find((handle) => source.handles.includes(handle) && target.handles.includes(handle.replace("-out", "-in")));
+			if (!sourceHandle) return null;
+			return {
+				source: source.nodeId,
+				target: target.nodeId,
+				sourceHandle,
+				targetHandle: sourceHandle.replace("-out", "-in"),
+				appearance: {
+					type,
+					sourceSide: source.side ?? "right",
+					targetSide: target.side ?? "left"
+				}
+			};
+		}
+		// src/client/studio/studio-selectors.ts
+		/** 当前工作流文档（内存列表优先；草稿回退）。 */
+		function currentFlowOf(state) {
+			if (state.currentKind !== "workflow" || !state.currentId) return null;
+			return state.workflows.find((flow) => flow.id === state.currentId) ?? null;
+		}
+		/** 当前工作流模板文档（模板态画布）。 */
+		function currentFlowTemplateOf(state) {
+			if (state.currentKind !== "flowTemplate" || !state.currentId) return null;
+			return state.flowTemplates.find((template) => template.id === state.currentId) ?? null;
+		}
+		/** 当前工作流资产文档（资产态画布；当前 id 必须与已装载的 assetDoc 同源）。 */
+		function currentFlowAssetOf(state) {
+			if (state.currentKind !== "flowAsset" || !state.currentId) return null;
+			return state.assetDoc?.assetId === state.currentId ? state.assetDoc : null;
+		}
+		/**
+		* 模板态与资产态共用「创建实例」前置（实例只能由模版/资产生成）：
+		* 二者画布内容语义一致（编辑中的草稿 → 保存为实例），运行入口也走同一分支。
+		*/
+		function isInstanceSourceKind(kind) {
+			return kind === "flowTemplate" || kind === "flowAsset";
+		}
+		/**
+		* 派生「创建实例」的新会话选项（唯一取值口径）：
+		*   - 模板态：读**模板级持久化配置**（startNewSession / workspacePath，随模板保存与删除）；
+		*   - 资产态及其它：读一次性临时选项（资产无持久化归属，路径恒空）。
+		* 字段类型漂移一律按「未勾选 / 无路径」降级，不伪造配置。
+		*/
+		function newSessionOptionsOf(state) {
+			if (state.currentKind === "flowTemplate") {
+				const template = currentFlowTemplateOf(state);
+				return {
+					newSession: template?.startNewSession === true,
+					workspacePath: typeof template?.workspacePath === "string" ? template.workspacePath : ""
+				};
+			}
+			return {
+				newSession: state.instanceOptions.newSession === true,
+				workspacePath: ""
+			};
+		}
+		/** 当前服务文档。 */
+		function currentServiceOf(state) {
+			if (state.currentKind !== "service" || !state.currentId) return null;
+			return state.services.find((service) => service.id === state.currentId) ?? null;
+		}
+		/**
+		* P4：当前文档里「父代理最近一次补丁」（origin='agent'）改动的节点 id。
+		* 用途：画布给这些节点加「AI 调整」角标，让用户理解画布为何变了。
+		* 语义边界：用户一旦在画布上保存，宿主侧的 stripClientMeta 会清除 lastPatch
+		* （客户端快照里本来就没有该字段），所以角标只反映「尚未被用户确认的代理改动」。
+		* 纯函数；非法/缺失一律返回空数组（旧数据零影响）。
+		*/
+		function agentPatchedNodeIdsOf(state) {
+			const patch = (currentFlowTemplateOf(state) ?? currentFlowOf(state) ?? currentServiceOf(state))?.lastPatch;
+			const raw = Array.isArray(patch?.nodeIds) ? patch?.nodeIds : [];
+			return [...new Set(raw.map((id) => String(id ?? "")).filter(Boolean))];
+		}
+		/** 当前运行状态（running 判定）。 */
+		function isRunningOf(state) {
+			return state.run.snapshot?.status === "running" || state.run.runId !== null && state.run.snapshot === null;
+		}
+		/**
+		* 当前**实例**是否处于「运行中」（模式一；运行中实例的保存二次确认与画布锁定共用）。
+		* 判定来源双保险：① 当前跟踪的 run 快照（flowId 必须等于当前实例，避免跟踪到别的实例）；
+		* ② 全量活跃 run 摘要轮询（跨会话/外部触发也能判定）。
+		* 模式二按用户裁决保持现状（服务常驻运行，无「运行中画布」语义），恒为 false。
+		* 暂停（paused）不算运行中：暂停时保存既不弹确认、也不锁画布。
+		*/
+		function instanceRunningOf(state) {
+			if (state.mode !== "mode1") return false;
+			if (state.currentKind !== "workflow") return false;
+			const flow = currentFlowOf(state);
+			if (!flow) return false;
+			const tracked = state.run.snapshot;
+			if (tracked && tracked.status === "running" && tracked.flowId === flow.id) return true;
+			return state.activeRuns.some((item) => item.flowId === flow.id && item.sessionId === flow.sessionId && item.status === "running");
+		}
+		/** 单个实例的索引键：flowId + sessionId（同一实例可被多个会话持有同名 id，必须带会话维度）。 */
+		function activeRunIndexKey(flowId, sessionId) {
+			return `${flowId}\u0000${sessionId}`;
+		}
+		/**
+		* 活跃 run 摘要 → 以「实例（flowId+sessionId）」为键的索引，供实例列表按实例 O(1) 取状态徽标
+		* （此前每实例一次全量 `activeRuns.find` 线性查找，n 个实例即 n 次全表扫描）。
+		* 纯函数：输入即全部事实，不读全局；同一 key 重复出现时以最后一条为准（列表顺序即权威）。
+		* 只丢弃缺 flowId 的脏条目（无法归属实例）——其余字段缺失按空串降级，不改变既有展示口径。
+		*/
+		function activeRunIndexOf(state) {
+			const index = /* @__PURE__ */ new Map();
+			for (const item of state.activeRuns) {
+				const flowId = String(item?.flowId ?? "");
+				if (!flowId) continue;
+				const sessionId = String(item?.sessionId ?? "");
+				const status = String(item?.status ?? "");
+				const runId = String(item?.runId ?? "");
+				index.set(activeRunIndexKey(flowId, sessionId), {
+					status,
+					runId,
+					sessionId
+				});
+			}
+			return index;
+		}
+		/** 实例 → 运行徽标（activeRunIndex 键）；无活跃 run 返回 null。 */
+		function activeRunBadgeOf(index, flowId, sessionId) {
+			return index.get(activeRunIndexKey(flowId, sessionId)) ?? null;
+		}
+		/**
+		* 按实例投影运行状态徽标（渲染层不再做全量线性查找）：**一次**扫描活跃 run 建索引
+		* （O(n+m)），逐实例只做一次 Map 查询。顺序与入参一致，不改变已有语义：
+		* 快照优先于活跃摘要由消费方（实例列表）按既有口径决定。
+		*/
+		function instanceRunBadgesOf(flows, current, index) {
+			const out = /* @__PURE__ */ new Map();
+			for (const flow of flows) {
+				const active = activeRunBadgeOf(index, flow.id, flow.sessionId);
+				const currentSnapshot = current.runId !== null && current.snapshot?.flowId === flow.id ? current.snapshot.status : null;
+				out.set(flow.id, {
+					active,
+					currentSnapshot
+				});
+			}
+			return out;
+		}
+		/**
+		* Team 成员显示名（唯一本体）：成员节点缺失或 label 缺失/为 null 时回退成员 id。
+		* 画布 Team 卡片（GraphCanvas）与右侧属性栏（editorDataOf）共用，避免两处各写一份回退规则。
+		* 只接受已解析出的成员节点，节点的查找方式（Map / find）由调用方决定。
+		*/
+		function memberLabelOf(member, memberId) {
+			return String((member?.data)?.label ?? memberId);
+		}
+		/**
+		* 领域对象 → 属性栏表单数据源（EditorData.data 是字符串键表单数据）。
+		* 逐键拷贝而非 `as unknown as Record<string, unknown>` 双重断言：断言会完全绕过类型检查、
+		* 掩盖数据模型不一致（同 studio-types.ts 的 Drafted<T> 取舍）。
+		*/
+		function formDataOf(value) {
+			const result = {};
+			for (const [key, item] of Object.entries(value)) result[key] = item;
+			return result;
+		}
+		/** 画布节点 → 属性栏数据（主图与子图编辑器共用；nodes 传入当前作用域）。 */
+		function nodeEditorDataOf(node, nodes, mode) {
+			const data = node.data;
+			if (node.kind === "parent" || node.kind === "agent") {
+				const sourceAssetId = typeof data.sourceAssetId === "string" ? data.sourceAssetId : "";
+				return {
+					kind: "role",
+					data,
+					name: String(data.label ?? ""),
+					nodeId: node.id,
+					isParent: node.kind === "parent",
+					...sourceAssetId === "" ? {} : { sourceAssetId }
+				};
+			}
+			if (node.kind === "task") return {
+				kind: "task",
+				data,
+				name: String(data.label ?? ""),
+				nodeId: node.id
+			};
+			if (node.kind === "step") return {
+				kind: "step",
+				data,
+				name: String(data.label ?? ""),
+				nodeId: node.id
+			};
+			if (node.kind === "database") return {
+				kind: "database",
+				data,
+				name: String(data.label ?? ""),
+				nodeId: node.id
+			};
+			if (node.kind === "group") {
+				const members = [...new Set(data.memberIds ?? [])].map((memberId) => ({
+					id: memberId,
+					label: memberLabelOf(nodes.find((item) => item.id === memberId), memberId)
+				}));
+				return {
+					kind: "group",
+					data,
+					name: String(data.label ?? ""),
+					nodeId: node.id,
+					members
+				};
+			}
+			if (node.kind === "subgraph") return {
+				kind: "subgraph",
+				data,
+				name: String(data.label ?? ""),
+				nodeId: node.id,
+				mode
+			};
+			if (node.kind === "start" || node.kind === "end" || node.kind === "pause") return {
+				kind: "stage",
+				data,
+				name: String(data.label ?? ""),
+				nodeId: node.id,
+				stageKind: node.kind,
+				mode
+			};
+			if (node.kind === "proxy") {
+				const sourceId = String(node.proxySourceId ?? "");
+				const main = nodes.find((item) => item.id === sourceId);
+				return {
+					kind: "proxy",
+					data,
+					name: "",
+					nodeId: node.id,
+					mainLabel: String((main?.data)?.label ?? "")
+				};
+			}
+			return {
+				kind: "role",
+				data,
+				name: String(data.label ?? ""),
+				nodeId: node.id
+			};
+		}
+		/** 编辑器数据（右侧面板渲染源）。 */
+		function editorDataOf(state) {
+			const editor = state.editor;
+			if (!editor) return null;
+			if (editor.source === "workflow") {
+				const flow = state.workflows.find((item) => item.id === editor.id);
+				return flow ? {
+					kind: "workflow",
+					data: {
+						name: flow.name,
+						description: flow.description
+					},
+					name: flow.name
+				} : null;
+			}
+			if (editor.source === "flowTemplate") {
+				const template = state.flowTemplates.find((item) => item.id === editor.id);
+				return template ? {
+					kind: "workflow",
+					data: {
+						name: template.name,
+						description: template.description
+					},
+					name: template.name,
+					template: true,
+					templateId: template.id
+				} : null;
+			}
+			if (editor.source === "flowAsset") {
+				const detail = state.assetDoc;
+				if (!detail || detail.assetId !== editor.id) return null;
+				return {
+					kind: "workflow",
+					data: {
+						name: detail.name,
+						description: detail.description
+					},
+					name: detail.name,
+					asset: true,
+					assetId: detail.assetId,
+					...detail.retired === true ? { retired: true } : {}
+				};
+			}
+			if (editor.source === "roleAsset") {
+				const detail = state.assetRoleDoc;
+				if (!detail || detail.assetId !== editor.id) return null;
+				return {
+					kind: "role",
+					data: formDataOf(detail),
+					name: detail.name,
+					isParent: detail.kind === "parent",
+					roleAsset: true,
+					assetId: detail.assetId,
+					...detail.retired === true ? { retired: true } : {}
+				};
+			}
+			if (editor.source === "promptAsset") {
+				const detail = state.promptDoc;
+				if (!detail || detail.assetId !== editor.id) return null;
+				return {
+					kind: "prompt",
+					data: formDataOf(detail),
+					name: detail.name,
+					promptAsset: true,
+					assetId: detail.assetId
+				};
+			}
+			if (editor.source === "experience") {
+				const entry = state.experienceDoc;
+				if (!entry || entry.id !== editor.id) return null;
+				return {
+					kind: "experience",
+					data: formDataOf(entry),
+					name: entry.responsibility,
+					experience: true,
+					experienceId: entry.id,
+					...entry.active ? {} : { retired: true }
+				};
+			}
+			if (editor.source === "service") {
+				const service = state.services.find((item) => item.id === editor.id);
+				return service ? {
+					kind: "service",
+					data: {
+						name: service.name,
+						description: service.description
+					},
+					name: service.name
+				} : null;
+			}
+			if (editor.source === "template") {
+				const template = state.templates[editor.kind].find((item) => item.id === editor.id);
+				if (!template) return null;
+				const kind0 = editor.kind;
+				return {
+					kind: kind0,
+					data: formDataOf(template),
+					name: String(template.name ?? ""),
+					templateId: template.id,
+					template: true,
+					isParent: kind0 === "role" && template.kind === "parent"
+				};
+			}
+			if (editor.source === "node") {
+				const node = state.canvas.nodes.find((item) => item.id === editor.id);
+				return node ? nodeEditorDataOf(node, state.canvas.nodes, state.mode) : null;
+			}
+			if (editor.source === "edge") {
+				const edge = state.canvas.edges.find((item) => item.id === editor.id);
+				return edge ? {
+					kind: "edge",
+					data: {
+						...formDataOf(edge),
+						availableChannels: availableConnectionChannels(state.canvas.nodes, edge)
+					},
+					name: ""
+				} : null;
+			}
+			return null;
+		}
+		/** 折叠/切换下一步循环位置（左展→切换底栏→收起底栏→左展）。 */
+		function nextPanelMode(mode) {
+			return (mode + 1) % 3;
+		}
+		/** 左栏是否展开（循环位置 0）。 */
+		function leftPanelOpenOf(state) {
+			return state.panels.mode === 0;
+		}
+		/** 底栏是否展开（循环位置 1）。 */
+		function bottomPanelOpenOf(state) {
+			return state.panels.mode === 1;
+		}
+		/** 是否处于「全隐」态（循环位置 2：收起底栏/左栏，仅画布）。 */
+		function panelsFullyCollapsedOf(state) {
+			return state.panels.mode === 2;
+		}
+		/**
+		* 右侧属性栏是否显示：默认隐藏（折叠），仅当选中「具备属性」的对象时才展开。
+		* 判定 = 编辑对象存在且其属性栏类型不是「阶段」（阶段节点/侧栏阶段卡片不具备属性，不弹）；
+		* 其余（实例/工作流/服务/模板/角色/任务/数据库/Team/连线/画布角色节点含父代理节点/虚拟节点）都弹。
+		* 注意：父代理模板也具备属性（属性栏显示模板内容），此处一并弹出。
+		*/
+		function inspectorOpenOf(state) {
+			const data = editorDataOf(state);
+			return data != null && data.kind !== "stage";
+		}
+		// src/client/studio/instance-options.ts
+		/** instanceOptions 持久化键。 */
+		const INSTANCE_OPTIONS_KEY = "visual-workflow:instance-options";
+		/** 默认实例选项（与 createInitialState 一致）。 */
+		function defaultInstanceOptions() {
+			return { newSession: false };
+		}
+		/** 读取缓存（缺失/损坏回退默认值；隐私模式等异常静默）。 */
+		function restoreInstanceOptions(storage) {
+			try {
+				const raw = storage.getItem(INSTANCE_OPTIONS_KEY);
+				if (!raw) return defaultInstanceOptions();
+				return { newSession: JSON.parse(raw)?.newSession === true };
+			} catch {
+				return defaultInstanceOptions();
+			}
+		}
+		/** 写入缓存（newSession 布尔化后落盘；不含路径——模板态的路径不在此）。 */
+		function keepInstanceOptions(storage, options) {
+			try {
+				storage.setItem(INSTANCE_OPTIONS_KEY, JSON.stringify({ newSession: options.newSession === true }));
+			} catch {}
+		}
+		// src/client/studio/panel-layout.ts
+		/** localStorage 键（键名与既有用户缓存兼容，不得改名；mode 为折叠态新增键）。 */
+		const LAYOUT_KEYS = {
+			mode: "visual-workflow:panel-mode",
+			leftWidth: "visual-workflow:left-width",
+			rightWidth: "visual-workflow:right-width",
+			bottomHeight: "visual-workflow:bottom-height"
+		};
+		/** 读取持久化面板几何与折叠态（非法/损坏/越界回退默认）。 */
+		function restorePanels(storage) {
+			const fallback = defaultPanels();
+			return {
+				mode: storedMode(storage, fallback.mode),
+				leftWidth: storedSize(storage, LAYOUT_KEYS.leftWidth, fallback.leftWidth),
+				rightWidth: storedSize(storage, LAYOUT_KEYS.rightWidth, fallback.rightWidth),
+				bottomHeight: storedSize(storage, LAYOUT_KEYS.bottomHeight, fallback.bottomHeight)
+			};
+		}
+		/** 写入折叠态（PANELS_SET 改 mode 后调用一次）。 */
+		function keepPanelMode(storage, mode) {
+			write(storage, LAYOUT_KEYS.mode, String(mode));
+		}
+		/** 写入某一向几何（拖动结束后调用一次）。 */
+		function keepPanelSize(storage, side, value) {
+			write(storage, side === "left" ? LAYOUT_KEYS.leftWidth : side === "right" ? LAYOUT_KEYS.rightWidth : LAYOUT_KEYS.bottomHeight, String(value));
+		}
+		/** 几何读取：有限正数才有效（0/NaN/负值/垃圾文本回退默认）。 */
+		function storedSize(storage, key, fallback) {
+			try {
+				const value = Number(storage.getItem(key));
+				return Number.isFinite(value) && value > 0 ? value : fallback;
+			} catch {
+				return fallback;
+			}
+		}
+		/** 折叠态读取：必须是循环范围内的非负整数（越界/小数/垃圾文本回退默认）。 */
+		function storedMode(storage, fallback) {
+			try {
+				const value = Number(storage.getItem(LAYOUT_KEYS.mode));
+				return Number.isFinite(value) && value >= 0 && value < 3 ? Math.floor(value) : fallback;
+			} catch {
+				return fallback;
+			}
+		}
+		/** 写入（隐私模式等异常静默：记忆失败不得影响交互）。 */
+		function write(storage, key, value) {
+			try {
+				storage.setItem(key, value);
+			} catch {}
+		}
+		// src/client/hooks/useStudioState.ts
+		/** 初始状态工厂：默认状态 + 恢复用户记忆缓存（浏览器守卫；异常回退默认）。 */
+		function createInitialStateWithOptions(sessionId) {
+			const initial = createInitialState(sessionId);
+			if (typeof window === "undefined") return initial;
+			const storage = window.localStorage;
+			return {
+				...initial,
+				instanceOptions: restoreInstanceOptions(storage),
+				panels: restorePanels(storage)
+			};
+		}
+		/** 主状态机（会话绑定：初始 sessionId 注入，后续由 SET_SESSION 更新）。 */
+		function useStudioState(sessionId) {
+			const [state, dispatch] = (0, react.useReducer)(studioReducer, sessionId, createInitialStateWithOptions);
+			return {
+				state,
+				dispatch
+			};
+		}
+		// src/client/hooks/useRemote.ts
+		function messageForTransportFailure(error, copy) {
+			switch (error.transportKind) {
+				case "timeout": return copy.remoteTimeout.replace("{endpoint}", error.endpoint ?? "");
+				case "connection": return copy.remoteConnection.replace("{detail}", error.detail ?? "");
+				case "http": return copy.remoteHttpStatus.replace("{status}", String(error.status ?? ""));
+				case "emptyStream": return copy.remoteEmptyStream;
+				case "parse": return copy.remoteParse.replace("{endpoint}", error.endpoint ?? "");
+				default: return null;
+			}
+		}
+		function localizeTransportError(error, copy) {
+			if (!(error instanceof Error)) return error;
+			const remoteError = error;
+			const message = messageForTransportFailure(remoteError, copy);
+			if (message === null) return error;
+			const localized = new Error(message);
+			localized.code = remoteError.code;
+			localized.transportKind = remoteError.transportKind;
+			localized.detail = remoteError.detail;
+			localized.endpoint = remoteError.endpoint;
+			localized.status = remoteError.status;
+			return localized;
+		}
+		/** Stable remote-call face; dictionary changes replace only the error-copy mapping. */
+		function useRemote(copy, language) {
+			return (0, react.useMemo)(() => ({
+				call: async (endpoint, args, options) => {
+					try {
+						return await remoteCall(endpoint, language && (endpoint === "run" || endpoint === "runResume") ? {
+							...args,
+							language
+						} : args, options);
+					} catch (error) {
+						throw localizeTransportError(error, copy);
+					}
+				},
+				stream: async (endpoint, args, onLine, signal) => {
+					try {
+						await streamCall(endpoint, args, onLine, signal);
+					} catch (error) {
+						throw localizeTransportError(error, copy);
+					}
+				}
+			}), [copy, language]);
+		}
+		// src/client/hooks/useToast.ts
+		/** 轻提示展示时长。 */
+		const TOAST_DURATION_MS = 2600;
+		/** 轻提示面（dispatch TOAST_PUSH/DROP；超时自动移除）。 */
+		function useToast(dispatch) {
+			const timers = (0, react.useRef)(/* @__PURE__ */ new Set());
+			(0, react.useEffect)(() => () => {
+				for (const timer of timers.current) clearTimeout(timer);
+				timers.current.clear();
+			}, []);
+			const toast = (0, react.useCallback)((kind, text) => {
+				const id = `toast-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
+				dispatch({
+					type: "TOAST_PUSH",
+					toast: {
+						id,
+						kind,
+						text
+					}
+				});
+				const timer = setTimeout(() => {
+					timers.current.delete(timer);
+					dispatch({
+						type: "TOAST_DROP",
+						id
+					});
+				}, TOAST_DURATION_MS);
+				timers.current.add(timer);
+			}, [dispatch]);
+			const toastError = (0, react.useCallback)((error) => {
+				toast("error", error instanceof Error ? error.message : String(error));
+			}, [toast]);
+			return (0, react.useMemo)(() => ({
+				toast,
+				toastError
+			}), [toast, toastError]);
+		}
+		// src/client/lib/graph-serialize.ts
+		/**
+		* 画布节点 → 存储节点。
+		* 虚拟节点的顶层 proxySourceId 必须保留：与画布投影对称，否则保存后
+		* 后端 validateFlow 报 proxySourceMissing；非虚拟节点不产出该字段。
+		*/
+		function serializeNodes(nodes, mode = "mode1") {
+			return nodes.map((node) => ({
+				id: node.id,
+				kind: node.kind,
+				position: node.position,
+				data: node.kind === "start" || node.kind === "end" || node.kind === "pause" ? {
+					...node.data,
+					label: STAGE_LABELS[mode][node.kind]
+				} : node.data,
+				...node.proxySourceId !== void 0 ? { proxySourceId: node.proxySourceId } : {}
+			}));
+		}
+		/** 画布连线 → 存储连线（只保留语义字段；condition 仅在存在时携带）。 */
+		function serializeLines(edges) {
+			return edges.map((edge) => ({
+				id: edge.id,
+				source: edge.source,
+				target: edge.target,
+				sourceHandle: edge.sourceHandle,
+				targetHandle: edge.targetHandle,
+				...edge.condition ? { condition: edge.condition } : {},
+				...edge.appearance ? { appearance: {
+					...edge.appearance,
+					...edge.appearance.waypoints ? { waypoints: edge.appearance.waypoints.map((p) => ({ ...p })) } : {}
+				} } : {}
+			}));
+		}
+		/**
+		* 文档 + 画布 → 可落盘文档：除 nodes / lines 外字段原样透传。
+		* 泛型收三种文档（WorkflowDocument / WorkflowTemplate / ServiceState）——三者的
+		* nodes / lines 同为 GraphNode[] / Line[]，差异字段随 `...doc` 透传。
+		*/
+		function serializeFlow(doc, nodes, lines) {
+			return {
+				...doc,
+				nodes: serializeNodes(nodes, doc.mode),
+				lines: serializeLines(lines)
+			};
+		}
+		// src/client/hooks/useWorkflows.ts
+		/** 画布 → 文档序列化（薄委托：唯一本体在 lib/graph-serialize.ts 的 serializeFlow）。 */
+		function serializeWorkflow(flow, nodes, edges) {
+			return serializeFlow(flow, nodes, edges);
+		}
+		/** 工作流列表面（远端失败抛错，由调用方 toast）。 */
+		function useWorkflows(dispatch, remote) {
+			/** 加载全部会话的实例列表（工作台全局化：不按当前会话过滤）。 */
+			const loadWorkflows = (0, react.useCallback)(async () => {
+				const items = await remote.call(EP_LIST_WORKFLOWS, {});
+				const list = Array.isArray(items) ? items : [];
+				dispatch({
+					type: "WORKFLOWS_LOADED",
+					items: list
+				});
+				return list;
+			}, [dispatch, remote]);
+			const createWorkflowDraft = (0, react.useCallback)((name, sessionId) => {
+				const now = (/* @__PURE__ */ new Date()).toISOString();
+				const draft = {
+					id: `wf-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`,
+					sessionId,
+					mode: "mode1",
+					name,
+					description: "",
+					revision: 0,
+					nodes: [],
+					lines: [],
+					createdAt: now,
+					_draft: true
+				};
+				dispatch({
+					type: "WORKFLOW_ADDED",
+					flow: draft
+				});
+				return draft;
+			}, [dispatch]);
+			/**
+			* 模板 → 实例：深拷贝模板（节点/连线全量内联，与模板完全断引用）。
+			* 目标会话由调用方决定（当前主会话 / 新建主会话）；不继承模板的
+			* startNewSession/workspacePath（模板级持久化配置，创建实例时一次性消费，
+			* 不是实例内容）。fallbackName 由调用方从词典注入（模板无名称时使用）。
+			*/
+			const instantiateFromTemplate = (0, react.useCallback)((template, targetSessionId, fallbackName) => {
+				const now = (/* @__PURE__ */ new Date()).toISOString();
+				const draft = {
+					id: `wf-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
+					sessionId: targetSessionId,
+					mode: template.mode,
+					name: template.name ?? fallbackName,
+					description: template.description ?? "",
+					revision: 0,
+					nodes: JSON.parse(JSON.stringify(template.nodes ?? [])),
+					lines: JSON.parse(JSON.stringify(template.lines ?? [])),
+					...template.meta ? { meta: JSON.parse(JSON.stringify(template.meta)) } : {},
+					createdAt: now,
+					_draft: true
+				};
+				dispatch({
+					type: "WORKFLOW_ADDED",
+					flow: draft
+				});
+				return draft;
+			}, [dispatch]);
+			/** 在途保存条目表（按 flowId；快速双击/切换工作流后回存都合并到同一在途链，避免携带旧 revision 触发 409）。 */
+			const saveInflight = (0, react.useRef)(/* @__PURE__ */ new Map());
+			const saveWorkflow = (0, react.useCallback)(async (flow, nodes, edges) => {
+				const inflight = saveInflight.current.get(flow.id);
+				if (inflight) {
+					inflight.pending = {
+						flow,
+						nodes,
+						edges
+					};
+					return inflight.promise;
+				}
+				/** 单次真实落库（序列化 → PUT → 更新列表）。 */
+				const runSave = async (input) => {
+					const serialized = serializeWorkflow(input.flow, input.nodes, input.edges);
+					const saved = await remote.call(EP_PUT_WORKFLOW, {
+						sessionId: input.flow.sessionId,
+						flow: serialized
+					});
+					dispatch({
+						type: "WORKFLOW_UPDATED",
+						flow: saved
+					});
+					return saved;
+				};
+				const entry = {
+					flowId: flow.id,
+					pending: null,
+					promise: Promise.resolve(null)
+				};
+				entry.promise = (async () => {
+					let last = await runSave({
+						flow,
+						nodes,
+						edges
+					});
+					while (entry.pending) {
+						const queued = entry.pending;
+						entry.pending = null;
+						last = await runSave(queued);
+					}
+					return last;
+				})();
+				saveInflight.current.set(flow.id, entry);
+				try {
+					return await entry.promise;
+				} finally {
+					if (saveInflight.current.get(flow.id) === entry) saveInflight.current.delete(flow.id);
+				}
+			}, [dispatch, remote]);
+			const deleteWorkflow = (0, react.useCallback)(async (flow) => {
+				await remote.call(EP_DELETE_WORKFLOW, {
+					sessionId: flow.sessionId,
+					id: flow.id
+				});
+				dispatch({
+					type: "WORKFLOW_REMOVED",
+					id: flow.id
+				});
+			}, [dispatch, remote]);
+			const openFlow = (0, react.useCallback)((flow) => {
+				dispatch({
+					type: "OPEN_FLOW",
+					flow
+				});
+			}, [dispatch]);
+			return (0, react.useMemo)(() => ({
+				loadWorkflows,
+				createWorkflowDraft,
+				instantiateFromTemplate,
+				saveWorkflow,
+				deleteWorkflow,
+				openFlow
+			}), [
+				loadWorkflows,
+				createWorkflowDraft,
+				instantiateFromTemplate,
+				saveWorkflow,
+				deleteWorkflow,
+				openFlow
+			]);
+		}
+		// src/client/hooks/useFlowTemplates.ts
+		/** 工作流模板列表面（远端失败抛错，由调用方 toast）。 */
+		function useFlowTemplates(dispatch, remote) {
+			const loadFlowTemplates = (0, react.useCallback)(async () => {
+				const items = await remote.call(EP_LIST_FLOW_TEMPLATES);
+				dispatch({
+					type: "FLOW_TEMPLATES_LOADED",
+					items: Array.isArray(items) ? items : []
+				});
+			}, [dispatch, remote]);
+			const createFlowTemplateDraft = (0, react.useCallback)((mode, name) => {
+				const now = (/* @__PURE__ */ new Date()).toISOString();
+				const draft = {
+					id: `tpl-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
+					mode,
+					name,
+					description: "",
+					revision: 0,
+					nodes: [],
+					lines: [],
+					createdAt: now,
+					_draft: true
+				};
+				dispatch({
+					type: "FLOW_TEMPLATE_ADDED",
+					template: draft
+				});
+				return draft;
+			}, [dispatch]);
+			const saveFlowTemplate = (0, react.useCallback)(async (template, nodes, edges) => {
+				const serialized = serializeFlow(template, nodes, edges);
+				const saved = await remote.call(EP_PUT_FLOW_TEMPLATE, { template: serialized });
+				dispatch({
+					type: "FLOW_TEMPLATE_UPDATED",
+					template: saved
+				});
+				return saved;
+			}, [dispatch, remote]);
+			const deleteFlowTemplate = (0, react.useCallback)(async (id) => {
+				await remote.call(EP_DELETE_FLOW_TEMPLATE, { id });
+				dispatch({
+					type: "FLOW_TEMPLATE_REMOVED",
+					id
+				});
+			}, [dispatch, remote]);
+			const openFlowTemplate = (0, react.useCallback)((template) => {
+				dispatch({
+					type: "OPEN_FLOW_TEMPLATE",
+					template
+				});
+			}, [dispatch]);
+			return (0, react.useMemo)(() => ({
+				loadFlowTemplates,
+				createFlowTemplateDraft,
+				saveFlowTemplate,
+				deleteFlowTemplate,
+				openFlowTemplate
+			}), [
+				loadFlowTemplates,
+				createFlowTemplateDraft,
+				saveFlowTemplate,
+				deleteFlowTemplate,
+				openFlowTemplate
+			]);
+		}
+		// src/client/hooks/useTemplates.ts
+		function draftOf$1(kind, name) {
+			const now = (/* @__PURE__ */ new Date()).toISOString();
+			const id = `${kind === "role" ? "role" : kind === "task" ? "task" : kind === "group" ? "group" : "db"}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+			if (kind === "role") return {
+				id,
+				kind: "agent",
+				name,
+				systemPrompt: "",
+				provider: "",
+				model: "",
+				presetId: null,
+				retryLimit: 3,
+				reactLimit: null,
+				inputSchema: "",
+				outputSchema: DEFAULT_OUTPUT_CONTRACT_TEXT,
+				injectSystemPrompt: true,
+				injectToolSections: true,
+				promptFilePath: void 0,
+				createdAt: now,
+				updatedAt: now,
+				_draft: true
+			};
+			if (kind === "task") return {
+				id,
+				name,
+				content: "",
+				createdAt: now,
+				updatedAt: now,
+				_draft: true
+			};
+			if (kind === "group") return {
+				id,
+				name,
+				collabPrompt: "",
+				createdAt: now,
+				updatedAt: now,
+				_draft: true
+			};
+			return {
+				id,
+				kind: "database",
+				name,
+				description: "",
+				dbType: "local",
+				dbKind: "sqlite",
+				vectorSource: "embedding",
+				createdAt: now,
+				updatedAt: now,
+				_draft: true
+			};
+		}
+		/** 模板列表面（远端失败抛错，由调用方 toast）。 */
+		function useTemplates(dispatch, remote) {
+			const loadTemplates = (0, react.useCallback)(async () => {
+				const results = await Promise.allSettled([
+					"role",
+					"task",
+					"database",
+					"group"
+				].map(async (kind) => {
+					const items = await remote.call(EP_LIST_TEMPLATES, { kind });
+					return {
+						kind,
+						items: Array.isArray(items) ? items : []
+					};
+				}));
+				const aggregated = {
+					role: [],
+					task: [],
+					database: [],
+					group: []
+				};
+				for (const result of results) {
+					if (result.status !== "fulfilled") continue;
+					const { kind, items } = result.value;
+					aggregated[kind] = items;
+					dispatch({
+						type: "TEMPLATES_LOADED",
+						kind,
+						items
+					});
+				}
+				return aggregated;
+			}, [dispatch, remote]);
+			const createTemplateDraft = (0, react.useCallback)((kind, name) => {
+				const template = draftOf$1(kind, name);
+				dispatch({
+					type: "TEMPLATE_ADDED",
+					kind,
+					template
+				});
+				return template;
+			}, [dispatch]);
+			const saveTemplate = (0, react.useCallback)(async (kind, template) => {
+				dispatch({
+					type: "TEMPLATE_UPDATED",
+					kind,
+					template: await remote.call(EP_PUT_TEMPLATE, {
+						kind,
+						template
+					})
+				});
+			}, [dispatch, remote]);
+			const deleteTemplate = (0, react.useCallback)(async (kind, id) => {
+				await remote.call(EP_DELETE_TEMPLATE, {
+					kind,
+					id
+				});
+				dispatch({
+					type: "TEMPLATE_REMOVED",
+					kind,
+					id
+				});
+			}, [dispatch, remote]);
+			return (0, react.useMemo)(() => ({
+				loadTemplates,
+				createTemplateDraft,
+				saveTemplate,
+				deleteTemplate
+			}), [
+				loadTemplates,
+				createTemplateDraft,
+				saveTemplate,
+				deleteTemplate
+			]);
+		}
+		// src/client/hooks/useSelection.ts
+		/** 选中与编辑器面（dispatch 直通）。 */
+		function useSelection(dispatch) {
+			const selectNode = (0, react.useCallback)((id) => dispatch({
+				type: "SELECT_NODE",
+				id
+			}), [dispatch]);
+			const selectEdge = (0, react.useCallback)((id) => dispatch({
+				type: "SELECT_EDGE",
+				id
+			}), [dispatch]);
+			const selectLib = (0, react.useCallback)((kind, id) => dispatch({
+				type: "SELECT_LIB",
+				kind,
+				id
+			}), [dispatch]);
+			const selectEditor = (0, react.useCallback)((editor) => dispatch({
+				type: "SELECT_EDITOR",
+				editor
+			}), [dispatch]);
+			const clearSelection = (0, react.useCallback)(() => dispatch({ type: "CLEAR_SELECTION" }), [dispatch]);
+			return (0, react.useMemo)(() => ({
+				selectNode,
+				selectEdge,
+				selectLib,
+				selectEditor,
+				clearSelection
+			}), [
+				clearSelection,
+				selectEdge,
+				selectEditor,
+				selectLib,
+				selectNode
+			]);
+		}
+		// src/client/hooks/useGraphHistory.ts
+		/** 图历史面（remember 需在变更 dispatch 前调用）。 */
+		function useGraphHistory(state, dispatch) {
+			const stateRef = (0, react.useRef)(state);
+			stateRef.current = state;
+			const remember = (0, react.useCallback)(() => {
+				dispatch({
+					type: "HISTORY_PUSH",
+					snapshot: graphSnapshotOf(stateRef.current)
+				});
+			}, [dispatch]);
+			const undo = (0, react.useCallback)(() => dispatch({ type: "UNDO" }), [dispatch]);
+			const redo = (0, react.useCallback)(() => dispatch({ type: "REDO" }), [dispatch]);
+			const canUndo = state.history.past.length > 0;
+			const canRedo = state.history.future.length > 0;
+			return (0, react.useMemo)(() => ({
+				remember,
+				undo,
+				redo,
+				canUndo,
+				canRedo
+			}), [
+				canRedo,
+				canUndo,
+				redo,
+				remember,
+				undo
+			]);
+		}
+		// src/client/hooks/useUnsavedGuard.ts
+		/** 未保存守卫面（confirm 状态在 state 内）。 */
+		function useUnsavedGuard(state, dispatch) {
+			const guard = (0, react.useCallback)((proceed) => {
+				if (!state.dirty) {
+					proceed();
+					return;
+				}
+				dispatch({
+					type: "CONFIRM_SET",
+					confirm: {
+						kind: "unsaved",
+						proceed
+					}
+				});
+			}, [dispatch, state.dirty]);
+			const saveAndProceed = (0, react.useCallback)(async (save) => {
+				const pending = state.confirm;
+				dispatch({
+					type: "CONFIRM_SET",
+					confirm: null
+				});
+				if (pending?.kind !== "unsaved") return;
+				/** 原操作只允许继续一次（即时路径与确认路径可能先后都报到）。 */
+				let proceeded = false;
+				const proceed = () => {
+					if (proceeded) return;
+					proceeded = true;
+					pending.proceed?.();
+				};
+				try {
+					const saved = await save(proceed);
+					if (saved !== null && saved !== void 0) proceed();
+				} catch {}
+			}, [dispatch, state.confirm]);
+			const discardAndProceed = (0, react.useCallback)(() => {
+				const pending = state.confirm;
+				dispatch({
+					type: "CONFIRM_SET",
+					confirm: null
+				});
+				if (pending?.kind === "unsaved") pending.proceed?.();
+			}, [dispatch, state.confirm]);
+			const cancel = (0, react.useCallback)(() => {
+				dispatch({
+					type: "CONFIRM_SET",
+					confirm: null
+				});
+			}, [dispatch]);
+			return (0, react.useMemo)(() => ({
+				confirm: state.confirm,
+				guard,
+				saveAndProceed,
+				discardAndProceed,
+				cancel
+			}), [
+				state.confirm,
+				guard,
+				saveAndProceed,
+				discardAndProceed,
+				cancel
+			]);
+		}
+		// src/client/hooks/useRunControl.ts
+		/** 运行控制面（远端失败抛错，由调用方 toast）。 */
+		function useRunControl(dispatch, remote) {
+			const alive = (0, react.useRef)(true);
+			const pendingStops = (0, react.useRef)(/* @__PURE__ */ new Map());
+			(0, react.useEffect)(() => {
+				alive.current = true;
+				return () => {
+					alive.current = false;
+					for (const request of pendingStops.current.values()) request.controller.abort();
+					pendingStops.current.clear();
+				};
+			}, []);
+			return {
+				startRun: (0, react.useCallback)(async (sessionId, flowId) => {
+					const result = await remote.call("run", {
+						sessionId,
+						flowId
+					});
+					const runId = String(result?.runId ?? "");
+					if (runId) dispatch({
+						type: "RUN_STARTED",
+						runId,
+						runSessionId: String(result?.sessionId ?? sessionId)
+					});
+					return runId || null;
+				}, [dispatch, remote]),
+				stopRun: (0, react.useCallback)((sessionId, runId) => {
+					const key = `${sessionId}\u0000${runId}`;
+					const pending = pendingStops.current.get(key);
+					if (pending) return pending.promise;
+					const controller = new AbortController();
+					dispatch({
+						type: "RUN_STOP_REQUESTED",
+						sessionId,
+						runId
+					});
+					const promise = (async () => {
+						await remote.call(EP_RUN_STOP, {
+							sessionId,
+							runId
+						}, { signal: controller.signal });
+						if (controller.signal.aborted) return;
+						const snapshot = await remote.call(EP_RUN_STATUS, {
+							sessionId,
+							runId
+						}, { signal: controller.signal });
+						if (alive.current && !controller.signal.aborted) dispatch({
+							type: "RUN_SNAPSHOT",
+							snapshot
+						});
+					})().finally(() => {
+						pendingStops.current.delete(key);
+						if (alive.current) dispatch({
+							type: "RUN_STOP_SETTLED",
+							sessionId,
+							runId
+						});
+					});
+					pendingStops.current.set(key, {
+						controller,
+						promise
+					});
+					return promise;
+				}, [dispatch, remote])
+			};
+		}
+		// src/client/hooks/usePolling.ts
+		/**
+		* 周期轮询 effect。deps 变化即重建轮询（新文档/新会话/新开关）；
+		* task 取最新渲染闭包（经 ref），无需调用方自行 memo。
+		*/
+		function usePolling(task, options, deps) {
+			const taskRef = (0, react.useRef)(task);
+			taskRef.current = task;
+			const timeoutMs = options.timeoutMs ?? 8e3;
+			const enabled = options.enabled !== false;
+			const intervalMs = options.intervalMs;
+			(0, react.useEffect)(() => {
+				if (!enabled) return void 0;
+				let disposed = false;
+				let inflight = false;
+				let seq = 0;
+				let controller = null;
+				const run = async () => {
+					if (disposed || inflight) return;
+					inflight = true;
+					const round = ++seq;
+					const abort = new AbortController();
+					controller = abort;
+					try {
+						await taskRef.current({
+							signal: abort.signal,
+							timeoutMs,
+							isCurrent: () => !disposed && round === seq
+						});
+					} catch {} finally {
+						inflight = false;
+						if (controller === abort) controller = null;
+					}
+				};
+				run();
+				const timer = setInterval(() => {
+					run();
+				}, intervalMs);
+				return () => {
+					disposed = true;
+					seq += 1;
+					clearInterval(timer);
+					controller?.abort();
+					controller = null;
+				};
+			}, deps);
+		}
+		/**
+		* 解析 host 下发的轮询间隔。
+		* 缺失 / 形态非法 / 非正数一律回退 RUN_POLL_MS：setInterval(0) 会退化成本地空转，
+		* 下发值不可信时宁可持续用既有节奏（轮询是辅助路径：不停摆、也不加速）。
+		*/
+		function resolveRunPollMs(value) {
+			const raw = value?.runPollMs;
+			return typeof raw === "number" && Number.isFinite(raw) && raw > 0 ? raw : 600;
+		}
+		/** 运行轮询 effect：runId 变化起轮询；终态停。 */
+		function useRunPolling(sessionId, runId, dispatch, remote) {
+			const [intervalMs, setIntervalMs] = (0, react.useState)(600);
+			(0, react.useEffect)(() => {
+				const controller = new AbortController();
+				(async () => {
+					try {
+						const value = await remote.call(EP_RUNTIME_CONFIG, {}, { signal: controller.signal });
+						if (!controller.signal.aborted) setIntervalMs(resolveRunPollMs(value));
+					} catch {}
+				})();
+				return () => controller.abort();
+			}, [remote]);
+			usePolling(async ({ signal, timeoutMs, isCurrent }) => {
+				const snapshot = await remote.call(EP_RUN_STATUS, {
+					sessionId,
+					runId
+				}, {
+					signal,
+					timeoutMs
+				});
+				if (!snapshot || !isCurrent()) return;
+				dispatch({
+					type: "RUN_SNAPSHOT",
+					snapshot
+				});
+			}, {
+				intervalMs,
+				enabled: Boolean(runId)
+			}, [
+				dispatch,
+				remote,
+				runId,
+				sessionId,
+				intervalMs
+			]);
+		}
+		// src/client/hooks/useTeamMemberLimit.ts
+		/** 订阅宿主下发的 Team 成员上限；请求中止与卸载校验由本 effect 负责。 */
+		function useTeamMemberLimit(remote) {
+			const [limit, setLimit] = (0, react.useState)(8);
+			(0, react.useEffect)(() => {
+				const controller = new AbortController();
+				(async () => {
+					try {
+						const value = await remote.call(EP_RUNTIME_CONFIG, {}, { signal: controller.signal });
+						if (!controller.signal.aborted) setLimit(resolveTeamMemberLimit(value));
+					} catch {}
+				})();
+				return () => controller.abort();
+			}, [remote]);
+			return limit;
+		}
+		// src/client/hooks/useActiveRunsPolling.ts
+		/** 全量活跃 run 轮询间隔（列表徽标为概要信息，2s 足够；当前实例快照仍走 600ms 快轮询）。 */
+		const ACTIVE_RUNS_POLL_MS = 2e3;
+		/** 全量活跃 run 轮询 effect：挂载即拉一次，随后每 2s 刷新。 */
+		function useActiveRunsPolling(dispatch, remote) {
+			usePolling(async ({ signal, timeoutMs, isCurrent }) => {
+				const items = await remote.call(EP_ACTIVE_RUNS, {}, {
+					signal,
+					timeoutMs
+				});
+				if (!isCurrent()) return;
+				dispatch({
+					type: "ACTIVE_RUNS_LOADED",
+					items: Array.isArray(items) ? items : []
+				});
+			}, { intervalMs: ACTIVE_RUNS_POLL_MS }, [dispatch, remote]);
+		}
+		// src/client/hooks/useFlowTemplatesPolling.ts
+		/** 模板列表轮询间隔（模板变更频率低；比活跃 run 的 2s 慢，降低空转）。 */
+		const FLOW_TEMPLATES_POLL_MS = 5e3;
+		/**
+		* 服务端模板列表签名（id + revision + updatedAt，排序后拼接）。
+		* 用途：无变化时跳过 dispatch，避免每轮都替换列表数组触发无谓重渲染。
+		* 纯函数，便于单测。
+		*/
+		function flowTemplatesSignature(items) {
+			return (items ?? []).map((item) => String(item.id) + ":" + (Number(item.revision) || 0) + ":" + String(item.updatedAt ?? "")).sort().join("|");
+		}
+		/** 轮询 effect：挂载即拉一次，随后定时拉取；仅签名变化时 dispatch。 */
+		function useFlowTemplatesPolling(dispatch, remote) {
+			const lastSignature = (0, react.useRef)(null);
+			usePolling(async ({ signal, timeoutMs, isCurrent }) => {
+				const items = await remote.call(EP_LIST_FLOW_TEMPLATES, {}, {
+					signal,
+					timeoutMs
+				});
+				if (!isCurrent()) return;
+				const list = Array.isArray(items) ? items : [];
+				const signature = flowTemplatesSignature(list);
+				if (lastSignature.current === signature) return;
+				lastSignature.current = signature;
+				dispatch({
+					type: "FLOW_TEMPLATES_SYNCED",
+					items: list
+				});
+			}, { intervalMs: FLOW_TEMPLATES_POLL_MS }, [dispatch, remote]);
+		}
+		// src/client/hooks/useServiceStatusPolling.ts
+		/** 服务状态轮询间隔（与活跃 run 徽标同频；服务状态变化频率低）。 */
+		const SERVICE_STATUS_POLL_MS = 2e3;
+		/**
+		* 需要跟踪的服务实例（非 stopped；停止态无进程可查，且崩溃恢复由启动动作驱动）。
+		* 纯函数，便于单测。
+		*/
+		function trackedServicesOf(services) {
+			return (services ?? []).filter((service) => service.status !== "stopped");
+		}
+		/** 跟踪签名（id + status + port）：签名变化即重建轮询（新增/移除服务或状态跳变）。 */
+		function trackedServicesSignature(services) {
+			return trackedServicesOf(services).map((service) => `${service.id}:${String(service.status)}:${String(service.port ?? "")}`).sort().join("|");
+		}
+		function useServiceStatusPolling(state, dispatch, remote) {
+			const mode = state.mode;
+			const signature = (0, react.useMemo)(() => trackedServicesSignature(state.services), [state.services]);
+			usePolling(async ({ signal, timeoutMs, isCurrent }) => {
+				const targets = trackedServicesOf(state.services);
+				if (targets.length === 0) return;
+				const results = await Promise.all(targets.map((service) => remote.call(EP_SERVICE_STATUS, {
+					sessionId: service.sessionId,
+					serviceId: service.id
+				}, {
+					signal,
+					timeoutMs
+				}).catch(() => null)));
+				if (!isCurrent()) return;
+				for (const result of results) {
+					const service = result;
+					if (!service?.id) continue;
+					const known = targets.find((item) => item.id === service.id);
+					if (!known) continue;
+					if (known.status === service.status && known.port === service.port) continue;
+					dispatch({
+						type: "SERVICE_UPDATED",
+						service
+					});
+				}
+			}, {
+				intervalMs: SERVICE_STATUS_POLL_MS,
+				enabled: mode === "mode2" && signature !== ""
+			}, [
+				dispatch,
+				mode,
+				remote,
+				signature
+			]);
+		}
+		// src/client/hooks/useFlowFileSync.ts
+		/** 文件→画布同步轮询间隔（与 runStatus 轮询频率错开；2s 足够发现外部修改）。 */
+		const FLOW_FILE_SYNC_MS = 2e3;
+		function useFlowFileSync(state, dispatch, remote, messages, onExternalChange) {
+			const appliedRef = (0, react.useRef)(null);
+			const kind = state.currentKind;
+			const id = state.currentId;
+			usePolling(async ({ signal, timeoutMs, isCurrent }) => {
+				if (kind === "workflow") {
+					const current = state.workflows.find((item) => item.id === id);
+					if (!current) return;
+					const doc = await remote.call(EP_GET_WORKFLOW, {
+						sessionId: current.sessionId,
+						id
+					}, {
+						signal,
+						timeoutMs
+					});
+					if (!isCurrent() || !doc) return;
+					const remoteRevision = Number(doc.revision ?? 0);
+					if (appliedRef.current?.kind === "workflow" && appliedRef.current.id === id && appliedRef.current.revision === remoteRevision && appliedRef.current.updatedAt === doc.updatedAt) return;
+					if (remoteRevision <= Number(current.revision ?? 0)) return;
+					if (state.dirty) {
+						if (appliedRef.current?.revision !== remoteRevision) {
+							appliedRef.current = {
+								kind: "workflow",
+								id: String(id),
+								revision: remoteRevision,
+								updatedAt: doc.updatedAt ?? ""
+							};
+							onExternalChange?.(messages.workflow);
+						}
+						return;
+					}
+					appliedRef.current = {
+						kind: "workflow",
+						id: String(id),
+						revision: remoteRevision,
+						updatedAt: doc.updatedAt ?? ""
+					};
+					dispatch({
+						type: "OPEN_FLOW",
+						flow: doc
+					});
+					if (!state.editor) dispatch({ type: "CLEAR_SELECTION" });
+					return;
+				}
+				if (kind === "service") {
+					const current = state.services.find((item) => item.id === id);
+					if (!current) return;
+					const doc = await remote.call(EP_GET_SERVICE, {
+						sessionId: current.sessionId,
+						id
+					}, {
+						signal,
+						timeoutMs
+					});
+					if (!isCurrent() || !doc) return;
+					const remoteRevision = Number(doc.revision ?? 0);
+					if (appliedRef.current?.kind === "service" && appliedRef.current.id === id && appliedRef.current.revision === remoteRevision && appliedRef.current.updatedAt === doc.updatedAt) return;
+					if (remoteRevision <= Number(current.revision ?? 0)) return;
+					if (state.dirty) {
+						if (appliedRef.current?.revision !== remoteRevision) {
+							appliedRef.current = {
+								kind: "service",
+								id: String(id),
+								revision: remoteRevision,
+								updatedAt: doc.updatedAt ?? ""
+							};
+							onExternalChange?.(messages.service);
+						}
+						return;
+					}
+					appliedRef.current = {
+						kind: "service",
+						id: String(id),
+						revision: remoteRevision,
+						updatedAt: doc.updatedAt ?? ""
+					};
+					dispatch({
+						type: "OPEN_SERVICE",
+						service: doc
+					});
+					if (!state.editor) dispatch({ type: "CLEAR_SELECTION" });
+				}
+			}, {
+				intervalMs: FLOW_FILE_SYNC_MS,
+				enabled: (kind === "workflow" || kind === "service") && Boolean(id)
+			}, [
+				dispatch,
+				remote,
+				kind,
+				id,
+				messages.workflow,
+				messages.service,
+				onExternalChange
+			]);
+		}
+		// src/client/hooks/useServiceControl.ts
+		/** 服务状态响应形状漂移（缺少字符串 id）的稳定错误码；调用方按语义决定提示文案。 */
+		const SERVICE_STATE_SHAPE_CODE = "SERVICE_STATE_SHAPE";
+		/** 服务状态响应归一化：无字符串 id（或空串）即视为形状漂移，返回 null（不写入半截数据）。 */
+		function asServiceState(payload) {
+			const record = payload;
+			return record && typeof record.id === "string" && record.id !== "" ? record : null;
+		}
+		/** 形状漂移失败：可行动错误（说明发生了什么 + 界面未被更新 + 如何恢复）。 */
+		function serviceShapeFailure(endpoint) {
+			const error = /* @__PURE__ */ new Error("Invalid service state from host (missing string id); the workspace was not updated — retry the action or reopen the service list");
+			error.code = SERVICE_STATE_SHAPE_CODE;
+			error.endpoint = endpoint;
+			return error;
+		}
+		/**
+		* 形状失败错误 → 面向用户的可读文案（其余错误原样透传）。
+		* 为什么由调用方映射：hook 不持有词典（界面语言只有调用方知道），它只负责给出稳定错误码；
+		* 否则 toastError 会把 `error.message` 原样展示，中文界面会弹出整句英文。
+		* 换文案时保留 code，调用方仍可按码分支。
+		*/
+		function serviceShapeTextOf(error, text) {
+			if (error?.code !== "SERVICE_STATE_SHAPE") return error;
+			const localized = new Error(text);
+			localized.code = SERVICE_STATE_SHAPE_CODE;
+			return localized;
+		}
+		/** 服务控制面（远端失败抛错，由调用方 toast）。 */
+		function useServiceControl(dispatch, remote) {
+			/** 加载全部会话的服务实例列表（工作台全局化：不按当前会话过滤）。 */
+			const loadServices = (0, react.useCallback)(async () => {
+				const items = await remote.call(EP_LIST_SERVICES, {});
+				const list = Array.isArray(items) ? items : [];
+				dispatch({
+					type: "SERVICES_LOADED",
+					items: list
+				});
+				return list;
+			}, [dispatch, remote]);
+			const createServiceDraft = (0, react.useCallback)((name, sessionId) => {
+				const now = (/* @__PURE__ */ new Date()).toISOString();
+				const draft = {
+					id: `svc-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`,
+					sessionId,
+					name,
+					description: "",
+					revision: 0,
+					nodes: [],
+					lines: [],
+					createdAt: now,
+					updatedAt: now,
+					status: "stopped",
+					_draft: true
+				};
+				dispatch({
+					type: "OPEN_SERVICE",
+					service: draft
+				});
+				return draft;
+			}, [dispatch]);
+			const instantiateFromTemplate = (0, react.useCallback)((template, targetSessionId, fallbackName) => {
+				const now = (/* @__PURE__ */ new Date()).toISOString();
+				const draft = {
+					id: `svc-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`,
+					sessionId: targetSessionId,
+					name: template.name ?? fallbackName,
+					description: template.description ?? "",
+					revision: 0,
+					nodes: JSON.parse(JSON.stringify(template.nodes ?? [])),
+					lines: JSON.parse(JSON.stringify(template.lines ?? [])),
+					...template.meta ? { meta: JSON.parse(JSON.stringify(template.meta)) } : {},
+					createdAt: now,
+					updatedAt: now,
+					status: "stopped",
+					_draft: true
+				};
+				dispatch({
+					type: "OPEN_SERVICE",
+					service: draft
+				});
+				return draft;
+			}, [dispatch]);
+			const saveService = (0, react.useCallback)(async (service, nodes, edges) => {
+				const serialized = serializeFlow(service, nodes, edges);
+				const saved = asServiceState(await remote.call(EP_PUT_SERVICE, {
+					sessionId: service.sessionId,
+					service: serialized
+				}));
+				if (!saved) throw serviceShapeFailure(EP_PUT_SERVICE);
+				dispatch({
+					type: "SERVICE_UPDATED",
+					service: saved
+				});
+				return saved;
+			}, [dispatch, remote]);
+			const startService = (0, react.useCallback)(async (serviceId, sessionId) => {
+				const service = asServiceState(await remote.call(EP_SERVICE_START, {
+					sessionId,
+					serviceId
+				}));
+				if (!service) throw serviceShapeFailure(EP_SERVICE_START);
+				dispatch({
+					type: "SERVICE_UPDATED",
+					service
+				});
+			}, [dispatch, remote]);
+			const stopService = (0, react.useCallback)(async (serviceId, sessionId) => {
+				const service = asServiceState(await remote.call(EP_SERVICE_STOP, {
+					sessionId,
+					serviceId
+				}));
+				if (!service) throw serviceShapeFailure(EP_SERVICE_STOP);
+				dispatch({
+					type: "SERVICE_UPDATED",
+					service
+				});
+			}, [dispatch, remote]);
+			return (0, react.useMemo)(() => ({
+				loadServices,
+				createServiceDraft,
+				instantiateFromTemplate,
+				saveService,
+				startService,
+				stopService
+			}), [
+				loadServices,
+				createServiceDraft,
+				instantiateFromTemplate,
+				saveService,
+				startService,
+				stopService
+			]);
+		}
+		// src/client/hooks/useModeSwitch.ts
+		/** 模式切换面（dispatch SET_MODE）。 */
+		function useModeSwitch(dispatch) {
+			return { setMode: (0, react.useCallback)((mode) => {
+				dispatch({
+					type: "SET_MODE",
+					mode
+				});
+			}, [dispatch]) };
+		}
+		// src/client/hooks/usePanelLayout.ts
+		/** 面板几何面（当前几何在 state.panels；拖宽过程 dispatch PANELS_SET）。 */
+		function usePanelLayout(state, dispatch) {
+			/** 已持久化的折叠态：只在 mode 真正变化时写一次（初始恢复值不再回写，避免无谓写入）。 */
+			const persistedModeRef = (0, react.useRef)(state.panels.mode);
+			const detachResizeRef = (0, react.useRef)(null);
+			(0, react.useEffect)(() => () => {
+				detachResizeRef.current?.();
+			}, []);
+			(0, react.useEffect)(() => {
+				if (persistedModeRef.current === state.panels.mode) return;
+				persistedModeRef.current = state.panels.mode;
+				if (typeof window === "undefined") return;
+				keepPanelMode(window.localStorage, state.panels.mode);
+			}, [state.panels.mode]);
+			return { beginResize: (0, react.useCallback)((side, event) => {
+				if (event.button !== void 0 && event.button !== 0) return;
+				event.preventDefault?.();
+				detachResizeRef.current?.();
+				const panels = state.panels;
+				const isBottom = side === "bottom";
+				const base = side === "left" ? panels.leftWidth : side === "right" ? panels.rightWidth : panels.bottomHeight;
+				const startX = event.clientX;
+				const startY = event.clientY;
+				let lastValue = base;
+				const maximum = side === "left" ? Math.max(180, Math.min(520, window.innerWidth * .46)) : side === "right" ? Math.max(180, Math.min(680, window.innerWidth * .46)) : Math.max(120, Math.min(460, window.innerHeight * .5));
+				const splitter = event.currentTarget;
+				const oldCursor = document.body.style.cursor;
+				const oldSelect = document.body.style.userSelect;
+				splitter?.classList?.add("is-dragging");
+				document.body.style.cursor = isBottom ? "row-resize" : "col-resize";
+				document.body.style.userSelect = "none";
+				const onMove = (moveEvent) => {
+					const delta = side === "left" ? moveEvent.clientX - startX : side === "right" ? startX - moveEvent.clientX : startY - moveEvent.clientY;
+					lastValue = Math.max(0, Math.min(maximum, base + delta));
+					dispatch({
+						type: "PANELS_SET",
+						panels: side === "left" ? { leftWidth: lastValue } : side === "right" ? { rightWidth: lastValue } : { bottomHeight: lastValue }
+					});
+				};
+				const detach = () => {
+					window.removeEventListener("pointermove", onMove);
+					window.removeEventListener("pointerup", onUp);
+					window.removeEventListener("pointercancel", onUp);
+					window.removeEventListener("blur", onUp);
+					splitter?.classList?.remove("is-dragging");
+					document.body.style.cursor = oldCursor;
+					document.body.style.userSelect = oldSelect;
+					detachResizeRef.current = null;
+				};
+				const onUp = () => {
+					detach();
+					const final = Math.max(1, lastValue);
+					keepPanelSize(window.localStorage, side, final);
+				};
+				detachResizeRef.current = detach;
+				window.addEventListener("pointermove", onMove);
+				window.addEventListener("pointerup", onUp);
+				window.addEventListener("pointercancel", onUp);
+				window.addEventListener("blur", onUp);
+			}, [dispatch, state.panels]) };
+		}
+		// src/client/hooks/useDocumentActions.ts
+		/** 工作流资产详情 → 模板形状（实例化通道只消费 mode/name/description/nodes/lines/meta；id 仅为占位）。 */
+		function assetAsTemplate(detail) {
+			return {
+				id: `asset-${detail.assetId}`,
+				mode: detail.mode,
+				name: detail.name,
+				description: detail.description,
+				nodes: detail.nodes,
+				lines: detail.lines,
+				...detail.meta ? { meta: detail.meta } : {}
+			};
+		}
+		/**
+		* 当前「实例来源」文档（模版态 / 资产态）：两种来源的实例化语义一致
+		* （画布内容 → 新实例），差异只在元信息来源。返回 null = 没有可实例化的来源。
+		*/
+		function instanceSourceOf(state) {
+			if (state.currentKind === "flowTemplate") return currentFlowTemplateOf(state);
+			if (state.currentKind === "flowAsset") return state.assetDoc ? assetAsTemplate(state.assetDoc) : null;
+			return null;
+		}
+		/** 文档生命周期面（保存失败抛错/提示由保存路径处理）。 */
+		function useDocumentActions(state, dispatch, guard, notify, toastError, workflows, flowTemplates, templates, selection, serviceControl, remote, t) {
+			/**
+			* 保存失败处理（唯一实现）：乐观锁冲突（ERR_REVISION_CONFLICT）按冲突语义处理——
+			* 刷新服务端最新列表（使下次保存携带最新 revision）并明确提示用户重试；
+			* 当前画布上的未保存编辑一律保留（不自动覆盖、不静默丢失）。
+			* 其余失败走通用错误提示。
+			*/
+			const handleSaveFailure = (0, react.useCallback)(async (error, reload) => {
+				if (isRevisionConflict(error)) {
+					await reload().catch(() => void 0);
+					notify("error", t.revisionConflictRetry);
+					return;
+				}
+				toastError(error);
+			}, [
+				notify,
+				t.revisionConflictRetry,
+				toastError
+			]);
+			const saveCanvas = (0, react.useCallback)(async (options) => {
+				const auto = options?.auto === true;
+				const nodes = options?.nodes ?? state.canvas.nodes;
+				const edges = options?.edges ?? state.canvas.edges;
+				const onSaved = options?.onSaved;
+				if (state.currentKind === "workflow") {
+					const flow = currentFlowOf(state);
+					if (!flow) return null;
+					/** 真正落库（二次确认确认后与即时路径共用）。 */
+					const doSave = async () => {
+						try {
+							const saved = await workflows.saveWorkflow(flow, nodes, edges);
+							if (saved) {
+								dispatch({ type: "MARK_SAVED" });
+								if (!auto) notify("success", t.toastSaved);
+							}
+							return saved;
+						} catch (error) {
+							await handleSaveFailure(error, workflows.loadWorkflows);
+							return null;
+						}
+					};
+					if (!auto && state.dirty && instanceRunningOf(state)) {
+						dispatch({
+							type: "CONFIRM_SET",
+							confirm: {
+								kind: "confirmText",
+								title: t.saveRunningTitle,
+								message: t.saveRunningMessage,
+								confirmLabel: t.saveRunningConfirm,
+								onConfirm: () => {
+									doSave().then((saved) => {
+										if (saved) onSaved?.();
+									});
+								}
+							}
+						});
+						return null;
+					}
+					return await doSave();
+				}
+				if (state.currentKind === "flowTemplate") {
+					const template = currentFlowTemplateOf(state);
+					if (!template) return null;
+					try {
+						const saved = await flowTemplates.saveFlowTemplate(template, nodes, edges);
+						if (saved) {
+							dispatch({ type: "MARK_SAVED" });
+							if (!auto) notify("success", t.toastSaved);
+						}
+						return saved;
+					} catch (error) {
+						await handleSaveFailure(error, flowTemplates.loadFlowTemplates);
+						return null;
+					}
+				}
+				if (state.currentKind === "flowAsset") return null;
+				if (state.currentKind === "service") {
+					const service = currentServiceOf(state);
+					if (!service) return null;
+					try {
+						const saved = await serviceControl.saveService(service, nodes, edges);
+						if (saved) {
+							dispatch({ type: "MARK_SAVED" });
+							if (!auto) notify("success", t.toastSaved);
+						}
+						return saved;
+					} catch (error) {
+						await handleSaveFailure(serviceShapeTextOf(error, t.toastServiceStateShape), serviceControl.loadServices);
+						return null;
+					}
+				}
+				return null;
+			}, [
+				dispatch,
+				handleSaveFailure,
+				notify,
+				state,
+				workflows,
+				flowTemplates,
+				serviceControl,
+				t.saveRunningConfirm,
+				t.saveRunningMessage,
+				t.saveRunningTitle,
+				t.toastSaved,
+				t.toastServiceStateShape
+			]);
+			/**
+			* 创建实例：
+			*  - 实例态：等价于保存实例（名称动态为「保存实例/保存服务」）。
+			*  - 模板态 / 资产态（「创建实例」/「创建服务」按钮，或该态「运行」前置）：
+			*      1. 目标会话 = 模板勾选「开启新会话」？新建主会话（createSession 端点，
+			*         模板级持久化配置；工作区随模板保存，传参后由宿主校验存在性）:
+			*         当前主会话（state.sessionId）；资产态用一次性临时勾选，无路径；
+			*      2. 目标会话已有同模式实例（每会话单实例）→ 弹二次确认「新运行的工作流
+			*         将会覆盖旧的工作流」；确认后**复用旧实例 id 更新内容**（运行历史
+			*         按 flowId 连续可追溯）；
+			*      3. 保存成功 → 切到实例态（画布绑定新实例，左栏新实例卡高亮）→
+			*         afterCreate?.(saved)（「运行」入口接续启动）。
+			*  - 返回：恒为 null（创建结果经 afterCreate 回调接续；调用方不得依赖返回值判断成功）。
+			*
+			*  资产态与模板态同口径（用户裁决）：画布内容先转实例再运行；资产详情只提供
+			*  模式/名称/描述/元参数，节点与连线一律取当前画布（编辑中的草稿即事实源）。
+			*/
+			const createInstanceFromCanvas = (0, react.useCallback)(async (afterCreate) => {
+				if (state.currentKind === "workflow" || state.currentKind === "service") {
+					const saved = await saveCanvas();
+					return state.currentKind === "workflow" ? saved : null;
+				}
+				if (!isInstanceSourceKind(state.currentKind)) return null;
+				const template = instanceSourceOf(state);
+				if (!template) return null;
+				const { newSession } = newSessionOptionsOf(state);
+				let targetSessionId = state.sessionId;
+				if (newSession) try {
+					const created = await remote.call(EP_CREATE_SESSION, { sessionId: state.sessionId });
+					targetSessionId = String(created?.sessionId ?? "");
+					if (!targetSessionId) throw new Error(t.sessionCreateFailed);
+				} catch (error) {
+					toastError(error);
+					return null;
+				}
+				const existing = state.mode === "mode1" ? state.workflows.find((item) => item.sessionId === targetSessionId) : state.services.find((item) => item.sessionId === targetSessionId);
+				if (existing && state.mode === "mode2" && existing.status === "running") {
+					notify("error", t.toastServiceRunningCannotOverwrite);
+					return null;
+				}
+				/** 实际创建/覆盖（确认框 onConfirm 与即时路径共用）。 */
+				const doCreate = async () => {
+					try {
+						if (state.mode === "mode1") {
+							const source = existing;
+							const draft = source ? {
+								id: source.id,
+								sessionId: source.sessionId,
+								mode: template.mode,
+								name: template.name ?? source.name,
+								description: template.description ?? "",
+								revision: Number(source.revision ?? 0),
+								nodes: JSON.parse(JSON.stringify(template.nodes ?? [])),
+								lines: JSON.parse(JSON.stringify(template.lines ?? [])),
+								...template.meta ? { meta: template.meta } : {},
+								createdAt: source.createdAt
+							} : workflows.instantiateFromTemplate(template, targetSessionId, t.untitledWorkflow);
+							const saved = await workflows.saveWorkflow(draft, state.canvas.nodes, state.canvas.edges);
+							if (!saved) return;
+							dispatch({ type: "MARK_SAVED" });
+							workflows.openFlow(saved);
+							notify("success", source ? t.toastInstanceOverwritten : t.toastCreatedInstance);
+							afterCreate?.(saved);
+						} else {
+							const source = existing;
+							const draft = source ? {
+								id: source.id,
+								sessionId: source.sessionId,
+								name: template.name ?? source.name,
+								description: template.description ?? "",
+								revision: Number(source.revision ?? 0),
+								nodes: JSON.parse(JSON.stringify(template.nodes ?? [])),
+								lines: JSON.parse(JSON.stringify(template.lines ?? [])),
+								...template.meta ? { meta: template.meta } : {},
+								createdAt: source.createdAt,
+								updatedAt: (/* @__PURE__ */ new Date()).toISOString(),
+								status: source.status
+							} : serviceControl.instantiateFromTemplate(template, targetSessionId, t.untitledService);
+							const saved = await serviceControl.saveService(draft, state.canvas.nodes, state.canvas.edges);
+							if (!saved) return;
+							dispatch({ type: "MARK_SAVED" });
+							notify("success", source ? t.toastInstanceOverwritten : t.toastCreatedInstance);
+							afterCreate?.(saved);
+						}
+					} catch (error) {
+						await handleSaveFailure(serviceShapeTextOf(error, t.toastServiceStateShape), state.mode === "mode1" ? workflows.loadWorkflows : serviceControl.loadServices);
+					}
+				};
+				if (existing) {
+					dispatch({
+						type: "CONFIRM_SET",
+						confirm: {
+							kind: "confirmText",
+							title: t.overwriteInstanceTitle,
+							message: t.overwriteInstanceMessage,
+							confirmLabel: t.overwriteInstanceConfirm,
+							onConfirm: () => {
+								doCreate();
+							}
+						}
+					});
+					return null;
+				}
+				await doCreate();
+				return null;
+			}, [
+				dispatch,
+				handleSaveFailure,
+				notify,
+				remote,
+				saveCanvas,
+				serviceControl,
+				state,
+				t,
+				toastError,
+				workflows
+			]);
+			/**
+			* 更新当前模板的「创建实例」新会话配置（勾选 / 工作区路径）并**立即保存模板**。
+			*
+			* 为什么立即保存：该配置是模板级持久化字段（随模板删除而删除），用户主动勾选/
+			* 用官方目录选择器选定路径即视为一次配置提交；若等待其他保存时机，切走模板会静默
+			* 丢失配置。保存走模板保存通道（含当前画布），与属性栏「保存模板」同一落库路径。
+			*
+			* 失败语义：先乐观更新界面；保存失败回滚到保存前的模板并按既有冲突处理提示，
+			* 不静默吞掉（界面不残留未落盘的配置）。
+			*/
+			const setFlowTemplateOptions = (0, react.useCallback)(async (patch) => {
+				if (state.currentKind !== "flowTemplate") return;
+				const template = currentFlowTemplateOf(state);
+				if (!template) return;
+				if (patch.startNewSession === void 0 && patch.workspacePath === void 0) return;
+				const next = { ...template };
+				if (patch.startNewSession === true) next.startNewSession = true;
+				else if (patch.startNewSession === false) delete next.startNewSession;
+				if (patch.workspacePath !== void 0) {
+					const path = patch.workspacePath.trim();
+					if (path) next.workspacePath = path;
+					else delete next.workspacePath;
+				}
+				dispatch({
+					type: "FLOW_TEMPLATE_UPDATED",
+					template: next
+				});
+				try {
+					if (await flowTemplates.saveFlowTemplate(next, state.canvas.nodes, state.canvas.edges)) {
+						dispatch({ type: "MARK_SAVED" });
+						notify("success", t.toastSaved);
+					}
+				} catch (error) {
+					dispatch({
+						type: "FLOW_TEMPLATE_UPDATED",
+						template
+					});
+					await handleSaveFailure(error, flowTemplates.loadFlowTemplates);
+				}
+			}, [
+				dispatch,
+				flowTemplates,
+				handleSaveFailure,
+				notify,
+				state,
+				t.toastSaved
+			]);
+			/** 实例 → 模板（另存为模板）：当前实例内容复制为全局共享的工作流模板。 */
+			const saveCurrentAsFlowTemplate = (0, react.useCallback)(async () => {
+				const source = state.currentKind === "workflow" ? currentFlowOf(state) : state.currentKind === "service" ? currentServiceOf(state) : null;
+				if (!source) return;
+				try {
+					const template = flowTemplates.createFlowTemplateDraft(state.mode, t.untitledFlowTemplate);
+					template.name = source.name;
+					template.description = source.description ?? "";
+					template.nodes = JSON.parse(JSON.stringify(state.canvas.nodes));
+					template.lines = JSON.parse(JSON.stringify(state.canvas.edges));
+					if (await flowTemplates.saveFlowTemplate(template, state.canvas.nodes, state.canvas.edges)) notify("success", t.toastSavedAsTemplate);
+				} catch (error) {
+					await handleSaveFailure(error, flowTemplates.loadFlowTemplates);
+				}
+			}, [
+				dispatch,
+				flowTemplates,
+				handleSaveFailure,
+				notify,
+				state,
+				t.toastSavedAsTemplate
+			]);
+			const duplicateCurrentFlowTemplate = (0, react.useCallback)(async () => {
+				const source = currentFlowTemplateOf(state);
+				if (!source) return;
+				try {
+					const name = `${source.name || source.id} ${t.copyTemplateSuffix}`;
+					const template = flowTemplates.createFlowTemplateDraft(source.mode, name);
+					template.name = name;
+					template.description = source.description ?? "";
+					const saved = await flowTemplates.saveFlowTemplate(template, state.canvas.nodes, state.canvas.edges);
+					if (saved) {
+						flowTemplates.openFlowTemplate(saved);
+						notify("success", t.toastTemplateCopied);
+					}
+				} catch (error) {
+					await handleSaveFailure(error, flowTemplates.loadFlowTemplates);
+				}
+			}, [
+				flowTemplates,
+				handleSaveFailure,
+				notify,
+				state,
+				t.copyTemplateSuffix,
+				t.toastTemplateCopied
+			]);
+			const openFlowById = (0, react.useCallback)((id) => {
+				const flow = state.workflows.find((item) => item.id === id);
+				if (!flow) return;
+				workflows.openFlow(flow);
+			}, [state.workflows, workflows]);
+			const openServiceById = (0, react.useCallback)((id) => {
+				const service = state.services.find((item) => item.id === id);
+				if (!service) return;
+				dispatch({
+					type: "OPEN_SERVICE",
+					service
+				});
+			}, [dispatch, state.services]);
+			const openFlowTemplateById = (0, react.useCallback)((id) => {
+				const template = state.flowTemplates.find((item) => item.id === id);
+				if (!template) return;
+				flowTemplates.openFlowTemplate(template);
+			}, [state.flowTemplates, flowTemplates]);
+			/** 打开工作流/服务/模板（未保存守卫后切换；模板只在画布中显示、可编辑保存回模板库）。 */
+			const selectWorkflow = (0, react.useCallback)((id) => {
+				if (state.mode === "mode1") guard.guard(() => openFlowById(id));
+				else guard.guard(() => openServiceById(id));
+			}, [
+				guard,
+				openFlowById,
+				openServiceById,
+				state.mode
+			]);
+			/** 打开工作流模板（未保存守卫后切换；模板态：编辑模板 or 创建实例）。 */
+			const selectFlowTemplate = (0, react.useCallback)((id) => {
+				guard.guard(() => openFlowTemplateById(id));
+			}, [guard, openFlowTemplateById]);
+			const createNew = (0, react.useCallback)((tab, section) => {
+				if (tab === "workflow") {
+					if (section === "flowTemplate") {
+						const draft = flowTemplates.createFlowTemplateDraft(state.mode, state.mode === "mode2" ? t.untitledServiceTemplate : t.untitledFlowTemplate);
+						flowTemplates.openFlowTemplate(draft);
+						notify("info", t.newWorkflow);
+						return;
+					}
+					notify("info", t.newWorkflow);
+					return;
+				}
+				if (tab === "role") {
+					const template = templates.createTemplateDraft("role", t.templateDefaultName.role);
+					selection.selectEditor({
+						source: "template",
+						kind: "role",
+						id: template.id
+					});
+					selection.selectLib("role", template.id);
+					notify("info", t.newTemplate);
+					return;
+				}
+				if (tab === "data") {
+					const kind = section === "database" ? "database" : "task";
+					const template = templates.createTemplateDraft(kind, t.templateDefaultName[kind]);
+					selection.selectEditor({
+						source: "template",
+						kind,
+						id: template.id
+					});
+					selection.selectLib(kind, template.id);
+					notify("info", t.newTemplate);
+					return;
+				}
+				if (tab === "other" && section === "group") {
+					const template = templates.createTemplateDraft("group", t.templateDefaultName.group);
+					selection.selectEditor({
+						source: "template",
+						kind: "group",
+						id: template.id
+					});
+					selection.selectLib("groupTemplate", template.id);
+					notify("info", t.newTemplate);
+					return;
+				}
+			}, [
+				notify,
+				selection,
+				state.mode,
+				t.newTemplate,
+				t.newWorkflow,
+				t.templateDefaultName,
+				t.untitledFlowTemplate,
+				t.untitledServiceTemplate,
+				flowTemplates,
+				templates
+			]);
+			return (0, react.useMemo)(() => ({
+				saveCanvas,
+				createInstanceFromCanvas,
+				saveCurrentAsFlowTemplate,
+				duplicateCurrentFlowTemplate,
+				setFlowTemplateOptions,
+				openFlowById,
+				openServiceById,
+				openFlowTemplateById,
+				selectWorkflow,
+				selectFlowTemplate,
+				createNew
+			}), [
+				saveCanvas,
+				createInstanceFromCanvas,
+				saveCurrentAsFlowTemplate,
+				duplicateCurrentFlowTemplate,
+				setFlowTemplateOptions,
+				openFlowById,
+				openServiceById,
+				openFlowTemplateById,
+				selectWorkflow,
+				selectFlowTemplate,
+				createNew
+			]);
+		}
+		// src/client/lib/remote-error.ts
+		/** 远端错误的稳定码（无码 = 传输/解析失败）。 */
+		function remoteErrorCodeOf(error) {
+			return String(error?.code ?? "");
+		}
+		/** 远端错误的可读文案：Error 用 message；非 Error 用字符串原文；两者皆缺回退错误码。 */
+		function remoteErrorMessageOf(error) {
+			if (error instanceof Error && error.message) return error.message;
+			const code = remoteErrorCodeOf(error);
+			if (code) return code;
+			return error === null || error === void 0 ? "" : String(error);
+		}
+		// src/client/hooks/useAssets.ts
+		/** 资产列表响应归一化（形状漂移一律降级为空列表，不因未知字段抛错）。 */
+		function normalizeList(payload) {
+			const record = payload ?? {};
+			return {
+				workflows: Array.isArray(record.workflows) ? record.workflows : [],
+				roles: Array.isArray(record.roles) ? record.roles : [],
+				prompts: Array.isArray(record.prompts) ? record.prompts : [],
+				retiredWorkflows: Array.isArray(record.retiredWorkflows) ? record.retiredWorkflows : [],
+				retiredRoles: Array.isArray(record.retiredRoles) ? record.retiredRoles : []
+			};
+		}
+		/** 资产面（远端失败已就地翻译为提示；返回值 null 表示本次调用未产生结果）。 */
+		function useAssets(remote, dispatch, notify, toastError, t, state) {
+			/** 卸载守卫：卸载后不再写状态。 */
+			const mounted = (0, react.useRef)(true);
+			/** 列表请求序号（只有最新一次刷新可写状态）。 */
+			const listSeq = (0, react.useRef)(0);
+			/** 详情请求序号（切换资产后迟到的装载不得覆盖当前资产）。 */
+			const detailSeq = (0, react.useRef)(0);
+			/** 版本列表请求序号（与详情装载各自独立，互不取消）。 */
+			const versionsSeq = (0, react.useRef)(0);
+			(0, react.useEffect)(() => {
+				mounted.current = true;
+				return () => {
+					mounted.current = false;
+				};
+			}, []);
+			/** 状态引用：回调闭包读最新状态（回滚后是否重投影画布等归属判定）。 */
+			const stateRef = (0, react.useRef)(state);
+			stateRef.current = state;
+			/** 资产失败统一翻译（稳定码优先）；返回 true = 已按资产语义处理（调用方不再提示）。 */
+			const handleAssetFailure = (0, react.useCallback)(async (error, reload) => {
+				const code = remoteErrorCodeOf(error);
+				if (code === "WF_ASSET_DUPLICATE") {
+					notify("info", t.assetDuplicateCancelled);
+					return true;
+				}
+				if (code === "WF_PROMPT_ASSET_ACTIVE_ONLY") {
+					notify("error", t.promptAssetActiveOnly);
+					return true;
+				}
+				if (code === "WF_ASSET_NOT_FOUND" || code === "WF_ASSET_VERSION_NOT_FOUND") {
+					notify("error", t.assetNotFound);
+					if (reload) {
+						const seq = ++listSeq.current;
+						try {
+							const payload = await remote.call(EP_LIST_ASSETS, {});
+							if (!mounted.current || seq !== listSeq.current) return true;
+							dispatch({
+								type: "ASSETS_LOADED",
+								...normalizeList(payload)
+							});
+						} catch {}
+					}
+					return true;
+				}
+				return false;
+			}, [
+				dispatch,
+				notify,
+				remote,
+				t.assetDuplicateCancelled,
+				t.assetNotFound,
+				t.promptAssetActiveOnly
+			]);
+			const refresh = (0, react.useCallback)(async () => {
+				const seq = ++listSeq.current;
+				try {
+					const payload = await remote.call(EP_LIST_ASSETS, {});
+					if (!mounted.current || seq !== listSeq.current) return;
+					dispatch({
+						type: "ASSETS_LOADED",
+						...normalizeList(payload)
+					});
+				} catch (error) {
+					if (!mounted.current || seq !== listSeq.current) return;
+					if (await handleAssetFailure(error, false)) return;
+					toastError(error);
+				}
+			}, [
+				dispatch,
+				handleAssetFailure,
+				remote,
+				toastError
+			]);
+			const loadAsset = (0, react.useCallback)(async (kind, assetId) => {
+				const seq = ++detailSeq.current;
+				try {
+					const detail = await remote.call(EP_GET_ASSET, {
+						kind,
+						assetId
+					});
+					if (!detail) return null;
+					if (!mounted.current || seq !== detailSeq.current) return null;
+					if (kind === "role") dispatch({
+						type: "ROLE_ASSET_LOADED",
+						detail
+					});
+					else if (kind === "prompt") dispatch({
+						type: "PROMPT_ASSET_LOADED",
+						detail
+					});
+					else dispatch({
+						type: "ASSET_DOC_LOADED",
+						detail
+					});
+					return detail;
+				} catch (error) {
+					if (!mounted.current) return null;
+					if (await handleAssetFailure(error, true)) return null;
+					toastError(error);
+					return null;
+				}
+			}, [
+				dispatch,
+				handleAssetFailure,
+				remote,
+				toastError
+			]);
+			/**
+			* 入库 / 登记新版本共用后处理：成功刷新列表并提示。
+			* 提示必须让用户知道「写的是哪个资产、写成了哪一版」，因此把 assetId / versionId 代入词条模板；
+			* 后端幂等短路（unchanged）时改用「内容未变化，未新增版本」，避免给出「已入库」的错误暗示。
+			* 写路径的副作用明细（共享合并、因失去全部引用而自动归档的角色资产）在此一并告知用户：
+			* 这些事实由 Host 在事务内结算，界面只能事后提示，不能事后猜测。
+			*/
+			const afterWrite = (0, react.useCallback)(async (result, successText) => {
+				if (!result) return null;
+				if (!mounted.current) return result;
+				if (result.unchanged) notify("info", t.assetPromoteUnchanged);
+				else notify("success", successText.replace("{id}", result.assetId).replace("{version}", String(result.versionId)));
+				const archivedCount = (result.archivedRoleAssetIds ?? []).length;
+				if (archivedCount > 0) notify("info", t.assetAutoArchived.replace("{count}", String(archivedCount)));
+				await refresh();
+				return result;
+			}, [
+				notify,
+				refresh,
+				t.assetAutoArchived,
+				t.assetPromoteUnchanged
+			]);
+			const promote = (0, react.useCallback)(async (kind, templateId) => {
+				try {
+					const result = await remote.call(EP_PROMOTE_ASSET, {
+						kind,
+						templateId
+					});
+					return await afterWrite(result, t.toastAssetPromoted);
+				} catch (error) {
+					if (await handleAssetFailure(error, true)) return null;
+					toastError(error);
+					return null;
+				}
+			}, [
+				afterWrite,
+				handleAssetFailure,
+				remote,
+				t.toastAssetPromoted,
+				toastError
+			]);
+			const saveVersion = (0, react.useCallback)(async (kind, assetId, payload) => {
+				try {
+					const result = await remote.call(EP_SAVE_ASSET_VERSION, {
+						kind,
+						assetId,
+						payload
+					});
+					return await afterWrite(result, t.toastAssetVersionSaved);
+				} catch (error) {
+					if (await handleAssetFailure(error, true)) return null;
+					toastError(error);
+					return null;
+				}
+			}, [
+				afterWrite,
+				handleAssetFailure,
+				remote,
+				t.toastAssetVersionSaved,
+				toastError
+			]);
+			/**
+			* 保存前的影响面预览（只读）。失败一律降级为「无可告知的影响面」并显式提示：
+			* 预览只是告知辅助，不得阻断保存；但静默失败会让用户把「提示缺失」误读成「没有级联影响」。
+			*/
+			const previewCascade = (0, react.useCallback)(async (kind, assetId, payload) => {
+				try {
+					const affected = (await remote.call(EP_PREVIEW_ASSET_CASCADE, {
+						kind,
+						assetId,
+						payload
+					}))?.affected;
+					return Array.isArray(affected) ? affected : [];
+				} catch (error) {
+					if (await handleAssetFailure(error, false)) return [];
+					toastError(error);
+					return [];
+				}
+			}, [
+				handleAssetFailure,
+				remote,
+				toastError
+			]);
+			const openVersions = (0, react.useCallback)(async (kind, assetId) => {
+				const seq = ++versionsSeq.current;
+				try {
+					const items = await remote.call(EP_LIST_ASSET_VERSIONS, {
+						kind,
+						assetId
+					});
+					if (!mounted.current || seq !== versionsSeq.current) return;
+					dispatch({
+						type: "ASSET_VERSIONS_LOADED",
+						kind,
+						assetId,
+						items: Array.isArray(items) ? items : []
+					});
+				} catch (error) {
+					if (!mounted.current) return;
+					if (await handleAssetFailure(error, true)) return;
+					toastError(error);
+				}
+			}, [
+				dispatch,
+				handleAssetFailure,
+				remote,
+				toastError
+			]);
+			const closeVersions = (0, react.useCallback)(() => {
+				dispatch({ type: "ASSET_VERSIONS_CLOSED" });
+			}, [dispatch]);
+			/**
+			* 回滚到指定版本：只改 Active 指针（不新增版本）；归档资产的回滚 = 重建 Active 行（重新启用）。
+			* 返回值 = 回滚后的详情（失败返回 null）：调用方据此决定要不要收起版本列表、刷新界面，
+			* 画布角色节点还要用该详情把节点内容刷新为所选版本（节点是该资产的画布内联副本）。
+			*/
+			const rollback = (0, react.useCallback)(async (kind, assetId, versionId) => {
+				try {
+					await remote.call(EP_ROLLBACK_ASSET, {
+						kind,
+						assetId,
+						versionId
+					});
+					if (!mounted.current) return null;
+					notify("success", t.toastAssetRolledBack);
+					const detail = await loadAsset(kind, assetId);
+					if (!mounted.current) return null;
+					const current = stateRef.current;
+					if (kind === "workflow" && current.currentKind === "flowAsset" && current.currentId === assetId) dispatch({
+						type: "OPEN_FLOW_ASSET",
+						assetId
+					});
+					await refresh();
+					return detail;
+				} catch (error) {
+					if (await handleAssetFailure(error, true)) return null;
+					toastError(error);
+					return null;
+				}
+			}, [
+				dispatch,
+				handleAssetFailure,
+				loadAsset,
+				notify,
+				refresh,
+				remote,
+				t.toastAssetRolledBack,
+				toastError
+			]);
+			/** 归档资产（Active 移除、历史与版本内容全保留）；返回值 = 是否成功，语义同 rollback。 */
+			const retire = (0, react.useCallback)(async (kind, assetId) => {
+				if (kind === "prompt") {
+					notify("error", t.promptAssetActiveOnly);
+					return false;
+				}
+				try {
+					await remote.call(EP_RETIRE_ASSET, {
+						kind,
+						assetId
+					});
+					if (!mounted.current) return true;
+					notify("success", t.toastAssetRetired);
+					await refresh();
+					return true;
+				} catch (error) {
+					if (await handleAssetFailure(error, true)) return false;
+					toastError(error);
+					return false;
+				}
+			}, [
+				handleAssetFailure,
+				notify,
+				refresh,
+				remote,
+				t.promptAssetActiveOnly,
+				t.toastAssetRetired,
+				toastError
+			]);
+			/**
+			* 恢复历史（已归档）资产：取最新版本行重建 Active 指针；返回值 = 恢复后的详情（失败 null）。
+			* 与回滚的分工见共享协议：恢复管状态转换，回滚管版本与 Active 指针。
+			*/
+			const restore = (0, react.useCallback)(async (kind, assetId) => {
+				if (kind === "prompt") {
+					notify("error", t.promptAssetActiveOnly);
+					return null;
+				}
+				try {
+					await remote.call(EP_RESTORE_ASSET, {
+						kind,
+						assetId
+					});
+					if (!mounted.current) return null;
+					notify("success", t.toastAssetRestored);
+					const detail = await loadAsset(kind, assetId);
+					if (!mounted.current) return null;
+					const current = stateRef.current;
+					if (kind === "workflow" && current.currentKind === "flowAsset" && current.currentId === assetId) dispatch({
+						type: "OPEN_FLOW_ASSET",
+						assetId
+					});
+					await refresh();
+					return detail;
+				} catch (error) {
+					if (await handleAssetFailure(error, true)) return null;
+					toastError(error);
+					return null;
+				}
+			}, [
+				dispatch,
+				handleAssetFailure,
+				loadAsset,
+				notify,
+				refresh,
+				remote,
+				t.promptAssetActiveOnly,
+				t.toastAssetRestored,
+				toastError
+			]);
+			const openFlowAsset = (0, react.useCallback)(async (assetId) => {
+				if (!await loadAsset("workflow", assetId) || !mounted.current) return;
+				dispatch({
+					type: "OPEN_FLOW_ASSET",
+					assetId
+				});
+			}, [dispatch, loadAsset]);
+			const openRoleAsset = (0, react.useCallback)(async (assetId) => {
+				if (!await loadAsset("role", assetId) || !mounted.current) return;
+				dispatch({
+					type: "OPEN_ROLE_ASSET",
+					assetId
+				});
+			}, [dispatch, loadAsset]);
+			const openPromptAsset = (0, react.useCallback)(async (assetId) => {
+				if (!await loadAsset("prompt", assetId) || !mounted.current) return;
+				dispatch({
+					type: "OPEN_PROMPT_ASSET",
+					assetId
+				});
+			}, [dispatch, loadAsset]);
+			return (0, react.useMemo)(() => ({
+				assets: state.assets,
+				assetDoc: state.assetDoc,
+				promptDoc: state.promptDoc,
+				assetVersions: state.assetVersions,
+				refresh,
+				loadAsset,
+				promote,
+				saveVersion,
+				previewCascade,
+				openVersions,
+				closeVersions,
+				rollback,
+				retire,
+				restore,
+				openFlowAsset,
+				openRoleAsset,
+				openPromptAsset
+			}), [
+				state.assets,
+				state.assetDoc,
+				state.promptDoc,
+				state.assetVersions,
+				refresh,
+				loadAsset,
+				promote,
+				saveVersion,
+				previewCascade,
+				openVersions,
+				closeVersions,
+				rollback,
+				retire,
+				restore,
+				openFlowAsset,
+				openRoleAsset,
+				openPromptAsset
+			]);
+		}
+		// src/client/hooks/useExperiences.ts
+		/**
+		* 保存载荷投影（纯函数）：只取九个语义字段——检索投影、向量与只读元信息
+		* （id / 主体类型 / 状态 / 时间戳 / 来源运行 / 生成 Prompt）一律不回传，
+		* 回传等于让界面有权改写领域记账的事实与系统生成规则。
+		*
+		* 列表字段用 `null` 表达「清空」（与 `undefined` 的「不改」区分，见共享契约 ExperiencePatch）；
+		* 表单里的空文本域投影为 `[]`，与 `null` 在领域层同义（都落成空数组）。
+		*/
+		function experiencePatchOf(entry) {
+			return {
+				responsibility: entry.responsibility,
+				taskType: entry.taskType,
+				decisionDomain: entry.decisionDomain,
+				situation: entry.situation,
+				trigger: entry.trigger,
+				principle: entry.principle,
+				recommendedAction: entry.recommendedAction,
+				exclusions: entry.exclusions ?? null,
+				evidence: entry.evidence ?? null
+			};
+		}
+		/** 远端返回的经验条目归一化（形状漂移一律当作失败，不写入半截数据）。 */
+		function asEntry(payload) {
+			const record = payload;
+			return record && typeof record.id === "string" && record.id !== "" ? record : null;
+		}
+		/** 经验面（远端失败已就地翻译为提示；返回值 null/false 表示本次调用未产生结果）。 */
+		function useExperiences(remote, dispatch, notify, toastError, t, state) {
+			/** 卸载守卫：卸载后不再写状态。 */
+			const mounted = (0, react.useRef)(true);
+			/** 列表请求序号（只有最新一次刷新可写状态）。 */
+			const listSeq = (0, react.useRef)(0);
+			(0, react.useEffect)(() => {
+				mounted.current = true;
+				return () => {
+					mounted.current = false;
+				};
+			}, []);
+			/** 状态引用：回调闭包读最新列表（打开经验时取当前条目）。 */
+			const stateRef = (0, react.useRef)(state);
+			stateRef.current = state;
+			/** 经验失败统一翻译；返回 true = 已按经验语义处理（调用方不再提示）。 */
+			const handleFailure = (0, react.useCallback)(async (error) => {
+				if (remoteErrorCodeOf(error) !== "WF_EXPERIENCE_NOT_FOUND") return false;
+				notify("error", t.experienceNotFound);
+				try {
+					const payload = await remote.call(EP_LIST_EXPERIENCES, {});
+					if (!mounted.current) return true;
+					dispatch({
+						type: "EXPERIENCES_LOADED",
+						items: Array.isArray(payload) ? payload : []
+					});
+				} catch {}
+				return true;
+			}, [
+				dispatch,
+				notify,
+				remote,
+				t.experienceNotFound
+			]);
+			const refresh = (0, react.useCallback)(async () => {
+				const seq = ++listSeq.current;
+				try {
+					const payload = await remote.call(EP_LIST_EXPERIENCES, {});
+					if (!mounted.current || seq !== listSeq.current) return;
+					dispatch({
+						type: "EXPERIENCES_LOADED",
+						items: Array.isArray(payload) ? payload : []
+					});
+				} catch (error) {
+					if (!mounted.current || seq !== listSeq.current) return;
+					if (await handleFailure(error)) return;
+					toastError(error);
+				}
+			}, [
+				dispatch,
+				handleFailure,
+				remote,
+				toastError
+			]);
+			const open = (0, react.useCallback)((experienceId) => {
+				const entry = stateRef.current.experiences.find((item) => item.id === experienceId);
+				if (!entry) return;
+				dispatch({
+					type: "EXPERIENCE_LOADED",
+					entry
+				});
+				dispatch({
+					type: "OPEN_EXPERIENCE",
+					experienceId
+				});
+			}, [dispatch]);
+			const save = (0, react.useCallback)(async (entry) => {
+				try {
+					const updated = asEntry(await remote.call(EP_SAVE_EXPERIENCE, {
+						experienceId: entry.id,
+						patch: experiencePatchOf(entry)
+					}));
+					if (!updated || !mounted.current) return null;
+					notify("success", t.toastExperienceSaved);
+					dispatch({
+						type: "EXPERIENCE_LOADED",
+						entry: updated
+					});
+					return updated;
+				} catch (error) {
+					if (await handleFailure(error)) return null;
+					toastError(error);
+					return null;
+				}
+			}, [
+				dispatch,
+				handleFailure,
+				notify,
+				remote,
+				t.toastExperienceSaved,
+				toastError
+			]);
+			const setActive = (0, react.useCallback)(async (experienceId, active) => {
+				try {
+					const endpoint = active ? EP_RESTORE_EXPERIENCE : EP_RETIRE_EXPERIENCE;
+					const updated = asEntry(await remote.call(endpoint, { experienceId }));
+					if (!updated || !mounted.current) return false;
+					notify("success", active ? t.toastExperienceRestored : t.toastExperienceRetired);
+					dispatch({
+						type: "EXPERIENCE_LOADED",
+						entry: updated
+					});
+					await refresh();
+					return true;
+				} catch (error) {
+					if (await handleFailure(error)) return false;
+					toastError(error);
+					return false;
+				}
+			}, [
+				dispatch,
+				handleFailure,
+				notify,
+				refresh,
+				remote,
+				t.toastExperienceRestored,
+				t.toastExperienceRetired,
+				toastError
+			]);
+			return (0, react.useMemo)(() => ({
+				experiences: state.experiences,
+				experienceDoc: state.experienceDoc,
+				refresh,
+				open,
+				save,
+				setActive
+			}), [
+				state.experiences,
+				state.experienceDoc,
+				refresh,
+				open,
+				save,
+				setActive
+			]);
+		}
+		// src/client/lib/manual-nodes.ts
+		/** Blank cards are editable immediately; role tools come from the standard preset. */
+		function blankNode(kind, id, label, position, selection, mode = "mode1") {
+			const data = { label };
+			if (kind === "agent" || kind === "parent") Object.assign(data, {
+				systemPrompt: "",
+				provider: String(selection?.provider ?? ""),
+				model: String(selection?.model ?? ""),
+				presetId: "standard",
+				retryLimit: 3,
+				reactLimit: null,
+				inputSchema: "",
+				outputSchema: DEFAULT_OUTPUT_CONTRACT_TEXT,
+				injectSystemPrompt: true,
+				injectToolSections: true,
+				groupId: null
+			});
+			if (kind === "task" || kind === "step") data.content = "";
+			if (kind === "database") Object.assign(data, {
+				description: "",
+				dbType: "local",
+				dbKind: "sqlite",
+				localPath: "",
+				vectorSource: "bm25"
+			});
+			if (kind === "group") Object.assign(data, {
+				memberIds: [],
+				collabPrompt: "",
+				size: {
+					w: 300,
+					h: 220
+				}
+			});
+			if (kind === "subgraph") {
+				const startId = `node-${Math.random().toString(36).slice(2, 10)}`;
+				const endId = `node-${Math.random().toString(36).slice(2, 10)}`;
+				data.description = "";
+				data.graph = {
+					nodes: [{
+						id: startId,
+						kind: "start",
+						position: {
+							x: 60,
+							y: 100
+						},
+						data: { label: STAGE_LABELS[mode].start }
+					}, {
+						id: endId,
+						kind: "end",
+						position: {
+							x: 360,
+							y: 100
+						},
+						data: { label: STAGE_LABELS[mode].end }
+					}],
+					lines: [{
+						id: `line-${Math.random().toString(36).slice(2, 10)}`,
+						source: startId,
+						target: endId,
+						sourceHandle: "flow-out",
+						targetHandle: "flow-in"
+					}]
+				};
+			}
+			return {
+				id,
+				kind,
+				position,
+				data
+			};
+		}
+		/** Copy configuration without aliasing nested data or borrowing external edges/membership. */
+		function duplicateNodes(node, nodes, newId, label, position) {
+			const copy = {
+				...node,
+				id: newId(),
+				position,
+				data: structuredClone(node.data)
+			};
+			copy.data.label = label;
+			if (node.kind === "agent" || node.kind === "parent") copy.data.groupId = null;
+			if (node.kind !== "group") return [copy];
+			const members = nodes.filter((n) => (node.data.memberIds ?? []).includes(n.id)).map((member) => ({
+				...member,
+				id: newId(),
+				position: {
+					x: position.x + member.position.x - node.position.x,
+					y: position.y + member.position.y - node.position.y
+				},
+				data: {
+					...structuredClone(member.data),
+					groupId: copy.id
+				}
+			}));
+			copy.data.memberIds = members.map((member) => member.id);
+			return [copy, ...members];
+		}
+		// src/client/lib/layering.ts
+		/**
+		* 检测有向图中的环（DFS 三色染色，显式栈避免深图递归爆栈），返回参与环的节点集合。
+		* 与 host 侧 graph/dag.ts 同算法但输入形态不同（显式边表）——两侧判定必须一致，
+		* 单测各自锁定（此处不跨 program import，避免双 program 类型域污染）。
+		*/
+		function detectCycleNodes(ids, edges) {
+			const adjacency = new Map(ids.map((id) => [id, []]));
+			for (const edge of edges) {
+				if (!adjacency.has(edge.source) || !adjacency.has(edge.target)) continue;
+				adjacency.get(edge.source).push(edge.target);
+			}
+			const WHITE = 0;
+			const GRAY = 1;
+			const BLACK = 2;
+			const color = new Map(ids.map((id) => [id, WHITE]));
+			const inCycle = /* @__PURE__ */ new Set();
+			for (const start of ids) {
+				if (color.get(start) !== WHITE) continue;
+				const stack = [{
+					id: start,
+					index: 0
+				}];
+				color.set(start, GRAY);
+				while (stack.length > 0) {
+					const frame = stack[stack.length - 1];
+					const neighbours = adjacency.get(frame.id) ?? [];
+					if (frame.index >= neighbours.length) {
+						color.set(frame.id, BLACK);
+						stack.pop();
+						continue;
+					}
+					const next = neighbours[frame.index];
+					frame.index += 1;
+					const state = color.get(next);
+					if (state === GRAY) {
+						let marking = false;
+						for (const item of stack) {
+							if (item.id === next) marking = true;
+							if (marking) inCycle.add(item.id);
+						}
+						inCycle.add(next);
+						continue;
+					}
+					if (state === WHITE) {
+						color.set(next, GRAY);
+						stack.push({
+							id: next,
+							index: 0
+						});
+					}
+				}
+			}
+			return inCycle;
+		}
+		/**
+		* 分层：环上节点先被排除（其所在边全部视为回流边），其余节点按**最长路径**分层
+		* （col(u) = max(col(v) + 1)，无入边为 0）。
+		* 为什么排除环而不是硬解环：环意味着流程不可终止，检查器会报 flowCycle；
+		* 布局只需「不崩、不产生 NaN、不丢节点」——环上节点由调用方放到兜底列。
+		*/
+		function layerGraph(ids, edges) {
+			const cyclic = detectCycleNodes(ids, edges);
+			const allowedEdges = [];
+			const reversedEdgeIndexes = [];
+			edges.forEach((edge, index) => {
+				const usable = ids.includes(edge.source) && ids.includes(edge.target);
+				const onCycle = cyclic.has(edge.source) || cyclic.has(edge.target);
+				if (!usable || onCycle) {
+					reversedEdgeIndexes.push(index);
+					return;
+				}
+				allowedEdges.push(edge);
+			});
+			const allowedIds = ids.filter((id) => !cyclic.has(id));
+			const adjacency = new Map(allowedIds.map((id) => [id, []]));
+			const indegree = new Map(allowedIds.map((id) => [id, 0]));
+			for (const edge of allowedEdges) {
+				adjacency.get(edge.source).push(edge.target);
+				indegree.set(edge.target, (indegree.get(edge.target) ?? 0) + 1);
+			}
+			const layerOf = /* @__PURE__ */ new Map();
+			const queue = allowedIds.filter((id) => (indegree.get(id) ?? 0) === 0);
+			for (const id of queue) layerOf.set(id, 0);
+			let cursor = 0;
+			while (cursor < queue.length) {
+				const id = queue[cursor];
+				cursor += 1;
+				for (const next of adjacency.get(id) ?? []) {
+					layerOf.set(next, Math.max(layerOf.get(next) ?? 0, (layerOf.get(id) ?? 0) + 1));
+					const left = (indegree.get(next) ?? 0) - 1;
+					indegree.set(next, left);
+					if (left === 0) queue.push(next);
+				}
+			}
+			for (const id of allowedIds) if (!layerOf.has(id)) layerOf.set(id, 0);
+			return {
+				ids: allowedIds,
+				layerOf,
+				reversedEdgeIndexes
+			};
+		}
+		/** 计算某单元在参考层的平均位置（无邻居时返回 undefined）。 */
+		function barycenter(_id, neighbours, indexOf) {
+			let sum = 0;
+			let count = 0;
+			for (const other of neighbours) {
+				const position = indexOf.get(other);
+				if (position === void 0) continue;
+				sum += position;
+				count += 1;
+			}
+			return count === 0 ? void 0 : sum / count;
+		}
+		/** 一轮扫描：固定参考层，重排目标层（无邻居的单元保持原位，稳定排序）。 */
+		function sweep(targetLayer, referenceIndexOf, neighboursOf) {
+			const currentIndex = new Map(targetLayer.map((id, index) => [id, index]));
+			const decorated = targetLayer.map((id) => {
+				const raw = barycenter(id, neighboursOf(id), referenceIndexOf) ?? currentIndex.get(id) ?? 0;
+				return {
+					id,
+					center: Math.round(raw * 1e3) / 1e3,
+					original: currentIndex.get(id) ?? 0
+				};
+			});
+			decorated.sort((a, b) => a.center !== b.center ? a.center - b.center : a.original - b.original);
+			return decorated.map((item) => item.id);
+		}
+		/**
+		* 层内排序主函数：返回每层重排后的 id 顺序（行 = 层内并行，尽量少交叉）。
+		* @returns 与输入 layers 等长的数组（每层顺序可能变化，集合不变）
+		*/
+		function orderLayers(input) {
+			const rounds = Math.max(0, Math.floor(input.rounds ?? 4));
+			let layers = input.layers.map((layer) => [...layer]);
+			for (let round = 0; round < rounds; round += 1) {
+				for (let index = 1; index < layers.length; index += 1) {
+					const reference = new Map(layers[index - 1].map((id, position) => [id, position]));
+					layers[index] = sweep(layers[index], reference, (id) => input.reverse.get(id) ?? []);
+				}
+				for (let index = layers.length - 2; index >= 0; index -= 1) {
+					const reference = new Map(layers[index + 1].map((id, position) => [id, position]));
+					layers[index] = sweep(layers[index], reference, (id) => input.adjacency.get(id) ?? []);
+				}
+			}
+			return layers;
+		}
+		/** 节点实际尺寸（Team 卡片可拉伸，尺寸存 data.size；阶段节点用紧凑卡）。 */
+		function nodeSizeOf(node) {
+			if (node.kind === "group") {
+				const size = node.data?.size ?? {};
+				return {
+					w: Number(size.w) > 0 ? Number(size.w) : 300,
+					h: Number(size.h) > 0 ? Number(size.h) : 220
+				};
+			}
+			if (node.kind === "start" || node.kind === "end" || node.kind === "pause") return {
+				w: 168,
+				h: 88
+			};
+			return {
+				w: 208,
+				h: 116
+			};
+		}
+		/**
+		* Team 卡片最小尺寸（容纳成员列表所需高度；宽度保持用户拉伸值）。
+		* 布局与自动布局判定共用同一口径，避免「布局算出的高度」与「渲染高度」漂移。
+		* 纯函数：只读 data.memberIds / data.size，不读时钟/随机源。
+		*/
+		function groupCardSizeOf(node) {
+			const size = nodeSizeOf(node);
+			if (node.kind !== "group") return size;
+			const minHeight = 62 + [...new Set(node.data?.memberIds ?? [])].length * 41 + 10;
+			return {
+				w: size.w,
+				h: Math.max(size.h, minHeight)
+			};
+		}
+		// src/client/lib/layout-types.ts
+		/**
+		* Team 卡片最小高度（容纳成员列表；用户手动设的更大高度优先）。
+		* 与 card-geometry.groupCardSizeOf 同一口径（同一常量），两侧不会漂移。
+		*/
+		function groupCardMinHeight(group) {
+			const members = [...new Set(Array.isArray(group?.data?.memberIds) ? group.data.memberIds : [])];
+			const containerHeight = Number((group?.data?.size)?.h);
+			const base = Number.isFinite(containerHeight) ? containerHeight : 0;
+			const needed = 62 + members.length * 41 + 10;
+			return Math.max(base, needed);
+		}
+		/**
+		* 布局缺省参数。
+		* - columnGap=72：列间距（前一列右边界 → 后一列左边界）；
+		* - rowGap=56：列内垂直最小间隔（主干与数据节点贴轴堆叠的间隔）；
+		* - originX/originY：画布左上留白（originY 即主轴高度基准，主轴 Y = originY + 主干卡片高/2）。
+		*/
+		const LAYOUT_DEFAULTS = {
+			columnGap: 72,
+			rowGap: 56,
+			maxOrderRounds: 4,
+			originX: 70,
+			originY: 80
+		};
+		/** 位置哨兵：{x:0,y:0} 视为「未布局」（新建/导入/代理落盘时可能缺坐标）。 */
+		const SENTINEL_POSITION = {
+			x: 0,
+			y: 0
+		};
+		/** 是否为缺失/哨兵坐标（自动布局触发判据）。 */
+		function isSentinelPosition(position) {
+			if (!position) return true;
+			return !Number.isFinite(position.x) || !Number.isFinite(position.y) || position.x === SENTINEL_POSITION.x && position.y === SENTINEL_POSITION.y;
+		}
+		// src/client/lib/layout.ts
+		/**
+		* 主干类节点 kind（参与流程主干；与 host NODE_HANDLES 的流程通道能力对应）。
+		* proxy 是主节点的分身，同样属于主干（用户口径：主干 = 除 task/database 之外的全部节点）。
+		*/
+		const SPINE_KINDS = /* @__PURE__ */ new Set([
+			"start",
+			"end",
+			"pause",
+			"parent",
+			"agent",
+			"group",
+			"subgraph",
+			"step",
+			"proxy"
+		]);
+		/** 数据类节点 kind（任务描述/数据库来源；按 (n-1) 列分布在主干两旁）。 */
+		const DATA_KINDS = /* @__PURE__ */ new Set(["task", "database"]);
+		/**
+		* 布局诊断文案（LayoutResult.warnings）：布局是 lib 层纯函数、不引词典，调用方按需消费。
+		* 文案集中在模块级纯函数（同一语义只有一处本体），变量只作为参数注入。
+		*/
+		const orphanDataWarning = (id) => `数据节点「${id}」未关联任何角色节点，已放到流程最右侧的独立列`;
+		const groupHeightWarning = (id, needed, memberCount) => `团队「${id}」卡片高度不足，建议加高到 ${needed}px 以容纳 ${memberCount} 名成员`;
+		/** 仅流程线参与主干分层（ctx-out→ctx-in / db-out→db-in 不参与）。 */
+		function isFlowLine(line) {
+			return line?.sourceHandle === "flow-out" && line?.targetHandle === "flow-in";
+		}
+		/**
+		* 数据节点的关联线：任务描述（ctx-out）或数据库（db-out）指向角色节点的注入线。
+		* 与 isFlowLine 严格互补——同一批连线只会被其中一侧消费，不会既进主干又当数据关联。
+		*/
+		function isDataLine(line) {
+			if (!line) return false;
+			return line.sourceHandle === "ctx-out" && line.targetHandle === "ctx-in" || line.sourceHandle === "db-out" && line.targetHandle === "db-in";
+		}
+		/**
+		* 布局输入装配：把节点投影为「尺寸 + 关系」元数据。
+		* 尺寸由调用方提供（通常是 card-geometry.nodeSizeOf），布局不反向依赖渲染细节。
+		*/
+		function toLayoutInputs(nodes, sizeOf) {
+			return (nodes ?? []).map((node) => {
+				const size = sizeOf(node);
+				const data = node.data ?? {};
+				const memberIds = Array.isArray(data.memberIds) ? data.memberIds.map(String) : void 0;
+				const groupId = typeof data.groupId === "string" && data.groupId ? data.groupId : null;
+				const rawSource = node.proxySourceId ?? data.proxySourceId;
+				const sourceId = typeof rawSource === "string" && rawSource ? rawSource : void 0;
+				return {
+					id: node.id,
+					kind: node.kind,
+					width: Number(size.w) || 0,
+					height: Number(size.h) || 0,
+					...node.kind === "proxy" && sourceId ? { sourceId } : {},
+					...node.kind === "group" ? { memberIds: memberIds ?? [] } : { groupId }
+				};
+			});
+		}
+		/**
+		* 折叠映射：Team 成员 → Team 卡片。
+		* 只折叠组成员：虚拟节点（proxy）**不再**折叠到主节点——它是主节点的分身，独立占位与分层
+		* （用户裁决：proxy 可以参与流程的不同阶段，与主节点不一定同列）。
+		*/
+		function collapseMapOf(inputs) {
+			const byId = new Map(inputs.map((node) => [node.id, node]));
+			const collapse = /* @__PURE__ */ new Map();
+			for (const node of inputs) {
+				if (node.kind !== "group") continue;
+				for (const memberId of node.memberIds ?? []) {
+					if (memberId === node.id || !byId.has(memberId)) continue;
+					collapse.set(memberId, node.id);
+				}
+			}
+			return collapse;
+		}
+		/**
+		* 参与长边排序的边集合：把跨层边拆成「相邻层二元组」。
+		* 长边（如 start → 第 4 层节点）若只按端点排序，中间层的重心不受影响、交叉难以收敛；
+		* 拆成二元组后每一段都参与重心计算（不插真实虚拟节点，坐标仍按列独立生成）。
+		*/
+		function spanEdgesOf(edges, layerOf) {
+			const out = [];
+			for (const edge of edges) {
+				const from = layerOf.get(edge.source);
+				const to = layerOf.get(edge.target);
+				if (from === void 0 || to === void 0 || to - from <= 1) {
+					out.push(edge);
+					continue;
+				}
+				for (let layer = from; layer < to - 1; layer += 1) out.push({
+					source: `${edge.source}#${layer}`,
+					target: `${edge.target}#${layer + 1}`
+				});
+				out.push({
+					source: `${edge.source}#${to - 1}`,
+					target: edge.target
+				});
+			}
+			return out;
+		}
+		/**
+		* 主轴上下堆叠：给定各卡片高与基准轴心，返回以轴心为中心、间隔不小于 gap 的对称落点。
+		* 规则（用户裁决）：主轴那条水平线始终穿过主干卡片的中心——单卡居中于轴，
+		* 多卡以轴为中心上下均分（间距 = max(gap, 均分值)），数据节点贴轴上下堆叠。
+		*/
+		function axisOffsets(heights, axisY, gap) {
+			if (heights.length === 0) return [];
+			const cards = heights.map((height) => Math.max(0, height));
+			const safeGap = Math.max(0, gap);
+			const totalCardHeight = cards.reduce((sum, height) => sum + height, 0);
+			const evenSpacing = cards.length > 1 ? Math.max(safeGap, (axisY * 2 - totalCardHeight) / (cards.length - 1)) : safeGap;
+			let cursor = axisY - (totalCardHeight + Math.max(0, cards.length - 1) * evenSpacing) / 2;
+			const offsets = [];
+			for (const height of cards) {
+				offsets.push(cursor);
+				cursor += height + evenSpacing;
+			}
+			return offsets;
+		}
+		/**
+		* 分层布局主函数（纯函数：同输入同输出，不读时钟/随机源）。
+		*
+		* 步骤：① 主干/数据分类与折叠 → ② 主干分层（flow 边，环被剔除）→ ③ 主干层内排序 →
+		* ④ 数据节点 (n-1) 列推导 → ⑤ 主轴共线 + 列内均分 + 数据节点贴轴堆叠 + 列右对齐 → ⑥ 孤立列兜底。
+		*/
+		function layoutGraph(nodes, lines, options = {}) {
+			const columnGap = Number(options.columnGap ?? LAYOUT_DEFAULTS.columnGap);
+			const rowGap = Number(options.rowGap ?? LAYOUT_DEFAULTS.rowGap);
+			const originX = Number(options.originX ?? LAYOUT_DEFAULTS.originX);
+			const originY = Number(options.originY ?? LAYOUT_DEFAULTS.originY);
+			const rawRounds = Number(options.maxOrderRounds ?? 4);
+			const rounds = Number.isFinite(rawRounds) ? rawRounds : 4;
+			const inputs = nodes ?? [];
+			const positions = /* @__PURE__ */ new Map();
+			const colOf = /* @__PURE__ */ new Map();
+			const warnings = [];
+			if (inputs.length === 0) return {
+				positions,
+				colOf,
+				maxCol: -1,
+				axisY: originY,
+				orphanCol: -1,
+				reversedLineIds: [],
+				warnings
+			};
+			const byId = new Map(inputs.map((node) => [node.id, node]));
+			const collapse = collapseMapOf(inputs);
+			/** 占位单元：全部非组员节点（含 proxy；proxy 独立占位）。 */
+			const units = inputs.filter((node) => !collapse.has(node.id));
+			const spineUnits = units.filter((unit) => SPINE_KINDS.has(unit.kind));
+			const dataUnits = units.filter((unit) => DATA_KINDS.has(unit.kind));
+			const spineEdges = [];
+			const spineEdgeLineIds = [];
+			const dataEdges = [];
+			for (const line of lines ?? []) {
+				if (!byId.has(line.source) || !byId.has(line.target)) continue;
+				const fromUnit = collapse.get(line.source) ?? line.source;
+				const toUnit = collapse.get(line.target) ?? line.target;
+				if (isFlowLine(line)) {
+					if (fromUnit === toUnit) continue;
+					spineEdges.push({
+						source: fromUnit,
+						target: toUnit
+					});
+					spineEdgeLineIds.push(line.id);
+					continue;
+				}
+				if (isDataLine(line)) dataEdges.push({
+					source: fromUnit,
+					target: toUnit
+				});
+			}
+			const participatingSpineIds = /* @__PURE__ */ new Set();
+			for (const edge of spineEdges) {
+				participatingSpineIds.add(edge.source);
+				participatingSpineIds.add(edge.target);
+			}
+			const spineParticipating = spineUnits.filter((unit) => participatingSpineIds.has(unit.id));
+			const spineIsolated = spineUnits.filter((unit) => !participatingSpineIds.has(unit.id));
+			const layering = layerGraph(spineParticipating.map((unit) => unit.id), spineEdges);
+			const spineForwardEdges = [];
+			const reversedLineIds = [];
+			spineEdges.forEach((edge, index) => {
+				const layerFrom = layering.layerOf.get(edge.source);
+				const layerTo = layering.layerOf.get(edge.target);
+				if (layerFrom === void 0 || layerTo === void 0 || layerTo <= layerFrom) {
+					reversedLineIds.push(spineEdgeLineIds[index]);
+					return;
+				}
+				spineForwardEdges.push(edge);
+			});
+			const spineLayer = /* @__PURE__ */ new Map();
+			for (const unit of spineParticipating) spineLayer.set(unit.id, layering.layerOf.get(unit.id) ?? 0);
+			for (const unit of spineParticipating) if (unit.kind === "start") spineLayer.set(unit.id, 0);
+			const rawSpineLayers = Array.from({ length: Math.max(1, ...[...spineLayer.values()].map((layer) => layer + 1)) }, () => []);
+			for (const unit of spineParticipating) {
+				const layer = spineLayer.get(unit.id) ?? 0;
+				rawSpineLayers[layer] = [...rawSpineLayers[layer] ?? [], unit.id];
+			}
+			const spanEdges = spanEdgesOf(spineForwardEdges, spineLayer);
+			const adjacency = /* @__PURE__ */ new Map();
+			const reverse = /* @__PURE__ */ new Map();
+			for (const edge of spanEdges) {
+				adjacency.set(edge.source, [...adjacency.get(edge.source) ?? [], edge.target]);
+				reverse.set(edge.target, [...reverse.get(edge.target) ?? [], edge.source]);
+			}
+			const orderedSpine = orderLayers({
+				layers: rawSpineLayers,
+				adjacency,
+				reverse,
+				rounds
+			});
+			const spineColOf = /* @__PURE__ */ new Map();
+			const spineOrderOf = /* @__PURE__ */ new Map();
+			orderedSpine.forEach((layer, index) => {
+				layer.forEach((id, position) => {
+					spineColOf.set(id, index);
+					spineOrderOf.set(id, position);
+				});
+			});
+			const widthOf = (id) => Number(byId.get(id)?.width) || 0;
+			const heightOf = (id) => {
+				const unit = byId.get(id);
+				if (!unit) return 0;
+				if (unit.kind === "group") return Math.max(Number(unit.height) || 0, groupCardMinHeight({ data: {
+					memberIds: unit.memberIds ?? [],
+					size: { h: unit.height }
+				} }));
+				return Number(unit.height) || 0;
+			};
+			const spineIdSet = new Set(spineUnits.map((unit) => unit.id));
+			/**
+			* 全局主轴 Y（主干线的水平位置）：originY + 基准主干卡片高/2。
+			* 基准用「标准角色卡高」（card-geometry.GRAPH_NODE_HEIGHT）而非本图最高卡片：
+			* 主轴是画布级的固定基准线，不应因某张 Team 卡更高而整体下移（否则各文档之间主干高低不一致）。
+			* 高于基准的卡片（如 Team 卡）以自身中心叠在轴上，向上/向下略微越出轴两侧空间。
+			*/
+			const axisY = originY + 58;
+			const collapseUnitOf = (id) => collapse.get(id) ?? id;
+			const spineColOfUnit = (id) => {
+				if (spineIdSet.has(id)) return spineColOf.get(id);
+				const groupId = collapse.get(id);
+				return groupId ? spineColOf.get(groupId) : void 0;
+			};
+			const dataCol = /* @__PURE__ */ new Map();
+			const dataAssociations = /* @__PURE__ */ new Map();
+			for (const unit of dataUnits) {
+				const associations = [...new Set(dataEdges.filter((edge) => edge.source === unit.id).map((edge) => collapseUnitOf(edge.target)))];
+				dataAssociations.set(unit.id, associations);
+				const columns = associations.map((targetId) => spineColOfUnit(targetId)).filter((column) => column !== void 0);
+				dataCol.set(unit.id, columns.length > 0 ? Math.max(0, Math.min(...columns) - 1) : -1);
+				if (columns.length === 0) warnings.push(orphanDataWarning(unit.id));
+			}
+			const lastSpineColumn = orderedSpine.length - 1;
+			const spineBlockAt = (column) => (orderedSpine[column] ?? []).map((id) => byId.get(id)).filter((unit) => Boolean(unit));
+			const dataByColumn = /* @__PURE__ */ new Map();
+			for (const unit of dataUnits) {
+				const column = dataCol.get(unit.id) ?? -1;
+				if (column < 0) continue;
+				dataByColumn.set(column, [...dataByColumn.get(column) ?? [], unit]);
+			}
+			const columns = [.../* @__PURE__ */ new Set([...orderedSpine.map((_, index) => index), ...dataByColumn.keys()])].filter((column) => column >= 0 && column <= lastSpineColumn).sort((a, b) => a - b);
+			const spineYsByColumn = /* @__PURE__ */ new Map();
+			const spineBlockByColumn = /* @__PURE__ */ new Map();
+			/** 主干节点 id → 计划中的垂直中心（未落位前用于数据节点上下侧判定）。 */
+			const spineCenterById = /* @__PURE__ */ new Map();
+			for (const column of columns) {
+				const spineBlock = spineBlockAt(column);
+				const spineYs = axisOffsets(spineBlock.map((unit) => heightOf(unit.id)), axisY, rowGap);
+				spineBlockByColumn.set(column, spineBlock);
+				spineYsByColumn.set(column, spineYs);
+				spineBlock.forEach((unit, index) => {
+					spineCenterById.set(unit.id, (spineYs[index] ?? axisY) + heightOf(unit.id) / 2);
+				});
+			}
+			/**
+			* 数据节点关联角色相对主轴的平均垂直偏移（负数 = 关联角色在主轴上方）：
+			* 用于「放主轴上方还是下方」的判定（用户裁决：按与关联角色在画布中的平均距离判断）。
+			* 关联角色不在主干上（未关联）时返回正无穷，保证它排在最后。
+			*/
+			const associationOffsetOf = (id) => {
+				const offsets = (dataAssociations.get(id) ?? []).map((targetId) => spineCenterById.get(targetId)).filter((center) => center !== void 0).map((center) => center - axisY);
+				if (offsets.length === 0) return Number.MAX_SAFE_INTEGER;
+				return offsets.reduce((sum, value) => sum + value, 0) / offsets.length;
+			};
+			for (const [column, members] of dataByColumn) {
+				members.sort((a, b) => {
+					const offsetA = associationOffsetOf(a.id);
+					const offsetB = associationOffsetOf(b.id);
+					if (offsetA !== offsetB) return offsetA - offsetB;
+					return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
+				});
+				dataByColumn.set(column, members);
+			}
+			/** 列成员（自上而下）：主干块 → 轴上侧数据节点 → 轴下侧数据节点。 */
+			const columnMembers = /* @__PURE__ */ new Map();
+			for (const column of columns) columnMembers.set(column, [...spineBlockByColumn.get(column) ?? [], ...dataByColumn.get(column) ?? []]);
+			const columnWidth = /* @__PURE__ */ new Map();
+			for (const column of columns) {
+				let width = 0;
+				for (const unit of columnMembers.get(column) ?? []) width = Math.max(width, widthOf(unit.id));
+				columnWidth.set(column, width);
+			}
+			const columnRight = /* @__PURE__ */ new Map();
+			let cursorRight = originX;
+			for (const column of columns) {
+				cursorRight += (columnWidth.get(column) ?? 0) + columnGap;
+				columnRight.set(column, cursorRight);
+			}
+			for (const column of columns) {
+				const spineBlock = spineBlockByColumn.get(column) ?? [];
+				const spineYs = spineYsByColumn.get(column) ?? [];
+				const dataMembers = dataByColumn.get(column) ?? [];
+				const splitIndex = dataMembers.findIndex((unit) => associationOffsetOf(unit.id) >= 0);
+				const upper = splitIndex < 0 ? dataMembers : dataMembers.slice(0, splitIndex);
+				const lower = splitIndex < 0 ? [] : dataMembers.slice(splitIndex);
+				const columnRightEdge = columnRight.get(column) ?? originX;
+				const place = (unit, y) => {
+					positions.set(unit.id, {
+						x: columnRightEdge - widthOf(unit.id),
+						y
+					});
+					colOf.set(unit.id, column);
+				};
+				spineBlock.forEach((unit, index) => place(unit, spineYs[index] ?? axisY));
+				const lastSpineUnit = spineBlock[spineBlock.length - 1];
+				const spineTop = spineYs[0] ?? axisY;
+				const spineBottom = lastSpineUnit ? (spineYs[spineYs.length - 1] ?? axisY) + heightOf(lastSpineUnit.id) : axisY;
+				let aboveCursor = spineTop;
+				for (const unit of [...upper].reverse()) {
+					aboveCursor -= heightOf(unit.id) + Math.max(0, rowGap);
+					place(unit, aboveCursor);
+				}
+				let belowCursor = spineBottom;
+				for (const unit of lower) {
+					belowCursor += Math.max(0, rowGap);
+					place(unit, belowCursor);
+					belowCursor += heightOf(unit.id);
+				}
+			}
+			for (const unit of spineUnits) {
+				if (unit.kind !== "group") continue;
+				const position = positions.get(unit.id);
+				if (!position) continue;
+				const column = colOf.get(unit.id) ?? 0;
+				const memberIds = [...new Set(unit.memberIds ?? [])].filter((memberId) => memberId !== unit.id && byId.has(memberId));
+				memberIds.forEach((memberId, index) => {
+					positions.set(memberId, {
+						x: position.x + 10,
+						y: position.y + 62 + index * 41
+					});
+					colOf.set(memberId, column);
+				});
+				const needed = groupCardMinHeight({ data: {
+					memberIds,
+					size: { h: unit.height }
+				} });
+				if (needed > (Number(unit.height) || 0)) warnings.push(groupHeightWarning(unit.id, Math.round(needed), memberIds.length));
+			}
+			const orphanUnits = [...spineIsolated, ...dataUnits.filter((unit) => (dataCol.get(unit.id) ?? -1) < 0)];
+			const orphanCol = columns.length;
+			let maxColumnRight = originX;
+			for (const column of columns) maxColumnRight = Math.max(maxColumnRight, columnRight.get(column) ?? originX);
+			const orphanRight = orphanUnits.length > 0 ? maxColumnRight + columnGap + Math.max(0, ...orphanUnits.map((unit) => widthOf(unit.id))) : maxColumnRight;
+			let orphanCursorY = originY;
+			for (const unit of orphanUnits) {
+				const orphanX = orphanRight - widthOf(unit.id);
+				const orphanY = orphanCursorY;
+				positions.set(unit.id, {
+					x: orphanX,
+					y: orphanY
+				});
+				colOf.set(unit.id, orphanCol);
+				orphanCursorY += heightOf(unit.id) + Math.max(0, rowGap);
+				if (unit.kind !== "group") continue;
+				[...new Set(unit.memberIds ?? [])].filter((id) => id !== unit.id && byId.has(id)).forEach((memberId, index) => {
+					positions.set(memberId, {
+						x: orphanX + 10,
+						y: orphanY + 62 + index * 41
+					});
+					colOf.set(memberId, orphanCol);
+				});
+			}
+			for (const node of inputs) {
+				if (positions.has(node.id)) continue;
+				const fallbackCol = Math.max(0, lastSpineColumn);
+				const fallbackRight = columnRight.get(fallbackCol) ?? originX;
+				positions.set(node.id, {
+					x: fallbackRight - widthOf(node.id),
+					y: originY
+				});
+				colOf.set(node.id, fallbackCol);
+			}
+			return {
+				positions,
+				colOf,
+				maxCol: Math.max(-1, lastSpineColumn),
+				axisY,
+				orphanCol: orphanUnits.length > 0 ? orphanCol : Math.max(-1, lastSpineColumn),
+				reversedLineIds: [...new Set(reversedLineIds)],
+				warnings
+			};
+		}
+		// src/client/lib/layout-forward.ts
+		/** Follow the success path first; review/recovery edges must not collapse a whole cycle into one column. */
+		function forwardLayoutLines(nodes, lines, owner) {
+			const ids = new Set(nodes.map((node) => node.id));
+			const condition = (line) => line.condition?.type ?? "";
+			const allFlow = lines.filter((line) => line.sourceHandle === "flow-out" && line.targetHandle === "flow-in" && owner(line.source) !== owner(line.target));
+			const regularInputs = new Set(allFlow.filter((line) => condition(line) !== "fail").map((line) => owner(line.target)));
+			const recoveryRoots = new Set(allFlow.filter((line) => condition(line) === "fail" && !regularInputs.has(owner(line.target))).map((line) => owner(line.target)));
+			const flow = allFlow.filter((line) => condition(line) !== "fail" && !recoveryRoots.has(owner(line.source)));
+			const priority = (line) => condition(line) === "fail" ? 2 : condition(line) === "content" ? 1 : 0;
+			const outgoing = /* @__PURE__ */ new Map();
+			for (const line of flow) outgoing.set(owner(line.source), [...outgoing.get(owner(line.source)) ?? [], line]);
+			for (const edges of outgoing.values()) edges.sort((a, b) => priority(a) - priority(b));
+			const roots = [...nodes].sort((a, b) => (a.kind === "start" ? -2 : a.kind === "parent" ? -1 : 0) - (b.kind === "start" ? -2 : b.kind === "parent" ? -1 : 0));
+			const colors = /* @__PURE__ */ new Map();
+			const feedback = /* @__PURE__ */ new Set();
+			for (const root of roots) {
+				if (colors.has(root.id)) continue;
+				colors.set(root.id, "active");
+				const pending = [{
+					id: root.id,
+					cursor: 0
+				}];
+				while (pending.length) {
+					const frame = pending[pending.length - 1], edges = outgoing.get(frame.id) ?? [];
+					if (frame.cursor >= edges.length) {
+						colors.set(frame.id, "done");
+						pending.pop();
+						continue;
+					}
+					const edge = edges[frame.cursor++], next = owner(edge.target);
+					if (!ids.has(next)) continue;
+					if (colors.get(next) === "active") {
+						feedback.add(edge);
+						continue;
+					}
+					if (!colors.has(next)) {
+						colors.set(next, "active");
+						pending.push({
+							id: next,
+							cursor: 0
+						});
+					}
+				}
+			}
+			return flow.filter((line) => !feedback.has(line));
+		}
+		// src/client/lib/compact-layout.ts
+		/** Keep clear authored hierarchies; arrange unfinished graphs left-to-right with vertical parallel branches. */
+		function compactLayout(nodes, lines) {
+			const groups = /* @__PURE__ */ new Map();
+			for (const node of nodes) if (node.kind === "group") for (const id of node.data?.memberIds ?? []) groups.set(id, node);
+			const visible = nodes.filter((n) => !groups.has(n.id)), owner = (id) => groups.get(id)?.id ?? id;
+			const flowLines = forwardLayoutLines(visible, lines, owner);
+			const byId = new Map(visible.map((n) => [n.id, n]));
+			const incomingCount = /* @__PURE__ */ new Map();
+			for (const line of lines) incomingCount.set(owner(line.target), (incomingCount.get(owner(line.target)) ?? 0) + 1);
+			if (flowLines.filter((line) => (byId.get(owner(line.target))?.position.x ?? 0) > (byId.get(owner(line.source))?.position.x ?? 0) + 64).length >= flowLines.length * .8 && visible.every((n) => Number.isFinite(n.position?.x) && Number.isFinite(n.position?.y) && (n.position.x !== 0 || n.position.y !== 0)) && visible.every((a, i) => visible.slice(i + 1).every((b) => {
+				const sa = groupCardSizeOf(a), sb = groupCardSizeOf(b);
+				return a.position.x + sa.w <= b.position.x || b.position.x + sb.w <= a.position.x || a.position.y + sa.h <= b.position.y || b.position.y + sb.h <= a.position.y;
+			})) && flowLines.every((line) => {
+				const source = byId.get(owner(line.source)), target = byId.get(owner(line.target));
+				if (!source || !target) return true;
+				const size = groupCardSizeOf(source);
+				const pressure = incomingCount.get(target.id) ?? 0;
+				const gap = pressure >= 5 ? Math.min(224, 96 + pressure * 10) : 64;
+				return target.position.x >= source.position.x + size.w + gap || Math.abs(target.position.x - source.position.x) < 48 && target.position.y >= source.position.y + size.h + 8;
+			}) && lines.every((line) => {
+				const source = byId.get(owner(line.source)), target = byId.get(owner(line.target));
+				if (!source || !target || source.kind !== "task" && source.kind !== "database") return true;
+				const gap = target.position.y - source.position.y - groupCardSizeOf(source).h;
+				return Math.abs(source.position.x - target.position.x) >= 48 || gap < 0 || gap >= 64;
+			})) return nodes;
+			const participating = new Set(flowLines.flatMap((l) => [owner(l.source), owner(l.target)]));
+			const base = layoutGraph(toLayoutInputs(nodes, groupCardSizeOf), flowLines);
+			const rankOf = /* @__PURE__ */ new Map();
+			const main = /* @__PURE__ */ new Map(), headers = /* @__PURE__ */ new Map(), footers = /* @__PURE__ */ new Map();
+			const add = (columns, rank, node) => {
+				columns.set(rank, [...columns.get(rank) ?? [], node]);
+				rankOf.set(node.id, rank);
+			};
+			for (const node of visible.filter((n) => participating.has(n.id))) add(main, base.colOf.get(node.id) ?? 0, node);
+			const support = visible.filter((n) => !participating.has(n.id));
+			for (const node of support.filter((n) => n.kind === "task" || n.kind === "database")) {
+				const linked = lines.filter((l) => l.source === node.id && rankOf.has(owner(l.target)));
+				const phaseTargets = linked.filter((line) => byId.get(owner(line.target))?.kind !== "parent");
+				const targets = (phaseTargets.length ? phaseTargets : linked).map((line) => rankOf.get(owner(line.target)));
+				add(headers, targets.length ? Math.min(...targets) - 1 : -1, node);
+			}
+			for (const node of support.filter((n) => n.kind !== "task" && n.kind !== "database")) {
+				const incoming = lines.filter((l) => owner(l.target) === node.id).flatMap((l) => rankOf.has(owner(l.source)) ? [rankOf.get(owner(l.source))] : []);
+				const rank = incoming.length ? Math.min(...incoming) + 1 : 0;
+				const reviewOnly = lines.some((line) => owner(line.target) === node.id && line.sourceHandle === "flow-out");
+				add(node.kind === "parent" ? headers : reviewOnly ? footers : main, rank, node);
+			}
+			for (const column of main.values()) column.sort((a, b) => (base.positions.get(a.id)?.y ?? 0) - (base.positions.get(b.id)?.y ?? 0) || a.id.localeCompare(b.id));
+			const ranks = [.../* @__PURE__ */ new Set([
+				...main.keys(),
+				...headers.keys(),
+				...footers.keys()
+			])].sort((a, b) => a - b);
+			const height = (column, gap) => column.reduce((sum, node) => sum + groupCardSizeOf(node).h, 0) + Math.max(0, column.length - 1) * gap;
+			const mainHeight = Math.max(0, ...[...main.values()].map((column) => height(column, 56)));
+			const headerHeight = Math.max(0, ...[...headers.values()].map((column) => height(column, 80)));
+			const axis = 60 + headerHeight + (headerHeight ? 80 : 0) + mainHeight / 2;
+			const poses = /* @__PURE__ */ new Map();
+			let left = 70;
+			for (const [columnIndex, rank] of ranks.entries()) {
+				const flow = main.get(rank) ?? [], data = headers.get(rank) ?? [], review = footers.get(rank) ?? [], column = [
+					...flow,
+					...data,
+					...review
+				];
+				const width = Math.max(...column.map((n) => groupCardSizeOf(n).w));
+				let top = 60;
+				for (const node of data) {
+					const size = groupCardSizeOf(node);
+					poses.set(node.id, {
+						x: left + (width - size.w) / 2,
+						y: top
+					});
+					top += size.h + 80;
+				}
+				top = axis - height(flow, 56) / 2;
+				for (const node of flow) {
+					const size = groupCardSizeOf(node);
+					poses.set(node.id, {
+						x: left + (width - size.w) / 2,
+						y: top
+					});
+					top += size.h + 56;
+				}
+				top = axis + height(flow, 56) / 2 + 56;
+				for (const node of review) {
+					const size = groupCardSizeOf(node);
+					poses.set(node.id, {
+						x: left + (width - size.w) / 2,
+						y: top
+					});
+					top += size.h + 56;
+				}
+				const nextColumn = [
+					...main.get(ranks[columnIndex + 1]) ?? [],
+					...headers.get(ranks[columnIndex + 1]) ?? [],
+					...footers.get(ranks[columnIndex + 1]) ?? []
+				];
+				const fan = Math.max(0, ...column.map((n) => lines.filter((l) => owner(l.source) === n.id || owner(l.target) === n.id).length), ...nextColumn.map((n) => incomingCount.get(n.id) ?? 0));
+				left += width + Math.min(224, 96 + fan * 10);
+			}
+			return nodes.map((node) => {
+				const group = groups.get(node.id);
+				if (group) {
+					const pose = poses.get(group.id), index = (group.data?.memberIds ?? []).indexOf(node.id);
+					return pose ? {
+						...node,
+						position: {
+							x: pose.x + 20,
+							y: pose.y + 62 + index * 41
+						}
+					} : node;
+				}
+				const pose = poses.get(node.id);
+				if (!pose) return node;
+				return {
+					...node,
+					position: {
+						x: Math.round(pose.x),
+						y: Number(pose.y.toFixed(2))
+					},
+					data: {
+						...node.data,
+						...node.kind === "group" ? { size: groupCardSizeOf(node) } : {}
+					}
+				};
+			});
+		}
+		// src/client/lib/layout-fit.ts
+		/**
+		* 是否需要自动布局：任一节点坐标缺失/非有限数/为哨兵 {0,0} 即为真。
+		* 语义：新节点默认写哨兵坐标（或干脆不写），打开/接收文档时据此自动重排一次。
+		*/
+		function needsAutoLayout(nodes) {
+			return (nodes ?? []).some((node) => isSentinelPosition(node?.position));
+		}
+		/** Team 成员的 id 集合（以组的 memberIds 为准；用于排除重复渲染节点）。 */
+		function groupMemberIdsOf(nodes) {
+			const members = /* @__PURE__ */ new Set();
+			for (const node of nodes ?? []) {
+				if (node.kind !== "group") continue;
+				for (const memberId of [...new Set(Array.isArray(node.data?.memberIds) ? node.data?.memberIds : [])]) if (String(memberId) !== node.id) members.add(String(memberId));
+			}
+			return members;
+		}
+		/**
+		* 实际渲染盒子清单：Team 卡片 + 独立节点（组内成员不独立渲染；虚拟节点独立占位，参与判定）。
+		* 为什么排除组内成员：GraphCanvas 只渲染 Team 卡片与独立节点（组内成员以迷你卡渲染在卡片内），
+		* 对它们做重叠判定会产生「永远重叠」的假告警。
+		*/
+		function layoutBoxesOf(nodes, sizeOf, excludedIds = []) {
+			const members = groupMemberIdsOf(nodes);
+			for (const id of excludedIds) members.add(id);
+			return (nodes ?? []).filter((node) => !members.has(node.id)).map((node) => {
+				const size = sizeOf(node);
+				return {
+					id: node.id,
+					x: Number(node.position?.x) || 0,
+					y: Number(node.position?.y) || 0,
+					w: Number(size.w) || 0,
+					h: Number(size.h) || 0
+				};
+			});
+		}
+		/** 两盒子是否相交（边贴边不算相交；零面积盒子不参与）。 */
+		function boxesOverlap(a, b) {
+			if (a.id === b.id) return false;
+			if (a.w <= 0 || a.h <= 0 || b.w <= 0 || b.h <= 0) return false;
+			return a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
+		}
+		/** 全部重叠对（id 对按字典序归一，便于断言与去重）。 */
+		function findLayoutOverlaps(boxes) {
+			const list = boxes ?? [];
+			const overlaps = [];
+			for (let i = 0; i < list.length; i += 1) for (let j = i + 1; j < list.length; j += 1) {
+				if (!boxesOverlap(list[i], list[j])) continue;
+				const [a, b] = [list[i].id, list[j].id].sort();
+				overlaps.push([a, b]);
+			}
+			return overlaps;
+		}
+		/**
+		* 布局中被折叠（不占位置槽）的节点 id 集合：仅 Team 成员。
+		* 与 layout.ts 的折叠规则同源（虚拟节点独立占位，不再折叠到主节点）；供重叠判定与 UI 使用。
+		*/
+		function collapsedIdsOf(inputs) {
+			const collapsed = /* @__PURE__ */ new Set();
+			const known = new Set((inputs ?? []).map((input) => input.id));
+			for (const input of inputs ?? []) {
+				if (input.kind !== "group") continue;
+				for (const memberId of input.memberIds ?? []) {
+					if (memberId === input.id || !known.has(memberId)) continue;
+					collapsed.add(memberId);
+				}
+			}
+			return collapsed;
+		}
+		/**
+		* 层次布局（「整理布局」与自动布局的共用入口）：委托给分层布局实现。
+		*
+		* 为什么不复用旧实现：proxy 入边计入 indegree 导致主节点被推到引用节点
+		* 之后、不看卡片实际尺寸必然重叠、组内成员不参与布局、无层内排序、孤立节点塞进流程最右列、
+		* 无长边处理、无环路处理。
+		*
+		* 新实现落点：
+		*   - 算法：src/client/lib/layout.ts（分层 + 层内重心排序 + 按实际尺寸生成坐标）；
+		*   - 统一入口：本文件 tidyNodes（尺寸解析 + 坐标写回四步收敛）；
+		*   - 尺寸口径：src/client/lib/card-geometry.ts 的 groupCardSizeOf。
+		* 本函数保持原有签名与「返回含新 position 的新数组」语义：既有调用方与测试零改动。
+		*/
+		function layoutNodes(nodes, lines) {
+			return compactLayout(nodes, lines);
+		}
+		// src/client/lib/auto-layout-graph.ts
+		/** Rebuild only untouched generated references. User references and manually extended cards remain intact. */
+		function removeLayoutReferences(nodes, edges) {
+			const byId = new Map(nodes.map((node) => [node.id, node])), removed = /* @__PURE__ */ new Map();
+			for (const node of nodes) {
+				const marker = node.data?.autoLayoutReference;
+				if (node.kind !== "proxy" || !marker || !["source", "target"].includes(marker.endpoint) || !byId.has(marker.originalId)) continue;
+				const incident = edges.filter((edge) => edge.source === node.id || edge.target === node.id);
+				if (!incident.length || incident.length === 1 && incident[0].id === marker.edgeId && incident[0][marker.endpoint] === node.id) removed.set(node.id, marker);
+			}
+			const originalIdOf = (id) => {
+				let originalId = id;
+				const seen = /* @__PURE__ */ new Set();
+				while (removed.has(originalId)) {
+					if (seen.has(originalId)) return byId.get(id)?.proxySourceId ?? id;
+					seen.add(originalId);
+					originalId = removed.get(originalId).originalId;
+				}
+				return originalId;
+			};
+			return {
+				nodes: nodes.filter((node) => !removed.has(node.id)),
+				edges: edges.map((edge) => ({
+					...edge,
+					source: originalIdOf(edge.source),
+					target: originalIdOf(edge.target)
+				}))
+			};
+		}
+		function verticalSlot(id, x, y, w, h, boxes) {
+			const gap = 44;
+			const neighbors = boxes.filter((box) => x < box.x + box.w + gap && x + w + gap > box.x);
+			const candidates = [y, ...neighbors.flatMap((box) => [box.y - h - gap, box.y + box.h + gap])];
+			candidates.sort((a, b) => Math.abs(a - y) - Math.abs(b - y) || a - b);
+			return {
+				x,
+				y: candidates.find((top) => neighbors.every((box) => box.id === id || top + h + gap <= box.y || top >= box.y + box.h + gap)) ?? y
+			};
+		}
+		/** Horizontal phase layout, optionally substituting local role aliases for long return/cross-phase edges. */
+		function autoLayoutGraph(nodes, edges, options = {}) {
+			const original = removeLayoutReferences(nodes, edges);
+			const placed = compactLayout(original.nodes, original.edges);
+			const nextNodes = [...placed], byId = new Map(placed.map((node) => [node.id, node]));
+			const groups = /* @__PURE__ */ new Map();
+			for (const node of placed) if (node.kind === "group") for (const id of node.data.memberIds ?? []) groups.set(id, node);
+			const boxes = layoutBoxesOf(placed, groupCardSizeOf);
+			const roleOf = (id) => {
+				const node = byId.get(id), main = node?.kind === "proxy" ? byId.get(node.proxySourceId ?? "") : node;
+				return main?.kind === "agent" || main?.kind === "parent" ? main : void 0;
+			};
+			const nextEdges = original.edges.map((edge) => {
+				let next = edge.appearance ? {
+					...edge,
+					appearance: {
+						...edge.appearance,
+						waypoints: [],
+						anchorMode: "auto",
+						sourceSide: void 0,
+						targetSide: void 0
+					}
+				} : { ...edge };
+				if (!options.autoReferences) return next;
+				const source = groups.get(edge.source) ?? byId.get(edge.source), target = groups.get(edge.target) ?? byId.get(edge.target);
+				if (!source || !target || source.id === target.id) return next;
+				const sourceSize = groupCardSizeOf(source), targetSize = groupCardSizeOf(target);
+				const dx = target.position.x - source.position.x, dy = Math.abs(target.position.y - source.position.y);
+				if (!(dx < -64 || dx > 1100 || Math.abs(dx) < 64 && dy > 440)) return next;
+				const targetRole = roleOf(edge.target), sourceRole = roleOf(edge.source);
+				const endpoint = targetRole ? "target" : sourceRole ? "source" : null;
+				const main = endpoint === "target" ? targetRole : sourceRole;
+				if (!endpoint || !main) return next;
+				const originalId = edge[endpoint], originalNode = byId.get(originalId);
+				const stem = `auto-ref-${edge.id}-${endpoint}`;
+				let id = stem, suffix = 1;
+				while (byId.has(id)) id = `${stem}-${suffix++}`;
+				const reference = {
+					id,
+					kind: "proxy",
+					proxySourceId: main.id,
+					position: {
+						x: 0,
+						y: 0
+					},
+					data: {
+						label: String(originalNode.data?.label ?? main.data?.label ?? main.id),
+						autoLayoutReference: {
+							edgeId: edge.id,
+							endpoint,
+							originalId
+						}
+					}
+				};
+				const size = groupCardSizeOf(reference);
+				const x = endpoint === "target" ? source.position.x + sourceSize.w + 128 : target.position.x - size.w - 128;
+				const y = endpoint === "target" ? source.position.y + (sourceSize.h - size.h) / 2 : target.position.y + (targetSize.h - size.h) / 2;
+				reference.position = verticalSlot(id, x, y, size.w, size.h, boxes);
+				boxes.push({
+					id,
+					...reference.position,
+					...size
+				});
+				byId.set(id, reference);
+				nextNodes.push(reference);
+				next = {
+					...next,
+					[endpoint]: id
+				};
+				return next;
+			});
+			const added = nextNodes.length > placed.length;
+			const offsetX = added ? Math.max(0, 70 - Math.min(...nextNodes.map((node) => node.position.x))) : 0;
+			const offsetY = added ? Math.max(0, 60 - Math.min(...nextNodes.map((node) => node.position.y))) : 0;
+			return {
+				nodes: offsetX || offsetY ? nextNodes.map((node) => ({
+					...node,
+					position: {
+						x: node.position.x + offsetX,
+						y: node.position.y + offsetY
+					}
+				})) : nextNodes,
+				edges: nextEdges
+			};
+		}
+		// src/client/lib/auto-route-edges.ts
+		/** Release geometric constraints only; retain endpoints, semantic channels, conditions and line shape. */
+		function autoRouteEdges(edges) {
+			return edges.map((edge) => ({
+				...edge,
+				appearance: {
+					...edge.appearance,
+					waypoints: [],
+					anchorMode: "auto",
+					sourceSide: void 0,
+					targetSide: void 0
+				}
+			}));
+		}
+		// src/client/lib/node-collision.ts
+		function collides(a, b, gap) {
+			return a.id !== b.id && a.x < b.x + b.w + gap && a.x + a.w + gap > b.x && a.y < b.y + b.h + gap && a.y + a.h + gap > b.y;
+		}
+		/** Align near-matching flow centers instead of introducing tiny orthogonal steps. */
+		function snapConnectedCenter(box, neighbors, tolerance = 12) {
+			let x = box.x, y = box.y, nearestX = tolerance + 1, nearestY = tolerance + 1;
+			for (const neighbor of neighbors) {
+				const dx = neighbor.x + neighbor.w / 2 - box.x - box.w / 2;
+				const dy = neighbor.y + neighbor.h / 2 - box.y - box.h / 2;
+				if (Math.abs(dx) < nearestX && Math.abs(dy) > (box.h + neighbor.h) / 2) {
+					x = box.x + dx;
+					nearestX = Math.abs(dx);
+				}
+				if (Math.abs(dy) < nearestY && Math.abs(dx) > (box.w + neighbor.w) / 2) {
+					y = box.y + dy;
+					nearestY = Math.abs(dy);
+				}
+			}
+			return {
+				x,
+				y
+			};
+		}
+		/** Project a dragged card to the nearest free boundary, preserving the previous position if surrounded. */
+		function constrainNodePosition(box, obstacles, previous, gap = 36) {
+			const hits = obstacles.filter((b) => collides(box, b, gap));
+			if (!hits.length) return {
+				x: box.x,
+				y: box.y
+			};
+			return hits.flatMap((b) => [
+				{
+					x: b.x - box.w - gap,
+					y: box.y
+				},
+				{
+					x: b.x + b.w + gap,
+					y: box.y
+				},
+				{
+					x: box.x,
+					y: b.y - box.h - gap
+				},
+				{
+					x: box.x,
+					y: b.y + b.h + gap
+				}
+			]).sort((a, b) => (a.x - box.x) ** 2 + (a.y - box.y) ** 2 - (b.x - box.x) ** 2 - (b.y - box.y) ** 2).find((p) => !obstacles.some((b) => collides({
+				...box,
+				...p
+			}, b, gap))) ?? previous;
+		}
+		/** Newly created cards have no previous safe position: search outward instead of stacking them. */
+		function vacantNodePosition(box, obstacles, gap = 36) {
+			const nearest = constrainNodePosition(box, obstacles, box, gap);
+			if (!obstacles.some((obstacle) => collides({
+				...box,
+				...nearest
+			}, obstacle, gap))) return nearest;
+			const stepX = box.w + gap, stepY = box.h + gap;
+			for (let radius = 1; radius <= Math.ceil(Math.sqrt(obstacles.length + 1)) + 2; radius++) {
+				const candidates = [];
+				for (let x = -radius; x <= radius; x++) for (let y = -radius; y <= radius; y++) if (Math.abs(x) === radius || Math.abs(y) === radius) candidates.push({
+					x: box.x + x * stepX,
+					y: box.y + y * stepY
+				});
+				candidates.sort((a, b) => Math.hypot(a.x - box.x, a.y - box.y) - Math.hypot(b.x - box.x, b.y - box.y));
+				const free = candidates.find((point) => !obstacles.some((obstacle) => collides({
+					...box,
+					...point
+				}, obstacle, gap)));
+				if (free) return free;
+			}
+			return {
+				x: Math.max(box.x, ...obstacles.map((obstacle) => obstacle.x + obstacle.w)) + gap,
+				y: box.y
+			};
+		}
+		// src/client/lib/template-to-node.ts
+		/** 模板字段 → 节点 data（深拷贝快照；模板 name → 节点 label，共享类型逐字段对齐）。
+		*  kind 限定 role/task/database；传入 GroupTemplate 时按 None 处理（Team 模板走
+		*  placeGroupFromTemplate，不进本函数）。 */
+		function templateToNodeData(kind, template) {
+			if (!template) return null;
+			const label = String(template.name ?? "").trim() ? String(template.name) : "";
+			if (kind === "role") {
+				const role = template;
+				return {
+					label,
+					systemPrompt: String(role.systemPrompt ?? ""),
+					provider: String(role.provider ?? ""),
+					model: String(role.model ?? ""),
+					reasoning: role.reasoning ?? null,
+					presetId: role.presetId ?? "standard",
+					retryLimit: Number(role.retryLimit ?? 3),
+					reactLimit: role.reactLimit ?? null,
+					inputSchema: String(role.inputSchema ?? ""),
+					outputSchema: String(role.outputSchema ?? ""),
+					injectSystemPrompt: role.injectSystemPrompt !== false,
+					injectToolSections: role.injectToolSections !== false,
+					promptFilePath: String(role.promptFilePath ?? "") || void 0,
+					groupId: null
+				};
+			}
+			if (kind === "task") return {
+				label,
+				content: String(template.content ?? "")
+			};
+			const db = template;
+			return {
+				label,
+				description: String(db.description ?? ""),
+				dbType: db.dbType === "server" ? "server" : "local",
+				dbKind: db.dbKind ?? "sqlite",
+				localPath: String(db.localPath ?? ""),
+				conn: db.conn ? { ...db.conn } : void 0,
+				vectorSource: db.vectorSource === "bm25" ? "bm25" : "embedding"
+			};
+		}
+		// src/client/lib/asset-to-node.ts
+		/**
+		* 资产详情联合的窄化入口：`WorkflowAssetDetail` 没有 `kind` 字段，`RoleAssetDetail` 有。
+		* 为什么需要它：回滚端点的返回类型由 `kind` 参数决定，客户端拿到的是联合类型，
+		* 要在不改写契约的前提下把「角色资产详情」安全地交给 roleAssetContentOf。
+		*/
+		function isRoleAssetDetail(detail) {
+			return "kind" in detail;
+		}
+		/**
+		* 角色资产详情 → 画布节点的**角色字段**（不含 groupId / sourceAssetId）。
+		* 回滚后刷新节点内容用它：节点归属与绑定事实由画布持有，不属于资产内容。
+		*/
+		function roleAssetContentOf(detail) {
+			return {
+				label: String(detail.name ?? ""),
+				systemPrompt: String(detail.systemPrompt ?? ""),
+				provider: String(detail.provider ?? ""),
+				model: String(detail.model ?? ""),
+				reasoning: detail.reasoning ?? null,
+				presetId: detail.presetId ?? "standard",
+				retryLimit: Number(detail.retryLimit ?? 3),
+				reactLimit: detail.reactLimit ?? null,
+				inputSchema: String(detail.inputSchema ?? ""),
+				outputSchema: String(detail.outputSchema ?? ""),
+				injectSystemPrompt: detail.injectSystemPrompt !== false,
+				injectToolSections: detail.injectToolSections !== false,
+				promptFilePath: String(detail.promptFilePath ?? "") || void 0
+			};
+		}
+		/** 角色资产详情 → 角色节点 data（与 templateToNodeData 的 role 分支同口径 + 来源资产 id）。 */
+		function roleAssetToNodeData(detail) {
+			return {
+				...roleAssetContentOf(detail),
+				groupId: null,
+				sourceAssetId: detail.assetId
+			};
+		}
+		/** 角色资产种类 → 画布节点 kind（parent / agent；与 RoleNode.kind 同域）。 */
+		function roleAssetNodeKind(detail) {
+			return detail.kind === "parent" ? "parent" : "agent";
+		}
+		/**
+		* 词典 → 字符串词条表：连线错误文案只消费字符串词条，而词典里还有数组/嵌套词条。
+		* 按值类型投影，避免为「只读字符串」对整个词典做断言（断言会把非字符串词条一起骗过类型）。
+		*/
+		function stringEntriesOf(dict) {
+			return Object.fromEntries(Object.entries(dict).filter((entry) => typeof entry[1] === "string"));
+		}
+		/** 画布编辑面（remember 需在变更 dispatch 前调用；远端 IO 仅几何自动保存一处）。 */
+		function useCanvasActions(state, dispatch, notify, history, t, options) {
+			const { locks, saveCanvas } = options;
+			const teamMemberLimit = options.teamMemberLimit ?? 8;
+			/** 几何自动保存防抖计时器（跨渲染保持；卸载时清理，避免迟到保存）。 */
+			const autoSaveTimer = (0, react.useRef)(null);
+			const saveCanvasRef = (0, react.useRef)(saveCanvas);
+			saveCanvasRef.current = saveCanvas;
+			const stateRef = (0, react.useRef)(state);
+			stateRef.current = state;
+			/** 当前画布对象是否可自动保存（无对象/本地草稿态跳过——草稿须手动保存/创建实例）。 */
+			const canAutoSave = (0, react.useCallback)(() => {
+				const current = stateRef.current;
+				if (!current.currentId) return false;
+				if (current.currentKind === "flowAsset") return false;
+				const doc = current.currentKind === "flowTemplate" ? currentFlowTemplateOf(current) : current.currentKind === "workflow" ? currentFlowOf(current) : current.currentKind === "service" ? currentServiceOf(current) : null;
+				if (!doc) return false;
+				return doc._draft !== true;
+			}, []);
+			/** 纯几何改动（拖动/缩放）→ 防抖自动保存（静默落库；草稿态不自动落库）。 */
+			const scheduleGeometryAutoSave = (0, react.useCallback)(() => {
+				if (!canAutoSave()) return;
+				if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+				autoSaveTimer.current = setTimeout(() => {
+					autoSaveTimer.current = null;
+					saveCanvasRef.current({ auto: true });
+				}, 400);
+			}, [canAutoSave]);
+			(0, react.useEffect)(() => () => {
+				if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+			}, []);
+			const rememberGraph = (0, react.useCallback)(() => {
+				history.remember();
+			}, [history]);
+			const moveNode = (0, react.useCallback)((id, position) => {
+				const nodes = stateRef.current.canvas.nodes, node = nodes.find((n) => n.id === id);
+				const boxes = layoutBoxesOf(nodes, groupCardSizeOf);
+				const neighbors = new Set(stateRef.current.canvas.edges.filter((e) => e.sourceHandle === "flow-out" && (e.source === id || e.target === id)).flatMap((e) => [e.source, e.target]));
+				const snapped = node ? snapConnectedCenter({
+					id,
+					...position,
+					...groupCardSizeOf(node)
+				}, boxes.filter((b) => b.id !== id && neighbors.has(b.id))) : position;
+				dispatch({
+					type: "NODE_MOVED",
+					id,
+					position: node ? constrainNodePosition({
+						id,
+						...snapped,
+						...groupCardSizeOf(node)
+					}, boxes, node.position) : position
+				});
+				scheduleGeometryAutoSave();
+			}, [dispatch, scheduleGeometryAutoSave]);
+			const onNodeDragStart = (0, react.useCallback)(() => {
+				history.remember();
+			}, [history]);
+			const onConnect = (0, react.useCallback)((connection) => {
+				if (!locks.canConnect(connection.source, connection.target)) {
+					notify("error", t.invalidConnection);
+					return;
+				}
+				const current = stateRef.current;
+				const existing = current.canvas.edges.find((edge) => edge.source === connection.source && edge.target === connection.target && edge.sourceHandle === connection.sourceHandle && edge.targetHandle === connection.targetHandle);
+				if (existing) {
+					dispatch({
+						type: "SELECT_EDGE",
+						id: existing.id
+					});
+					return;
+				}
+				const problem = connectionProblem(current.canvas.nodes, current.canvas.edges, connection);
+				if (!problem.valid) {
+					notify("error", connectionProblemMessage(problem, stringEntriesOf(t)));
+					return;
+				}
+				history.remember();
+				const edge = {
+					id: `e-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`,
+					source: connection.source,
+					target: connection.target,
+					sourceHandle: connection.sourceHandle,
+					targetHandle: connection.targetHandle,
+					...connection.appearance ? { appearance: connection.appearance } : {}
+				};
+				dispatch({
+					type: "EDGE_ADDED",
+					edge
+				});
+				dispatch({
+					type: "SELECT_EDGE",
+					id: edge.id
+				});
+				scheduleGeometryAutoSave();
+			}, [
+				dispatch,
+				history,
+				locks,
+				notify,
+				scheduleGeometryAutoSave,
+				t
+			]);
+			const setEdgeAppearance = (0, react.useCallback)((id, patch) => {
+				if (locks.isEdgeLocked(id)) return;
+				const edge = stateRef.current.canvas.edges.find((e) => e.id === id);
+				if (!edge) return;
+				dispatch({
+					type: "EDGE_PATCH",
+					id,
+					patch: { appearance: {
+						...edge.appearance,
+						...patch
+					} }
+				});
+				scheduleGeometryAutoSave();
+			}, [
+				dispatch,
+				locks,
+				scheduleGeometryAutoSave
+			]);
+			const setEdgeChannel = (0, react.useCallback)((id, channel) => {
+				const current = stateRef.current;
+				const edge = current.canvas.edges.find((item) => item.id === id);
+				if (!edge || locks.isEdgeLocked(id)) return;
+				const handles = channelHandles(channel);
+				if (edge.sourceHandle === handles.sourceHandle && edge.targetHandle === handles.targetHandle) return;
+				const problem = connectionProblem(current.canvas.nodes, current.canvas.edges, {
+					...edge,
+					...handles,
+					lineId: id
+				});
+				if (!problem.valid) {
+					notify("error", connectionProblemMessage(problem, stringEntriesOf(t)));
+					return;
+				}
+				history.remember();
+				dispatch({
+					type: "EDGE_PATCH",
+					id,
+					patch: {
+						...handles,
+						condition: void 0
+					}
+				});
+				scheduleGeometryAutoSave();
+			}, [
+				dispatch,
+				history,
+				locks,
+				notify,
+				scheduleGeometryAutoSave,
+				t
+			]);
+			const onConnectionRejected = (0, react.useCallback)(() => {
+				notify("error", t.invalidConnection);
+			}, [notify, t.invalidConnection]);
+			const tidyGraph = (0, react.useCallback)((options = {}) => {
+				history.remember();
+				const current = stateRef.current;
+				const arranged = current.run.snapshot?.status === "running" || current.activeRuns.some((run) => run.flowId === current.currentId && run.status === "running") ? {
+					nodes: layoutNodes(current.canvas.nodes, current.canvas.edges),
+					edges: current.canvas.edges
+				} : autoLayoutGraph(current.canvas.nodes, current.canvas.edges, options);
+				const next = arranged.nodes, edges = arranged.edges;
+				dispatch({
+					type: "GRAPH_REPLACED",
+					nodes: next,
+					edges,
+					dirty: true
+				});
+				scheduleGeometryAutoSave();
+				notify("success", t.toastTidy);
+				return next;
+			}, [
+				dispatch,
+				history,
+				notify,
+				scheduleGeometryAutoSave,
+				t.toastTidy
+			]);
+			/** Route on the user's existing layout without replacing cards, references or execution semantics. */
+			const routeGraph = (0, react.useCallback)(() => {
+				const current = stateRef.current;
+				if (!current.canvas.edges.length) return;
+				history.remember();
+				dispatch({
+					type: "GRAPH_REPLACED",
+					nodes: current.canvas.nodes,
+					edges: autoRouteEdges(current.canvas.edges),
+					dirty: true
+				});
+				scheduleGeometryAutoSave();
+				notify("success", t.toastAutoRoute);
+			}, [
+				dispatch,
+				history,
+				notify,
+				scheduleGeometryAutoSave,
+				t.toastAutoRoute
+			]);
+			/** 清空画布：无二次确认（用户裁决）；运行中由工具栏禁用入口，此处不重复拦截。 */
+			const clearGraph = (0, react.useCallback)(() => {
+				history.remember();
+				dispatch({
+					type: "GRAPH_REPLACED",
+					nodes: [],
+					edges: [],
+					dirty: true
+				});
+				dispatch({ type: "CLEAR_SELECTION" });
+				notify("info", t.toastCleared);
+			}, [
+				dispatch,
+				history,
+				notify,
+				t.toastCleared
+			]);
+			const removeNodeNow = (0, react.useCallback)((id) => {
+				if (locks.isNodeLocked(id)) return;
+				history.remember();
+				const node = state.canvas.nodes.find((item) => item.id === id);
+				if (node?.kind === "group" && state.canvas.nodes.some((member) => member.data.groupId === id && locks.isNodeLocked(member.id))) return;
+				const groupId = node?.kind === "parent" || node?.kind === "agent" ? node.data.groupId : null;
+				const removed = /* @__PURE__ */ new Set([id]);
+				if (node && (node.kind === "parent" || node.kind === "agent")) {
+					for (const item of state.canvas.nodes) if (item.kind === "proxy" && item.proxySourceId === id) removed.add(item.id);
+				}
+				if (groupId) dispatch({
+					type: "GRAPH_REPLACED",
+					nodes: state.canvas.nodes.filter((item) => !removed.has(item.id)).map((item) => item.kind === "group" && (item.data.memberIds ?? []).includes(id) ? {
+						...item,
+						data: {
+							...item.data,
+							memberIds: item.data.memberIds.filter((memberId) => memberId !== id)
+						}
+					} : item),
+					edges: state.canvas.edges.filter((edge) => !removed.has(edge.source) && !removed.has(edge.target)),
+					dirty: true
+				});
+				else dispatch({
+					type: "NODE_REMOVED",
+					id
+				});
+				dispatch({ type: "CLEAR_SELECTION" });
+				notify("info", t.toastDeleted);
+				scheduleGeometryAutoSave();
+			}, [
+				dispatch,
+				history,
+				locks,
+				notify,
+				scheduleGeometryAutoSave,
+				state.canvas.edges,
+				state.canvas.nodes,
+				t.toastDeleted
+			]);
+			/** 删除选中节点：无二次确认（用户裁决）；运行中锁定项静默忽略。 */
+			const removeSelected = (0, react.useCallback)(() => {
+				if (!state.selection.nodeId) return;
+				const id = state.selection.nodeId;
+				if (!state.canvas.nodes.find((item) => item.id === id)) return;
+				if (locks.isNodeLocked(id)) return;
+				removeNodeNow(id);
+			}, [
+				locks,
+				removeNodeNow,
+				state.canvas.nodes,
+				state.selection.nodeId
+			]);
+			const removeLine = (0, react.useCallback)((id) => {
+				if (locks.isEdgeLocked(id)) return;
+				history.remember();
+				dispatch({
+					type: "EDGE_REMOVED",
+					id
+				});
+				dispatch({ type: "CLEAR_SELECTION" });
+				notify("info", t.toastDeleted);
+				scheduleGeometryAutoSave();
+			}, [
+				dispatch,
+				history,
+				locks,
+				notify,
+				scheduleGeometryAutoSave,
+				t.toastDeleted
+			]);
+			const placeTemplateNode = (0, react.useCallback)((kind, templateId, position) => {
+				if (!state.currentId) return;
+				const template = state.templates[kind].find((item) => item.id === templateId);
+				if (!template) return;
+				const data = templateToNodeData(kind, template) ?? {};
+				const nodeKind = kind === "role" ? "agent" : kind;
+				const node = {
+					id: `${nodeKind}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`,
+					kind: nodeKind,
+					position,
+					data
+				};
+				history.remember();
+				dispatch({
+					type: "NODE_ADDED",
+					node
+				});
+				dispatch({
+					type: "SELECT_NODE",
+					id: node.id
+				});
+				notify("success", t.toastNodeAdded);
+			}, [
+				dispatch,
+				history,
+				notify,
+				state.currentId,
+				state.templates,
+				t.toastNodeAdded
+			]);
+			/**
+			* 角色资产拖入画布（资产态）：生成**内联**角色节点（深拷贝解耦），
+			* data.sourceAssetId 登记来源资产 id——仍是内联节点，不建立运行时引用。
+			* 父代理资产沿用「每画布最多一个父代理」约束（与父子代理模板同口径）。
+			*/
+			const placeRoleAssetNode = (0, react.useCallback)((detail, position) => {
+				if (!state.currentId) return;
+				const nodeKind = roleAssetNodeKind(detail);
+				if (nodeKind === "parent" && state.canvas.nodes.some((item) => item.kind === "parent")) {
+					notify("error", t.parentDuplicatedHint);
+					return;
+				}
+				const node = {
+					id: `${nodeKind}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`,
+					kind: nodeKind,
+					position,
+					data: roleAssetToNodeData(detail)
+				};
+				history.remember();
+				dispatch({
+					type: "NODE_ADDED",
+					node
+				});
+				dispatch({
+					type: "SELECT_NODE",
+					id: node.id
+				});
+				notify("success", t.toastNodeAdded);
+			}, [
+				dispatch,
+				history,
+				notify,
+				state.canvas.nodes,
+				state.currentId,
+				t.parentDuplicatedHint,
+				t.toastNodeAdded
+			]);
+			/** 放置父代理节点（每画布最多一个）。 */
+			const placeParentNode = (0, react.useCallback)((templateId, position) => {
+				if (!state.currentId) return;
+				if (state.canvas.nodes.some((item) => item.kind === "parent")) {
+					notify("error", t.parentDuplicatedHint);
+					return;
+				}
+				const data = templateToNodeData("role", state.templates.role.find((item) => item.id === templateId)) ?? {};
+				const node = {
+					id: `parent-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`,
+					kind: "parent",
+					position,
+					data
+				};
+				history.remember();
+				dispatch({
+					type: "NODE_ADDED",
+					node
+				});
+				dispatch({
+					type: "SELECT_NODE",
+					id: node.id
+				});
+				notify("success", t.toastNodeAdded);
+			}, [
+				dispatch,
+				history,
+				notify,
+				state.canvas.nodes,
+				state.currentId,
+				state.templates.role,
+				t.parentDuplicatedHint,
+				t.toastNodeAdded
+			]);
+			/**
+			* 放置阶段节点：启动节点全图唯一；结束节点允许布置多个——
+			* 拓扑交叉的分流可以各自收口到自己的结束节点，避免为汇合而拉出交叉连线。
+			*/
+			const placeStageNode = (0, react.useCallback)((kind, position) => {
+				if (!state.currentId) return;
+				if (kind === "start" && state.canvas.nodes.some((item) => item.kind === "start")) {
+					notify("error", t.stageDuplicatedHint);
+					return;
+				}
+				const label = stageTemplateKinds(state.mode, t.nodeKinds).find((item) => item.kind === kind)?.label ?? kind;
+				const node = {
+					id: `${kind}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`,
+					kind,
+					position,
+					data: { label }
+				};
+				history.remember();
+				dispatch({
+					type: "NODE_ADDED",
+					node
+				});
+				dispatch({
+					type: "SELECT_NODE",
+					id: node.id
+				});
+				notify("success", t.toastNodeAdded);
+			}, [
+				dispatch,
+				history,
+				notify,
+				state.canvas.nodes,
+				state.currentId,
+				state.mode,
+				t.nodeKinds,
+				t.stageDuplicatedHint,
+				t.toastNodeAdded
+			]);
+			/** 放置 Team 节点。 */
+			const placeGroupNode = (0, react.useCallback)((position) => {
+				if (!state.currentId) return;
+				const node = {
+					id: `group-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`,
+					kind: "group",
+					position,
+					data: {
+						label: String(t.groupDefaultName),
+						collabPrompt: "",
+						memberIds: [],
+						size: {
+							w: 300,
+							h: 220
+						}
+					}
+				};
+				history.remember();
+				dispatch({
+					type: "NODE_ADDED",
+					node
+				});
+				dispatch({
+					type: "SELECT_NODE",
+					id: node.id
+				});
+				notify("success", t.toastNodeAdded);
+			}, [
+				dispatch,
+				history,
+				notify,
+				state.currentId,
+				t.groupDefaultName,
+				t.toastNodeAdded
+			]);
+			/** Team 模板拖入画布：按模板内容生成 Team 节点（用户批注：Team 模板列表）。 */
+			const placeGroupFromTemplate = (0, react.useCallback)((templateId, position) => {
+				if (!state.currentId) return;
+				const template = state.templates.group.find((item) => item.id === templateId);
+				const data = template ? {
+					label: String(template.name ?? ""),
+					collabPrompt: String(template.collabPrompt ?? ""),
+					memberIds: [],
+					size: {
+						w: 300,
+						h: 220
+					}
+				} : {
+					label: String(t.groupDefaultName),
+					collabPrompt: "",
+					memberIds: [],
+					size: {
+						w: 300,
+						h: 220
+					}
+				};
+				const node = {
+					id: `group-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`,
+					kind: "group",
+					position,
+					data
+				};
+				history.remember();
+				dispatch({
+					type: "NODE_ADDED",
+					node
+				});
+				dispatch({
+					type: "SELECT_NODE",
+					id: node.id
+				});
+				notify("success", t.toastNodeAdded);
+			}, [
+				dispatch,
+				history,
+				notify,
+				state.currentId,
+				state.templates.group,
+				t.groupDefaultName,
+				t.toastNodeAdded
+			]);
+			/** 左栏角色模板拖入 Team：生成节点并直接登记为组内成员。 */
+			const placeTemplateIntoGroup = (0, react.useCallback)((kind, templateId, groupId, _position) => {
+				if (!state.currentId) return;
+				const template = state.templates[kind].find((item) => item.id === templateId);
+				const group = state.canvas.nodes.find((item) => item.id === groupId);
+				if (!template || !group || group.kind !== "group") return;
+				if ((group.data.memberIds ?? []).length >= teamMemberLimit) {
+					notify("error", t.groupMemberLimitHint);
+					return;
+				}
+				const data = templateToNodeData(kind, template) ?? {};
+				const node = {
+					id: `${kind === "role" ? "agent" : kind}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`,
+					kind: "agent",
+					position: {
+						x: group.position.x + 10,
+						y: group.position.y + 10
+					},
+					data: {
+						...data,
+						groupId
+					}
+				};
+				history.remember();
+				dispatch({
+					type: "GRAPH_REPLACED",
+					nodes: joinNodeToGroup([...state.canvas.nodes, node], node.id, groupId),
+					edges: dropNodeFlowLines(state.canvas.edges, node.id),
+					dirty: true
+				});
+				dispatch({
+					type: "SELECT_NODE",
+					id: node.id
+				});
+				notify("success", t.toastGroupMemberAdded);
+			}, [
+				dispatch,
+				history,
+				notify,
+				state.canvas.edges,
+				state.canvas.nodes,
+				state.currentId,
+				state.templates,
+				t.groupMemberLimitHint,
+				t.toastGroupMemberAdded,
+				teamMemberLimit
+			]);
+			const onGroupResize = (0, react.useCallback)((id, size) => {
+				dispatch({
+					type: "NODE_DATA_PATCH",
+					id,
+					patch: { size }
+				});
+				scheduleGeometryAutoSave();
+			}, [dispatch, scheduleGeometryAutoSave]);
+			/** 角色节点拖入 Team：成员标记 groupId + 组 memberIds 登记（原子追加，防止不一致）。 */
+			const addNodeToGroup = (0, react.useCallback)((nodeId, groupId) => {
+				if (locks.isNodeLocked(nodeId)) return;
+				const group = state.canvas.nodes.find((item) => item.id === groupId);
+				if (!group || group.kind !== "group") return;
+				const node = state.canvas.nodes.find((item) => item.id === nodeId);
+				if (!node || node.kind !== "parent" && node.kind !== "agent") return;
+				const members = group.data.memberIds ?? [];
+				if (members.includes(nodeId)) return;
+				if (members.length >= teamMemberLimit) {
+					notify("error", t.groupMemberLimitHint);
+					return;
+				}
+				history.remember();
+				dispatch({
+					type: "GRAPH_REPLACED",
+					nodes: joinNodeToGroup(state.canvas.nodes, nodeId, groupId),
+					edges: dropNodeFlowLines(state.canvas.edges, nodeId),
+					dirty: true
+				});
+				notify("success", t.toastGroupMemberAdded);
+			}, [
+				dispatch,
+				history,
+				locks,
+				notify,
+				state.canvas.edges,
+				state.canvas.nodes,
+				t.groupMemberLimitHint,
+				t.toastGroupMemberAdded,
+				teamMemberLimit
+			]);
+			const placeBasicNode = (0, react.useCallback)((kind, position, sourceId) => {
+				const current = stateRef.current;
+				if (!current.currentId) return;
+				if ((kind === "parent" || kind === "start") && current.canvas.nodes.some((node) => node.kind === kind)) {
+					notify("error", kind === "parent" ? t.parentDuplicatedHint : t.stageDuplicatedHint);
+					return;
+				}
+				const source = sourceId ? current.canvas.nodes.find((node) => node.id === sourceId) : void 0;
+				if (kind === "proxy" && (!source || source.kind !== "agent" && source.kind !== "parent")) return;
+				const id = `${kind}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
+				const model = current.canvas.nodes.find((node) => node.kind === "parent") ?? current.canvas.nodes.find((node) => node.kind === "agent");
+				const node = blankNode(kind, id, STAGE_LABELS[current.mode][kind] ?? t.nodeKinds[kind], position, model?.data, current.mode);
+				if (source) {
+					node.proxySourceId = source.id;
+					node.data = {};
+				}
+				node.position = vacantNodePosition({
+					id,
+					...position,
+					...groupCardSizeOf(node)
+				}, layoutBoxesOf(current.canvas.nodes, groupCardSizeOf));
+				history.remember();
+				dispatch({
+					type: "NODE_ADDED",
+					node
+				});
+				dispatch({
+					type: "SELECT_NODE",
+					id
+				});
+				scheduleGeometryAutoSave();
+			}, [
+				dispatch,
+				history,
+				notify,
+				scheduleGeometryAutoSave,
+				t
+			]);
+			const copyToProxy = (0, react.useCallback)(() => {
+				const current = stateRef.current;
+				const node = current.canvas.nodes.find((item) => item.id === current.selection.nodeId);
+				const main = node?.kind === "proxy" ? current.canvas.nodes.find((item) => item.id === node.proxySourceId) : node;
+				if (!main || main.kind !== "parent" && main.kind !== "agent" || !node) return;
+				placeBasicNode("proxy", {
+					x: node.position.x + 270,
+					y: node.position.y + 160
+				}, main.id);
+				notify("info", t.toastProxyCreated);
+			}, [
+				notify,
+				placeBasicNode,
+				t.toastProxyCreated
+			]);
+			const duplicateSelected = (0, react.useCallback)(() => {
+				const current = stateRef.current;
+				const source = current.canvas.nodes.find((node) => node.id === current.selection.nodeId);
+				if (!source || source.kind === "parent" || source.kind === "start") return;
+				const position = {
+					x: source.position.x + groupCardSizeOf(source).w + 64,
+					y: source.position.y + 40
+				};
+				const copies = duplicateNodes(source, current.canvas.nodes, () => `node-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`, `${String(source.data.label || t.nodeKinds[source.kind])} · ${t.nodeCopySuffix}`, position);
+				copies[0].position = vacantNodePosition({
+					id: copies[0].id,
+					...position,
+					...groupCardSizeOf(copies[0])
+				}, layoutBoxesOf(current.canvas.nodes, groupCardSizeOf));
+				for (const member of copies.slice(1)) member.position = {
+					x: member.position.x + copies[0].position.x - position.x,
+					y: member.position.y + copies[0].position.y - position.y
+				};
+				history.remember();
+				dispatch({
+					type: "GRAPH_REPLACED",
+					nodes: [...current.canvas.nodes, ...copies],
+					edges: current.canvas.edges,
+					dirty: true
+				});
+				dispatch({
+					type: "SELECT_NODE",
+					id: copies[0].id
+				});
+				scheduleGeometryAutoSave();
+			}, [
+				dispatch,
+				history,
+				scheduleGeometryAutoSave,
+				t
+			]);
+			const removeGroupMember = (0, react.useCallback)((memberId) => {
+				if (locks.isNodeLocked(memberId)) return;
+				const base = consolidateGroups(state.canvas.nodes);
+				const member = base.find((item) => item.id === memberId);
+				const groupId = member && (member.kind === "parent" || member.kind === "agent") ? member.data.groupId ?? null : null;
+				if (!groupId) return;
+				const group = base.find((item) => item.id === groupId && item.kind === "group");
+				if (!group) return;
+				history.remember();
+				const nextMembers = [...new Set(Array.isArray(group.data.memberIds) ? group.data.memberIds : [])].filter((item) => item !== memberId);
+				dispatch({
+					type: "GRAPH_REPLACED",
+					nodes: base.map((n) => {
+						if (n.id === groupId && n.kind === "group") return {
+							...n,
+							data: {
+								...n.data,
+								memberIds: nextMembers
+							}
+						};
+						if (n.id === memberId) return {
+							...n,
+							data: {
+								...n.data,
+								groupId: null
+							}
+						};
+						return n;
+					}),
+					edges: state.canvas.edges,
+					dirty: true
+				});
+			}, [
+				dispatch,
+				history,
+				locks,
+				state.canvas.edges,
+				state.canvas.nodes
+			]);
+			const swapNodePorts = (0, react.useCallback)((id) => {
+				const node = stateRef.current.canvas.nodes.find((item) => item.id === id);
+				if (!node) return;
+				history.remember();
+				dispatch({
+					type: "NODE_DATA_PATCH",
+					id,
+					patch: { swapPorts: node.data.swapPorts !== true }
+				});
+			}, [dispatch, history]);
+			return (0, react.useMemo)(() => ({
+				rememberGraph,
+				moveNode,
+				onNodeDragStart,
+				onConnect,
+				onConnectionRejected,
+				tidyGraph,
+				routeGraph,
+				clearGraph,
+				removeSelected,
+				removeNodeNow,
+				removeLine,
+				placeTemplateNode,
+				placeRoleAssetNode,
+				placeParentNode,
+				placeStageNode,
+				placeGroupNode,
+				placeGroupFromTemplate,
+				placeTemplateIntoGroup,
+				onGroupResize,
+				addNodeToGroup,
+				copyToProxy,
+				duplicateSelected,
+				placeBasicNode,
+				removeGroupMember,
+				swapNodePorts,
+				setEdgeAppearance,
+				setEdgeChannel
+			}), [
+				addNodeToGroup,
+				clearGraph,
+				copyToProxy,
+				duplicateSelected,
+				placeBasicNode,
+				moveNode,
+				onConnect,
+				onConnectionRejected,
+				onGroupResize,
+				onNodeDragStart,
+				placeGroupFromTemplate,
+				placeGroupNode,
+				placeParentNode,
+				placeRoleAssetNode,
+				placeStageNode,
+				placeTemplateIntoGroup,
+				placeTemplateNode,
+				rememberGraph,
+				removeGroupMember,
+				removeLine,
+				removeNodeNow,
+				removeSelected,
+				swapNodePorts,
+				tidyGraph,
+				routeGraph,
+				setEdgeAppearance,
+				setEdgeChannel
+			]);
+		}
+		// src/client/hooks/useEditorActions.ts
+		/**
+		* 模版态「入库」目标（纯函数）：工作流模版 → workflow、角色模版 → role；
+		* 其余模版（任务/数据库/Team）与实例态/资产态均无入库目标（返回 null）。
+		*/
+		function promoteTargetOf(state) {
+			const editor = state.editor;
+			if (!editor) return null;
+			if (editor.source === "flowTemplate") return {
+				kind: "workflow",
+				templateId: editor.id
+			};
+			if (editor.source === "template" && editor.kind === "role") return {
+				kind: "role",
+				templateId: editor.id
+			};
+			return null;
+		}
+		/**
+		* 入库按钮锁定判据（纯函数）：该模版已入库，且模版内容自入库起未再修改。
+		* 判据 = 资产条目 sourceTemplateId 命中当前模版，且入库时指纹（sourceFingerprint）
+		* 与模版当前指纹（currentTemplateFingerprint）相等；模版已删除（指纹缺失）视为未锁定
+		* ——此时按「可入库」放行，由后端按模版不存在报错。
+		*/
+		function isPromoteLocked(summaries, templateId) {
+			return summaries.some((item) => item.sourceTemplateId === templateId && typeof item.sourceFingerprint === "string" && item.sourceFingerprint !== "" && item.sourceFingerprint === item.currentTemplateFingerprint);
+		}
+		/** 当前模版态的入库锁定（无入库目标 → 未锁定）。 */
+		function promoteLockedOf(state) {
+			const target = promoteTargetOf(state);
+			if (!target) return false;
+			return isPromoteLocked(target.kind === "workflow" ? state.assets.workflows : state.assets.roles, target.templateId);
+		}
+		/**
+		* 当前编辑器指向的可回滚资产（资产态保存 / 回滚 / 归档的定位依据）。
+		*
+		* 除「属性栏编辑的资产」外，画布角色节点也算：节点绑定的 data.sourceAssetId 就是它的
+		* 来源资产（批注：画布中的角色节点要与左侧栏角色资产具备同样的回滚能力）。
+		* 返回值带 nodeId：回滚成功后要把结果刷新回该节点的角色字段。
+		*/
+		function assetTargetOf(state) {
+			const editor = state.editor;
+			if (!editor) return null;
+			if (editor.source === "flowAsset") return {
+				kind: "workflow",
+				assetId: editor.id
+			};
+			if (editor.source === "roleAsset") return {
+				kind: "role",
+				assetId: editor.id
+			};
+			if (editor.source === "promptAsset") return {
+				kind: "prompt",
+				assetId: editor.id
+			};
+			if (editor.source === "node") {
+				const node = state.canvas.nodes.find((item) => item.id === editor.id);
+				const sourceAssetId = typeof node?.data?.sourceAssetId === "string" ? node.data.sourceAssetId : "";
+				if (sourceAssetId !== "") return {
+					kind: "role",
+					assetId: sourceAssetId,
+					nodeId: editor.id
+				};
+			}
+			return null;
+		}
+		/** 牵连资产清单的可读名称串（确认框文案；名称缺失时回退 assetId）。 */
+		function affectedNamesOf(affected) {
+			return affected.map((item) => item.name !== "" ? item.name : item.assetId).join("、");
+		}
+		/**
+		* 工作流资产保存内容：元信息（mode/名称/描述/meta）取已装载详情（名称/描述经 DOC_PATCH
+		* 写回 assetDoc），图内容取当前画布——资产态画布即编辑中的草稿，与实例态保存同口径；
+		* 节点/连线经统一序列化剔除画布视图字段。
+		*/
+		function workflowAssetPayload(state, detail) {
+			const serialized = serializeWorkflow({
+				id: detail.assetId,
+				sessionId: state.sessionId,
+				mode: detail.mode,
+				name: detail.name,
+				description: detail.description,
+				nodes: detail.nodes,
+				lines: detail.lines
+			}, state.canvas.nodes, state.canvas.edges);
+			return {
+				mode: detail.mode,
+				name: detail.name,
+				description: detail.description,
+				nodes: serialized.nodes,
+				lines: serialized.lines,
+				...detail.meta ? { meta: detail.meta } : {}
+			};
+		}
+		/** 角色资产保存内容（字段域与 RoleAssetDetail 一致；assetId 由端点参数定位，不进内容）。 */
+		function roleAssetPayload(detail) {
+			return {
+				kind: detail.kind,
+				name: detail.name,
+				systemPrompt: detail.systemPrompt,
+				provider: detail.provider,
+				model: detail.model,
+				reasoning: detail.reasoning,
+				presetId: detail.presetId,
+				retryLimit: detail.retryLimit,
+				reactLimit: detail.reactLimit,
+				inputSchema: detail.inputSchema,
+				outputSchema: detail.outputSchema,
+				systemPromptSource: detail.systemPromptSource,
+				injectSystemPrompt: detail.injectSystemPrompt,
+				injectToolSections: detail.injectToolSections,
+				promptFilePath: detail.promptFilePath
+			};
+		}
+		/** 编辑器面（保存/删除失败 toast；节点/连线删除复用画布面）。 */
+		function useEditorActions(state, dispatch, notify, toastError, t, workflows, flowTemplates, templates, assets, experiences, selection, remote, saveCanvas, removeSelected, removeLine, selectWorkflow, selectFlowTemplate, options) {
+			const { locks, setEdgeChannel } = options;
+			/**
+			* 最新状态的 ref：删除是「先落库、后清画布」的两段式，回调里的 state 闭包是删除发起时的
+			* 快照，判断不了「期间用户是否已切到别的文档」。ref 每次渲染更新，回调读它即当前事实。
+			*/
+			const stateRef = (0, react.useRef)(state);
+			stateRef.current = state;
+			/**
+			* 删除落库后的画布归属校验（缺陷修复：删除在途切文档会误清新文档的画布）：
+			*   - 被删对象仍是当前打开的文档 → 照旧清空画布（用户预期）；
+			*   - 期间已打开**别的**文档 → 只移除列表项，绝不动新文档的画布；
+			*   - 期间未打开任何文档（currentId=null，例如切换模式已清空画布）→ 没有他人的
+			*     画布需要保护，照旧清空（保持既有行为，清空本身无副作用）。
+			*/
+			const clearCanvasIfOwned = (0, react.useCallback)((kind, id) => {
+				const live = stateRef.current;
+				if (live.currentId !== null && (live.currentKind !== kind || live.currentId !== id)) return;
+				dispatch({ type: "CLEAR_CANVAS" });
+			}, [dispatch]);
+			const selectLibraryCard = (0, react.useCallback)((kind, id) => {
+				if (kind === "workflow" || kind === "service") {
+					selectWorkflow(id);
+					return;
+				}
+				if (kind === "workflowTemplate") {
+					selectFlowTemplate(id);
+					return;
+				}
+				if (kind === "experience") {
+					selection.selectLib(kind, id);
+					experiences.open(id);
+					return;
+				}
+				if (kind === "promptAsset") {
+					assets.openPromptAsset(id);
+					return;
+				}
+				selection.selectLib(kind, id);
+				if (kind === "parentTemplate") {
+					selection.selectEditor({
+						source: "template",
+						kind: "role",
+						id
+					});
+					return;
+				}
+				if (kind === "stage") {
+					selection.selectEditor(null);
+					return;
+				}
+				if (kind === "groupTemplate") {
+					selection.selectEditor({
+						source: "template",
+						kind: "group",
+						id
+					});
+					return;
+				}
+				const editorKind = {
+					role: "role",
+					task: "task",
+					database: "database"
+				}[kind];
+				if (editorKind) selection.selectEditor({
+					source: "template",
+					kind: editorKind,
+					id
+				});
+			}, [
+				assets,
+				experiences,
+				selectFlowTemplate,
+				selectWorkflow,
+				selection
+			]);
+			const patchEditor = (0, react.useCallback)((patch) => {
+				const editor = state.editor;
+				if (!editor) return;
+				if (editor.source === "workflow" || editor.source === "service" || editor.source === "flowTemplate" || editor.source === "flowAsset") {
+					dispatch({
+						type: "DOC_PATCH",
+						patch: {
+							name: patch.name,
+							description: patch.description
+						}
+					});
+					return;
+				}
+				if (editor.source === "template") {
+					const template = state.templates[editor.kind].find((item) => item.id === editor.id);
+					if (!template) return;
+					const normalized = { ...patch };
+					delete normalized.label;
+					dispatch({
+						type: "TEMPLATE_UPDATED",
+						kind: editor.kind,
+						template: {
+							...template,
+							...normalized
+						}
+					});
+					return;
+				}
+				if (editor.source === "roleAsset") {
+					const normalized = { ...patch };
+					if (normalized.name === void 0 && normalized.label !== void 0) normalized.name = normalized.label;
+					delete normalized.label;
+					dispatch({
+						type: "ROLE_ASSET_PATCH",
+						patch: normalized
+					});
+					return;
+				}
+				if (editor.source === "experience") {
+					dispatch({
+						type: "EXPERIENCE_PATCH",
+						patch
+					});
+					return;
+				}
+				if (editor.source === "promptAsset") {
+					dispatch({
+						type: "PROMPT_ASSET_PATCH",
+						patch: { prompt: patch.prompt }
+					});
+					return;
+				}
+				if (editor.source === "node") {
+					if (!state.canvas.nodes.find((item) => item.id === editor.id)) return;
+					const normalized = { ...patch };
+					delete normalized.name;
+					dispatch({
+						type: "NODE_DATA_PATCH",
+						id: editor.id,
+						patch: normalized
+					});
+					return;
+				}
+				if (editor.source === "edge") {
+					if (locks.isEdgeLocked(editor.id)) return;
+					if (patch.channel === "flow" || patch.channel === "ctx" || patch.channel === "db") {
+						setEdgeChannel?.(editor.id, patch.channel);
+						return;
+					}
+					dispatch({
+						type: "EDGE_PATCH",
+						id: editor.id,
+						patch
+					});
+				}
+			}, [
+				dispatch,
+				locks,
+				setEdgeChannel,
+				state.canvas.nodes,
+				state.editor,
+				state.templates
+			]);
+			/**
+			* 资产保存前的级联二次确认（用户裁决 A：只做「影响面告知」，不做真级联）。
+			*
+			* 为什么先问 Host 再弹框：哪些角色资产会被登记新版本、谁还引用着它们，全部是 Host 的
+			* 事实（预览端点与登记路径共用同一判据）；客户端自行推演会在「预览说没事、保存却牵连」
+			* 时分叉。内容未变更时预览返回空列表 → 不打扰用户。
+			*
+			* @returns true = 已弹确认框（本次调用不落库），用户确认后经 onConfirm 继续真实保存
+			*/
+			const needsCascadeConfirm = (0, react.useCallback)(async (kind, assetId, payload, messageOf, proceed) => {
+				const affected = await assets.previewCascade(kind, assetId, payload);
+				if (affected.length === 0) return false;
+				dispatch({
+					type: "CONFIRM_SET",
+					confirm: {
+						kind: "confirmText",
+						title: t.assetCascadeTitle,
+						message: messageOf(affectedNamesOf(affected)),
+						confirmLabel: t.assetCascadeConfirm,
+						onConfirm: proceed
+					}
+				});
+				return true;
+			}, [
+				assets,
+				dispatch,
+				t.assetCascadeConfirm,
+				t.assetCascadeTitle
+			]);
+			/**
+			* 保存当前画布文档：按 state.currentKind 分派落库通道，不读 state.editor。
+			*
+			* 为什么要独立入口：未保存守卫面对的是画布 dirty，而 dirty 只由画布/画布文档动作置位；
+			* 属性栏选中对象（state.editor）可能为 null / 节点 / 连线，以它为保存入口会让守卫
+			* 「弹窗关掉却没有保存」。返回非 null/undefined = 本次已真实落库；null = 未落库
+			* （运行中待确认 / 定位失败 / 保存失败），由 onSaved 转达延迟落库。
+			*/
+			const saveCanvasDocument = (0, react.useCallback)(async (options) => {
+				const onSaved = options?.onSaved;
+				if (state.currentKind === "workflow" || state.currentKind === "service" || state.currentKind === "flowTemplate") return await saveCanvas({ onSaved });
+				if (state.currentKind !== "flowAsset") return null;
+				const detail = state.assetDoc;
+				if (!detail || state.currentId === null || detail.assetId !== state.currentId) {
+					notify("error", t.toastSaveUnavailable);
+					return null;
+				}
+				const payload = workflowAssetPayload(state, detail);
+				const doSave = async () => {
+					const result = await assets.saveVersion("workflow", detail.assetId, payload);
+					if (!result) return null;
+					if (await assets.loadAsset("workflow", detail.assetId)) dispatch({
+						type: "OPEN_FLOW_ASSET",
+						assetId: detail.assetId
+					});
+					onSaved?.();
+					return result;
+				};
+				if (state.dirty ? await needsCascadeConfirm("workflow", detail.assetId, payload, (names) => t.assetCascadeWorkflowMessage.replace("{names}", names), () => {
+					doSave();
+				}) : false) return null;
+				return await doSave();
+			}, [
+				assets,
+				dispatch,
+				needsCascadeConfirm,
+				notify,
+				saveCanvas,
+				state,
+				t.assetCascadeWorkflowMessage,
+				t.toastSaveUnavailable
+			]);
+			const saveEditor = (0, react.useCallback)(async (options) => {
+				const editor = state.editor;
+				if (!editor) return null;
+				const onSaved = options?.onSaved;
+				if (editor.source === "workflow" || editor.source === "service" || editor.source === "flowTemplate" || editor.source === "node" || editor.source === "edge" || editor.source === "flowAsset") return await saveCanvasDocument({ onSaved });
+				if (editor.source === "template") {
+					const template = state.templates[editor.kind].find((item) => item.id === editor.id);
+					if (!template) return null;
+					try {
+						await templates.saveTemplate(editor.kind, template);
+						notify("success", t.toastSaved);
+						onSaved?.();
+						return template;
+					} catch (error) {
+						toastError(error);
+						return null;
+					}
+				}
+				if (editor.source === "roleAsset") {
+					const detail = state.assetRoleDoc;
+					if (!detail || detail.assetId !== editor.id) return null;
+					const payload = roleAssetPayload(detail);
+					const doSave = async () => {
+						const result = await assets.saveVersion("role", detail.assetId, payload);
+						if (!result) return null;
+						await assets.loadAsset("role", detail.assetId);
+						onSaved?.();
+						return result;
+					};
+					if (await needsCascadeConfirm("role", detail.assetId, payload, (names) => t.assetCascadeRoleMessage.replace("{names}", names), () => {
+						doSave();
+					})) return null;
+					return await doSave();
+				}
+				if (editor.source === "experience") {
+					const entry = state.experienceDoc;
+					if (!entry || entry.id !== editor.id) return null;
+					return await experiences.save(entry);
+				}
+				if (editor.source === "promptAsset") {
+					const detail = state.promptDoc;
+					if (!detail || detail.assetId !== editor.id) return null;
+					const result = await assets.saveVersion("prompt", detail.assetId, { prompt: detail.prompt });
+					if (!result) return null;
+					await assets.loadAsset("prompt", detail.assetId);
+					onSaved?.();
+					return result;
+				}
+				return null;
+			}, [
+				assets,
+				experiences,
+				needsCascadeConfirm,
+				notify,
+				saveCanvasDocument,
+				state,
+				t.assetCascadeRoleMessage,
+				t.toastSaved,
+				templates,
+				toastError
+			]);
+			const promoteEditor = (0, react.useCallback)(async () => {
+				const target = promoteTargetOf(state);
+				if (!target) return;
+				if (promoteLockedOf(state)) return;
+				if (target.kind === "workflow") {
+					if (!await saveCanvas()) return;
+				} else {
+					const template = state.templates.role.find((item) => item.id === target.templateId);
+					if (!template) return;
+					try {
+						await templates.saveTemplate("role", template);
+						notify("success", t.toastSaved);
+					} catch (error) {
+						toastError(error);
+						return;
+					}
+				}
+				await assets.promote(target.kind, target.templateId);
+			}, [
+				assets,
+				notify,
+				saveCanvas,
+				state,
+				t.toastSaved,
+				templates,
+				toastError
+			]);
+			const openAssetVersions = (0, react.useCallback)(async () => {
+				const target = assetTargetOf(state);
+				if (!target) return;
+				await assets.openVersions(target.kind, target.assetId);
+			}, [assets, state]);
+			const rollbackAssetVersion = (0, react.useCallback)(async (versionId) => {
+				const target = assetTargetOf(state);
+				if (!target) return;
+				const detail = await assets.rollback(target.kind, target.assetId, versionId);
+				if (!detail) return;
+				assets.closeVersions();
+				if (target.nodeId !== void 0 && isRoleAssetDetail(detail)) dispatch({
+					type: "NODE_DATA_PATCH",
+					id: target.nodeId,
+					patch: roleAssetContentOf(detail)
+				});
+			}, [
+				assets,
+				dispatch,
+				state
+			]);
+			const promoteLocked = (0, react.useMemo)(() => promoteLockedOf(state), [state]);
+			const deleteEditor = (0, react.useCallback)(async () => {
+				const editor = state.editor;
+				if (!editor) return;
+				if (editor.source === "promptAsset") {
+					notify("error", t.promptAssetActiveOnly);
+					return;
+				}
+				if (editor.source === "workflow") {
+					const flow = currentFlowOf(state);
+					if (!flow) return;
+					if (flow._draft === true) {
+						dispatch({
+							type: "WORKFLOW_REMOVED",
+							id: flow.id
+						});
+						dispatch({ type: "CLEAR_CANVAS" });
+						dispatch({ type: "CLEAR_SELECTION" });
+						notify("info", t.toastDeleted);
+						return;
+					}
+					dispatch({
+						type: "CONFIRM_SET",
+						confirm: {
+							kind: "confirmText",
+							title: t.deleteFlow,
+							message: `${t.confirmDelete}（${flow.name}）`,
+							onConfirm: () => {
+								workflows.deleteWorkflow(flow).then(() => {
+									clearCanvasIfOwned("workflow", flow.id);
+									notify("info", t.toastDeleted);
+								}).catch((error) => {
+									toastError(error);
+									dispatch({
+										type: "CONFIRM_SET",
+										confirm: null
+									});
+								});
+							}
+						}
+					});
+					return;
+				}
+				if (editor.source === "service") {
+					const service = currentServiceOf(state);
+					if (!service) return;
+					if (service._draft === true) {
+						dispatch({
+							type: "SERVICE_REMOVED",
+							id: service.id
+						});
+						dispatch({ type: "CLEAR_CANVAS" });
+						dispatch({ type: "CLEAR_SELECTION" });
+						notify("info", t.toastDeleted);
+						return;
+					}
+					dispatch({
+						type: "CONFIRM_SET",
+						confirm: {
+							kind: "confirmText",
+							title: t.deleteFlow,
+							message: `${t.confirmDelete}（${service.name}）`,
+							onConfirm: () => {
+								remote.call(EP_DELETE_SERVICE, {
+									sessionId: service.sessionId,
+									id: service.id
+								}).then(() => {
+									dispatch({
+										type: "SERVICE_REMOVED",
+										id: service.id
+									});
+									clearCanvasIfOwned("service", service.id);
+									notify("info", t.toastDeleted);
+								}).catch((error) => {
+									toastError(error);
+									dispatch({
+										type: "CONFIRM_SET",
+										confirm: null
+									});
+								});
+							}
+						}
+					});
+					return;
+				}
+				if (editor.source === "flowTemplate") {
+					const template = state.flowTemplates.find((item) => item.id === editor.id);
+					if (!template) return;
+					if (template._draft === true) {
+						dispatch({
+							type: "FLOW_TEMPLATE_REMOVED",
+							id: template.id
+						});
+						dispatch({ type: "CLEAR_CANVAS" });
+						dispatch({ type: "CLEAR_SELECTION" });
+						notify("info", t.toastDeleted);
+						return;
+					}
+					flowTemplates.deleteFlowTemplate(template.id).then(() => {
+						clearCanvasIfOwned("flowTemplate", template.id);
+						notify("info", t.toastDeleted);
+					}).catch((error) => {
+						toastError(error);
+					});
+					return;
+				}
+				if (editor.source === "template") {
+					const template = state.templates[editor.kind].find((item) => item.id === editor.id);
+					if (!template) return;
+					if (template._draft === true) {
+						dispatch({
+							type: "TEMPLATE_REMOVED",
+							kind: editor.kind,
+							id: editor.id
+						});
+						dispatch({ type: "CLEAR_SELECTION" });
+						notify("info", t.toastDeleted);
+						return;
+					}
+					templates.deleteTemplate(editor.kind, editor.id).then(() => {
+						notify("info", t.toastDeleted);
+					}).catch((error) => {
+						toastError(error);
+					});
+					return;
+				}
+				if (editor.source === "experience") {
+					const entry = state.experienceDoc;
+					if (!entry || entry.id !== editor.id) return;
+					if (!entry.active) {
+						experiences.setActive(entry.id, true);
+						return;
+					}
+					dispatch({
+						type: "CONFIRM_SET",
+						confirm: {
+							kind: "confirmText",
+							title: t.experienceRetireTitle,
+							message: t.experienceRetireMessage,
+							confirmLabel: t.experienceRetireConfirm,
+							onConfirm: () => {
+								experiences.setActive(entry.id, false).then(() => {
+									dispatch({
+										type: "CONFIRM_SET",
+										confirm: null
+									});
+								});
+							}
+						}
+					});
+					return;
+				}
+				if (editor.source === "flowAsset" || editor.source === "roleAsset") {
+					const kind = editor.source === "flowAsset" ? "workflow" : "role";
+					const assetId = editor.id;
+					const roleDetail = kind === "role" ? state.assetRoleDoc : null;
+					if (roleDetail?.retired === true || kind === "workflow" && state.assetDoc?.retired === true) {
+						assets.restore(kind, assetId);
+						return;
+					}
+					/**
+					* 影响面取**资产级**引用聚合（referencingWorkflowAssets），不取单版本行的
+					* referenceWorkflowIds：后者按版本行记录、新版本行从零开始，会给出「shared 资产被
+					* 0 个工作流引用」这种与类型定义矛盾、且误导用户确认操作的读数。
+					*/
+					const references = roleDetail?.referencingWorkflowAssets ?? [];
+					const message = references.length > 0 ? t.assetRetireSharedMessage.replace("{count}", String(references.length)).replace("{names}", affectedNamesOf(references)) : t.assetRetireMessage;
+					dispatch({
+						type: "CONFIRM_SET",
+						confirm: {
+							kind: "confirmText",
+							title: t.assetRetireTitle,
+							message,
+							confirmLabel: t.assetRetireConfirm,
+							onConfirm: () => {
+								assets.retire(kind, assetId).then((retired) => {
+									if (retired) dispatch({
+										type: "ASSET_CLOSED",
+										assetId
+									});
+									else dispatch({
+										type: "CONFIRM_SET",
+										confirm: null
+									});
+								}).catch((error) => {
+									toastError(error);
+									dispatch({
+										type: "CONFIRM_SET",
+										confirm: null
+									});
+								});
+							}
+						}
+					});
+					return;
+				}
+				if (editor.source === "node") {
+					removeSelected();
+					return;
+				}
+				if (editor.source === "edge") removeLine(editor.id);
+			}, [
+				assets,
+				clearCanvasIfOwned,
+				dispatch,
+				experiences,
+				notify,
+				removeLine,
+				removeSelected,
+				state,
+				t.assetRetireConfirm,
+				t.assetRetireMessage,
+				t.assetRetireSharedMessage,
+				t.assetRetireTitle,
+				t.confirmDelete,
+				t.deleteFlow,
+				t.experienceRetireConfirm,
+				t.experienceRetireMessage,
+				t.experienceRetireTitle,
+				t.promptAssetActiveOnly,
+				t.toastDeleted,
+				templates,
+				flowTemplates,
+				toastError,
+				workflows
+			]);
+			return (0, react.useMemo)(() => ({
+				selectLibraryCard,
+				patchEditor,
+				saveEditor,
+				saveCanvasDocument,
+				deleteEditor,
+				promoteEditor,
+				promoteLocked,
+				openAssetVersions,
+				rollbackAssetVersion
+			}), [
+				selectLibraryCard,
+				patchEditor,
+				saveEditor,
+				saveCanvasDocument,
+				deleteEditor,
+				promoteEditor,
+				promoteLocked,
+				openAssetVersions,
+				rollbackAssetVersion
+			]);
+		}
+		// src/client/hooks/useRunActions.ts
+		/** 运行与服务控制面（远端失败抛错，由调用方 toast）。 */
+		function useRunActions(state, dispatch, notify, toastError, t, remote, runControl, serviceControl, saveCanvas, createInstanceFromCanvas) {
+			return {
+				startRun: (0, react.useCallback)(async () => {
+					if (state.mode !== "mode1") return;
+					if (isInstanceSourceKind(state.currentKind)) {
+						createInstanceFromCanvas((created) => {
+							const flow = created;
+							const hasStart = state.canvas.nodes.some((node) => node.kind === "start");
+							const hasEnd = state.canvas.nodes.some((node) => node.kind === "end");
+							if (!hasStart || !hasEnd) {
+								notify("error", t.needStartAndEnd);
+								return;
+							}
+							runControl.startRun(flow.sessionId, flow.id).then((runId) => {
+								if (runId) notify("success", t.toastRunning);
+							}).catch((error) => toastError(error));
+						});
+						return;
+					}
+					if (!currentFlowOf(state)) return;
+					const hasStart = state.canvas.nodes.some((node) => node.kind === "start");
+					const hasEnd = state.canvas.nodes.some((node) => node.kind === "end");
+					if (!hasStart || !hasEnd) {
+						notify("error", t.needStartAndEnd);
+						return;
+					}
+					const saved = await saveCanvas();
+					if (!saved) return;
+					try {
+						if (await runControl.startRun(saved.sessionId, saved.id)) notify("success", t.toastRunning);
+					} catch (error) {
+						toastError(error);
+					}
+				}, [
+					createInstanceFromCanvas,
+					notify,
+					runControl,
+					saveCanvas,
+					state,
+					t.needStartAndEnd,
+					t.toastRunning,
+					toastError
+				]),
+				stopRun: (0, react.useCallback)(async () => {
+					if (!state.run.runId) return;
+					try {
+						const flow = currentFlowOf(state);
+						await runControl.stopRun(state.run.sessionId ?? flow?.sessionId ?? state.sessionId, state.run.runId);
+						notify("info", t.toastStopped);
+					} catch (error) {
+						toastError(error);
+					}
+				}, [
+					notify,
+					runControl,
+					state.run.runId,
+					state.run.sessionId,
+					state.sessionId,
+					t.toastStopped,
+					toastError
+				]),
+				openHistory: (0, react.useCallback)(async () => {
+					dispatch({
+						type: "HISTORY_OPEN",
+						open: true
+					});
+					const flow = currentFlowOf(state);
+					if (!flow) return;
+					try {
+						const historySessionId = state.run.sessionId ?? flow.sessionId;
+						const items = await remote.call(EP_RUN_HISTORY, {
+							sessionId: historySessionId,
+							flowId: flow.id
+						});
+						dispatch({
+							type: "RUN_HISTORY_LOADED",
+							items: Array.isArray(items) ? items : []
+						});
+					} catch (error) {
+						toastError(error);
+					}
+				}, [
+					dispatch,
+					state,
+					remote,
+					toastError
+				]),
+				resumeRun: (0, react.useCallback)(async (runId) => {
+					const flow = currentFlowOf(state);
+					if (!flow) return;
+					try {
+						const result = await remote.call(EP_RUN_RESUME, {
+							sessionId: state.run.sessionId ?? flow.sessionId,
+							flowId: flow.id,
+							runId
+						});
+						const newRunId = String(result?.runId ?? "");
+						if (newRunId) dispatch({
+							type: "RUN_STARTED",
+							runId: newRunId,
+							...state.run.sessionId ? { runSessionId: state.run.sessionId } : {}
+						});
+						dispatch({
+							type: "HISTORY_OPEN",
+							open: false
+						});
+						notify("success", t.toastResuming);
+					} catch (error) {
+						toastError(error);
+					}
+				}, [
+					dispatch,
+					notify,
+					state,
+					t.toastResuming,
+					toastError
+				]),
+				startService: (0, react.useCallback)(async () => {
+					if (isInstanceSourceKind(state.currentKind)) {
+						if (!(currentFlowTemplateOf(state) ?? currentFlowAssetOf(state))) return;
+						const hasInput = state.canvas.nodes.some((node) => node.kind === "start");
+						const hasOutput = state.canvas.nodes.some((node) => node.kind === "end");
+						const hasParent = state.canvas.nodes.some((node) => node.kind === "parent");
+						if (!hasInput || !hasOutput) {
+							notify("error", t.needStartAndEnd);
+							return;
+						}
+						if (!hasParent) {
+							notify("error", t.needParentForService);
+							return;
+						}
+						createInstanceFromCanvas((created) => {
+							const service = created;
+							serviceControl.startService(service.id, service.sessionId).then(() => {
+								notify("success", t.toastServiceStarted);
+							}).catch((error) => toastError(serviceShapeTextOf(error, t.toastServiceStateShape)));
+						});
+						return;
+					}
+					if (!currentServiceOf(state)) return;
+					const hasInput = state.canvas.nodes.some((node) => node.kind === "start");
+					const hasOutput = state.canvas.nodes.some((node) => node.kind === "end");
+					const hasParent = state.canvas.nodes.some((node) => node.kind === "parent");
+					if (!hasInput || !hasOutput) {
+						notify("error", t.needStartAndEnd);
+						return;
+					}
+					if (!hasParent) {
+						notify("error", t.needParentForService);
+						return;
+					}
+					const saved = await saveCanvas();
+					if (!saved) return;
+					try {
+						await serviceControl.startService(saved.id, saved.sessionId);
+						notify("success", t.toastServiceStarted);
+					} catch (error) {
+						toastError(serviceShapeTextOf(error, t.toastServiceStateShape));
+					}
+				}, [
+					createInstanceFromCanvas,
+					notify,
+					saveCanvas,
+					serviceControl,
+					state,
+					t.needParentForService,
+					t.needStartAndEnd,
+					t.toastServiceStarted,
+					t.toastServiceStateShape,
+					toastError
+				]),
+				stopService: (0, react.useCallback)(async () => {
+					const service = currentServiceOf(state);
+					if (!service) return;
+					try {
+						await serviceControl.stopService(service.id, service.sessionId);
+						notify("info", t.toastServiceStopped);
+					} catch (error) {
+						toastError(serviceShapeTextOf(error, t.toastServiceStateShape));
+					}
+				}, [
+					notify,
+					serviceControl,
+					t.toastServiceStopped,
+					t.toastServiceStateShape,
+					toastError
+				])
+			};
+		}
+		// src/client/lib/files.ts
+		/** 读取文件为 UTF-8 文本。 */
+		function readFileAsText(file) {
+			return new Promise((resolve, reject) => {
+				const reader = new FileReader();
+				reader.onload = () => resolve(String(reader.result ?? ""));
+				reader.onerror = () => reject(reader.error ?? /* @__PURE__ */ new Error("read failed"));
+				reader.readAsText(file);
+			});
+		}
+		/** 浏览器下载（Blob + 临时 a 标签）。 */
+		function download(content, fileName, mediaType = "application/json") {
+			const blob = new Blob([content], { type: mediaType });
+			const url = URL.createObjectURL(blob);
+			const anchor = document.createElement("a");
+			anchor.href = url;
+			anchor.download = fileName;
+			document.body.append(anchor);
+			anchor.click();
+			anchor.remove();
+			setTimeout(() => URL.revokeObjectURL(url), 1e3);
+		}
+		/** 判定 JSON 文本是否为角色模板导出。 */
+		function isRoleTemplateBundle(json) {
+			try {
+				const parsed = JSON.parse(json);
+				return parsed?.format === "dsh-vw-template" && parsed?.template != null;
+			} catch {
+				return false;
+			}
+		}
+		// src/client/sidebar/host-paths.ts
+		/** preload 注入的全局键（与官方 desktop 客户端一致）。 */
+		const HOST_PATHS_KEY = "__DSH_HOST_PATHS__";
+		/** 读取官方桌面桥（形状漂移时返回 null，不抛错）。 */
+		function hostPathBridgeOf() {
+			const candidate = globalThis[HOST_PATHS_KEY];
+			return typeof candidate === "object" && candidate !== null ? candidate : null;
+		}
+		/** 选择结果归一化：非字符串/空白视为不可用（不把脏值写进任务描述）。 */
+		function normalizePath$1(value) {
+			if (typeof value !== "string") return null;
+			const path = value.trim();
+			return path === "" ? null : path;
+		}
+		/** 官方桌面桥给出的绝对路径；桥缺失/漂移/调用失败返回 null（由调用方降级）。 */
+		function hostFilePathOf(file) {
+			const bridge = hostPathBridgeOf();
+			if (bridge === null || typeof bridge.pathFor !== "function") return null;
+			try {
+				return normalizePath$1(bridge.pathFor.call(bridge, file));
+			} catch {
+				return null;
+			}
+		}
+		/** 旧 Electron 的 File.path 回退；最后回退文件名（浏览器下只能拿到文件名）。 */
+		function legacyFilePathOf(file) {
+			const path = file.path;
+			return typeof path === "string" && path.trim() !== "" ? path.trim() : file.name;
+		}
+		/**
+		* 构造文件路径解析器：桌面端官方桥优先，其次旧 File.path，最后文件名。
+		* 每次调用实时读取全局桥（官方 preload 可能晚于插件激活）。
+		*/
+		function createFilePathResolver() {
+			return (file) => hostFilePathOf(file) ?? legacyFilePathOf(file);
+		}
+		// src/client/hooks/useStudioTransfer.ts
+		/** 导入导出与任务/数据库交互面（远端失败抛错，由调用方 toast）。 */
+		function useStudioTransfer(state, dispatch, notify, toastError, t, remote, templates, flowTemplates, workflows, patchEditor, editorData, personaInputRef, groupMdInputRef, resolveFilePath) {
+			return {
+				exportCurrent: (0, react.useCallback)(async () => {
+					if (editorData?.kind === "workflow" || editorData?.kind === "service") {
+						const flow = currentFlowOf(state) ?? currentServiceOf(state);
+						if (!flow) return;
+						try {
+							const result = await remote.call(EP_EXPORT_WORKFLOW, {
+								sessionId: flow.sessionId,
+								id: flow.id
+							});
+							const name = String(flow.name ?? t.exportFileName).replace(/[\\/:*?"<>|]/g, "_");
+							download(String(result?.json ?? ""), `${name}.json`);
+							notify("success", t.toastExported);
+						} catch (error) {
+							toastError(error);
+						}
+						return;
+					}
+					if (editorData?.kind === "role" && editorData.template) {
+						try {
+							const result = await remote.call(EP_EXPORT_AGENT_TEMPLATE, { id: String(editorData.templateId ?? "") });
+							const name = String(editorData.name ?? "agent").replace(/[\\/:*?"<>|]/g, "_");
+							download(String(result?.json ?? ""), `${name}.agent.json`);
+							notify("success", t.toastExported);
+						} catch (error) {
+							toastError(error);
+						}
+						return;
+					}
+					notify("error", t.exportEmpty);
+				}, [
+					editorData,
+					currentFlowOf,
+					notify,
+					remote,
+					t.exportEmpty,
+					t.exportFileName,
+					t.toastExported,
+					toastError
+				]),
+				handleImportFile: (0, react.useCallback)(async (file) => {
+					if (!file) return;
+					try {
+						const json = await readFileAsText(file);
+						if (isRoleTemplateBundle(json)) {
+							const result = await remote.call(EP_IMPORT_AGENT_TEMPLATE, { json });
+							if (result?.conflict) {
+								dispatch({
+									type: "CONFIRM_SET",
+									confirm: {
+										kind: "importConflict",
+										kind2: "agent",
+										json,
+										name: String(result.existingName ?? ""),
+										message: t.importConflictMessage.replace("{name}", String(result.existingName ?? ""))
+									}
+								});
+								return;
+							}
+							await templates.loadTemplates();
+							notify("success", t.toastImported);
+							return;
+						}
+						const result = await remote.call(EP_IMPORT_WORKFLOW, { json });
+						if (result?.conflict) {
+							dispatch({
+								type: "CONFIRM_SET",
+								confirm: {
+									kind: "importConflict",
+									kind2: "workflow",
+									json,
+									name: String(result.existingName ?? ""),
+									message: t.importConflictMessage.replace("{name}", String(result.existingName ?? ""))
+								}
+							});
+							return;
+						}
+						await flowTemplates.loadFlowTemplates();
+						notify("success", t.toastImported);
+					} catch (error) {
+						toastError(error);
+					}
+				}, [
+					dispatch,
+					notify,
+					remote,
+					t.importConflictMessage,
+					t.toastImported,
+					templates,
+					flowTemplates,
+					toastError,
+					workflows
+				]),
+				resolveImportConflict: (0, react.useCallback)(async (mode) => {
+					const confirm = state.confirm;
+					dispatch({
+						type: "CONFIRM_SET",
+						confirm: null
+					});
+					if (confirm?.kind !== "importConflict") return;
+					const json = confirm.json;
+					try {
+						if (confirm.kind2 === "agent") {
+							await remote.call(EP_IMPORT_AGENT_TEMPLATE, {
+								json,
+								conflictMode: mode
+							});
+							await templates.loadTemplates();
+						} else {
+							await remote.call(EP_IMPORT_WORKFLOW, {
+								json,
+								conflictMode: mode
+							});
+							await flowTemplates.loadFlowTemplates();
+						}
+						notify("success", t.toastImported);
+					} catch (error) {
+						toastError(error);
+					}
+				}, [
+					dispatch,
+					notify,
+					remote,
+					state.confirm,
+					t.toastImported,
+					templates,
+					flowTemplates,
+					toastError
+				]),
+				loadPersonaMd: (0, react.useCallback)(async () => {
+					personaInputRef.current?.click();
+				}, []),
+				onPersonaMdSelected: (0, react.useCallback)(async (file) => {
+					if (!file) return;
+					try {
+						patchEditor({
+							systemPrompt: await readFileAsText(file),
+							systemPromptSource: file.name
+						});
+						notify("success", t.toastSaved);
+					} catch (error) {
+						toastError(error);
+					}
+				}, [
+					notify,
+					patchEditor,
+					t.toastSaved,
+					toastError
+				]),
+				loadGroupMd: (0, react.useCallback)(() => {
+					groupMdInputRef.current?.click();
+				}, []),
+				onGroupMdSelected: (0, react.useCallback)(async (file) => {
+					if (!file) return;
+					try {
+						patchEditor({ collabPrompt: await readFileAsText(file) });
+						notify("success", t.toastSaved);
+					} catch (error) {
+						toastError(error);
+					}
+				}, [
+					notify,
+					patchEditor,
+					t.toastSaved,
+					toastError
+				]),
+				pickFiles: (0, react.useCallback)((picked) => {
+					if (picked.length === 0) return;
+					const resolvePath = resolveFilePath ?? legacyFilePathOf;
+					const paths = picked.map(resolvePath).filter((path) => path !== "");
+					if (paths.length === 0) return;
+					const base = String(editorData?.data?.content ?? "").trimEnd();
+					patchEditor({ content: base ? `${base}\n${paths.join("\n")}` : paths.join("\n") });
+					notify("success", t.toastSaved);
+				}, [
+					editorData,
+					notify,
+					patchEditor,
+					resolveFilePath,
+					t.toastSaved
+				]),
+				testDbConnection: (0, react.useCallback)(async () => {
+					const editor = state.editor;
+					if (editor?.source !== "node") return;
+					const node = state.canvas.nodes.find((item) => item.id === editor.id);
+					if (!node || node.kind !== "database") return;
+					try {
+						await remote.call(EP_DB_TEST, { node });
+						notify("success", t.dbTestSuccess);
+					} catch (error) {
+						notify("error", remoteErrorMessageOf(error));
+					}
+				}, [
+					notify,
+					remote,
+					state.canvas.nodes,
+					state.editor,
+					t.dbTestSuccess
+				])
+			};
+		}
+		// src/client/lib/dom-hit-test.ts
+		/** 命中检测：鼠标坐标下的节点 id（最近 data-wf-node-id 祖先）。
+		*  环境不提供 elementFromPoint 时返回 null（降级不抛错，与 groupSurfaceUnderPoint 一致）。 */
+		function connectionTargetAt(clientX, clientY) {
+			if (typeof document.elementFromPoint !== "function") return null;
+			return document.elementFromPoint(clientX, clientY)?.closest?.("[data-wf-node-id]")?.getAttribute("data-wf-node-id") ?? null;
+		}
+		/**
+		* Team 表面命中（入组判定：仅 Team 卡片表面可入组）：
+		*  - 跳过不在 Team 内的元素（画布空白/连线 SVG/其他节点等装饰层）；
+		*  - 跳过被拖拽本体节点（拖拽时节点被挪到鼠标下方，若不排除会遮蔽组表面命中）；
+		*  - 命中 `.wf-graph__handle`（连接点）→ 返回 null：连接点**不具入组功能**。
+		* 返回命中的 Team id；否则 null。纯函数接收元素数组，便于 jsdom 单测。
+		*/
+		function groupSurfaceFromElements(elements, excludeNodeId) {
+			for (const el of elements) {
+				const groupEl = el.closest?.(".wf-group-node");
+				if (!groupEl) continue;
+				const hostNodeId = el.closest?.("[data-wf-node-id]")?.getAttribute("data-wf-node-id") ?? null;
+				if (excludeNodeId && hostNodeId === excludeNodeId) continue;
+				if (el.closest?.(".wf-graph__handle")) return null;
+				return groupEl.getAttribute("data-wf-node-id");
+			}
+			return null;
+		}
+		/** 鼠标坐标下的 Team 表面（入组落点；封装 elementsFromPoint，供拖拽 onMove/onUp 共用）。 */
+		function groupSurfaceUnderPoint(clientX, clientY, excludeNodeId) {
+			if (typeof document.elementsFromPoint !== "function") return null;
+			return groupSurfaceFromElements(document.elementsFromPoint(clientX, clientY), excludeNodeId);
+		}
+		// src/client/hooks/useLibraryDrag.ts
+		/** 左侧库拖拽面（canvasShellRef/canvasApiRef 供落点换算；payload 由 LeftPanel 注入）。 */
+		function useLibraryDrag(canvasShellRef, canvasApiRef) {
+			const dragRef = (0, react.useRef)(null);
+			const detachGestureRef = (0, react.useRef)(null);
+			(0, react.useEffect)(() => () => {
+				detachGestureRef.current?.();
+			}, []);
+			const [dropGroupId, setDropGroupId] = (0, react.useState)(null);
+			const beginLibraryDrag = (0, react.useCallback)((event, payload) => {
+				if (event.button !== void 0 && event.button !== 0) return;
+				detachGestureRef.current?.();
+				dragRef.current = {
+					payload,
+					startX: event.clientX,
+					startY: event.clientY,
+					preview: null
+				};
+				let lastClient = null;
+				const onMove = (moveEvent) => {
+					const drag = dragRef.current;
+					if (!drag) return;
+					lastClient = {
+						x: moveEvent.clientX,
+						y: moveEvent.clientY
+					};
+					if (!drag.preview && Math.hypot(moveEvent.clientX - drag.startX, moveEvent.clientY - drag.startY) > 5) {
+						drag.preview = {
+							x: moveEvent.clientX,
+							y: moveEvent.clientY
+						};
+						setDragPreview({
+							x: moveEvent.clientX,
+							y: moveEvent.clientY,
+							label: payload.label
+						});
+					} else if (drag.preview) {
+						drag.preview = {
+							x: moveEvent.clientX,
+							y: moveEvent.clientY
+						};
+						setDragPreview({
+							x: moveEvent.clientX,
+							y: moveEvent.clientY,
+							label: payload.label
+						});
+					}
+					setDropGroupId(payload.onDropIntoGroup ? groupSurfaceUnderPoint(moveEvent.clientX, moveEvent.clientY) : null);
+				};
+				const detach = () => {
+					window.removeEventListener("pointermove", onMove);
+					window.removeEventListener("pointerup", onUp);
+					window.removeEventListener("pointercancel", onCancel);
+					window.removeEventListener("blur", onCancel);
+					detachGestureRef.current = null;
+				};
+				const onCancel = () => {
+					dragRef.current = null;
+					detach();
+					setDragPreview(null);
+					setDropGroupId(null);
+				};
+				const onUp = (event) => {
+					lastClient = {
+						x: event.clientX,
+						y: event.clientY
+					};
+					const drag = dragRef.current;
+					dragRef.current = null;
+					detach();
+					setDragPreview(null);
+					setDropGroupId(null);
+					if (!drag?.preview) {
+						payload.onClick?.();
+						return;
+					}
+					if (!lastClient) return;
+					const rect = canvasShellRef.current?.getBoundingClientRect();
+					if (!rect || lastClient.x < rect.left || lastClient.x > rect.right || lastClient.y < rect.top || lastClient.y > rect.bottom) return;
+					const groupId = groupSurfaceUnderPoint(lastClient.x, lastClient.y) ?? "";
+					if (groupId && payload.onDropIntoGroup) {
+						payload.onDropIntoGroup(groupId);
+						return;
+					}
+					const position = canvasApiRef.current?.screenToWorld?.(lastClient.x, lastClient.y);
+					payload.onDrop?.({
+						x: Math.round((position?.x ?? 120) - 104),
+						y: Math.round((position?.y ?? 80) - 58)
+					});
+				};
+				detachGestureRef.current = detach;
+				window.addEventListener("pointermove", onMove);
+				window.addEventListener("pointerup", onUp);
+				window.addEventListener("pointercancel", onCancel);
+				window.addEventListener("blur", onCancel);
+			}, []);
+			const [dragPreview, setDragPreview] = (0, react.useState)(null);
+			return {
+				beginLibraryDrag,
+				dragPreview,
+				dropGroupId
+			};
+		}
+		// src/client/hooks/useStudioBoot.ts
+		/** 初始化加载（工作台全局化：挂载时执行一次；列表为全量跨会话）。 */
+		function useStudioBoot(state, dispatch, _notify, toastError, remote, workflows, flowTemplates, templates, serviceControl, pickInitialInstance) {
+			const stateRef = (0, react.useRef)(state);
+			stateRef.current = state;
+			(0, react.useEffect)(() => {
+				let cancelled = false;
+				const bootedSessionId = () => stateRef.current.sessionId;
+				let loadedWorkflows = [];
+				let loadedServices = [];
+				const boot = async () => {
+					const [flowsResult, templatesResult, servicesResult] = await Promise.allSettled([
+						workflows.loadWorkflows(),
+						flowTemplates.loadFlowTemplates(),
+						serviceControl.loadServices()
+					]);
+					if (flowsResult.status === "fulfilled") loadedWorkflows = flowsResult.value ?? [];
+					else if (!cancelled) toastError(flowsResult.reason);
+					if (servicesResult.status === "fulfilled") loadedServices = servicesResult.value ?? [];
+					else if (!cancelled) toastError(servicesResult.reason);
+					if (templatesResult.status === "rejected" && !cancelled) toastError(templatesResult.reason);
+					try {
+						await templates.loadTemplates();
+					} catch (error) {
+						if (!cancelled) toastError(error);
+					}
+					const enums = async () => {
+						const [presets, models, combos] = await Promise.all([
+							remote.call(EP_PRESETS).catch(() => []),
+							remote.call(EP_MODELS).catch(() => []),
+							remote.call(EP_TOOL_COMBOS).catch(() => [])
+						]);
+						if (cancelled) return;
+						dispatch({
+							type: "PRESETS_LOADED",
+							items: Array.isArray(presets) ? presets : []
+						});
+						dispatch({
+							type: "MODELS_LOADED",
+							items: Array.isArray(models) ? models : []
+						});
+						dispatch({
+							type: "COMBOS_LOADED",
+							items: Array.isArray(combos) ? combos : []
+						});
+					};
+					await enums();
+					let activeRuns = [];
+					try {
+						const items = await remote.call(EP_ACTIVE_RUNS, {});
+						activeRuns = Array.isArray(items) ? items : [];
+						if (!cancelled) dispatch({
+							type: "ACTIVE_RUNS_LOADED",
+							items: activeRuns
+						});
+					} catch {}
+					const currentSessionId = bootedSessionId();
+					if (cancelled || !currentSessionId) return;
+					if (stateRef.current.mode === "mode1") {
+						const currentSessionFlows = loadedWorkflows.filter((f) => f.sessionId === currentSessionId);
+						if (currentSessionFlows.length === 0) return;
+						const targetId = pickInitialInstance(currentSessionFlows, activeRuns);
+						if (targetId) {
+							const target = currentSessionFlows.find((f) => f.id === targetId);
+							if (target) dispatch({
+								type: "OPEN_FLOW",
+								flow: target
+							});
+							const active = activeRuns.find((a) => a.flowId === targetId && a.sessionId === currentSessionId);
+							if (active?.runId) dispatch({
+								type: "RUN_STARTED",
+								runId: active.runId,
+								runSessionId: active.sessionId
+							});
+						}
+					} else {
+						const currentSessionServices = loadedServices.filter((s) => s.sessionId === currentSessionId);
+						if (currentSessionServices.length === 0) return;
+						const targetId = pickInitialInstance(currentSessionServices, activeRuns);
+						if (targetId) {
+							const target = currentSessionServices.find((s) => s.id === targetId);
+							if (target) dispatch({
+								type: "OPEN_SERVICE",
+								service: target
+							});
+							const active = activeRuns.find((a) => a.flowId === targetId && a.sessionId === currentSessionId);
+							if (active?.runId) dispatch({
+								type: "RUN_STARTED",
+								runId: active.runId,
+								runSessionId: active.sessionId
+							});
+						}
+					}
+				};
+				boot();
+				return () => {
+					cancelled = true;
+				};
+			}, []);
+		}
+		/**
+		* 进入工作台自动选中实例（工作台全局化改版）：从**当前主会话**的实例列表中
+		* 选出默认打开的实例 id。规则（优先级）：
+		*   1. 正在运行的实例——activeRuns 中 status='running' 且归属当前会话的 flowId；
+		*   2. 已暂停的实例——status='paused' 的当前会话实例；
+		*   3. 实例列表第一个（后端按 updatedAt 倒序 = 最新）；
+		* 校验：activeRuns 的 flowId 必须在该实例列表中（否则忽略该条目）；
+		* 当前会话无实例时由调用方提前 return（保持空白画布），本函数入参即已过滤后
+		* 的当前会话实例列表。
+		*/
+		function pickInitialInstanceForSession(currentSessionInstances, activeRuns) {
+			if (!currentSessionInstances || currentSessionInstances.length === 0) return null;
+			const idSet = new Set(currentSessionInstances.map((item) => item.id));
+			const running = activeRuns.find((run) => run.status === "running" && idSet.has(run.flowId));
+			if (running) return running.flowId;
+			const paused = activeRuns.find((run) => run.status === "paused" && idSet.has(run.flowId));
+			if (paused) return paused.flowId;
+			return currentSessionInstances[0].id;
+		}
+		// src/client/hooks/useKeyShortcuts.ts
+		/** 键盘快捷键监听（window 级；卸载时移除）。 */
+		function useKeyShortcuts(state, dispatch, selection, history, removeLine, removeSelected) {
+			const hasConfirm = state.confirm !== null;
+			const selectedEdgeId = state.selection.edgeId;
+			const selectedNodeId = state.selection.nodeId;
+			(0, react.useEffect)(() => {
+				const onKeyDown = (event) => {
+					if (event.key === "Escape") {
+						if (hasConfirm) dispatch({
+							type: "CONFIRM_SET",
+							confirm: null
+						});
+						else selection.clearSelection();
+						return;
+					}
+					const target = event.target;
+					if (!!target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.tagName === "SELECT")) return;
+					if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "z") {
+						event.preventDefault();
+						if (event.shiftKey) history.redo();
+						else history.undo();
+					} else if (event.key === "Delete") {
+						if (selectedEdgeId) {
+							event.preventDefault();
+							removeLine(selectedEdgeId);
+						} else if (selectedNodeId) {
+							event.preventDefault();
+							removeSelected();
+						}
+					}
+				};
+				window.addEventListener("keydown", onKeyDown);
+				return () => window.removeEventListener("keydown", onKeyDown);
+			}, [
+				dispatch,
+				hasConfirm,
+				history,
+				removeLine,
+				removeSelected,
+				selectedEdgeId,
+				selectedNodeId,
+				selection
+			]);
+		}
+		// src/client/lib/orthogonal-routing.ts
+		const CLEARANCE = 18;
+		const TAIL = 32;
+		const LANE = 14;
+		const PORT_BUNDLE_RADIUS = 64;
+		const EPSILON = .01;
+		const coordinate = (value) => Math.round(value * 1e6) / 1e6;
+		const exactPoint = (p) => ({
+			x: coordinate(p.x),
+			y: coordinate(p.y)
+		});
+		function segmentHits(a, b, box) {
+			if (a.y === b.y) return a.y > box.y + EPSILON && a.y < box.y + box.h - EPSILON && Math.max(a.x, b.x) > box.x + EPSILON && Math.min(a.x, b.x) < box.x + box.w - EPSILON;
+			return a.x > box.x + EPSILON && a.x < box.x + box.w - EPSILON && Math.max(a.y, b.y) > box.y + EPSILON && Math.min(a.y, b.y) < box.y + box.h - EPSILON;
+		}
+		function segmentCost(a, b, occupied, allowedBundles = []) {
+			let penalty = 0, sharedLength = 0;
+			const horizontal = a.y === b.y;
+			for (const other of occupied) {
+				const shared = other.bundles?.some((key) => allowedBundles.includes(key));
+				if (horizontal === (other.a.y === other.b.y)) {
+					const separation = Math.abs(horizontal ? a.y - other.a.y : a.x - other.a.x);
+					const overlap = horizontal ? Math.min(Math.max(a.x, b.x), Math.max(other.a.x, other.b.x)) - Math.max(Math.min(a.x, b.x), Math.min(other.a.x, other.b.x)) : Math.min(Math.max(a.y, b.y), Math.max(other.a.y, other.b.y)) - Math.max(Math.min(a.y, b.y), Math.min(other.a.y, other.b.y));
+					if (overlap > EPSILON && separation < EPSILON) {
+						const sameDirection = (b.x - a.x) * (other.b.x - other.a.x) + (b.y - a.y) * (other.b.y - other.a.y) > 0;
+						if (shared && sameDirection) {
+							sharedLength = Math.max(sharedLength, overlap);
+							continue;
+						}
+						return Infinity;
+					}
+					if (overlap > EPSILON && separation < 13.99) penalty += overlap * 4;
+				} else {
+					const h = horizontal ? {
+						a,
+						b
+					} : other;
+					const v = horizontal ? other : {
+						a,
+						b
+					};
+					if (v.a.x > Math.min(h.a.x, h.b.x) + EPSILON && v.a.x < Math.max(h.a.x, h.b.x) - EPSILON && h.a.y > Math.min(v.a.y, v.b.y) + EPSILON && h.a.y < Math.max(v.a.y, v.b.y) - EPSILON) penalty += shared ? 0 : 80;
+				}
+			}
+			return penalty - sharedLength * .18;
+		}
+		var MinQueue = class {
+			items = [];
+			push(state, score) {
+				const value = {
+					state,
+					score
+				};
+				let i = this.items.length;
+				this.items.push(value);
+				while (i > 0) {
+					const parent = i - 1 >> 1;
+					if (this.items[parent].score <= score) break;
+					this.items[i] = this.items[parent];
+					i = parent;
+				}
+				this.items[i] = value;
+			}
+			pop() {
+				const first = this.items[0], last = this.items.pop();
+				if (!first || !last || !this.items.length) return first;
+				let i = 0;
+				while (i * 2 + 1 < this.items.length) {
+					let child = i * 2 + 1;
+					if (child + 1 < this.items.length && this.items[child + 1].score < this.items[child].score) child++;
+					if (this.items[child].score >= last.score) break;
+					this.items[i] = this.items[child];
+					i = child;
+				}
+				this.items[i] = last;
+				return first;
+			}
+		};
+		function simplifyRoute(points) {
+			const out = [];
+			for (const point of points) {
+				if (out.length && out[out.length - 1].x === point.x && out[out.length - 1].y === point.y) continue;
+				while (out.length > 1) {
+					const a = out[out.length - 2], b = out[out.length - 1];
+					if (a.x === b.x && b.x === point.x || a.y === b.y && b.y === point.y) out.pop();
+					else break;
+				}
+				out.push(point);
+			}
+			return out;
+		}
+		function routePath(points) {
+			return points.map((p, i) => `${i ? "L" : "M"} ${p.x} ${p.y}`).join(" ");
+		}
+		/** All edges share one obstacle field and reserved lanes; selection never reroutes the graph. */
+		function routeOrthogonalEdges(inputs, boxes, previousRoutes) {
+			const result = /* @__PURE__ */ new Map();
+			if (!inputs.length) return result;
+			const padded = boxes.map((b) => ({
+				...b,
+				x: b.x - CLEARANCE,
+				y: b.y - CLEARANCE,
+				w: b.w + 36,
+				h: b.h + 36
+			}));
+			const byId = new Map(boxes.map((b) => [b.id, b]));
+			const endpoints = inputs.map((edge) => {
+				const source = byId.get(edge.sourceOwner), target = byId.get(edge.targetOwner);
+				const sourceTail = edge.sourceTail ?? TAIL, targetTail = edge.targetTail ?? TAIL;
+				return {
+					edge,
+					start: exactPoint(edge.startAxis === 1 ? {
+						x: edge.start.x,
+						y: source ? edge.startDir > 0 ? source.y + source.h + sourceTail : source.y - sourceTail : edge.start.y + edge.startDir * sourceTail
+					} : {
+						x: source ? edge.startDir > 0 ? source.x + source.w + sourceTail : source.x - sourceTail : edge.start.x + edge.startDir * sourceTail,
+						y: edge.start.y
+					}),
+					end: exactPoint(edge.endAxis === 1 ? {
+						x: edge.end.x,
+						y: target ? edge.endDir > 0 ? target.y + target.h + targetTail : target.y - targetTail : edge.end.y + edge.endDir * targetTail
+					} : {
+						x: target ? edge.endDir > 0 ? target.x + target.w + targetTail : target.x - targetTail : edge.end.x + edge.endDir * targetTail,
+						y: edge.end.y
+					}),
+					waypoints: (edge.waypoints ?? []).filter((p) => Number.isFinite(p.x) && Number.isFinite(p.y)).slice(0, 64).map((p) => {
+						const hits = padded.filter((b) => p.x > b.x && p.x < b.x + b.w && p.y > b.y && p.y < b.y + b.h);
+						if (!hits.length) return p;
+						return hits.flatMap((b) => [
+							{
+								x: b.x - 1,
+								y: p.y
+							},
+							{
+								x: b.x + b.w + 1,
+								y: p.y
+							},
+							{
+								x: p.x,
+								y: b.y - 1
+							},
+							{
+								x: p.x,
+								y: b.y + b.h + 1
+							}
+						]).sort((a, b) => Math.hypot(a.x - p.x, a.y - p.y) - Math.hypot(b.x - p.x, b.y - p.y)).find((p) => !padded.some((b) => p.x > b.x && p.x < b.x + b.w && p.y > b.y && p.y < b.y + b.h)) ?? p;
+					}).map(exactPoint)
+				};
+			});
+			const xs = /* @__PURE__ */ new Set(), ys = /* @__PURE__ */ new Set();
+			for (const b of padded) for (const offset of [0, LANE]) {
+				xs.add(b.x - offset);
+				xs.add(b.x + b.w + offset);
+				ys.add(b.y - offset);
+				ys.add(b.y + b.h + offset);
+			}
+			for (const { edge, start, end, waypoints } of endpoints) for (const p of [
+				start,
+				...waypoints,
+				end,
+				...edge.sourceBundle ? [{
+					x: edge.start.x - PORT_BUNDLE_RADIUS,
+					y: edge.start.y - PORT_BUNDLE_RADIUS
+				}, {
+					x: edge.start.x + PORT_BUNDLE_RADIUS,
+					y: edge.start.y + PORT_BUNDLE_RADIUS
+				}] : [],
+				...edge.targetBundle ? [{
+					x: edge.end.x - PORT_BUNDLE_RADIUS,
+					y: edge.end.y - PORT_BUNDLE_RADIUS
+				}, {
+					x: edge.end.x + PORT_BUNDLE_RADIUS,
+					y: edge.end.y + PORT_BUNDLE_RADIUS
+				}] : []
+			]) {
+				xs.add(p.x);
+				ys.add(p.y);
+				xs.add(p.x - LANE);
+				xs.add(p.x + LANE);
+				ys.add(p.y - LANE);
+				ys.add(p.y + LANE);
+			}
+			const bounds = {
+				left: Math.min(...xs),
+				right: Math.max(...xs),
+				top: Math.min(...ys),
+				bottom: Math.max(...ys)
+			};
+			for (let i = 1; i <= Math.min(inputs.length + 1, 12); i++) {
+				xs.add(bounds.left - i * LANE);
+				xs.add(bounds.right + i * LANE);
+				ys.add(bounds.top - i * LANE);
+				ys.add(bounds.bottom + i * LANE);
+			}
+			const x = [...new Set([...xs].map(coordinate))].sort((a, b) => a - b), y = [...new Set([...ys].map(coordinate))].sort((a, b) => a - b);
+			const width = x.length, height = y.length, count = width * height;
+			const point = (index) => ({
+				x: x[index % width],
+				y: y[Math.floor(index / width)]
+			});
+			const blocked = /* @__PURE__ */ new Map();
+			const occupied = [];
+			const terminalCorridors = endpoints.flatMap(({ edge, start, end }) => [{
+				a: edge.start,
+				b: start
+			}, {
+				a: end,
+				b: edge.end
+			}]);
+			const labels = [];
+			const geometryKey = (edge) => JSON.stringify([
+				edge.startAxis,
+				edge.endAxis,
+				edge.startDir,
+				edge.endDir,
+				edge.waypoints,
+				edge.sourceBundle,
+				edge.targetBundle,
+				edge.sourceTree,
+				edge.targetTree,
+				edge.sourceTail,
+				edge.targetTail,
+				edge.labelWidth
+			]);
+			const contains = (a, b, p) => (a.x === b.x && p.x === a.x || a.y === b.y && p.y === a.y) && p.x >= Math.min(a.x, b.x) && p.x <= Math.max(a.x, b.x) && p.y >= Math.min(a.y, b.y) && p.y <= Math.max(a.y, b.y);
+			const reserve = (edge, route, start, end) => {
+				for (let i = 1; i < route.points.length; i++) {
+					const a = route.points[i - 1], b = route.points[i];
+					const cuts = [
+						a,
+						...[
+							start,
+							end,
+							...[edge.start, edge.end].flatMap((p) => a.y === b.y ? [{
+								x: p.x - PORT_BUNDLE_RADIUS,
+								y: a.y
+							}, {
+								x: p.x + PORT_BUNDLE_RADIUS,
+								y: a.y
+							}] : [{
+								x: a.x,
+								y: p.y - PORT_BUNDLE_RADIUS
+							}, {
+								x: a.x,
+								y: p.y + PORT_BUNDLE_RADIUS
+							}])
+						].filter((p) => contains(a, b, p)),
+						b
+					].sort((p, q) => Math.hypot(p.x - a.x, p.y - a.y) - Math.hypot(q.x - a.x, q.y - a.y));
+					for (let k = 1; k < cuts.length; k++) {
+						const from = cuts[k - 1], to = cuts[k];
+						if (from.x === to.x && from.y === to.y) continue;
+						const mid = {
+							x: (from.x + to.x) / 2,
+							y: (from.y + to.y) / 2
+						};
+						const bundles = [
+							edge.sourceTree && Math.max(Math.abs(mid.x - edge.start.x), Math.abs(mid.y - edge.start.y)) <= PORT_BUNDLE_RADIUS ? edge.sourceTree : void 0,
+							edge.targetTree && Math.max(Math.abs(mid.x - edge.end.x), Math.abs(mid.y - edge.end.y)) <= PORT_BUNDLE_RADIUS ? edge.targetTree : void 0,
+							edge.sourceBundle && Math.max(Math.abs(mid.x - edge.start.x), Math.abs(mid.y - edge.start.y)) <= PORT_BUNDLE_RADIUS ? edge.sourceBundle : void 0,
+							edge.targetBundle && Math.max(Math.abs(mid.x - edge.end.x), Math.abs(mid.y - edge.end.y)) <= PORT_BUNDLE_RADIUS ? edge.targetBundle : void 0
+						].filter((key) => !!key);
+						occupied.push({
+							a: from,
+							b: to,
+							bundles,
+							edgeId: edge.id
+						});
+					}
+				}
+			};
+			for (const { edge, start, end } of endpoints) {
+				const route = previousRoutes?.get(edge.id);
+				if (!route || route.geometryKey !== geometryKey(edge) || route.points[0].x !== edge.start.x || route.points[0].y !== edge.start.y || route.points.at(-1).x !== edge.end.x || route.points.at(-1).y !== edge.end.y) continue;
+				if (!route.points.slice(1).every((p, i) => !padded.some((b) => {
+					if (i === 0 && b.id === edge.sourceOwner || i === route.points.length - 2 && b.id === edge.targetOwner) return false;
+					return segmentHits(route.points[i], p, b);
+				}))) continue;
+				result.set(edge.id, route);
+				reserve(edge, route, start, end);
+			}
+			const canTravel = (from, to) => {
+				const key = from < to ? `${from}:${to}` : `${to}:${from}`;
+				let hit = blocked.get(key);
+				if (hit === void 0) {
+					const a = point(from), b = point(to);
+					hit = padded.some((box) => segmentHits(a, b, box));
+					blocked.set(key, hit);
+				}
+				return !hit;
+			};
+			endpoints.sort((a, b) => Math.abs(a.end.x - a.start.x) + Math.abs(a.end.y - a.start.y) - Math.abs(b.end.x - b.start.x) - Math.abs(b.end.y - b.start.y) || a.edge.id.localeCompare(b.edge.id));
+			for (const { edge, start, end, waypoints } of endpoints) {
+				if (result.has(edge.id)) continue;
+				const localOccupied = [...occupied];
+				const path = [];
+				const stops = [
+					start,
+					...waypoints,
+					end
+				];
+				let failed = false;
+				for (let section = 1; section < stops.length; section++) {
+					const from = stops[section - 1], goal = stops[section];
+					const startIndex = y.indexOf(from.y) * width + x.indexOf(from.x), endIndex = y.indexOf(goal.y) * width + x.indexOf(goal.x);
+					const distance = new Float64Array(count * 2);
+					distance.fill(Infinity);
+					const previous = new Int32Array(count * 2);
+					previous.fill(-1);
+					const runLength = new Float64Array(count * 2);
+					const queue = new MinQueue();
+					const heuristic = (p) => (Math.abs(p.x - goal.x) + Math.abs(p.y - goal.y)) * .82;
+					const startAxis = section === 1 ? edge.startAxis ?? 0 : path.length > 1 && path.at(-1).x === path.at(-2).x ? 1 : 0;
+					distance[startIndex * 2 + startAxis] = 0;
+					runLength[startIndex * 2 + startAxis] = 24;
+					queue.push(startIndex * 2 + startAxis, heuristic(from));
+					let terminal = -1;
+					while (true) {
+						const current = queue.pop();
+						if (!current) break;
+						const index = Math.floor(current.state / 2), axis = current.state % 2, a = point(index);
+						if (current.score > distance[current.state] + heuristic(a) + EPSILON) continue;
+						if (index === endIndex) {
+							terminal = current.state;
+							break;
+						}
+						const ix = index % width, iy = Math.floor(index / width);
+						for (const [next, nextAxis] of [
+							[ix > 0 ? index - 1 : -1, 0],
+							[ix + 1 < width ? index + 1 : -1, 0],
+							[iy > 0 ? index - width : -1, 1],
+							[iy + 1 < height ? index + width : -1, 1]
+						]) {
+							if (next < 0 || !canTravel(index, next)) continue;
+							const b = point(next);
+							if (section === 1 && index === startIndex && (edge.startAxis === 1 ? b.y - a.y : b.x - a.x) * edge.startDir < 0) continue;
+							if (section === stops.length - 1 && next === endIndex && (edge.endAxis === 1 ? b.y - a.y : b.x - a.x) * edge.endDir > 0) continue;
+							const reserved = segmentCost(a, b, localOccupied, [
+								edge.sourceBundle,
+								edge.targetBundle,
+								edge.sourceTree,
+								edge.targetTree
+							].filter((key) => !!key));
+							if (!Number.isFinite(reserved)) continue;
+							const stepLength = Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
+							const retreat = Math.max(0, Math.abs(b.x - goal.x) + Math.abs(b.y - goal.y) - Math.abs(a.x - goal.x) - Math.abs(a.y - goal.y));
+							const cost = distance[current.state] + stepLength + retreat * 4 + (axis !== nextAxis ? 64 + Math.max(0, 24 - runLength[current.state]) * 6 : 0) + reserved;
+							const nextState = next * 2 + nextAxis;
+							if (cost >= distance[nextState]) continue;
+							distance[nextState] = cost;
+							previous[nextState] = current.state;
+							runLength[nextState] = Math.min(24, (axis === nextAxis ? runLength[current.state] : 0) + stepLength);
+							queue.push(nextState, cost + heuristic(b));
+						}
+					}
+					if (terminal < 0) {
+						failed = true;
+						break;
+					}
+					const points = [];
+					for (let state = terminal; state >= 0; state = previous[state]) points.push(point(Math.floor(state / 2)));
+					points.reverse();
+					for (let i = 1; i < points.length; i++) localOccupied.push({
+						a: points[i - 1],
+						b: points[i]
+					});
+					path.push(...points.slice(section === 1 ? 0 : 1));
+				}
+				if (failed) continue;
+				let core = simplifyRoute(path);
+				if (!waypoints.length) {
+					const allowed = [
+						edge.sourceBundle,
+						edge.targetBundle,
+						edge.sourceTree,
+						edge.targetTree
+					].filter((key) => !!key);
+					for (let i = 0; i < core.length - 2; i++) for (let j = core.length - 1; j > i + 1; j--) {
+						const a = core[i], b = core[j];
+						const shortcut = (a.x === b.x || a.y === b.y ? [[a, b]] : [[
+							a,
+							{
+								x: b.x,
+								y: a.y
+							},
+							b
+						], [
+							a,
+							{
+								x: a.x,
+								y: b.y
+							},
+							b
+						]]).find((points) => {
+							if (points.length >= j - i + 1) return false;
+							if (i === 0 && (edge.startAxis === 1 ? points[1].y - a.y : points[1].x - a.x) * edge.startDir < 0) return false;
+							if (j === core.length - 1 && (edge.endAxis === 1 ? b.y - points.at(-2).y : b.x - points.at(-2).x) * edge.endDir > 0) return false;
+							return points.slice(1).every((p, k) => !padded.some((box) => segmentHits(points[k], p, box)) && Number.isFinite(segmentCost(points[k], p, occupied, allowed)));
+						});
+						if (shortcut) {
+							core = simplifyRoute([
+								...core.slice(0, i),
+								...shortcut,
+								...core.slice(j + 1)
+							]);
+							i = Math.max(-1, i - 1);
+							break;
+						}
+					}
+				}
+				const pathPoints = simplifyRoute([
+					edge.start,
+					...core,
+					edge.end
+				]);
+				const routed = {
+					points: pathPoints,
+					path: routePath(pathPoints),
+					label: {
+						x: (start.x + end.x) / 2,
+						y: (start.y + end.y) / 2
+					},
+					labelWidth: edge.labelWidth,
+					geometryKey: geometryKey(edge),
+					...edge.targetBundle ? { targetBundle: edge.targetBundle } : {}
+				};
+				reserve(edge, routed, start, end);
+				result.set(edge.id, routed);
+			}
+			for (const { edge, start, end } of endpoints) {
+				const route = result.get(edge.id);
+				if (!route) continue;
+				const pathPoints = route.points;
+				let label = {
+					x: (start.x + end.x) / 2,
+					y: (start.y + end.y) / 2
+				}, labelWidth = edge.labelWidth;
+				let labelAnchor;
+				if (labelWidth) {
+					let best = -Infinity;
+					for (let i = 1; i < pathPoints.length; i++) {
+						const a = pathPoints[i - 1], b = pathPoints[i], horizontal = a.y === b.y;
+						const length = Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
+						for (const fraction of [
+							.5,
+							.3,
+							.7
+						]) for (const offset of [
+							0,
+							-24,
+							24,
+							-42,
+							42
+						]) {
+							const anchor = {
+								x: a.x + (b.x - a.x) * fraction,
+								y: a.y + (b.y - a.y) * fraction
+							};
+							const candidate = {
+								x: anchor.x + (horizontal ? 0 : offset),
+								y: anchor.y + (horizontal ? offset : 0)
+							};
+							const box = {
+								id: edge.id,
+								x: candidate.x - labelWidth / 2 - 5,
+								y: candidate.y - 13,
+								w: labelWidth + 10,
+								h: 26
+							};
+							const overlap = [...padded, ...labels].some((b) => box.x < b.x + b.w && box.x + box.w > b.x && box.y < b.y + b.h && box.y + box.h > b.y);
+							const crosses = occupied.some((s) => s.edgeId !== edge.id && segmentHits(s.a, s.b, box)) || terminalCorridors.some((s) => segmentHits(s.a, s.b, box));
+							const leaderBlocked = offset !== 0 && (padded.some((b) => segmentHits(anchor, candidate, b)) || segmentCost(anchor, candidate, occupied.filter((s) => s.edgeId !== edge.id)) > 0);
+							const score = (horizontal ? 200 : 0) + length - (overlap || crosses || leaderBlocked ? 1e4 : 0) - Math.abs(fraction - .5) * 20 - Math.abs(offset) * 8;
+							if (score > best) {
+								best = score;
+								label = candidate;
+								labelAnchor = offset ? anchor : void 0;
+							}
+						}
+					}
+					if (best < -5e3) labelWidth = 0;
+					else labels.push({
+						id: edge.id,
+						x: label.x - labelWidth / 2 - 4,
+						y: label.y - 12,
+						w: labelWidth + 8,
+						h: 24
+					});
+				}
+				if (route.label.x !== label.x || route.label.y !== label.y || route.labelWidth !== labelWidth || route.labelAnchor?.x !== labelAnchor?.x || route.labelAnchor?.y !== labelAnchor?.y) {
+					const { labelAnchor: previousAnchor, ...geometry } = route;
+					result.set(edge.id, {
+						...geometry,
+						label,
+						labelWidth,
+						...labelAnchor ? { labelAnchor } : {}
+					});
+				}
+			}
+			return result;
+		}
+		// src/client/components/canvas/geometry.ts
+		const GRAPH_MIN_ZOOM = .2;
+		const GRAPH_MAX_ZOOM = 2.5;
+		function portAnchor(node, _handle, side, _activeHandles = []) {
+			const size = nodeSizeOf(node), fraction = .5;
+			if (side === "top" || side === "bottom") return {
+				x: node.position.x + size.w * fraction,
+				y: node.position.y + (side === "bottom" ? size.h : 0)
+			};
+			return {
+				x: node.position.x + (side === "right" ? size.w : 0),
+				y: node.position.y + size.h * fraction
+			};
+		}
+		function edgeRoutingScene(edges, byId, memberGroups, labels) {
+			const prepared = edges.flatMap((edge) => {
+				const source = byId.get(edge.source), target = byId.get(edge.target);
+				if (!source || !target) return [];
+				const sourceOwner = memberGroups.get(source.id) ?? source, targetOwner = memberGroups.get(target.id) ?? target;
+				const below = targetOwner.position.y > sourceOwner.position.y + nodeSizeOf(sourceOwner).h + 32 && Math.abs(targetOwner.position.x - sourceOwner.position.x) < 260;
+				const backwards = targetOwner.position.x + nodeSizeOf(targetOwner).w < sourceOwner.position.x;
+				return [{
+					edge,
+					source,
+					target,
+					sourceOwner,
+					targetOwner,
+					sourceSide: edge.appearance?.sourceSide === "bottom" ? "bottom" : edge.appearance?.sourceSide === "right" ? "right" : below || backwards ? "bottom" : "right",
+					targetSide: memberGroups.has(target.id) ? "left" : edge.appearance?.targetSide === "top" ? "top" : edge.appearance?.targetSide === "left" ? "left" : below || backwards ? "top" : "left"
+				}];
+			});
+			const pressure = /* @__PURE__ */ new Map();
+			for (const item of prepared) {
+				const key = `${item.source.id}:${item.edge.sourceHandle}:${item.sourceSide}`, group = pressure.get(key) ?? [];
+				group.push(item);
+				pressure.set(key, group);
+			}
+			for (const group of pressure.values()) {
+				if (group.length < 7) continue;
+				group.sort((a, b) => a.targetOwner.position.y - b.targetOwner.position.y || a.edge.id.localeCompare(b.edge.id));
+				for (const item of group.slice(Math.ceil(group.length / 2))) if (!item.edge.appearance?.sourceSide && item.sourceSide === "right") item.sourceSide = "bottom";
+			}
+			const activeHandles = /* @__PURE__ */ new Map();
+			for (const item of prepared) for (const [node, handle, side] of [[
+				item.source.id,
+				item.edge.sourceHandle,
+				item.sourceSide
+			], [
+				item.target.id,
+				item.edge.targetHandle,
+				item.targetSide
+			]]) {
+				const key = `${node}:${side}`, handles = activeHandles.get(key) ?? /* @__PURE__ */ new Set();
+				handles.add(handle);
+				activeHandles.set(key, handles);
+			}
+			const keyOf = (node, handle, side, edge) => `${node}:${handle}:${side}:${lineColorClass(edge)}:${edge.condition?.label ?? ""}`;
+			const regionOf = (node) => node.kind === "group" ? `team:${node.id}` : `region:${Math.round((node.position.x + nodeSizeOf(node).w / 2) / 240)}:${Math.floor((node.position.y + nodeSizeOf(node).h / 2) / 600)}`;
+			const treeCounts = /* @__PURE__ */ new Map();
+			const treeKeys = /* @__PURE__ */ new Map();
+			for (const { edge, sourceOwner, targetOwner, sourceSide, targetSide } of prepared) {
+				const source = `source:${keyOf(edge.source, edge.sourceHandle, sourceSide, edge)}:${regionOf(targetOwner)}`;
+				const target = `target:${keyOf(edge.target, edge.targetHandle, targetSide, edge)}:${regionOf(sourceOwner)}`;
+				treeKeys.set(edge.id, {
+					source,
+					target
+				});
+				treeCounts.set(source, (treeCounts.get(source) ?? 0) + 1);
+				treeCounts.set(target, (treeCounts.get(target) ?? 0) + 1);
+			}
+			const connectionSlot = (id, handle, side) => ({
+				offset: 0,
+				tail: 32,
+				bundle: memberGroups.has(id) ? `${id}:${handle}:${side}` : `${id}:${side}`
+			});
+			const boxes = [...byId.values()].filter((n) => !memberGroups.has(n.id)).map((n) => ({
+				id: n.id,
+				...n.position,
+				...nodeSizeOf(n)
+			}));
+			const availableTail = (p, axis, dir, owner, requested) => {
+				let nearest = Infinity;
+				for (const box of boxes) {
+					if (box.id === owner) continue;
+					if (axis === 0 && p.y > box.y - 18 && p.y < box.y + box.h + 18) {
+						const gap = dir > 0 ? box.x - p.x : p.x - box.x - box.w;
+						if (gap > 0) nearest = Math.min(nearest, gap);
+					}
+					if (axis === 1 && p.x > box.x - 18 && p.x < box.x + box.w + 18) {
+						const gap = dir > 0 ? box.y - p.y : p.y - box.y - box.h;
+						if (gap > 0) nearest = Math.min(nearest, gap);
+					}
+				}
+				return Math.max(24, Math.min(requested, nearest - 26));
+			};
+			return {
+				inputs: prepared.map(({ edge, source, target, sourceOwner, targetOwner, sourceSide, targetSide }) => {
+					const sourceAxis = sourceSide === "bottom" ? 1 : 0, targetAxis = targetSide === "top" ? 1 : 0;
+					const start = memberGroups.has(source.id) ? memberAnchor(sourceOwner, source.id, edge.sourceHandle) : portAnchor(source, edge.sourceHandle, sourceSide, [...activeHandles.get(`${source.id}:${sourceSide}`) ?? []]);
+					const end = memberGroups.has(target.id) ? memberAnchor(targetOwner, target.id, edge.targetHandle) : portAnchor(target, edge.targetHandle, targetSide, [...activeHandles.get(`${target.id}:${targetSide}`) ?? []]);
+					const sourceSlot = connectionSlot(source.id, edge.sourceHandle, sourceSide), targetSlot = connectionSlot(target.id, edge.targetHandle, targetSide);
+					const sourceOffset = sourceSlot.offset, targetOffset = targetSlot.offset;
+					const label = conditionLabel(edge.condition, labels);
+					const exact = (n) => Number(n.toFixed(2));
+					const trees = treeKeys.get(edge.id);
+					return {
+						id: edge.id,
+						start: {
+							x: exact(start.x + (sourceAxis ? sourceOffset : 0)),
+							y: exact(start.y + (sourceAxis ? 0 : sourceOffset))
+						},
+						end: {
+							x: exact(end.x + (targetAxis ? targetOffset : 0)),
+							y: exact(end.y + (targetAxis ? 0 : targetOffset))
+						},
+						startAxis: sourceAxis,
+						endAxis: targetAxis,
+						startDir: 1,
+						endDir: -1,
+						sourceOwner: sourceOwner.id,
+						targetOwner: targetOwner.id,
+						sourceBundle: sourceSlot.bundle,
+						targetBundle: targetSlot.bundle,
+						sourceTree: (treeCounts.get(trees.source) ?? 0) >= 3 ? trees.source : void 0,
+						targetTree: (treeCounts.get(trees.target) ?? 0) >= 3 ? trees.target : void 0,
+						sourceTail: availableTail(start, sourceAxis, 1, sourceOwner.id, sourceSlot.tail),
+						targetTail: availableTail(end, targetAxis, -1, targetOwner.id, targetSlot.tail),
+						waypoints: edge.appearance?.waypoints,
+						labelWidth: label ? Math.min(180, Math.max(48, label.length * 9 + 20)) : 0
+					};
+				}),
+				boxes,
+				connectedPorts: prepared.flatMap(({ edge, sourceSide, targetSide }) => [`${edge.source}:${edge.sourceHandle}:${sourceSide}`, `${edge.target}:${edge.targetHandle}:${targetSide}`])
+			};
+		}
+		function routedEdgeGeometry(edges, byId, memberGroups, labels, previous) {
+			const { inputs, boxes } = edgeRoutingScene(edges, byId, memberGroups, labels);
+			return routeOrthogonalEdges(inputs, boxes, previous);
+		}
+		/** 接点垂直位置（百分比）：db 最上、ctx 上、flow 下。 */
+		function handleY(handle) {
+			if (handle === "db-in" || handle === "db-out") return .22;
+			if (handle === "ctx-in" || handle === "ctx-out") return .42;
+			return .72;
+		}
+		/** Team 卡片上下文入点的纵向比例（靠近标题，与居中的流程入点拉开；与样式片段对锁）。 */
+		const GROUP_CTX_IN_TOP = .3;
+		/**
+		* 组内成员接点纵向比例（成员行内位置；与样式 .wf-graph__handle--member-* 对锁）。
+		* 成员上下文出线使用独立的行内锚点；迷你卡不额外显示输出按钮。
+		*/
+		const MEMBER_HANDLE_TOP = {
+			"db-in": .3,
+			"ctx-in": .64,
+			"ctx-out": .47
+		};
+		/**
+		* 成员接点中心相对 Team 卡片左右边缘的内缩。
+		* 由盒模型累加：卡片外边框 1 + 卡片内边距 12 + 成员列表边框 1 + 列表内边距 6
+		* + 接点半宽 0.5（接点 left/right: -6px、宽 13px）。
+		*/
+		const GROUP_MEMBER_HANDLE_INSET_X = 20.5;
+		function clamp(value, minimum, maximum) {
+			return Math.min(maximum, Math.max(minimum, value));
+		}
+		/** 由画布节点表预建成员 → 组索引（一次全量扫描，替代逐边反查）。 */
+		function memberGroupIndexOf(byId) {
+			const index = /* @__PURE__ */ new Map();
+			for (const node of byId.values()) {
+				if (node.kind !== "group") continue;
+				for (const memberId of new Set(node.data.memberIds ?? [])) if (!index.has(memberId)) index.set(memberId, node);
+			}
+			return index;
+		}
+		/**
+		* 组内成员连线锚点：成员迷你卡内侧的真实接点中心。
+		* 不再使用 Team 卡片外缘 / 成员行中心——前者让线端停在卡片边框外，后者让线端偏离
+		* 实际渲染的接点（ctx-in 在行下部、db-in 在行上部）。
+		*/
+		function memberAnchor(group, memberId, handle) {
+			const index = (group.data.memberIds ?? []).indexOf(memberId);
+			if (index < 0) return null;
+			const size = nodeSizeOf(group);
+			const incoming = !handle.endsWith("-out");
+			const y = group.position.y + 62 + index * 41 + 36 * (MEMBER_HANDLE_TOP[handle] ?? .5);
+			return {
+				x: incoming ? group.position.x + GROUP_MEMBER_HANDLE_INSET_X : group.position.x + size.w - GROUP_MEMBER_HANDLE_INSET_X,
+				y
+			};
+		}
+		/** Team 卡片接点纵向位置：ctx-in 位于标题下方，flow 接点保持居中（与 GroupCard 样式同源）。 */
+		function groupHandleY(handle) {
+			return handle === "ctx-in" ? GROUP_CTX_IN_TOP : .5;
+		}
+		/**
+		* 节点是否交换了左右连接点（卡片右上角切换按钮，用户批注：美化布线防交叉）。
+		* 交换后：出点移到左侧、入点移到右侧；节点 JSON 即事实源，swapPorts 随节点持久化。
+		*/
+		function swappedOf(node) {
+			return (node?.data)?.swapPorts === true;
+		}
+		/** 连线贝塞尔几何（源端口 → 目标端口；Team 接点按 handle 定高，组内成员锚到真实接点）。
+		*  交换过连接点的节点：源出点改在左边缘（start.x=左侧），目标入点改在右边缘（end.x=右侧）。
+		*  控制点方向跟随端口所在边缘（右缘向外 +x、左缘向外 -x），连线从正确一侧进出，不会
+		*  穿入卡片体被遮挡（用户批注：连线方向应当根据连接点确定，而非默认朝右）。 */
+		function edgeGeometry(edge, byId, memberGroups) {
+			const source = byId.get(edge.source);
+			const target = byId.get(edge.target);
+			if (!source || !target) return null;
+			const sourceSize = nodeSizeOf(source);
+			const targetSize = nodeSizeOf(target);
+			const sourceGroup = source.kind === "group" ? null : memberGroups.get(source.id) ?? null;
+			const targetGroup = target.kind === "group" ? null : memberGroups.get(target.id) ?? null;
+			const sourceSwapped = swappedOf(source);
+			const targetSwapped = swappedOf(target);
+			const sourceAnchor = sourceGroup ? memberAnchor(sourceGroup, source.id, edge.sourceHandle ?? "ctx-out") : null;
+			const targetAnchor = targetGroup ? memberAnchor(targetGroup, target.id, edge.targetHandle ?? "ctx-in") : null;
+			const start = sourceAnchor ?? {
+				x: source.position.x + (sourceSwapped ? 0 : sourceSize.w),
+				y: source.position.y + sourceSize.h * (source.kind === "group" ? groupHandleY(edge.sourceHandle ?? "flow-out") : handleY(edge.sourceHandle ?? "flow-out"))
+			};
+			const end = targetAnchor ?? {
+				x: target.position.x + (targetSwapped ? targetSize.w : 0),
+				y: target.position.y + targetSize.h * (target.kind === "group" ? groupHandleY(edge.targetHandle ?? "flow-in") : handleY(edge.targetHandle ?? "flow-in"))
+			};
+			const startDir = sourceAnchor ? 1 : sourceSwapped ? -1 : 1;
+			const endDir = targetAnchor ? -1 : targetSwapped ? 1 : -1;
+			const bend = Math.max(54, Math.abs(end.x - start.x) * .46);
+			const c1 = {
+				x: start.x + startDir * bend,
+				y: start.y
+			};
+			const c2 = {
+				x: end.x + endDir * bend,
+				y: end.y
+			};
+			return {
+				start,
+				end,
+				c1,
+				c2,
+				label: {
+					x: (start.x + end.x) / 2,
+					y: (start.y + end.y) / 2
+				},
+				path: `M ${start.x} ${start.y} C ${c1.x} ${c1.y}, ${c2.x} ${c2.y}, ${end.x} ${end.y}`
+			};
+		}
+		/** 一次贝塞尔插值。 */
+		function lerpPoint(a, b, t) {
+			return {
+				x: a.x + (b.x - a.x) * t,
+				y: a.y + (b.y - a.y) * t
+			};
+		}
+		/** 三次贝塞尔在 t 处的点。 */
+		function cubicPointAt(p0, p1, p2, p3, t) {
+			const mt = 1 - t;
+			return {
+				x: mt ** 3 * p0.x + 3 * mt ** 2 * t * p1.x + 3 * mt * t ** 2 * p2.x + t ** 3 * p3.x,
+				y: mt ** 3 * p0.y + 3 * mt ** 2 * t * p1.y + 3 * mt * t ** 2 * p2.y + t ** 3 * p3.y
+			};
+		}
+		/** 取整条三次贝塞尔的 [t, 1] 后缀（de Casteljau 分割）。 */
+		function cubicSuffix(geometry, t) {
+			const q0 = lerpPoint(geometry.start, geometry.c1, t);
+			const q1 = lerpPoint(geometry.c1, geometry.c2, t);
+			const q2 = lerpPoint(geometry.c2, geometry.end, t);
+			const r0 = lerpPoint(q0, q1, t);
+			const r1 = lerpPoint(q1, q2, t);
+			const start = lerpPoint(r0, r1, t);
+			return `M ${start.x} ${start.y} C ${r1.x} ${r1.y}, ${q2.x} ${q2.y}, ${geometry.end.x} ${geometry.end.y}`;
+		}
+		/**
+		* Team 成员入线的「卡片内段」路径：从 Team 卡片边缘切到成员接点。
+		*
+		* 为什么需要单独一段：SVG 连线层位于节点卡片之下，线段进入 Team 卡片后会被卡片背景
+		* 遮挡；覆盖层把这一段画在卡片之上、接点之下，线端才能真正落到成员接点上。
+		* 返回 null 表示目标不是组内成员，或线段没有进入卡片。
+		*/
+		function memberInboundStubPath(edge, byId, memberGroups, route) {
+			const target = byId.get(edge.target);
+			if (!target) return null;
+			const group = memberGroups.get(target.id);
+			if (!group) return null;
+			const end = route?.points.at(-1);
+			if (end) return `M ${group.position.x} ${end.y} L ${end.x} ${end.y}`;
+			const geometry = edgeGeometry(edge, byId, memberGroups);
+			if (!geometry) return null;
+			const size = nodeSizeOf(group);
+			const left = group.position.x;
+			const right = group.position.x + size.w;
+			const top = group.position.y;
+			const bottom = group.position.y + size.h;
+			const inside = (t) => {
+				const point = cubicPointAt(geometry.start, geometry.c1, geometry.c2, geometry.end, t);
+				return point.x >= left && point.x <= right && point.y >= top && point.y <= bottom;
+			};
+			if (!inside(1)) return null;
+			const samples = 80;
+			let firstInside = samples;
+			while (firstInside > 0 && inside((firstInside - 1) / samples)) firstInside -= 1;
+			if (firstInside === 0) return geometry.path;
+			let low = (firstInside - 1) / samples;
+			let high = firstInside / samples;
+			for (let i = 0; i < 24; i += 1) {
+				const mid = (low + high) / 2;
+				if (inside(mid)) high = mid;
+				else low = mid;
+			}
+			return cubicSuffix(geometry, high);
+		}
+		// src/client/lib/route-rebase.ts
+		/** Keep established tracks stable while the two terminal sections follow moving cards. */
+		function rebaseRoute(route, input) {
+			const old = route.points;
+			if (old.length < 2) return route;
+			if (old[0].x === input.start.x && old[0].y === input.start.y && old.at(-1).x === input.end.x && old.at(-1).y === input.end.y) return route;
+			let points = old.map((p) => ({ ...p }));
+			if (points.length === 2) {
+				if (input.startAxis === 1) {
+					const middle = (input.start.y + input.end.y) / 2;
+					points = [
+						input.start,
+						{
+							x: input.start.x,
+							y: middle
+						},
+						{
+							x: input.end.x,
+							y: middle
+						},
+						input.end
+					];
+				} else {
+					const middle = (input.start.x + input.end.x) / 2;
+					points = [
+						input.start,
+						{
+							x: middle,
+							y: input.start.y
+						},
+						{
+							x: middle,
+							y: input.end.y
+						},
+						input.end
+					];
+				}
+			} else {
+				points[0] = { ...input.start };
+				points[points.length - 1] = { ...input.end };
+				const last = points.length - 1;
+				if (input.startAxis === 1) points[1].x = input.start.x;
+				else points[1].y = input.start.y;
+				if (input.endAxis === 1) points[last - 1].x = input.end.x;
+				else points[last - 1].y = input.end.y;
+				const keepTail = (at, adjacent, next, axis, direction) => {
+					const head = points[at], bend = points[adjacent];
+					if (points.length < 4 || (bend[axis] - head[axis]) * direction >= 24) return;
+					bend[axis] = head[axis] + direction * 24;
+					if (next > 0 && next < last) points[next][axis] = bend[axis];
+				};
+				keepTail(0, 1, 2, input.startAxis === 1 ? "y" : "x", input.startDir);
+				keepTail(last, last - 1, last - 2, input.endAxis === 1 ? "y" : "x", input.endDir);
+			}
+			let label = { ...route.label }, nearest = Infinity;
+			if (points.length === old.length) for (let i = 1; i < old.length; i++) {
+				const a = old[i - 1], b = old[i], dx = b.x - a.x, dy = b.y - a.y;
+				const fraction = Math.max(0, Math.min(1, ((route.label.x - a.x) * dx + (route.label.y - a.y) * dy) / (dx * dx + dy * dy || 1)));
+				const d = Math.hypot(route.label.x - a.x - dx * fraction, route.label.y - a.y - dy * fraction);
+				if (d >= nearest) continue;
+				nearest = d;
+				label = {
+					x: route.label.x + points[i - 1].x - a.x + (points[i].x - points[i - 1].x - dx) * fraction,
+					y: route.label.y + points[i - 1].y - a.y + (points[i].y - points[i - 1].y - dy) * fraction
+				};
+			}
+			points = simplifyRoute(points);
+			return {
+				...route,
+				points,
+				path: points.map((p, i) => `${i ? "L" : "M"} ${p.x} ${p.y}`).join(" "),
+				label
+			};
+		}
+		// src/client/components/canvas/use-edge-routes.ts
+		/** Keep routing off the pointer/render thread; coalesce requests and discard obsolete graph results. */
+		function useEdgeRoutes(edges, byId, members, labels, documentKey = "", dragging = false, routingRevision = 0) {
+			const enabled = typeof Worker !== "undefined" && true;
+			const [result, setResult] = (0, react.useState)(null);
+			const [failed, setFailed] = (0, react.useState)(false);
+			const workerRef = (0, react.useRef)(null), revision = (0, react.useRef)(0), active = (0, react.useRef)(false);
+			const latest = (0, react.useRef)(null);
+			const sent = (0, react.useRef)(null);
+			const synchronous = (0, react.useRef)(/* @__PURE__ */ new Map());
+			const synchronousKey = (0, react.useRef)({
+				documentKey,
+				routingRevision
+			});
+			const emptyRoutes = (0, react.useRef)(/* @__PURE__ */ new Map());
+			const displayedRef = (0, react.useRef)(emptyRoutes.current);
+			const idleScene = (0, react.useRef)(null);
+			const draggingRef = (0, react.useRef)(dragging);
+			draggingRef.current = dragging;
+			const routes = result?.documentKey === documentKey ? result.routes : emptyRoutes.current;
+			const interaction = (0, react.useMemo)(() => dragging ? {
+				routes: displayedRef.current,
+				scene: idleScene.current
+			} : null, [dragging, documentKey]);
+			const routingEdges = (0, react.useMemo)(() => {
+				if (!interaction?.scene) return edges;
+				const inputs = new Map(interaction.scene.inputs.map((i) => [i.id, i]));
+				return edges.map((e) => {
+					const i = inputs.get(e.id);
+					return i ? {
+						...e,
+						appearance: {
+							...e.appearance,
+							sourceSide: i.startAxis === 1 ? "bottom" : "right",
+							targetSide: i.endAxis === 1 ? "top" : "left"
+						}
+					} : e;
+				});
+			}, [edges, interaction]);
+			const scene = (0, react.useMemo)(() => edgeRoutingScene(routingEdges, byId, members, labels), [
+				routingEdges,
+				byId,
+				members,
+				labels.pass,
+				labels.fail,
+				labels.content,
+				routingRevision
+			]);
+			if (!dragging) idleScene.current = scene;
+			const sendLatest = () => {
+				if (!draggingRef.current && !active.current && latest.current && workerRef.current) {
+					active.current = true;
+					sent.current = latest.current;
+					workerRef.current.postMessage({
+						revision: latest.current.revision,
+						documentKey: latest.current.documentKey,
+						routingRevision: latest.current.routingRevision,
+						...latest.current.scene
+					});
+				}
+			};
+			(0, react.useEffect)(() => {
+				if (!enabled) return;
+				let alive = true;
+				const url = URL.createObjectURL(new Blob(["// src/client/lib/orthogonal-routing.ts\nconst CLEARANCE = 18;\nconst TAIL = 32;\nconst LANE = 14;\nconst PORT_BUNDLE_RADIUS = 64;\nconst EPSILON = 0.01;\nconst coordinate = (value) => Math.round(value * 1e6) / 1e6;\nconst exactPoint = (p) => ({ x: coordinate(p.x), y: coordinate(p.y) });\nfunction segmentHits(a, b, box) {\n    if (a.y === b.y)\n        return a.y > box.y + EPSILON && a.y < box.y + box.h - EPSILON && Math.max(a.x, b.x) > box.x + EPSILON && Math.min(a.x, b.x) < box.x + box.w - EPSILON;\n    return a.x > box.x + EPSILON && a.x < box.x + box.w - EPSILON && Math.max(a.y, b.y) > box.y + EPSILON && Math.min(a.y, b.y) < box.y + box.h - EPSILON;\n}\nfunction segmentCost(a, b, occupied, allowedBundles = []) {\n    let penalty = 0, sharedLength = 0;\n    const horizontal = a.y === b.y;\n    for (const other of occupied) {\n        const shared = other.bundles?.some(key => allowedBundles.includes(key));\n        const oh = other.a.y === other.b.y;\n        if (horizontal === oh) {\n            const separation = Math.abs(horizontal ? a.y - other.a.y : a.x - other.a.x);\n            const overlap = horizontal\n                ? Math.min(Math.max(a.x, b.x), Math.max(other.a.x, other.b.x)) - Math.max(Math.min(a.x, b.x), Math.min(other.a.x, other.b.x))\n                : Math.min(Math.max(a.y, b.y), Math.max(other.a.y, other.b.y)) - Math.max(Math.min(a.y, b.y), Math.min(other.a.y, other.b.y));\n            if (overlap > EPSILON && separation < EPSILON) {\n                const sameDirection = (b.x - a.x) * (other.b.x - other.a.x) + (b.y - a.y) * (other.b.y - other.a.y) > 0;\n                if (shared && sameDirection) {\n                    sharedLength = Math.max(sharedLength, overlap);\n                    continue;\n                }\n                return Infinity;\n            }\n            if (overlap > EPSILON && separation < LANE - EPSILON)\n                penalty += overlap * 4;\n        }\n        else {\n            const h = horizontal ? { a, b } : other;\n            const v = horizontal ? other : { a, b };\n            if (v.a.x > Math.min(h.a.x, h.b.x) + EPSILON && v.a.x < Math.max(h.a.x, h.b.x) - EPSILON\n                && h.a.y > Math.min(v.a.y, v.b.y) + EPSILON && h.a.y < Math.max(v.a.y, v.b.y) - EPSILON)\n                penalty += shared ? 0 : 80;\n        }\n    }\n    return penalty - sharedLength * 0.18;\n}\nclass MinQueue {\n    items = [];\n    push(state, score) {\n        const value = { state, score };\n        let i = this.items.length;\n        this.items.push(value);\n        while (i > 0) {\n            const parent = (i - 1) >> 1;\n            if (this.items[parent].score <= score)\n                break;\n            this.items[i] = this.items[parent];\n            i = parent;\n        }\n        this.items[i] = value;\n    }\n    pop() {\n        const first = this.items[0], last = this.items.pop();\n        if (!first || !last || !this.items.length)\n            return first;\n        let i = 0;\n        while (i * 2 + 1 < this.items.length) {\n            let child = i * 2 + 1;\n            if (child + 1 < this.items.length && this.items[child + 1].score < this.items[child].score)\n                child++;\n            if (this.items[child].score >= last.score)\n                break;\n            this.items[i] = this.items[child];\n            i = child;\n        }\n        this.items[i] = last;\n        return first;\n    }\n}\nexport function simplifyRoute(points) {\n    const out = [];\n    for (const point of points) {\n        if (out.length && out[out.length - 1].x === point.x && out[out.length - 1].y === point.y)\n            continue;\n        while (out.length > 1) {\n            const a = out[out.length - 2], b = out[out.length - 1];\n            if ((a.x === b.x && b.x === point.x) || (a.y === b.y && b.y === point.y))\n                out.pop();\n            else\n                break;\n        }\n        out.push(point);\n    }\n    return out;\n}\nexport function routePath(points) {\n    return points.map((p, i) => `${i ? 'L' : 'M'} ${p.x} ${p.y}`).join(' ');\n}\n/** All edges share one obstacle field and reserved lanes; selection never reroutes the graph. */\nexport function routeOrthogonalEdges(inputs, boxes, previousRoutes) {\n    const result = new Map();\n    if (!inputs.length)\n        return result;\n    const padded = boxes.map(b => ({ ...b, x: b.x - CLEARANCE, y: b.y - CLEARANCE, w: b.w + CLEARANCE * 2, h: b.h + CLEARANCE * 2 }));\n    const byId = new Map(boxes.map(b => [b.id, b]));\n    const endpoints = inputs.map(edge => {\n        const source = byId.get(edge.sourceOwner), target = byId.get(edge.targetOwner);\n        const sourceTail = edge.sourceTail ?? TAIL, targetTail = edge.targetTail ?? TAIL;\n        return {\n            edge,\n            start: exactPoint(edge.startAxis === 1\n                ? { x: edge.start.x, y: source ? (edge.startDir > 0 ? source.y + source.h + sourceTail : source.y - sourceTail) : edge.start.y + edge.startDir * sourceTail }\n                : { x: source ? (edge.startDir > 0 ? source.x + source.w + sourceTail : source.x - sourceTail) : edge.start.x + edge.startDir * sourceTail, y: edge.start.y }),\n            end: exactPoint(edge.endAxis === 1\n                ? { x: edge.end.x, y: target ? (edge.endDir > 0 ? target.y + target.h + targetTail : target.y - targetTail) : edge.end.y + edge.endDir * targetTail }\n                : { x: target ? (edge.endDir > 0 ? target.x + target.w + targetTail : target.x - targetTail) : edge.end.x + edge.endDir * targetTail, y: edge.end.y }),\n            waypoints: (edge.waypoints ?? []).filter(p => Number.isFinite(p.x) && Number.isFinite(p.y)).slice(0, 64).map(p => {\n                const hits = padded.filter(b => p.x > b.x && p.x < b.x + b.w && p.y > b.y && p.y < b.y + b.h);\n                if (!hits.length)\n                    return p;\n                const candidates = hits.flatMap(b => [{ x: b.x - 1, y: p.y }, { x: b.x + b.w + 1, y: p.y }, { x: p.x, y: b.y - 1 }, { x: p.x, y: b.y + b.h + 1 }])\n                    .sort((a, b) => Math.hypot(a.x - p.x, a.y - p.y) - Math.hypot(b.x - p.x, b.y - p.y));\n                return candidates.find(p => !padded.some(b => p.x > b.x && p.x < b.x + b.w && p.y > b.y && p.y < b.y + b.h)) ?? p;\n            }).map(exactPoint),\n        };\n    });\n    const xs = new Set(), ys = new Set();\n    for (const b of padded)\n        for (const offset of [0, LANE]) {\n            xs.add(b.x - offset);\n            xs.add(b.x + b.w + offset);\n            ys.add(b.y - offset);\n            ys.add(b.y + b.h + offset);\n        }\n    for (const { edge, start, end, waypoints } of endpoints)\n        for (const p of [start, ...waypoints, end, ...(edge.sourceBundle ? [{ x: edge.start.x - PORT_BUNDLE_RADIUS, y: edge.start.y - PORT_BUNDLE_RADIUS }, { x: edge.start.x + PORT_BUNDLE_RADIUS, y: edge.start.y + PORT_BUNDLE_RADIUS }] : []), ...(edge.targetBundle ? [{ x: edge.end.x - PORT_BUNDLE_RADIUS, y: edge.end.y - PORT_BUNDLE_RADIUS }, { x: edge.end.x + PORT_BUNDLE_RADIUS, y: edge.end.y + PORT_BUNDLE_RADIUS }] : [])]) {\n            xs.add(p.x);\n            ys.add(p.y);\n            xs.add(p.x - LANE);\n            xs.add(p.x + LANE);\n            ys.add(p.y - LANE);\n            ys.add(p.y + LANE);\n        }\n    const bounds = { left: Math.min(...xs), right: Math.max(...xs), top: Math.min(...ys), bottom: Math.max(...ys) };\n    for (let i = 1; i <= Math.min(inputs.length + 1, 12); i++) {\n        xs.add(bounds.left - i * LANE);\n        xs.add(bounds.right + i * LANE);\n        ys.add(bounds.top - i * LANE);\n        ys.add(bounds.bottom + i * LANE);\n    }\n    const x = [...new Set([...xs].map(coordinate))].sort((a, b) => a - b), y = [...new Set([...ys].map(coordinate))].sort((a, b) => a - b);\n    const width = x.length, height = y.length, count = width * height;\n    const point = (index) => ({ x: x[index % width], y: y[Math.floor(index / width)] });\n    const blocked = new Map();\n    const occupied = [];\n    // A label must not seal a future edge's terminal escape before that edge is routed.\n    const terminalCorridors = endpoints.flatMap(({ edge, start, end }) => [{ a: edge.start, b: start }, { a: end, b: edge.end }]);\n    const labels = [];\n    const geometryKey = (edge) => JSON.stringify([edge.startAxis, edge.endAxis, edge.startDir, edge.endDir, edge.waypoints, edge.sourceBundle, edge.targetBundle, edge.sourceTree, edge.targetTree, edge.sourceTail, edge.targetTail, edge.labelWidth]);\n    const contains = (a, b, p) => ((a.x === b.x && p.x === a.x) || (a.y === b.y && p.y === a.y)) && p.x >= Math.min(a.x, b.x) && p.x <= Math.max(a.x, b.x) && p.y >= Math.min(a.y, b.y) && p.y <= Math.max(a.y, b.y);\n    const reserve = (edge, route, start, end) => {\n        for (let i = 1; i < route.points.length; i++) {\n            const a = route.points[i - 1], b = route.points[i];\n            const bundleCuts = [edge.start, edge.end].flatMap(p => a.y === b.y ? [{ x: p.x - PORT_BUNDLE_RADIUS, y: a.y }, { x: p.x + PORT_BUNDLE_RADIUS, y: a.y }] : [{ x: a.x, y: p.y - PORT_BUNDLE_RADIUS }, { x: a.x, y: p.y + PORT_BUNDLE_RADIUS }]);\n            const cuts = [a, ...[start, end, ...bundleCuts].filter(p => contains(a, b, p)), b].sort((p, q) => Math.hypot(p.x - a.x, p.y - a.y) - Math.hypot(q.x - a.x, q.y - a.y));\n            for (let k = 1; k < cuts.length; k++) {\n                const from = cuts[k - 1], to = cuts[k];\n                if (from.x === to.x && from.y === to.y)\n                    continue;\n                const mid = { x: (from.x + to.x) / 2, y: (from.y + to.y) / 2 };\n                const bundles = [\n                    edge.sourceTree && Math.max(Math.abs(mid.x - edge.start.x), Math.abs(mid.y - edge.start.y)) <= PORT_BUNDLE_RADIUS ? edge.sourceTree : undefined,\n                    edge.targetTree && Math.max(Math.abs(mid.x - edge.end.x), Math.abs(mid.y - edge.end.y)) <= PORT_BUNDLE_RADIUS ? edge.targetTree : undefined,\n                    edge.sourceBundle && Math.max(Math.abs(mid.x - edge.start.x), Math.abs(mid.y - edge.start.y)) <= PORT_BUNDLE_RADIUS ? edge.sourceBundle : undefined,\n                    edge.targetBundle && Math.max(Math.abs(mid.x - edge.end.x), Math.abs(mid.y - edge.end.y)) <= PORT_BUNDLE_RADIUS ? edge.targetBundle : undefined\n                ].filter((key) => !!key);\n                occupied.push({ a: from, b: to, bundles, edgeId: edge.id });\n            }\n        }\n    };\n    for (const { edge, start, end } of endpoints) {\n        const route = previousRoutes?.get(edge.id);\n        if (!route || route.geometryKey !== geometryKey(edge) || route.points[0].x !== edge.start.x || route.points[0].y !== edge.start.y || route.points.at(-1).x !== edge.end.x || route.points.at(-1).y !== edge.end.y)\n            continue;\n        const valid = route.points.slice(1).every((p, i) => !padded.some(b => {\n            if ((i === 0 && b.id === edge.sourceOwner) || (i === route.points.length - 2 && b.id === edge.targetOwner))\n                return false;\n            return segmentHits(route.points[i], p, b);\n        }));\n        if (!valid)\n            continue;\n        result.set(edge.id, route);\n        reserve(edge, route, start, end);\n    }\n    const canTravel = (from, to) => {\n        const key = from < to ? `${from}:${to}` : `${to}:${from}`;\n        let hit = blocked.get(key);\n        if (hit === undefined) {\n            const a = point(from), b = point(to);\n            hit = padded.some(box => segmentHits(a, b, box));\n            blocked.set(key, hit);\n        }\n        return !hit;\n    };\n    // Short local paths reserve the smallest lanes first; ids make ties independent of input order.\n    endpoints.sort((a, b) => Math.abs(a.end.x - a.start.x) + Math.abs(a.end.y - a.start.y) - Math.abs(b.end.x - b.start.x) - Math.abs(b.end.y - b.start.y) || a.edge.id.localeCompare(b.edge.id));\n    for (const { edge, start, end, waypoints } of endpoints) {\n        if (result.has(edge.id))\n            continue;\n        const localOccupied = [...occupied];\n        const path = [];\n        const stops = [start, ...waypoints, end];\n        let failed = false;\n        for (let section = 1; section < stops.length; section++) {\n            const from = stops[section - 1], goal = stops[section];\n            const startIndex = y.indexOf(from.y) * width + x.indexOf(from.x), endIndex = y.indexOf(goal.y) * width + x.indexOf(goal.x);\n            const distance = new Float64Array(count * 2);\n            distance.fill(Infinity);\n            const previous = new Int32Array(count * 2);\n            previous.fill(-1);\n            const runLength = new Float64Array(count * 2);\n            const queue = new MinQueue();\n            const heuristic = (p) => (Math.abs(p.x - goal.x) + Math.abs(p.y - goal.y)) * 0.82;\n            const startAxis = section === 1 ? edge.startAxis ?? 0 : path.length > 1 && path.at(-1).x === path.at(-2).x ? 1 : 0;\n            distance[startIndex * 2 + startAxis] = 0;\n            runLength[startIndex * 2 + startAxis] = 24;\n            queue.push(startIndex * 2 + startAxis, heuristic(from));\n            let terminal = -1;\n            while (true) {\n                const current = queue.pop();\n                if (!current)\n                    break;\n                const index = Math.floor(current.state / 2), axis = current.state % 2, a = point(index);\n                if (current.score > distance[current.state] + heuristic(a) + EPSILON)\n                    continue;\n                if (index === endIndex) {\n                    terminal = current.state;\n                    break;\n                }\n                const ix = index % width, iy = Math.floor(index / width);\n                for (const [next, nextAxis] of [[ix > 0 ? index - 1 : -1, 0], [ix + 1 < width ? index + 1 : -1, 0], [iy > 0 ? index - width : -1, 1], [iy + 1 < height ? index + width : -1, 1]]) {\n                    if (next < 0 || !canTravel(index, next))\n                        continue;\n                    const b = point(next);\n                    // A terminal escape cannot double back along its own tail: this was the source of corner spikes.\n                    if (section === 1 && index === startIndex && (edge.startAxis === 1 ? b.y - a.y : b.x - a.x) * edge.startDir < 0)\n                        continue;\n                    if (section === stops.length - 1 && next === endIndex && (edge.endAxis === 1 ? b.y - a.y : b.x - a.x) * edge.endDir > 0)\n                        continue;\n                    const reserved = segmentCost(a, b, localOccupied, [edge.sourceBundle, edge.targetBundle, edge.sourceTree, edge.targetTree].filter((key) => !!key));\n                    if (!Number.isFinite(reserved))\n                        continue;\n                    const stepLength = Math.abs(a.x - b.x) + Math.abs(a.y - b.y);\n                    // A crossing is preferable to a little hook that travels away from its terminal and back.\n                    const retreat = Math.max(0, Math.abs(b.x - goal.x) + Math.abs(b.y - goal.y) - Math.abs(a.x - goal.x) - Math.abs(a.y - goal.y));\n                    const cost = distance[current.state] + stepLength + retreat * 4 + (axis !== nextAxis ? 64 + Math.max(0, 24 - runLength[current.state]) * 6 : 0) + reserved;\n                    const nextState = next * 2 + nextAxis;\n                    if (cost >= distance[nextState])\n                        continue;\n                    distance[nextState] = cost;\n                    previous[nextState] = current.state;\n                    runLength[nextState] = Math.min(24, (axis === nextAxis ? runLength[current.state] : 0) + stepLength);\n                    queue.push(nextState, cost + heuristic(b));\n                }\n            }\n            if (terminal < 0) {\n                failed = true;\n                break;\n            }\n            const points = [];\n            for (let state = terminal; state >= 0; state = previous[state])\n                points.push(point(Math.floor(state / 2)));\n            points.reverse();\n            for (let i = 1; i < points.length; i++)\n                localOccupied.push({ a: points[i - 1], b: points[i] });\n            path.push(...points.slice(section === 1 ? 0 : 1));\n        }\n        if (failed)\n            continue;\n        let core = simplifyRoute(path);\n        // Remove unnecessary U-shaped detours once the clear corridors are known.\n        if (!waypoints.length) {\n            const allowed = [edge.sourceBundle, edge.targetBundle, edge.sourceTree, edge.targetTree].filter((key) => !!key);\n            for (let i = 0; i < core.length - 2; i++)\n                for (let j = core.length - 1; j > i + 1; j--) {\n                    const a = core[i], b = core[j];\n                    const candidates = a.x === b.x || a.y === b.y ? [[a, b]] : [[a, { x: b.x, y: a.y }, b], [a, { x: a.x, y: b.y }, b]];\n                    const shortcut = candidates.find(points => {\n                        if (points.length >= j - i + 1)\n                            return false;\n                        if (i === 0 && (edge.startAxis === 1 ? points[1].y - a.y : points[1].x - a.x) * edge.startDir < 0)\n                            return false;\n                        if (j === core.length - 1 && (edge.endAxis === 1 ? b.y - points.at(-2).y : b.x - points.at(-2).x) * edge.endDir > 0)\n                            return false;\n                        return points.slice(1).every((p, k) => !padded.some(box => segmentHits(points[k], p, box)) && Number.isFinite(segmentCost(points[k], p, occupied, allowed)));\n                    });\n                    if (shortcut) {\n                        core = simplifyRoute([...core.slice(0, i), ...shortcut, ...core.slice(j + 1)]);\n                        i = Math.max(-1, i - 1);\n                        break;\n                    }\n                }\n        }\n        const pathPoints = simplifyRoute([edge.start, ...core, edge.end]);\n        const routed = { points: pathPoints, path: routePath(pathPoints), label: { x: (start.x + end.x) / 2, y: (start.y + end.y) / 2 }, labelWidth: edge.labelWidth, geometryKey: geometryKey(edge), ...(edge.targetBundle ? { targetBundle: edge.targetBundle } : {}) };\n        reserve(edge, routed, start, end);\n        result.set(edge.id, routed);\n    }\n    // Labels adapt to completed routes; they must never force a later edge into a tiny hook.\n    for (const { edge, start, end } of endpoints) {\n        const route = result.get(edge.id);\n        if (!route)\n            continue;\n        const pathPoints = route.points;\n        let label = { x: (start.x + end.x) / 2, y: (start.y + end.y) / 2 }, labelWidth = edge.labelWidth;\n        let labelAnchor;\n        if (labelWidth) {\n            let best = -Infinity;\n            for (let i = 1; i < pathPoints.length; i++) {\n                const a = pathPoints[i - 1], b = pathPoints[i], horizontal = a.y === b.y;\n                const length = Math.abs(a.x - b.x) + Math.abs(a.y - b.y);\n                for (const fraction of [0.5, 0.3, 0.7])\n                    for (const offset of [0, -24, 24, -42, 42]) {\n                        const anchor = { x: a.x + (b.x - a.x) * fraction, y: a.y + (b.y - a.y) * fraction };\n                        const candidate = { x: anchor.x + (horizontal ? 0 : offset), y: anchor.y + (horizontal ? offset : 0) };\n                        const box = { id: edge.id, x: candidate.x - labelWidth / 2 - 5, y: candidate.y - 13, w: labelWidth + 10, h: 26 };\n                        const overlap = [...padded, ...labels].some(b => box.x < b.x + b.w && box.x + box.w > b.x && box.y < b.y + b.h && box.y + box.h > b.y);\n                        const crosses = occupied.some(s => s.edgeId !== edge.id && segmentHits(s.a, s.b, box)) || terminalCorridors.some(s => segmentHits(s.a, s.b, box));\n                        const leaderBlocked = offset !== 0 && (padded.some(b => segmentHits(anchor, candidate, b)) || segmentCost(anchor, candidate, occupied.filter(s => s.edgeId !== edge.id)) > 0);\n                        const score = (horizontal ? 200 : 0) + length - (overlap || crosses || leaderBlocked ? 10000 : 0) - Math.abs(fraction - 0.5) * 20 - Math.abs(offset) * 8;\n                        if (score > best) {\n                            best = score;\n                            label = candidate;\n                            labelAnchor = offset ? anchor : undefined;\n                        }\n                    }\n            }\n            if (best < -5000)\n                labelWidth = 0;\n            else\n                labels.push({ id: edge.id, x: label.x - labelWidth / 2 - 4, y: label.y - 12, w: labelWidth + 8, h: 24 });\n        }\n        if (route.label.x !== label.x || route.label.y !== label.y || route.labelWidth !== labelWidth || route.labelAnchor?.x !== labelAnchor?.x || route.labelAnchor?.y !== labelAnchor?.y) {\n            const { labelAnchor: previousAnchor, ...geometry } = route;\n            result.set(edge.id, { ...geometry, label, labelWidth, ...(labelAnchor ? { labelAnchor } : {}) });\n        }\n    }\n    return result;\n}\n\nlet previousRoutes, documentKey, routingRevision; self.onmessage = ({data}) => { try { if (documentKey !== data.documentKey || routingRevision !== data.routingRevision) { previousRoutes = undefined; documentKey = data.documentKey; routingRevision = data.routingRevision; } previousRoutes = routeOrthogonalEdges(data.inputs, data.boxes, previousRoutes); self.postMessage({documentKey: data.documentKey, revision: data.revision, routes: [...previousRoutes]}); } catch(error) { self.postMessage({documentKey: data.documentKey, revision: data.revision, error: String(error)}); } };"], { type: "text/javascript" }));
+				try {
+					const worker = new Worker(url, { type: "module" });
+					workerRef.current = worker;
+					worker.onmessage = (event) => {
+						if (!alive) return;
+						active.current = false;
+						if (event.data.error) {
+							setFailed(true);
+							worker.terminate();
+							workerRef.current = null;
+							return;
+						}
+						if (event.data.documentKey === latest.current?.documentKey && event.data.routes && sent.current?.revision === event.data.revision && sent.current.routingRevision === latest.current.routingRevision) setResult({
+							routes: new Map(event.data.routes),
+							documentKey: event.data.documentKey,
+							scene: sent.current.scene
+						});
+						if (latest.current && latest.current.revision > event.data.revision) sendLatest();
+					};
+					worker.onerror = () => {
+						if (alive) {
+							setFailed(true);
+							worker.terminate();
+							workerRef.current = null;
+							active.current = false;
+						}
+					};
+					sendLatest();
+				} catch {
+					setFailed(true);
+				}
+				return () => {
+					alive = false;
+					workerRef.current?.terminate();
+					workerRef.current = null;
+					active.current = false;
+					URL.revokeObjectURL(url);
+				};
+			}, [enabled]);
+			(0, react.useEffect)(() => {
+				latest.current = {
+					revision: ++revision.current,
+					scene,
+					documentKey,
+					routingRevision
+				};
+				sendLatest();
+			}, [
+				scene,
+				documentKey,
+				dragging,
+				routingRevision
+			]);
+			const displayed = (0, react.useMemo)(() => {
+				if (enabled && !failed) {
+					const base = interaction?.routes ?? routes;
+					const current = new Map(base);
+					for (const input of scene.inputs) {
+						const existing = base.get(input.id);
+						if (existing?.points[0].x === input.start.x && existing.points[0].y === input.start.y && existing.points.at(-1).x === input.end.x && existing.points.at(-1).y === input.end.y) continue;
+						if (existing) {
+							current.set(input.id, rebaseRoute(existing, input));
+							continue;
+						}
+						const a = {
+							x: input.start.x + (input.startAxis === 1 ? 0 : 32),
+							y: input.start.y + (input.startAxis === 1 ? 32 : 0)
+						};
+						const b = {
+							x: input.end.x - (input.endAxis === 1 ? 0 : 32),
+							y: input.end.y - (input.endAxis === 1 ? 32 : 0)
+						};
+						const points = [
+							input.start,
+							a,
+							...input.startAxis === 1 && input.endAxis === 1 ? [{
+								x: a.x,
+								y: (a.y + b.y) / 2
+							}, {
+								x: b.x,
+								y: (a.y + b.y) / 2
+							}] : input.startAxis === 1 ? [{
+								x: a.x,
+								y: b.y
+							}] : input.endAxis === 1 ? [{
+								x: b.x,
+								y: a.y
+							}] : [{
+								x: (a.x + b.x) / 2,
+								y: a.y
+							}, {
+								x: (a.x + b.x) / 2,
+								y: b.y
+							}],
+							b,
+							input.end
+						];
+						current.set(input.id, {
+							points,
+							path: "",
+							label: {
+								x: (a.x + b.x) / 2,
+								y: (a.y + b.y) / 2
+							},
+							labelWidth: 0
+						});
+					}
+					return current;
+				}
+				if (synchronousKey.current.documentKey !== documentKey || synchronousKey.current.routingRevision !== routingRevision) {
+					synchronous.current = /* @__PURE__ */ new Map();
+					synchronousKey.current = {
+						documentKey,
+						routingRevision
+					};
+				}
+				const next = routedEdgeGeometry(edges, byId, members, labels, synchronous.current);
+				synchronous.current = next;
+				return next;
+			}, [
+				enabled,
+				failed,
+				routes,
+				scene,
+				edges,
+				byId,
+				members,
+				labels.pass,
+				labels.fail,
+				labels.content,
+				interaction,
+				documentKey,
+				routingRevision
+			]);
+			displayedRef.current = displayed;
+			return {
+				routes: displayed,
+				connectedPorts: scene.connectedPorts,
+				isRouting: enabled && !failed && (result?.scene !== scene || result.documentKey !== documentKey)
+			};
+		}
+		// src/client/lib/status-label.ts
+		/** 运行/节点状态文案；未知状态或空值返回空串（调用方按需要回退原文或占位符）。 */
+		function statusLabelOf(copy, status) {
+			if (!status) return "";
+			return String(copy.status[status] ?? "");
+		}
+		/** 定时任务运行状态文案；未知状态回退状态码本身（便于排查新状态）。 */
+		function schedulerStatusLabelOf(copy, status) {
+			if (!status) return "";
+			return String(copy.schedulerStatus[status] ?? status);
+		}
+		/** 定时任务最近结果文案；无结果返回占位符「—」。 */
+		function schedulerResultLabelOf(copy, result) {
+			if (!result) return "—";
+			return String(copy.schedulerLastResult[result] ?? result);
+		}
+		// src/client/components/canvas/FlowNode.tsx
+		/**
+		* 连接点（按模式裁剪：输入/输出节点仅保留流程连接点；
+		* 接点方向固定为左上输入、右下输出）。
+		*/
+		function nodeHandles(kind, mode) {
+			const def = HANDLES[kind] ?? HANDLES.agent;
+			if (kind === "start") return {
+				left: [],
+				right: ["flow-out"]
+			};
+			if (kind === "end") return {
+				left: ["flow-in"],
+				right: []
+			};
+			const inputs = (def.inputs ?? []).filter((handle) => !(mode === "mode1" && kind === "end" && handle === "ctx-in"));
+			const outputs = def.outputs ?? [];
+			return {
+				left: [...inputs].reverse(),
+				right: [...outputs].reverse()
+			};
+		}
+		/** 截断文本（按字符数；中文友好）。 */
+		function clip(text, limit) {
+			const value = String(text ?? "");
+			return value.length > limit ? `${value.slice(0, limit)}…` : value;
+		}
+		/** 节点元信息行（每行独立渲染；角色卡为「模型 / 组合」两行）。 */
+		function metaLinesOf(node, copy) {
+			const kind = node.kind;
+			const data = node.data;
+			const out = [];
+			if (kind === "proxy") return out;
+			if (kind === "parent" || kind === "agent") {
+				const modelLabel = String(copy.nodeMetaModel);
+				const presetLabel = String(copy.nodeMetaPreset);
+				out.push(`${modelLabel}：${String(data.model ?? "").trim() || "—"}`);
+				out.push(`${presetLabel}：${copy.modeName(data.presetId ?? null)}`);
+			} else if (kind === "task") {
+				const content = clip(String(data.content ?? ""), 56);
+				if (content.trim()) out.push(content);
+			} else if (kind === "subgraph") {
+				const graph = data.graph;
+				out.push(`${String(copy.subgraphNodeCount)}：${graph?.nodes?.length ?? 0} · ${String(copy.subgraphLineCount)}：${graph?.lines?.length ?? 0}`);
+			} else if (kind === "step") out.push(`${String(copy.nodeKinds.step)}：${String(data.content ?? "")}`);
+			else if (kind === "database") {
+				out.push(data.dbType === "server" ? `${String(data.dbKind ?? "mysql")} · ${String(copy.dbTypeServer)}` : String(copy.dbLocalLabel));
+				if (data.vectorSource === "bm25") out.push(String(copy.dbBm25Badge));
+			}
+			return out.filter((line) => String(line ?? "").trim());
+		}
+		/**
+		* 节点卡片以 memo 包住：父组件拖拽/平移/缩放等本地渲染态变化时，未变的节点不重渲染
+		* （回调由 GraphCanvas 以 useCallback 固定引用，节点对象与运行状态对象保持原引用）。
+		*/
+		const FlowNode = (0, react.memo)(function FlowNode({ node, copy, mode, selected, highlighted, dimmed = false, dragging, runStatus, locked, lockHint, agentPatched, connectedHandles, onPointerDown, onHandlePointerDown, onOpenSubgraph }) {
+			const kind = node.kind;
+			const isProxy = kind === "proxy";
+			const isStage = kind === "start" || kind === "end" || kind === "pause";
+			const displayKind = isProxy ? node.data.referencedRoleKind === "parent" ? "parent" : "agent" : kind;
+			const labelKind = mode === "mode2" && kind === "start" ? "input" : mode === "mode2" && kind === "end" ? "output" : displayKind;
+			const nodeLabel = isStage ? copy.nodeKinds[labelKind] : String(node.data.label ?? "").trim() || String(copy.nodeKinds[displayKind] ?? "");
+			const handles = nodeHandles(displayKind, mode);
+			const status = runStatus?.status ?? null;
+			const statusText = statusLabelOf(copy, status);
+			const metaLines = metaLinesOf(node, copy);
+			const metaText = metaLines.join("\n");
+			const size = nodeSizeOf(node);
+			const cls = [
+				"wf-node",
+				`wf-node--${displayKind}`,
+				selected ? "is-selected" : "",
+				highlighted ? "is-highlighted" : "",
+				isProxy ? "is-proxy" : "",
+				locked ? "is-locked" : ""
+			].filter(Boolean).join(" ");
+			const handleEl = (available, side) => {
+				if (!available.length) return null;
+				const handle = available.find((h) => h.startsWith("flow-")) ?? available[0];
+				const dir = handle.endsWith("-out") ? "out" : "in";
+				const connected = available.some((h) => connectedHandles?.includes(`|${node.id}:${h}:${side}|`));
+				const style = side === "top" || side === "bottom" ? {
+					left: "50%",
+					[side]: -6
+				} : {
+					top: "50%",
+					[side]: -6
+				};
+				return /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+					className: `wf-graph__handle is-side-${side} is-${dir}${connected ? " is-connected" : ""}`,
+					style,
+					"data-handle": handle,
+					"data-handles": available.join(" "),
+					"data-port-side": side,
+					title: dir === "in" ? String(copy.nodeKinds.input) : String(copy.nodeKinds.output),
+					onPointerDown: (event) => onHandlePointerDown(event, node.id, handle)
+				}, side);
+			};
+			return /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+				className: `wf-graph__node${dragging ? " is-dragging" : ""}${dimmed ? " is-runtime-dimmed" : ""}`,
+				"data-wf-node-id": node.id,
+				style: {
+					left: node.position.x,
+					top: node.position.y,
+					width: size.w,
+					height: size.h
+				},
+				onPointerDown: (event) => onPointerDown(event, node.id),
+				children: /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+					className: cls,
+					title: locked ? lockHint : void 0,
+					children: [
+						/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+							className: "wf-node__kind",
+							children: [
+								/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", { children: String(copy.nodeKinds[labelKind] ?? labelKind) }),
+								kind === "subgraph" && onOpenSubgraph ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+									type: "button",
+									className: "wf-node__subgraph-open",
+									title: String(copy.subgraphOpen),
+									onPointerDown: (event) => event.stopPropagation(),
+									onClick: (event) => {
+										event.stopPropagation();
+										onOpenSubgraph(node.id);
+									},
+									children: String(copy.subgraphOpen)
+								}) : null,
+								statusText ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", { className: `wf-status-dot is-${status}` }) : null,
+								statusText ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+									className: "wf-hint",
+									children: statusText
+								}) : null,
+								locked ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+									className: "wf-node__lock-badge",
+									title: lockHint,
+									children: "🔒"
+								}) : null,
+								agentPatched ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+									className: "wf-node__agent-badge",
+									title: String(copy.agentPatchedBadge),
+									children: String(copy.agentPatchedBadge)
+								}) : null
+							]
+						}),
+						/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+							className: "wf-node__label",
+							children: [isProxy ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+								className: "wf-node__proxy-badge",
+								children: String(copy.proxyBadge)
+							}) : null, nodeLabel]
+						}),
+						metaLines.length > 0 ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+							className: "wf-node__prompt",
+							children: metaText
+						}) : null,
+						handleEl(handles.left, "left"),
+						handleEl(handles.right, "right"),
+						handleEl(handles.left, "top"),
+						handleEl(handles.right, "bottom")
+					]
+				})
+			});
+		});
+		// src/client/components/canvas/GroupCard.tsx
+		/**
+		* 以 memo 包住：父组件拖拽/平移/缩放等本地渲染态变化时，只要组卡输入（节点、成员列表、
+		* 选中/高亮/锁定、回调引用）未变即不重渲染；成员列表由 GraphCanvas 以 useMemo 保持引用稳定。
+		*/
+		const GroupCard = (0, react.memo)(function GroupCard({ node, copy, members, selected, highlighted, dimmed = false, dropTarget, locked, lockHint, connectedHandles, onPointerDown, onHandlePointerDown, onMemberSelect, onResizeStart }) {
+			const size = nodeSizeOf(node);
+			const portEl = (side) => {
+				const input = side === "left" || side === "top";
+				const available = input ? ["ctx-in", "flow-in"] : ["flow-out"];
+				const connected = available.some((h) => connectedHandles?.includes(`|${node.id}:${h}:${side}|`));
+				return /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+					className: `wf-graph__handle is-side-${side} is-${input ? "in" : "out"}${connected ? " is-connected" : ""}`,
+					style: side === "left" || side === "right" ? {
+						top: "50%",
+						[side]: -6
+					} : {
+						left: "50%",
+						[side]: -6
+					},
+					"data-handle": input ? "flow-in" : "flow-out",
+					"data-handles": available.join(" "),
+					"data-port-side": side,
+					title: String(input ? copy.nodeKinds.input : copy.nodeKinds.output),
+					onPointerDown: (event) => onHandlePointerDown(event, node.id, input ? "flow-in" : "flow-out")
+				}, side);
+			};
+			const memberIds = [...new Set(node.data.memberIds ?? [])];
+			return /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+				className: `wf-graph__node wf-group-node${dropTarget ? " is-drop-target" : ""}${dimmed ? " is-runtime-dimmed" : ""}`,
+				"data-wf-node-id": node.id,
+				style: {
+					left: node.position.x,
+					top: node.position.y,
+					width: size.w,
+					height: size.h
+				},
+				onPointerDown: (event) => onPointerDown(event, node.id),
+				children: /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+					className: `wf-node wf-node--group${selected ? " is-selected" : ""}${highlighted ? " is-highlighted" : ""}${dropTarget ? " is-drop-target" : ""}${locked ? " is-locked" : ""}`,
+					title: locked ? lockHint : void 0,
+					children: [
+						/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+							className: "wf-node__kind",
+							children: [
+								/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", { children: String(copy.nodeKinds.group) }),
+								node.data.dynamic === true ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+									className: "wf-hint",
+									children: `${String(copy.dynamicTeam)} · ${String(copy.dynamicTeamLimit)} ${Number(node.data.maxMembers ?? 4)}`
+								}) : /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+									className: "wf-hint",
+									children: `${memberIds.length} ${String(copy.groupMembers)}`
+								}),
+								locked ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+									className: "wf-node__lock-badge",
+									title: lockHint,
+									children: "🔒"
+								}) : null
+							]
+						}),
+						dropTarget ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+							className: "wf-group__drop-hint",
+							children: String(copy.groupDropHint)
+						}) : null,
+						/* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+							className: "wf-node__label",
+							children: String(node.data.label ?? copy.nodeKinds.group)
+						}),
+						/* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+							className: "wf-group__members",
+							children: members.length === 0 ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+								className: "wf-hint",
+								children: String(node.data.dynamic === true ? copy.dynamicTeamHint : copy.groupMemberHint)
+							}) : members.map((member) => /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("button", {
+								type: "button",
+								className: `wf-group__member${member.highlighted ? " is-highlighted" : ""}${member.dimmed ? " is-runtime-dimmed" : ""}`,
+								"data-wf-node-id": member.id,
+								onPointerDown: (event) => {
+									event.stopPropagation();
+								},
+								onClick: (event) => {
+									event.stopPropagation();
+									onMemberSelect(member.id);
+								},
+								children: [
+									/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+										className: "wf-group__member-name",
+										children: member.label || member.id
+									}),
+									member.locked ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+										className: "wf-node__lock-badge",
+										title: lockHint,
+										children: "🔒"
+									}) : null,
+									member.status ? /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("span", {
+										className: "wf-group__member-status",
+										children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", { className: `wf-status-dot is-${member.status}` }), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+											className: "wf-hint",
+											children: statusLabelOf(copy, member.status)
+										})]
+									}) : null,
+									/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+										className: `wf-graph__handle is-in wf-graph__handle--target wf-graph__handle--mini wf-graph__handle--member-db-in${connectedHandles?.includes(`|${member.id}:db-in:left|`) ? " is-connected" : ""}`,
+										"data-handle": "db-in",
+										title: "db-in",
+										onPointerDown: (event) => {
+											event.stopPropagation();
+											onHandlePointerDown(event, member.id, "db-in");
+										}
+									}),
+									/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+										className: `wf-graph__handle is-in wf-graph__handle--target wf-graph__handle--mini wf-graph__handle--member-ctx-in${connectedHandles?.includes(`|${member.id}:ctx-in:left|`) ? " is-connected" : ""}`,
+										"data-handle": "ctx-in",
+										title: "ctx-in",
+										onPointerDown: (event) => {
+											event.stopPropagation();
+											onHandlePointerDown(event, member.id, "ctx-in");
+										}
+									})
+								]
+							}, member.id))
+						}),
+						[
+							"left",
+							"top",
+							"right",
+							"bottom"
+						].map(portEl),
+						/* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+							className: "wf-group__resize is-se",
+							onPointerDown: (event) => onResizeStart(event, node.id, "se")
+						})
+					]
+				})
+			});
+		});
+		// src/client/lib/bezier-path.ts
+		const distance = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+		const midpoint = (a, b) => ({
+			x: (a.x + b.x) / 2,
+			y: (a.y + b.y) / 2
+		});
+		function lineHits(a, b, box) {
+			let low = 0, high = 1;
+			for (const [origin, delta, minimum, maximum] of [[
+				a.x,
+				b.x - a.x,
+				box.x,
+				box.x + box.w
+			], [
+				a.y,
+				b.y - a.y,
+				box.y,
+				box.y + box.h
+			]]) {
+				if (Math.abs(delta) < 1e-4) {
+					if (origin <= minimum || origin >= maximum) return false;
+					continue;
+				}
+				const p = (minimum - origin) / delta, q = (maximum - origin) / delta;
+				low = Math.max(low, Math.min(p, q));
+				high = Math.min(high, Math.max(p, q));
+				if (low >= high - 1e-4) return false;
+			}
+			return high > 1e-4 && low < .9999;
+		}
+		/** Subdivision checks the entire curve; control points alone do not establish collision freedom. */
+		function curveHits(span, box, depth = 0) {
+			const points = [
+				span.start,
+				span.c1,
+				span.c2,
+				span.end
+			];
+			const left = Math.min(...points.map((p) => p.x)), right = Math.max(...points.map((p) => p.x));
+			const top = Math.min(...points.map((p) => p.y)), bottom = Math.max(...points.map((p) => p.y));
+			if (right <= box.x || left >= box.x + box.w || bottom <= box.y || top >= box.y + box.h) return false;
+			if (depth >= 9 || Math.max(right - left, bottom - top) < .5) return lineHits(span.start, span.end, box);
+			const a = midpoint(span.start, span.c1), b = midpoint(span.c1, span.c2), c = midpoint(span.c2, span.end);
+			const d = midpoint(a, b), e = midpoint(b, c), m = midpoint(d, e);
+			return curveHits({
+				start: span.start,
+				c1: a,
+				c2: d,
+				end: m
+			}, box, depth + 1) || curveHits({
+				start: m,
+				c1: e,
+				c2: c,
+				end: span.end
+			}, box, depth + 1);
+		}
+		function terminal(a, b) {
+			const length = distance(a, b), tail = Math.min(24, length / 3);
+			return length ? {
+				x: a.x + (b.x - a.x) * tail / length,
+				y: a.y + (b.y - a.y) * tail / length
+			} : a;
+		}
+		/** Interpolating cubic spans run across the full connection, with only two straight terminal shafts. */
+		function bezierRoutePath(raw, manual = [], obstacles = [], manualMode = false) {
+			const route = simplifyRoute(raw);
+			if (route.length < 2) return {
+				path: route.length ? `M ${route[0].x} ${route[0].y}` : "",
+				anchors: [],
+				spans: []
+			};
+			const first = route[0], last = route.at(-1);
+			const start = terminal(first, route[1]), end = terminal(last, route.at(-2));
+			const boxes = obstacles.map((b) => ({
+				...b,
+				x: b.x - 3,
+				y: b.y - 3,
+				w: b.w + 6,
+				h: b.h + 6
+			}));
+			const free = (a, b) => boxes.every((box) => !lineHits(a, b, box));
+			const explicit = [
+				start,
+				...manual,
+				end
+			];
+			let anchors;
+			if ((manual.length || manualMode) && explicit.slice(1).every((p, i) => free(explicit[i], p))) anchors = explicit;
+			else {
+				const core = [
+					start,
+					...route.slice(1, -1),
+					end
+				];
+				anchors = [start];
+				for (let i = 1; i < core.length - 1; i++) {
+					const a = core[i - 1], p = core[i], b = core[i + 1];
+					const candidate = manual.some((m) => distance(m, p) < .5) ? p : {
+						x: (a.x + p.x * 2 + b.x) / 4,
+						y: (a.y + p.y * 2 + b.y) / 4
+					};
+					anchors.push(free(anchors.at(-1), candidate) && free(candidate, b) ? candidate : p);
+				}
+				anchors.push(end);
+			}
+			anchors = anchors.filter((p, i) => !i || distance(p, anchors[i - 1]) > .1);
+			if (!manual.length && !manualMode) for (let i = 1; i < anchors.length - 1; i++) {
+				const a = anchors[i - 1], p = anchors[i], b = anchors[i + 1];
+				const dx = b.x - a.x, dy = b.y - a.y, length = Math.hypot(dx, dy);
+				const projection = ((p.x - a.x) * dx + (p.y - a.y) * dy) / (length * length || 1);
+				const deviation = Math.abs((p.x - a.x) * dy - (p.y - a.y) * dx) / (length || 1);
+				if (projection >= 0 && projection <= 1 && (deviation < 8 || distance(a, p) < 28 || distance(p, b) < 28) && free(a, b)) {
+					anchors.splice(i, 1);
+					i = Math.max(0, i - 1);
+				}
+			}
+			if (!manualMode && anchors.length === 2 && distance(start, end) > 48) anchors.splice(1, 0, midpoint(start, end));
+			const tangents = anchors.map((p, i) => {
+				const previous = anchors[i - 1] ?? first, next = anchors[i + 1] ?? last;
+				let v = i === 0 ? {
+					x: p.x - first.x,
+					y: p.y - first.y
+				} : i === anchors.length - 1 ? {
+					x: last.x - p.x,
+					y: last.y - p.y
+				} : {
+					x: next.x - previous.x,
+					y: next.y - previous.y
+				};
+				const length = Math.hypot(v.x, v.y), extent = Math.min(distance(p, previous), distance(p, next)) / 2;
+				const scale = length ? Math.min(extent, distance(previous, next) / 6) / length : 0;
+				v = {
+					x: v.x * scale,
+					y: v.y * scale
+				};
+				return v;
+			});
+			const factors = anchors.map(() => 1);
+			const spanOf = (index) => ({
+				start: anchors[index],
+				end: anchors[index + 1],
+				c1: {
+					x: anchors[index].x + tangents[index].x * factors[index],
+					y: anchors[index].y + tangents[index].y * factors[index]
+				},
+				c2: {
+					x: anchors[index + 1].x - tangents[index + 1].x * factors[index + 1],
+					y: anchors[index + 1].y - tangents[index + 1].y * factors[index + 1]
+				}
+			});
+			for (let attempt = 0; attempt < 10; attempt++) {
+				let changed = false;
+				for (let i = 0; i < anchors.length - 1; i++) if (boxes.some((box) => curveHits(spanOf(i), box))) {
+					factors[i] *= .4;
+					factors[i + 1] *= .4;
+					changed = true;
+				}
+				if (!changed) break;
+			}
+			const spans = anchors.slice(1).map((_, i) => spanOf(i));
+			return {
+				path: [
+					`M ${first.x} ${first.y}`,
+					`L ${start.x} ${start.y}`,
+					...spans.map((s) => `C ${s.c1.x} ${s.c1.y} ${s.c2.x} ${s.c2.y} ${s.end.x} ${s.end.y}`),
+					`L ${last.x} ${last.y}`
+				].join(" "),
+				anchors: manualMode ? manual : anchors.slice(1, -1),
+				spans
+			};
+		}
+		function sampleBezier(span, t) {
+			const u = 1 - t;
+			return {
+				x: u ** 3 * span.start.x + 3 * u * u * t * span.c1.x + 3 * u * t * t * span.c2.x + t ** 3 * span.end.x,
+				y: u ** 3 * span.start.y + 3 * u * u * t * span.c1.y + 3 * u * t * t * span.c2.y + t ** 3 * span.end.y
+			};
+		}
+		// src/client/lib/edge-path.ts
+		/** One continuous path: remove duplicate/reversing collinear points before rounding corners. */
+		function edgeDisplayPath(raw, type = "rounded") {
+			if (type === "bezier") return bezierRoutePath(raw).path;
+			const points = simplifyRoute(raw);
+			if (!points.length) return "";
+			const text = [`M ${points[0].x} ${points[0].y}`];
+			const radius = 10;
+			for (let i = 1; i < points.length - 1; i++) {
+				const a = points[i - 1], b = points[i], c = points[i + 1];
+				const incoming = Math.hypot(b.x - a.x, b.y - a.y), outgoing = Math.hypot(c.x - b.x, c.y - b.y);
+				const r = Math.max(0, Math.min(radius, incoming / 2, outgoing / 2, i === 1 ? incoming - 24 : Infinity, i === points.length - 2 ? outgoing - 24 : Infinity));
+				const before = {
+					x: b.x + (a.x - b.x) * r / incoming,
+					y: b.y + (a.y - b.y) * r / incoming
+				};
+				const after = {
+					x: b.x + (c.x - b.x) * r / outgoing,
+					y: b.y + (c.y - b.y) * r / outgoing
+				};
+				text.push(`L ${before.x} ${before.y}`);
+				text.push(`Q ${b.x} ${b.y} ${after.x} ${after.y}`);
+			}
+			const last = points.at(-1);
+			text.push(`L ${last.x} ${last.y}`);
+			return text.join(" ");
+		}
+		// src/client/lib/edge-segment.ts
+		/** Interior straight sections translate along their normal, leaving terminal anchors attached. */
+		function edgeSegmentDrag(points, index) {
+			if (index < 0 || index + 1 >= points.length) return null;
+			let a = points[index], b = points[index + 1];
+			if (a.x !== b.x && a.y !== b.y) return null;
+			const dx = Math.sign(b.x - a.x), dy = Math.sign(b.y - a.y);
+			if (index === 0) a = {
+				x: a.x + dx * 32,
+				y: a.y + dy * 32
+			};
+			if (index === points.length - 2) b = {
+				x: b.x - dx * 32,
+				y: b.y - dy * 32
+			};
+			if ((b.x - a.x) * dx + (b.y - a.y) * dy <= 0) return null;
+			if (Math.hypot(a.x - b.x, a.y - b.y) < 48) return null;
+			const waypoints = points.slice(1, -1).map((p) => ({ ...p }));
+			if (index === 0) waypoints.unshift(a);
+			if (index === points.length - 2) waypoints.push(b);
+			return {
+				waypoints,
+				index: Math.max(0, index - 1),
+				axis: a.y === b.y ? "y" : "x"
+			};
+		}
+		function translateEdgeSegment(drag, delta) {
+			return drag.waypoints.map((p, index) => index === drag.index || index === drag.index + 1 ? {
+				...p,
+				[drag.axis]: Math.round(p[drag.axis] + delta[drag.axis])
+			} : { ...p });
+		}
+		// src/client/lib/graph-selection.ts
+		/** References and their source form one selection family; a Team also includes its members. */
+		function relatedNodeIds(nodes, selectedId) {
+			const related = /* @__PURE__ */ new Set();
+			if (!selectedId) return related;
+			const byId = new Map(nodes.map((node) => [node.id, node]));
+			const references = /* @__PURE__ */ new Map();
+			const link = (source, target) => {
+				const adjacent = references.get(source);
+				if (adjacent) adjacent.push(target);
+				else references.set(source, [target]);
+			};
+			for (const node of nodes) {
+				if (node.kind !== "proxy" || !node.proxySourceId || !byId.has(node.proxySourceId)) continue;
+				link(node.id, node.proxySourceId);
+				link(node.proxySourceId, node.id);
+			}
+			const pending = [selectedId];
+			const selected = byId.get(selectedId);
+			if (selected?.kind === "group") {
+				pending.push(...selected.data.memberIds ?? []);
+				for (const node of nodes) if (node.data.groupId === selectedId) pending.push(node.id);
+			}
+			for (let index = 0; index < pending.length; index++) {
+				const id = pending[index];
+				if (related.has(id)) continue;
+				related.add(id);
+				pending.push(...references.get(id) ?? []);
+			}
+			return related;
+		}
+		// src/client/lib/graph-run-focus.ts
+		/** Active references share one execution unit; an active member lights its container, never idle siblings. */
+		function workingGraphNodeIds(nodes, runningIds) {
+			const byId = new Map(nodes.map((node) => [node.id, node]));
+			const references = /* @__PURE__ */ new Map();
+			const link = (from, to) => {
+				const adjacent = references.get(from);
+				if (adjacent) adjacent.push(to);
+				else references.set(from, [to]);
+			};
+			for (const node of nodes) {
+				if (node.kind !== "proxy" || !node.proxySourceId || !byId.has(node.proxySourceId)) continue;
+				link(node.id, node.proxySourceId);
+				link(node.proxySourceId, node.id);
+			}
+			const pending = runningIds.filter((id) => byId.has(id)), active = /* @__PURE__ */ new Set();
+			for (let i = 0; i < pending.length; i++) {
+				const id = pending[i];
+				if (active.has(id)) continue;
+				active.add(id);
+				pending.push(...references.get(id) ?? []);
+			}
+			for (const node of nodes) {
+				if (active.has(node.id) && typeof node.data.groupId === "string" && byId.has(node.data.groupId)) active.add(node.data.groupId);
+				if (node.kind === "group" && (node.data.memberIds ?? []).some((id) => active.has(id))) active.add(node.id);
+			}
+			return active;
+		}
+		/** Flow animation follows work entering the active step; context/data may operate in either direction. */
+		function isWorkingEdge(edge, activeIds) {
+			if (!activeIds) return false;
+			if (activeIds.has(edge.target)) return true;
+			return (edge.sourceHandle === "ctx-out" || edge.targetHandle === "ctx-in" || edge.sourceHandle === "db-out" || edge.targetHandle === "db-in") && activeIds.has(edge.source);
+		}
+		// src/client/components/canvas/CanvasEdges.tsx
+		const CanvasEdges = (0, react.memo)(function CanvasEdges(props) {
+			const { nodes, edges, byId, memberGroups, selectedEdge, selectedNode, routes, activeNodeIds, isLockedEdge, copy, onEdgeSelect, onEdgePointerDown, onAnchorRemove, onAnchorContext, draftPath, layer = "base" } = props;
+			const markerPrefix = (0, react.useId)().replace(/:/g, "");
+			const curveObstacles = (0, react.useMemo)(() => [...byId.values()].filter((n) => !memberGroups.has(n.id)).map((n) => ({
+				id: n.id,
+				...n.position,
+				...nodeSizeOf(n)
+			})), [byId, memberGroups]);
+			const relatedIds = (0, react.useMemo)(() => activeNodeIds ?? relatedNodeIds(nodes, selectedNode), [
+				nodes,
+				selectedNode,
+				activeNodeIds
+			]);
+			const relates = (edge) => relatedIds.has(edge.source) || relatedIds.has(edge.target);
+			const focusClass = (edge) => relates(edge) ? ` is-related${activeNodeIds ? " is-runtime-related" : ""}` : activeNodeIds || selectedNode ? " is-dimmed" : "";
+			const edgeViews = (0, react.useMemo)(() => {
+				if (nodes.length === 0) return [];
+				const bundleArrows = /* @__PURE__ */ new Map();
+				for (const edge of [...edges].sort((a, b) => Number(isWorkingEdge(b, activeNodeIds)) - Number(isWorkingEdge(a, activeNodeIds)) || a.id.localeCompare(b.id))) {
+					const key = routes.get(edge.id)?.targetBundle;
+					if (key && !bundleArrows.has(key)) bundleArrows.set(key, edge.id);
+				}
+				if (layer === "overlay") return edges.map((edge) => {
+					const stub = memberInboundStubPath(edge, byId, memberGroups, routes.get(edge.id));
+					if (!stub) return null;
+					const isSelected = edge.id === selectedEdge;
+					const isRunning = isWorkingEdge(edge, activeNodeIds);
+					const isLocked = isLockedEdge(edge.id);
+					const lineType = lineColorClass(edge);
+					return /* @__PURE__ */ (0, react_jsx_runtime.jsx)("path", {
+						"data-edge-id": edge.id,
+						className: `wf-graph__edge${isSelected ? " is-selected" : ""}${focusClass(edge)}${lineType ? ` ${lineType}` : ""}${isRunning ? " is-running" : ""}${isLocked ? " is-locked" : ""}`,
+						d: stub
+					}, edge.id);
+				});
+				return edges.map((edge) => {
+					const geometry = routes.get(edge.id) ?? edgeGeometry(edge, byId, memberGroups);
+					if (!geometry) return null;
+					const isSelected = edge.id === selectedEdge;
+					const isRunning = isWorkingEdge(edge, activeNodeIds);
+					const isLocked = isLockedEdge(edge.id);
+					const lineType = lineColorClass(edge);
+					const label = conditionLabel(edge.condition, {
+						pass: copy.lineTypePass,
+						fail: copy.lineTypeFail,
+						content: copy.lineTypeContent
+					});
+					const channel = lineType.startsWith("is-") ? lineType.slice(3) : "";
+					const bundle = routes.get(edge.id)?.targetBundle;
+					const markerEnd = bundle && bundleArrows.get(bundle) !== edge.id ? void 0 : `url(#${markerPrefix}-wf-arrow-${channel === "" ? "flow" : channel})`;
+					const labelWidth = routes.get(edge.id)?.labelWidth ?? (label ? Math.min(150, Math.max(34, label.length * 7 + 16)) : 0);
+					const route = routes.get(edge.id);
+					const curveBoxes = memberGroups.has(edge.target) ? curveObstacles.filter((n) => memberGroups.get(edge.target)?.id !== n.id) : curveObstacles;
+					const curve = route && edge.appearance?.type === "bezier" ? bezierRoutePath(route.points, edge.appearance.waypoints, curveBoxes, edge.appearance.anchorMode === "manual") : null;
+					const displayPath = curve?.path ?? (route ? edgeDisplayPath(route.points) : geometry.path);
+					const controls = curve?.anchors ?? edge.appearance?.waypoints ?? [];
+					const curveLabelAnchor = curve?.spans.flatMap((span) => Array.from({ length: 9 }, (_, i) => sampleBezier(span, i / 8))).sort((a, b) => Math.hypot(a.x - geometry.label.x, a.y - geometry.label.y) - Math.hypot(b.x - geometry.label.x, b.y - geometry.label.y))[0];
+					const labelAnchor = curveLabelAnchor && Math.hypot(curveLabelAnchor.x - geometry.label.x, curveLabelAnchor.y - geometry.label.y) > 8 ? curveLabelAnchor : route?.labelAnchor;
+					return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("g", {
+						"data-edge-id": edge.id,
+						className: `${isLocked ? "is-locked" : ""}${focusClass(edge)}`,
+						children: [
+							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("title", { children: label || (channel === "ctx" ? copy.lineTypeContext : channel === "db" ? copy.lineTypeDatabase : copy.lineTypeFlow) }),
+							isLocked ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("title", { children: String(copy.lockedEdgeHint) }) : null,
+							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("path", {
+								className: `wf-graph__edge-hit${isSelected ? " is-selected" : ""}`,
+								d: displayPath,
+								onPointerDown: (event) => {
+									event.stopPropagation();
+									if (isLocked) return;
+									onEdgeSelect?.(edge.id);
+									onEdgePointerDown?.(event, edge.id);
+								}
+							}),
+							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("path", {
+								className: `wf-graph__edge${isSelected ? " is-selected" : ""}${focusClass(edge)}${lineType ? ` ${lineType}` : ""}${isRunning ? " is-running" : ""}${isLocked ? " is-locked" : ""}`,
+								d: displayPath,
+								markerEnd
+							}),
+							label && labelWidth ? /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("g", {
+								className: "wf-edge-label-group",
+								children: [
+									labelAnchor ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("path", {
+										className: "wf-graph__label-leader",
+										d: `M ${labelAnchor.x} ${labelAnchor.y} L ${geometry.label.x} ${geometry.label.y}`
+									}) : null,
+									/* @__PURE__ */ (0, react_jsx_runtime.jsx)("rect", {
+										className: "wf-graph__label-bg",
+										x: geometry.label.x - labelWidth / 2,
+										y: geometry.label.y - 11,
+										width: labelWidth,
+										height: 22,
+										rx: 7
+									}),
+									/* @__PURE__ */ (0, react_jsx_runtime.jsx)("text", {
+										className: "wf-graph__label",
+										x: geometry.label.x,
+										y: geometry.label.y,
+										children: label
+									})
+								]
+							}) : null,
+							isSelected && !isLocked ? controls.map((point, index) => /* @__PURE__ */ (0, react_jsx_runtime.jsx)("circle", {
+								className: "wf-edge-control",
+								cx: point.x,
+								cy: point.y,
+								r: 6,
+								tabIndex: 0,
+								role: "button",
+								"aria-label": String(copy.anchorHint),
+								onPointerDown: (event) => {
+									event.stopPropagation();
+									event.currentTarget.focus();
+									onEdgePointerDown?.(event, edge.id, index, void 0, curve?.anchors);
+								},
+								onDoubleClick: (event) => {
+									event.stopPropagation();
+									onAnchorRemove?.(edge.id, index, controls);
+								},
+								onContextMenu: (event) => {
+									event.preventDefault();
+									event.stopPropagation();
+									onAnchorContext?.(event, edge.id, index, controls);
+								},
+								onKeyDown: (event) => {
+									if (event.key === "Delete" || event.key === "Backspace") {
+										event.preventDefault();
+										event.stopPropagation();
+										onAnchorRemove?.(edge.id, index, controls);
+									}
+								}
+							}, index)) : null,
+							isSelected && !isLocked && route && !curve ? route.points.slice(0, -1).map((point, index) => {
+								const segment = edgeSegmentDrag(route.points, index);
+								if (!segment) return null;
+								const next = route.points[index + 1], horizontal = segment.axis === "y";
+								return /* @__PURE__ */ (0, react_jsx_runtime.jsx)("rect", {
+									className: `wf-edge-segment is-${horizontal ? "horizontal" : "vertical"}`,
+									"data-segment-index": index,
+									x: (point.x + next.x) / 2 - (horizontal ? 8 : 4),
+									y: (point.y + next.y) / 2 - (horizontal ? 4 : 8),
+									width: horizontal ? 16 : 8,
+									height: horizontal ? 8 : 16,
+									rx: 3,
+									"aria-label": String(copy.edgeMoveSegment),
+									onPointerDown: (event) => {
+										event.stopPropagation();
+										onEdgePointerDown?.(event, edge.id, void 0, index);
+									}
+								}, `segment-${index}`);
+							}) : null
+						]
+					}, edge.id);
+				});
+			}, [
+				nodes,
+				edges,
+				byId,
+				memberGroups,
+				selectedEdge,
+				selectedNode,
+				relatedIds,
+				activeNodeIds,
+				routes,
+				isLockedEdge,
+				copy,
+				onEdgeSelect,
+				onEdgePointerDown,
+				onAnchorRemove,
+				onAnchorContext,
+				layer,
+				markerPrefix,
+				curveObstacles
+			]);
+			if (layer === "overlay") return /* @__PURE__ */ (0, react_jsx_runtime.jsx)("svg", {
+				className: "wf-graph__edges is-overlay",
+				width: "100%",
+				height: "100%",
+				children: edgeViews
+			});
+			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("svg", {
+				className: "wf-graph__edges",
+				width: "100%",
+				height: "100%",
+				children: [
+					/* @__PURE__ */ (0, react_jsx_runtime.jsx)("defs", { children: [
+						"flow",
+						"ctx",
+						"db",
+						"pass",
+						"fail",
+						"content"
+					].map((channel) => /* @__PURE__ */ (0, react_jsx_runtime.jsx)("marker", {
+						id: `${markerPrefix}-wf-arrow-${channel}`,
+						viewBox: "0 0 12 12",
+						refX: "12",
+						refY: "6",
+						markerUnits: "userSpaceOnUse",
+						markerWidth: "12",
+						markerHeight: "12",
+						orient: "auto-start-reverse",
+						children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)("path", {
+							d: "M 0 1 L 12 6 L 0 11 Z",
+							className: `wf-arrow-head is-${channel}`
+						})
+					}, channel)) }),
+					edgeViews,
+					draftPath ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("path", {
+						className: "wf-graph__connection",
+						d: draftPath
+					}) : null
+				]
+			});
+		});
+		// src/client/components/canvas/NodeEditToolbar.tsx
+		function NodeEditToolbar({ copy, x, y, canCopy, canReference, locked, onCopy, onReference, onDelete, onClose }) {
+			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+				className: "wf-node-toolbar",
+				role: "toolbar",
+				"aria-label": copy.nodeQuickActions,
+				style: {
+					left: x,
+					top: y
+				},
+				onPointerDown: (event) => event.stopPropagation(),
+				children: [
+					/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+						type: "button",
+						disabled: !canCopy,
+						onClick: onCopy,
+						children: copy.nodeDuplicate
+					}),
+					/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+						type: "button",
+						disabled: !canReference,
+						onClick: onReference,
+						children: copy.nodeReference
+					}),
+					/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+						type: "button",
+						className: "is-danger",
+						disabled: locked,
+						onClick: onDelete,
+						children: copy.inspectorDelete
+					}),
+					/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+						type: "button",
+						"aria-label": copy.closeNodeActions,
+						onClick: onClose,
+						children: "×"
+					})
+				]
+			});
+		}
+		// src/client/components/canvas/EdgeEditToolbar.tsx
+		function EdgeEditToolbar({ value, x, y, copy, onChange, onClose, onDelete }) {
+			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+				className: "wf-edge-toolbar",
+				role: "toolbar",
+				"aria-label": String(copy.editConnection),
+				style: {
+					left: x,
+					top: y
+				},
+				onPointerDown: (event) => event.stopPropagation(),
+				children: [
+					/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+						className: "wf-edge-toolbar__types",
+						role: "group",
+						"aria-label": String(copy.connectionStyle),
+						children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+							type: "button",
+							"aria-pressed": (value.type ?? "rounded") === "rounded",
+							onClick: () => onChange({ type: "rounded" }),
+							children: copy.roundedConnection
+						}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+							type: "button",
+							"aria-pressed": value.type === "bezier",
+							onClick: () => onChange({ type: "bezier" }),
+							children: copy.bezierConnection
+						})]
+					}),
+					/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+						type: "button",
+						onClick: () => onChange({
+							waypoints: [],
+							anchorMode: "auto",
+							sourceSide: void 0,
+							targetSide: void 0
+						}),
+						children: copy.resetConnection
+					}),
+					onDelete ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+						type: "button",
+						onClick: onDelete,
+						children: copy.inspectorDelete
+					}) : null,
+					/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+						type: "button",
+						className: "wf-edge-toolbar__close",
+						"aria-label": String(copy.closeConnection),
+						onClick: onClose,
+						children: "×"
+					}),
+					/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", { children: copy.dragConnectionHint })
+				]
+			});
+		}
+		// src/client/components/canvas/use-canvas-viewport.ts
+		function useCanvasViewport(nodes, onInit) {
+			const rootRef = (0, react.useRef)(null);
+			const viewportRef = (0, react.useRef)({
+				x: 32,
+				y: 32,
+				zoom: .8
+			});
+			const [viewport, setViewport] = (0, react.useState)({
+				x: 32,
+				y: 32,
+				zoom: .8
+			});
+			const [panning, setPanning] = (0, react.useState)(null);
+			const updateViewport = (0, react.useCallback)((value) => {
+				const next = typeof value === "function" ? value(viewportRef.current) : value;
+				viewportRef.current = next;
+				setViewport(next);
+			}, []);
+			const fitView = (0, react.useCallback)((options = {}) => {
+				const root = rootRef.current;
+				if (!root || nodes.length === 0) return;
+				const rect = root.getBoundingClientRect();
+				if (!rect.width || !rect.height) return;
+				const memberIds = new Set(nodes.filter((n) => n.kind === "group").flatMap((n) => n.data.memberIds ?? []));
+				const visibleNodes = (options.nodes?.length ? options.nodes : nodes).filter((node) => !memberIds.has(node.id));
+				if (visibleNodes.length === 0) return;
+				let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+				for (const node of visibleNodes) {
+					const size = nodeSizeOf(node);
+					minX = Math.min(minX, node.position.x);
+					minY = Math.min(minY, node.position.y);
+					maxX = Math.max(maxX, node.position.x + size.w);
+					maxY = Math.max(maxY, node.position.y + size.h);
+				}
+				const padding = Math.max(36, Math.min(rect.width, rect.height) * Number(options.padding ?? .06));
+				const zoom = clamp(Math.min((rect.width - padding * 2) / Math.max(1, maxX - minX), (rect.height - padding * 2) / Math.max(1, maxY - minY)), GRAPH_MIN_ZOOM, 1.15);
+				updateViewport({
+					x: (rect.width - (maxX - minX) * zoom) / 2 - minX * zoom,
+					y: (rect.height - (maxY - minY) * zoom) / 2 - minY * zoom,
+					zoom
+				});
+			}, [nodes, updateViewport]);
+			const zoomBy = (0, react.useCallback)((factor) => {
+				const root = rootRef.current;
+				if (!root) return;
+				const rect = root.getBoundingClientRect();
+				const cx = rect.width / 2;
+				const cy = rect.height / 2;
+				const current = viewportRef.current;
+				const zoom = clamp(current.zoom * factor, GRAPH_MIN_ZOOM, GRAPH_MAX_ZOOM);
+				const ratio = zoom / current.zoom;
+				updateViewport({
+					zoom,
+					x: cx - (cx - current.x) * ratio,
+					y: cy - (cy - current.y) * ratio
+				});
+			}, [updateViewport]);
+			const screenToWorld = (0, react.useCallback)((clientX, clientY) => {
+				const rect = rootRef.current?.getBoundingClientRect();
+				if (!rect) return {
+					x: 0,
+					y: 0
+				};
+				return {
+					x: (clientX - rect.left - viewportRef.current.x) / viewportRef.current.zoom,
+					y: (clientY - rect.top - viewportRef.current.y) / viewportRef.current.zoom
+				};
+			}, []);
+			(0, react.useEffect)(() => {
+				onInit({
+					fitView,
+					screenToWorld
+				});
+			}, [
+				onInit,
+				fitView,
+				screenToWorld
+			]);
+			const beginPan = (0, react.useCallback)((event) => {
+				if (event.button !== void 0 && event.button !== 0) return;
+				setPanning({
+					startX: event.clientX,
+					startY: event.clientY,
+					originX: viewportRef.current.x,
+					originY: viewportRef.current.y
+				});
+			}, []);
+			(0, react.useEffect)(() => {
+				if (!panning) return void 0;
+				const onMove = (event) => {
+					updateViewport({
+						...viewportRef.current,
+						x: panning.originX + (event.clientX - panning.startX),
+						y: panning.originY + (event.clientY - panning.startY)
+					});
+				};
+				const onUp = () => setPanning(null);
+				window.addEventListener("pointermove", onMove);
+				window.addEventListener("pointerup", onUp);
+				return () => {
+					window.removeEventListener("pointermove", onMove);
+					window.removeEventListener("pointerup", onUp);
+				};
+			}, [panning, updateViewport]);
+			(0, react.useEffect)(() => {
+				const root = rootRef.current;
+				if (!root) return void 0;
+				const onWheel = (event) => {
+					event.preventDefault();
+					const current = viewportRef.current;
+					const rect = root.getBoundingClientRect();
+					const mx = event.clientX - rect.left;
+					const my = event.clientY - rect.top;
+					const factor = Math.exp(-event.deltaY * .0012);
+					const zoom = clamp(current.zoom * factor, GRAPH_MIN_ZOOM, GRAPH_MAX_ZOOM);
+					const ratio = zoom / current.zoom;
+					updateViewport({
+						zoom,
+						x: mx - (mx - current.x) * ratio,
+						y: my - (my - current.y) * ratio
+					});
+				};
+				root.addEventListener("wheel", onWheel, { passive: false });
+				return () => root.removeEventListener("wheel", onWheel);
+			}, [updateViewport]);
+			return {
+				rootRef,
+				viewport,
+				viewportRef,
+				updateViewport,
+				fitView,
+				panning,
+				beginPan,
+				zoomBy,
+				screenToWorld
+			};
+		}
+		// src/client/components/canvas/GraphCanvas.tsx
+		function GraphCanvas(props) {
+			const { nodes, edges, copy, mode, selectedNode, selectedEdge, runStatusByNode, highlightedNodeIds, onInit, onNodeDragStart, onNodeMove, onNodeDropToGroup, onNodeSelect, onEdgeSelect, onPaneClick, onConnect, onConnectionRejected, onGroupResize, onEdgeEditStart, onEdgeAppearanceChange, dropTargetGroupId, fitLabel, zoomInLabel, zoomOutLabel, emptyHint, workflowCaption, lockedNodeIds, lockedEdgeIds, agentPatchedNodeIds, onOpenSubgraph, readOnly = false, runtimeFocus = false } = props;
+			const { rootRef, viewport, viewportRef, fitView, panning, beginPan, zoomBy, screenToWorld } = useCanvasViewport(nodes, onInit);
+			const [draggingNode, setDraggingNode] = (0, react.useState)(null);
+			const nodeDragMoved = (0, react.useRef)(false);
+			/** 画布内节点拖拽时悬停的 Team id（Team 卡片高亮 + 「放开以入组」提示）。 */
+			const [dragHoverGroupId, setDragHoverGroupId] = (0, react.useState)(null);
+			const [connectionDraft, setConnectionDraft] = (0, react.useState)(null);
+			const connectionRef = (0, react.useRef)(connectionDraft);
+			connectionRef.current = connectionDraft;
+			const [drawingChannel, setDrawingChannel] = (0, react.useState)("flow");
+			const drawingChannelRef = (0, react.useRef)(drawingChannel);
+			drawingChannelRef.current = drawingChannel;
+			const connectionCallbacks = (0, react.useRef)({
+				onConnect,
+				onConnectionRejected
+			});
+			connectionCallbacks.current = {
+				onConnect,
+				onConnectionRejected
+			};
+			const [nodeToolbarHidden, setNodeToolbarHidden] = (0, react.useState)(false);
+			(0, react.useEffect)(() => {
+				setNodeToolbarHidden(false);
+			}, [selectedNode]);
+			(0, react.useEffect)(() => {
+				connectionRef.current = null;
+				setConnectionDraft(null);
+			}, [props.documentKey]);
+			const byId = (0, react.useMemo)(() => new Map(nodes.map((node) => [node.id, node])), [nodes]);
+			const byIdRef = (0, react.useRef)(byId);
+			byIdRef.current = byId;
+			const selectionCallbacks = (0, react.useRef)({
+				onNodeSelect,
+				onNodeDragStart
+			});
+			selectionCallbacks.current = {
+				onNodeSelect,
+				onNodeDragStart
+			};
+			const selectMember = (0, react.useCallback)((id) => selectionCallbacks.current.onNodeSelect(id), []);
+			const highlightedSet = (0, react.useMemo)(() => workingGraphNodeIds(nodes, highlightedNodeIds), [nodes, highlightedNodeIds]);
+			/**
+			* 成员 id → 所属组 预建索引：连线几何逐边反查所属组，若每次全节点扫描则是 O(边×节点)。
+			* 与 byId 同生命周期（节点集不变即复用），草稿线方向判定同样走它。
+			*/
+			const memberGroups = (0, react.useMemo)(() => memberGroupIndexOf(byId), [byId]);
+			const { routes: edgeRoutes, connectedPorts, isRouting } = useEdgeRoutes(edges, byId, memberGroups, {
+				pass: copy.lineTypePass,
+				fail: copy.lineTypeFail,
+				content: copy.lineTypeContent
+			}, props.documentKey, !!draggingNode && nodeDragMoved.current, props.routingRevision);
+			const portConnections = (0, react.useMemo)(() => {
+				const map = /* @__PURE__ */ new Map();
+				for (const key of connectedPorts) {
+					const separator = key.lastIndexOf(":", key.lastIndexOf(":") - 1), id = key.slice(0, separator);
+					map.set(id, (map.get(id) ?? "") + `|${key}|`);
+				}
+				return map;
+			}, [connectedPorts]);
+			const [edgeDrag, setEdgeDrag] = (0, react.useState)(null);
+			const editRef = (0, react.useRef)({
+				onEdgeEditStart,
+				onEdgeAppearanceChange
+			});
+			editRef.current = {
+				onEdgeEditStart,
+				onEdgeAppearanceChange
+			};
+			const [anchorMenu, setAnchorMenu] = (0, react.useState)(null);
+			const [toolbarHidden, setToolbarHidden] = (0, react.useState)(false);
+			(0, react.useEffect)(() => {
+				setToolbarHidden(false);
+			}, [selectedEdge]);
+			const removeAnchor = (0, react.useCallback)((id, index, anchors) => {
+				editRef.current.onEdgeEditStart?.();
+				editRef.current.onEdgeAppearanceChange?.(id, {
+					waypoints: anchors.filter((_, i) => i !== index),
+					anchorMode: "manual"
+				});
+				setAnchorMenu(null);
+			}, []);
+			const anchorContext = (0, react.useCallback)((event, id, index, anchors) => {
+				const rect = rootRef.current?.getBoundingClientRect();
+				if (rect) setAnchorMenu({
+					id,
+					index,
+					anchors,
+					x: Math.max(8, Math.min(rect.width - 140, event.clientX - rect.left)),
+					y: Math.max(8, Math.min(rect.height - 44, event.clientY - rect.top))
+				});
+			}, [rootRef]);
+			const beginEdgeDrag = (0, react.useCallback)((event, id, waypointIndex, segmentIndex, curveAnchors) => {
+				if (readOnly) return;
+				if (event.button !== 0 || lockedEdgeIds?.has(id)) return;
+				event.stopPropagation();
+				const edge = edges.find((e) => e.id === id);
+				if (!edge) return;
+				const segment = segmentIndex === void 0 ? null : edgeSegmentDrag(edgeRoutes.get(id)?.points ?? [], segmentIndex);
+				if (segmentIndex !== void 0 && !segment) return;
+				const waypoints = segment?.waypoints ?? curveAnchors?.map((p) => ({ ...p })) ?? edge.appearance?.waypoints?.map((p) => ({ ...p })) ?? [];
+				const point = screenToWorld(event.clientX, event.clientY);
+				let index = waypointIndex ?? 0;
+				if (waypointIndex === void 0 && waypoints.length) index = waypoints.reduce((best, p, i) => Math.hypot(p.x - point.x, p.y - point.y) < Math.hypot(waypoints[best].x - point.x, waypoints[best].y - point.y) ? i : best, 0);
+				setEdgeDrag({
+					id,
+					index,
+					origin: point,
+					...segment ? { segment } : {},
+					clientX: event.clientX,
+					clientY: event.clientY,
+					waypoints
+				});
+			}, [
+				edges,
+				edgeRoutes,
+				lockedEdgeIds,
+				screenToWorld
+			]);
+			(0, react.useEffect)(() => {
+				if (!edgeDrag) return;
+				let changed = false, frame = 0, pending = null;
+				const apply = () => {
+					frame = 0;
+					if (!pending) return;
+					const event = pending;
+					pending = null;
+					if (!changed && Math.hypot(event.clientX - edgeDrag.clientX, event.clientY - edgeDrag.clientY) < 4) return;
+					if (!changed) {
+						changed = true;
+						editRef.current.onEdgeEditStart?.();
+					}
+					const point = screenToWorld(event.clientX, event.clientY), waypoints = edgeDrag.waypoints.map((p) => ({ ...p }));
+					if (edgeDrag.segment) editRef.current.onEdgeAppearanceChange?.(edgeDrag.id, {
+						waypoints: translateEdgeSegment(edgeDrag.segment, {
+							x: point.x - edgeDrag.origin.x,
+							y: point.y - edgeDrag.origin.y
+						}),
+						anchorMode: "manual"
+					});
+					else {
+						waypoints[edgeDrag.index] = {
+							x: Math.round(point.x),
+							y: Math.round(point.y)
+						};
+						editRef.current.onEdgeAppearanceChange?.(edgeDrag.id, {
+							waypoints,
+							anchorMode: "manual"
+						});
+					}
+				};
+				const move = (event) => {
+					pending = event;
+					if (!frame) frame = requestAnimationFrame(apply);
+				};
+				const stop = () => {
+					if (frame) cancelAnimationFrame(frame);
+					apply();
+					setEdgeDrag(null);
+				};
+				window.addEventListener("pointermove", move);
+				window.addEventListener("pointerup", stop);
+				window.addEventListener("pointercancel", stop);
+				window.addEventListener("blur", stop);
+				return () => {
+					if (frame) cancelAnimationFrame(frame);
+					window.removeEventListener("pointermove", move);
+					window.removeEventListener("pointerup", stop);
+					window.removeEventListener("pointercancel", stop);
+					window.removeEventListener("blur", stop);
+				};
+			}, [edgeDrag, screenToWorld]);
+			const runStatusOf = (0, react.useCallback)((id) => runStatusByNode[id] ?? null, [runStatusByNode]);
+			/** 锁定判定（未传入视为全解锁）：节点锁角标、连线灰化虚线、点击不选中。 */
+			const isLockedNode = (0, react.useCallback)((id) => lockedNodeIds?.has(id) === true, [lockedNodeIds]);
+			const agentPatchedSet = (0, react.useMemo)(() => new Set(agentPatchedNodeIds ?? []), [agentPatchedNodeIds]);
+			const isLockedEdge = (0, react.useCallback)((id) => lockedEdgeIds?.has(id) === true, [lockedEdgeIds]);
+			/** 节点锁悬停文案（已完成/执行中语义不同，取自词典）。 */
+			const nodeLockHint = (0, react.useCallback)((id) => runStatusOf(id)?.status === "running" ? String(copy.lockedRunningNodeHint) : String(copy.lockedCompletedNodeHint), [
+				runStatusOf,
+				copy.lockedRunningNodeHint,
+				copy.lockedCompletedNodeHint
+			]);
+			const beginNodeDrag = (0, react.useCallback)((event, nodeId) => {
+				if (readOnly) return;
+				if (event.button !== void 0 && event.button !== 0) return;
+				const target = event.target;
+				if (target.closest?.(".wf-graph__handle")) return;
+				if (target.closest?.(".wf-group__resize")) return;
+				event.stopPropagation();
+				const node = byIdRef.current.get(nodeId);
+				if (!node) return;
+				selectionCallbacks.current.onNodeSelect?.(nodeId);
+				nodeDragMoved.current = false;
+				setDragHoverGroupId(null);
+				setDraggingNode({
+					nodeId,
+					startClientX: event.clientX,
+					startClientY: event.clientY,
+					originX: node.position.x,
+					originY: node.position.y
+				});
+			}, []);
+			(0, react.useEffect)(() => {
+				if (!draggingNode) return void 0;
+				let frame = 0, pending = null;
+				const applyMove = (event) => {
+					if (!nodeDragMoved.current) {
+						if (Math.hypot(event.clientX - draggingNode.startClientX, event.clientY - draggingNode.startClientY) < 4) return;
+						nodeDragMoved.current = true;
+						selectionCallbacks.current.onNodeDragStart?.();
+					}
+					const current = viewportRef.current;
+					const dx = (event.clientX - draggingNode.startClientX) / current.zoom;
+					const dy = (event.clientY - draggingNode.startClientY) / current.zoom;
+					onNodeMove?.(draggingNode.nodeId, {
+						x: Math.round(draggingNode.originX + dx),
+						y: Math.round(draggingNode.originY + dy)
+					});
+					const dragged = byId.get(draggingNode.nodeId);
+					const canJoinGroup = !!dragged && (dragged.kind === "parent" || dragged.kind === "agent");
+					setDragHoverGroupId(canJoinGroup ? groupSurfaceUnderPoint(event.clientX, event.clientY, draggingNode.nodeId) : null);
+				};
+				const onMove = (event) => {
+					pending = event;
+					if (!frame) frame = requestAnimationFrame(() => {
+						frame = 0;
+						if (pending) {
+							const event = pending;
+							pending = null;
+							applyMove(event);
+						}
+					});
+				};
+				const onUp = (event) => {
+					if (frame) cancelAnimationFrame(frame);
+					if (pending) {
+						applyMove(pending);
+						pending = null;
+					}
+					const node = byId.get(draggingNode.nodeId);
+					const groupId = groupSurfaceUnderPoint(event.clientX, event.clientY, draggingNode.nodeId);
+					if (nodeDragMoved.current && node && (node.kind === "parent" || node.kind === "agent") && groupId && groupId !== node.id && !(node.data.groupId ?? null)) {
+						onNodeDropToGroup?.(node.id, groupId);
+						setDraggingNode(null);
+						setDragHoverGroupId(null);
+						return;
+					}
+					setDraggingNode(null);
+					setDragHoverGroupId(null);
+				};
+				const onCancel = () => {
+					if (frame) cancelAnimationFrame(frame);
+					pending = null;
+					setDraggingNode(null);
+					setDragHoverGroupId(null);
+				};
+				window.addEventListener("pointermove", onMove);
+				window.addEventListener("pointerup", onUp);
+				window.addEventListener("pointercancel", onCancel);
+				window.addEventListener("blur", onCancel);
+				return () => {
+					if (frame) cancelAnimationFrame(frame);
+					window.removeEventListener("pointermove", onMove);
+					window.removeEventListener("pointerup", onUp);
+					window.removeEventListener("pointercancel", onCancel);
+					window.removeEventListener("blur", onCancel);
+				};
+			}, [
+				draggingNode,
+				byId,
+				onNodeMove,
+				onNodeDropToGroup
+			]);
+			const clearConnection = (0, react.useCallback)(() => {
+				connectionRef.current = null;
+				setConnectionDraft(null);
+			}, []);
+			const portAt = (0, react.useCallback)((clientX, clientY) => {
+				const hit = document.elementFromPoint?.(clientX, clientY);
+				const nodeId = connectionTargetAt(clientX, clientY);
+				const node = nodeId ? byIdRef.current.get(nodeId) : null;
+				if (!node || !nodeId) return null;
+				const port = hit?.closest("[data-handle]");
+				if (port) return {
+					nodeId,
+					handles: (port.dataset.handles ?? port.dataset.handle ?? "").split(" "),
+					side: port.dataset.portSide
+				};
+				const reverse = connectionRef.current?.port.handles.some((handle) => handle.endsWith("-in"));
+				const handles = HANDLES[node.kind];
+				return {
+					nodeId,
+					handles: reverse ? handles.outputs : handles.inputs,
+					side: reverse ? "right" : "left"
+				};
+			}, []);
+			const finishConnection = (0, react.useCallback)((target) => {
+				const draft = connectionRef.current;
+				if (!draft) return;
+				const connection = connectPorts(draft.port, target, "rounded", drawingChannelRef.current);
+				clearConnection();
+				if (connection) connectionCallbacks.current.onConnect(connection);
+				else connectionCallbacks.current.onConnectionRejected();
+			}, [clearConnection]);
+			const beginConnection = (0, react.useCallback)((event, nodeId, handle) => {
+				if (readOnly) return;
+				if (event.button !== void 0 && event.button !== 0) return;
+				event.preventDefault();
+				event.stopPropagation();
+				const element = event.currentTarget;
+				if (element.hasPointerCapture?.(event.pointerId)) element.releasePointerCapture(event.pointerId);
+				const port = {
+					nodeId,
+					handles: (element.dataset.handles ?? handle).split(" "),
+					side: element.dataset.portSide
+				};
+				if (connectionRef.current) {
+					finishConnection(port);
+					return;
+				}
+				const socket = element.getBoundingClientRect();
+				const draft = {
+					port,
+					originX: event.clientX,
+					originY: event.clientY,
+					clientX: event.clientX,
+					clientY: event.clientY,
+					start: screenToWorld(socket.x + socket.width / 2, socket.y + socket.height / 2)
+				};
+				connectionRef.current = draft;
+				setConnectionDraft(draft);
+			}, [finishConnection, screenToWorld]);
+			const connecting = connectionDraft !== null;
+			(0, react.useEffect)(() => {
+				if (!connecting) return;
+				const onMove = (event) => {
+					const draft = connectionRef.current;
+					if (draft) {
+						const next = {
+							...draft,
+							clientX: event.clientX,
+							clientY: event.clientY
+						};
+						connectionRef.current = next;
+						setConnectionDraft(next);
+					}
+				};
+				const onUp = (event) => {
+					const draft = connectionRef.current;
+					if (!draft) return;
+					const target = portAt(event.clientX, event.clientY);
+					if (target && target.nodeId !== draft.port.nodeId) {
+						finishConnection(target);
+						return;
+					}
+					if (Math.hypot(event.clientX - draft.originX, event.clientY - draft.originY) > 4) clearConnection();
+				};
+				const onKey = (event) => {
+					if (event.key === "Escape") {
+						event.preventDefault();
+						clearConnection();
+					}
+				};
+				window.addEventListener("pointermove", onMove);
+				window.addEventListener("pointerup", onUp);
+				window.addEventListener("pointercancel", clearConnection);
+				window.addEventListener("blur", clearConnection);
+				window.addEventListener("keydown", onKey);
+				return () => {
+					window.removeEventListener("pointermove", onMove);
+					window.removeEventListener("pointerup", onUp);
+					window.removeEventListener("pointercancel", clearConnection);
+					window.removeEventListener("blur", clearConnection);
+					window.removeEventListener("keydown", onKey);
+				};
+			}, [
+				connecting,
+				clearConnection,
+				finishConnection,
+				portAt
+			]);
+			const [groupResize, setGroupResize] = (0, react.useState)(null);
+			const beginGroupResize = (0, react.useCallback)((event, nodeId) => {
+				if (event.button !== void 0 && event.button !== 0) return;
+				event.stopPropagation();
+				const node = byIdRef.current.get(nodeId);
+				if (!node) return;
+				setGroupResize({
+					nodeId,
+					startX: event.clientX,
+					startY: event.clientY,
+					startSize: nodeSizeOf(node)
+				});
+			}, []);
+			(0, react.useEffect)(() => {
+				if (!groupResize) return void 0;
+				const onMove = (moveEvent) => {
+					const dx = (moveEvent.clientX - groupResize.startX) / viewportRef.current.zoom;
+					const dy = (moveEvent.clientY - groupResize.startY) / viewportRef.current.zoom;
+					const nextW = Math.max(240, groupResize.startSize.w + dx);
+					const nextH = Math.max(150, groupResize.startSize.h + dy);
+					onGroupResize?.(groupResize.nodeId, {
+						w: Math.round(nextW),
+						h: Math.round(nextH)
+					});
+				};
+				const onUp = () => setGroupResize(null);
+				window.addEventListener("pointermove", onMove);
+				window.addEventListener("pointerup", onUp);
+				window.addEventListener("pointercancel", onUp);
+				window.addEventListener("blur", onUp);
+				return () => {
+					window.removeEventListener("pointermove", onMove);
+					window.removeEventListener("pointerup", onUp);
+					window.removeEventListener("pointercancel", onUp);
+					window.removeEventListener("blur", onUp);
+				};
+			}, [groupResize, onGroupResize]);
+			let draftPath = null;
+			if (connectionDraft) {
+				const current = viewportRef.current;
+				const rect = rootRef.current?.getBoundingClientRect();
+				const mouseWorld = rect ? {
+					x: (connectionDraft.clientX - rect.left - current.x) / current.zoom,
+					y: (connectionDraft.clientY - rect.top - current.y) / current.zoom
+				} : connectionDraft.start;
+				const bend = Math.max(54, Math.abs(mouseWorld.x - connectionDraft.start.x) * .46);
+				const c1 = connectionDraft.port.side === "bottom" ? {
+					x: connectionDraft.start.x,
+					y: connectionDraft.start.y + bend
+				} : {
+					x: connectionDraft.start.x + bend,
+					y: connectionDraft.start.y
+				};
+				draftPath = `M ${connectionDraft.start.x} ${connectionDraft.start.y} C ${c1.x} ${c1.y}, ${mouseWorld.x - bend} ${mouseWorld.y}, ${mouseWorld.x} ${mouseWorld.y}`;
+			}
+			const transform = `translate(${viewport.x}px, ${viewport.y}px) scale(${viewport.zoom})`;
+			const selectedLine = selectedEdge ? edges.find((e) => e.id === selectedEdge) : null;
+			const selectedRoute = selectedEdge ? edgeRoutes.get(selectedEdge) : null;
+			const renderedNodes = (0, react.useMemo)(() => nodes.map((node) => {
+				if (node.kind !== "proxy") return node;
+				const sourceId = String(node.proxySourceId ?? "");
+				const main = byId.get(sourceId);
+				const alias = String(node.data.label ?? "").trim();
+				return main ? {
+					...node,
+					data: {
+						...node.data,
+						label: alias || String(main.data.label ?? ""),
+						referencedRoleKind: main.kind
+					}
+				} : node;
+			}), [nodes, byId]);
+			const groupNodes = (0, react.useMemo)(() => nodes.filter((node) => node.kind === "group"), [nodes]);
+			const memberIdsOf = (0, react.useMemo)(() => {
+				const ids = /* @__PURE__ */ new Set();
+				for (const group of groupNodes) for (const memberId of [...new Set(group.data.memberIds ?? [])]) ids.add(memberId);
+				return ids;
+			}, [groupNodes]);
+			const standalone = (0, react.useMemo)(() => renderedNodes.filter((node) => node.kind !== "group" && !memberIdsOf.has(node.id)), [renderedNodes, memberIdsOf]);
+			const groupMembers = (0, react.useMemo)(() => {
+				const members = /* @__PURE__ */ new Map();
+				for (const group of groupNodes) members.set(group.id, [...new Set(group.data.memberIds ?? [])].map((memberId) => {
+					return {
+						id: memberId,
+						label: memberLabelOf(byId.get(memberId), memberId),
+						status: runStatusOf(memberId)?.status ?? null,
+						locked: isLockedNode(memberId),
+						highlighted: runtimeFocus && highlightedSet.has(memberId),
+						dimmed: runtimeFocus && !highlightedSet.has(memberId)
+					};
+				}));
+				return members;
+			}, [
+				groupNodes,
+				byId,
+				runStatusOf,
+				isLockedNode,
+				runtimeFocus,
+				highlightedSet
+			]);
+			const actionNode = selectedNode ? byId.get(selectedNode) : void 0;
+			const actionAnchor = actionNode && (memberGroups.get(actionNode.id) ?? actionNode);
+			const canReference = actionNode && [
+				"agent",
+				"parent",
+				"proxy"
+			].includes(actionNode.kind);
+			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+				className: "wf-canvas-stage",
+				children: [
+					/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+						className: `wf-canvas${panning ? " is-panning" : ""}${connectionDraft ? " is-connecting" : ""}${readOnly ? " is-readonly" : ""}${runtimeFocus ? " is-runtime-focused" : ""}`,
+						"data-connection-kind": connectionDraft?.port.handles[0]?.replace(/-(in|out)$/, ""),
+						"data-connection-direction": connectionDraft?.port.handles.some((handle) => handle.endsWith("-in")) ? "in" : "out",
+						"data-routing": isRouting ? "pending" : "ready",
+						ref: rootRef,
+						onPointerDownCapture: (event) => {
+							if (!event.target.closest?.(".wf-anchor-menu, .wf-node-toolbar")) setAnchorMenu(null);
+						},
+						onPointerDown: (event) => {
+							if (event.target === event.currentTarget) beginPan(event);
+						},
+						onClick: (event) => {
+							if (event.target === event.currentTarget) {
+								clearConnection();
+								onPaneClick?.();
+							}
+						},
+						children: [
+							/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+								className: "wf-graph__stage",
+								style: { transform },
+								children: [
+									/* @__PURE__ */ (0, react_jsx_runtime.jsx)(CanvasEdges, {
+										nodes,
+										edges,
+										byId,
+										memberGroups,
+										selectedEdge,
+										selectedNode,
+										routes: edgeRoutes,
+										activeNodeIds: runtimeFocus ? highlightedSet : void 0,
+										isLockedEdge,
+										copy,
+										onEdgeSelect,
+										onEdgePointerDown: beginEdgeDrag,
+										onAnchorRemove: removeAnchor,
+										onAnchorContext: anchorContext,
+										draftPath
+									}),
+									groupNodes.map((node) => /* @__PURE__ */ (0, react_jsx_runtime.jsx)(GroupCard, {
+										node,
+										copy,
+										members: groupMembers.get(node.id) ?? [],
+										connectedHandles: [node.id, ...node.data.memberIds ?? []].map((id) => portConnections.get(id) ?? "").join(""),
+										selected: node.id === selectedNode,
+										highlighted: highlightedSet.has(node.id),
+										dimmed: runtimeFocus && !highlightedSet.has(node.id),
+										dropTarget: dropTargetGroupId === node.id || dragHoverGroupId === node.id,
+										locked: isLockedNode(node.id),
+										lockHint: nodeLockHint(node.id),
+										onPointerDown: beginNodeDrag,
+										onHandlePointerDown: beginConnection,
+										onMemberSelect: selectMember,
+										onResizeStart: beginGroupResize
+									}, node.id)),
+									standalone.map((node) => /* @__PURE__ */ (0, react_jsx_runtime.jsx)(FlowNode, {
+										node,
+										copy,
+										connectedHandles: portConnections.get(node.id) ?? "",
+										mode,
+										selected: node.id === selectedNode,
+										highlighted: highlightedSet.has(node.id),
+										dimmed: runtimeFocus && !highlightedSet.has(node.id),
+										dragging: draggingNode?.nodeId === node.id,
+										runStatus: node.kind === "agent" || node.kind === "parent" ? runStatusOf(node.id) : null,
+										locked: isLockedNode(node.id),
+										lockHint: nodeLockHint(node.id),
+										agentPatched: agentPatchedSet.has(node.id),
+										onPointerDown: beginNodeDrag,
+										onHandlePointerDown: beginConnection,
+										onOpenSubgraph
+									}, node.id)),
+									/* @__PURE__ */ (0, react_jsx_runtime.jsx)(CanvasEdges, {
+										layer: "overlay",
+										nodes,
+										edges,
+										byId,
+										memberGroups,
+										selectedEdge,
+										selectedNode,
+										routes: edgeRoutes,
+										activeNodeIds: runtimeFocus ? highlightedSet : void 0,
+										isLockedEdge,
+										copy,
+										onEdgeSelect,
+										draftPath: null
+									})
+								]
+							}),
+							workflowCaption ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+								className: "wf-canvas-caption",
+								children: workflowCaption
+							}) : null,
+							anchorMenu && selectedEdge === anchorMenu.id && !isLockedEdge(anchorMenu.id) ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+								className: "wf-anchor-menu",
+								role: "menu",
+								style: {
+									left: anchorMenu.x,
+									top: anchorMenu.y
+								},
+								onPointerDown: (event) => event.stopPropagation(),
+								onKeyDown: (event) => {
+									if (event.key === "Escape") {
+										event.stopPropagation();
+										setAnchorMenu(null);
+									}
+								},
+								children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+									type: "button",
+									role: "menuitem",
+									autoFocus: true,
+									onClick: () => removeAnchor(anchorMenu.id, anchorMenu.index, anchorMenu.anchors),
+									children: copy.deleteAnchor
+								})
+							}) : null,
+							nodes.length === 0 ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+								className: "wf-canvas-empty",
+								children: /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+									className: "wf-canvas-empty__hint",
+									children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+										className: "wf-canvas-empty__icon",
+										children: "⬡"
+									}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", { children: emptyHint })]
+								})
+							}) : null
+						]
+					}),
+					!readOnly && selectedLine && selectedRoute && !isLockedEdge(selectedLine.id) && !toolbarHidden && !edgeDrag ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)(EdgeEditToolbar, {
+						value: selectedLine.appearance ?? {},
+						x: Math.max(12, Math.min(viewport.x + selectedRoute.label.x * viewport.zoom - 140, (rootRef.current?.clientWidth ?? 800) - 360)),
+						y: Math.max(12, viewport.y + Math.min(...selectedRoute.points.map((p) => p.y)) * viewport.zoom - 100),
+						copy,
+						onChange: (patch) => {
+							onEdgeEditStart?.();
+							onEdgeAppearanceChange?.(selectedLine.id, patch);
+						},
+						onDelete: props.onEdgeDelete ? () => props.onEdgeDelete?.(selectedLine.id) : void 0,
+						onClose: () => setToolbarHidden(true)
+					}) : null,
+					!readOnly && actionNode && actionAnchor && props.onNodeDuplicate && !nodeToolbarHidden && !draggingNode && !connectionDraft ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)(NodeEditToolbar, {
+						copy,
+						x: Math.max(12, Math.min(viewport.x + actionAnchor.position.x * viewport.zoom, (rootRef.current?.clientWidth ?? 800) - 270)),
+						y: Math.max(56, Math.min(viewport.y + actionAnchor.position.y * viewport.zoom - 50, (rootRef.current?.clientHeight ?? 600) - 60)),
+						canCopy: actionNode.kind !== "parent" && actionNode.kind !== "start",
+						canReference: !!canReference,
+						locked: isLockedNode(actionNode.id),
+						onCopy: props.onNodeDuplicate,
+						onReference: () => props.onNodeReference?.(),
+						onDelete: () => props.onNodeDelete?.(actionNode.id),
+						onClose: () => setNodeToolbarHidden(true)
+					}) : null,
+					!readOnly ? /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+						className: "wf-drawing-options",
+						role: "group",
+						"aria-label": copy.newConnectionType,
+						onPointerDown: (event) => event.stopPropagation(),
+						children: [
+							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", { children: copy.newConnectionType }),
+							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+								type: "button",
+								"aria-pressed": drawingChannel === "flow",
+								onClick: () => setDrawingChannel("flow"),
+								children: copy.lineTypeFlow
+							}),
+							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+								type: "button",
+								"aria-pressed": drawingChannel === "ctx",
+								onClick: () => setDrawingChannel("ctx"),
+								children: copy.lineTypeContext
+							}),
+							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+								type: "button",
+								"aria-pressed": drawingChannel === "db",
+								onClick: () => setDrawingChannel("db"),
+								children: copy.lineTypeDatabase
+							}),
+							connecting ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("small", { children: copy.drawingHint }) : null
+						]
+					}) : null,
+					/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+						className: "wf-graph__controls",
+						children: [
+							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+								type: "button",
+								onClick: () => zoomBy(1.2),
+								title: zoomInLabel,
+								children: "+"
+							}),
+							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+								type: "button",
+								onClick: () => fitView(),
+								title: fitLabel,
+								children: "⛶"
+							}),
+							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+								type: "button",
+								onClick: () => zoomBy(1 / 1.2),
+								title: zoomOutLabel,
+								children: "−"
+							})
+						]
+					}),
+					/* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+						className: "wf-graph__legend",
+						"aria-label": String(copy.graphLegend),
+						children: [
+							["", copy.lineTypeFlow],
+							["is-pass", copy.legendPass],
+							["is-content", copy.legendContent],
+							["is-fail", copy.legendFail],
+							["is-ctx", copy.lineTypeContext],
+							["is-db", copy.lineTypeDatabase]
+						].map(([kind, label]) => /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("span", { children: [/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("svg", {
+							viewBox: "0 0 36 12",
+							"aria-hidden": "true",
+							children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("path", {
+								className: `wf-legend-line ${kind}`,
+								d: "M 1 6 H 28"
+							}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("path", {
+								className: `wf-arrow-head ${kind}`,
+								d: "M 28 2 L 35 6 L 28 10 Z"
+							})]
+						}), label] }, kind))
+					})
+				]
+			});
+		}
+		// src/client/components/panels/form-field.tsx
+		function Field({ label, hint, variant = "inspector", children }) {
+			const scheduler = variant === "scheduler";
+			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("label", {
+				className: scheduler ? "wf-sched-field" : "wf-field",
+				children: [
+					/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+						className: scheduler ? "wf-sched-field__label" : "wf-hint",
+						children: label
+					}),
+					children,
+					hint ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+						className: scheduler ? "wf-sched-field__hint" : "wf-hint",
+						children: hint
+					}) : null
+				]
+			});
+		}
+		// src/client/components/panels/inspector/text-expand.tsx
+		const TextExpandContext = (0, react.createContext)(null);
+		/** 为属性栏子树提供扩展宿主。 */
+		function TextExpandProvider({ host, children }) {
+			return /* @__PURE__ */ (0, react_jsx_runtime.jsx)(TextExpandContext.Provider, {
+				value: host,
+				children
+			});
+		}
+		/**
+		* 可展开文本域：渲染属性栏 textarea，并在右下角提供展开入口。
+		* value 与 onChange 的语义与受控 textarea 一致（扩展层写回同一个 onChange）。
+		*/
+		function ExpandableTextArea({ label, value, placeholder, onChange, minHeight }) {
+			const host = (0, react.useContext)(TextExpandContext);
+			const text = String(value ?? "");
+			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+				className: "wf-textarea-wrap",
+				children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("textarea", {
+					value: text,
+					placeholder,
+					spellCheck: false,
+					style: minHeight ? { minHeight } : void 0,
+					onChange: (event) => onChange(event.target.value)
+				}), host ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+					type: "button",
+					className: "wf-textarea__expand",
+					title: host.expandLabel,
+					"aria-label": host.expandLabel,
+					onClick: () => host.open({
+						key: label,
+						label,
+						value: text,
+						placeholder,
+						onChange
+					}),
+					children: "⤢"
+				}) : null]
+			});
+		}
+		/**
+		* 扩展编辑层：由布局层挂进画布容器（容器负责铺满中间画布），
+		* 自带右上角收起按钮与 Esc 收起。
+		*/
+		function TextExpandOverlay({ copy, request, onClose }) {
+			const [draft, setDraft] = (0, react.useState)(request.value);
+			(0, react.useEffect)(() => {
+				setDraft(request.value);
+			}, [request.key]);
+			(0, react.useEffect)(() => {
+				const onKeyDown = (event) => {
+					if (event.key === "Escape") onClose();
+				};
+				window.addEventListener("keydown", onKeyDown);
+				return () => window.removeEventListener("keydown", onKeyDown);
+			}, [onClose]);
+			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+				className: "wf-text-expand",
+				role: "dialog",
+				"aria-label": request.label,
+				children: [/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+					className: "wf-text-expand__head",
+					children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+						className: "wf-text-expand__title",
+						children: request.label
+					}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+						type: "button",
+						className: "wf-text-expand__collapse",
+						title: String(copy.textExpandCollapse),
+						"aria-label": String(copy.textExpandCollapse),
+						onClick: onClose,
+						children: "✕"
+					})]
+				}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("textarea", {
+					className: "wf-text-expand__input",
+					value: draft,
+					placeholder: request.placeholder,
+					spellCheck: false,
+					autoFocus: true,
+					onChange: (event) => {
+						setDraft(event.target.value);
+						request.onChange(event.target.value);
+					}
+				})]
+			});
+		}
+		// src/client/components/panels/inspector/form-primitives.tsx
+		function InputField({ label, value, placeholder, onChange, type = "text", step }) {
+			return /* @__PURE__ */ (0, react_jsx_runtime.jsx)(Field, {
+				label,
+				children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)("input", {
+					type,
+					value: String(value ?? ""),
+					placeholder,
+					step,
+					onChange: (event) => onChange(event.target.value)
+				})
+			});
+		}
+		function TextAreaField({ label, value, placeholder, onChange, minHeight }) {
+			return /* @__PURE__ */ (0, react_jsx_runtime.jsx)(Field, {
+				label,
+				children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)(ExpandableTextArea, {
+					label,
+					value,
+					placeholder,
+					onChange,
+					minHeight
+				})
+			});
+		}
+		/** 名称取值口径：模板用 name、画布节点用 label，二者同义（保存时双写）。 */
+		function nameOf(data) {
+			return String(data?.name ?? data?.label ?? "");
+		}
+		function NameField({ data, copy, onPatch }) {
+			return /* @__PURE__ */ (0, react_jsx_runtime.jsx)(InputField, {
+				label: copy.label,
+				value: nameOf(data),
+				onChange: (value) => onPatch({
+					label: value,
+					name: value
+				})
+			});
+		}
+		// src/client/components/panels/inspector/role-form.tsx
+		/** 思考强度回退档位（DeepSeek 适配器公布 off/low/high/max；适配器未提供 efforts 时使用）。 */
+		const FALLBACK_EFFORTS = [
+			{
+				id: "off",
+				name: "Off"
+			},
+			{
+				id: "low",
+				name: "Low"
+			},
+			{
+				id: "high",
+				name: "High"
+			},
+			{
+				id: "max",
+				name: "Max"
+			}
+		];
+		function RoleForm({ data, copy, presets, models, combos, onPatch, onLoadMd, isParent = false, showCombos = !isParent }) {
+			const providers = [...new Set(models.map((entry) => entry.provider))].filter(Boolean);
+			const modelsForProvider = models.filter((entry) => entry.provider === String(data.provider ?? ""));
+			const presetId = String(data.presetId ?? "standard");
+			const selectedCombo = showCombos ? combos.find((combo) => combo.id === presetId) ?? null : null;
+			const toolCount = selectedCombo ? (selectedCombo.tools?.length ?? 0) + (selectedCombo.mcpServers?.length ?? 0) : null;
+			const modeOptions = (presets ?? []).map((preset) => ({
+				value: preset.id,
+				label: preset.name ?? preset.id
+			}));
+			const modeGroups = showCombos && (combos ?? []).length > 0 ? [{
+				label: copy.combos,
+				options: (combos ?? []).map((combo) => ({
+					value: combo.id,
+					label: combo.name
+				}))
+			}] : [];
+			const hasMode = modeOptions.length > 0 || modeGroups.length > 0;
+			const selectedModel = modelsForProvider.find((entry) => entry.model === String(data.model ?? ""));
+			const effortOptions = selectedModel?.efforts == null ? FALLBACK_EFFORTS : selectedModel.efforts;
+			const effortsKnown = selectedModel?.efforts != null;
+			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", { children: [
+				/* @__PURE__ */ (0, react_jsx_runtime.jsx)("h3", { children: isParent ? copy.nodeKinds.parent : copy.nodeKinds.agent }),
+				/* @__PURE__ */ (0, react_jsx_runtime.jsx)(NameField, {
+					data,
+					copy,
+					onPatch
+				}),
+				/* @__PURE__ */ (0, react_jsx_runtime.jsx)(Field, {
+					label: copy.persona,
+					children: /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+						className: "wf-form-stack",
+						children: [
+							/* @__PURE__ */ (0, react_jsx_runtime.jsx)(ExpandableTextArea, {
+								label: copy.persona,
+								value: data.systemPrompt,
+								placeholder: copy.personaHint,
+								minHeight: 260,
+								onChange: (value) => onPatch({ systemPrompt: value })
+							}),
+							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+								className: "wf-form-row",
+								children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+									type: "button",
+									className: "wf-btn",
+									title: copy.loadMdTitle,
+									onClick: onLoadMd,
+									children: copy.loadMd
+								})
+							}),
+							/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+								className: "wf-form-check",
+								children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("input", {
+									type: "checkbox",
+									className: "wf-form-check__box",
+									checked: data.injectSystemPrompt !== false,
+									onChange: (event) => onPatch({ injectSystemPrompt: event.target.checked })
+								}), /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("span", {
+									className: "wf-hint",
+									style: { whiteSpace: "nowrap" },
+									children: [
+										copy.injectSystemPromptLabel,
+										"：",
+										data.injectSystemPrompt === false ? copy.injectSystemPromptNotInjected : copy.injectSystemPromptInjected
+									]
+								})]
+							}),
+							/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+								className: "wf-form-check",
+								children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("input", {
+									type: "checkbox",
+									className: "wf-form-check__box",
+									checked: data.injectToolSections !== false,
+									onChange: (event) => onPatch({ injectToolSections: event.target.checked })
+								}), /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("span", {
+									className: "wf-hint",
+									style: { whiteSpace: "nowrap" },
+									children: [
+										copy.injectToolSectionsLabel,
+										"：",
+										data.injectToolSections === false ? copy.injectToolSectionsNotInjected : copy.injectToolSectionsInjected
+									]
+								})]
+							}),
+							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+								className: "wf-hint",
+								children: copy.promptFilePathHint
+							}),
+							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("input", {
+								type: "text",
+								value: String(data.promptFilePath ?? ""),
+								placeholder: copy.promptFilePathPlaceholder,
+								spellCheck: false,
+								onChange: (event) => onPatch({ promptFilePath: event.target.value.trim() || void 0 })
+							})
+						]
+					})
+				}),
+				/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+					className: "wf-form-grid-1",
+					children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)(Field, {
+						label: copy.provider,
+						children: /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("select", {
+							title: modelsForProvider[0]?.providerName ?? String(data.provider ?? ""),
+							value: String(data.provider ?? ""),
+							onChange: (event) => onPatch({
+								provider: event.target.value,
+								model: ""
+							}),
+							children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("option", {
+								value: "",
+								children: "(default)"
+							}), providers.map((provider) => /* @__PURE__ */ (0, react_jsx_runtime.jsx)("option", {
+								value: provider,
+								children: models.find((entry) => entry.provider === provider)?.providerName ?? provider
+							}, provider))]
+						})
+					}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)(Field, {
+						label: copy.model,
+						children: /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("select", {
+							title: selectedModel?.modelName ?? String(data.model ?? ""),
+							value: String(data.model ?? ""),
+							onChange: (event) => onPatch({ model: event.target.value }),
+							children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("option", {
+								value: "",
+								children: "(default)"
+							}), modelsForProvider.map((entry) => /* @__PURE__ */ (0, react_jsx_runtime.jsx)("option", {
+								value: entry.model,
+								children: entry.modelName ?? entry.model
+							}, entry.model))]
+						})
+					})]
+				}),
+				/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+					className: hasMode ? "wf-form-grid-2" : "wf-form-grid-1",
+					children: [hasMode ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)(Field, {
+						label: copy.modeLabel,
+						children: /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("select", {
+							value: presetId,
+							onChange: (event) => onPatch({ presetId: event.target.value }),
+							children: [modeOptions.map((option) => /* @__PURE__ */ (0, react_jsx_runtime.jsx)("option", {
+								value: option.value,
+								children: option.label
+							}, option.value)), modeGroups.map((group) => /* @__PURE__ */ (0, react_jsx_runtime.jsx)("optgroup", {
+								label: group.label,
+								children: group.options.map((option) => /* @__PURE__ */ (0, react_jsx_runtime.jsx)("option", {
+									value: option.value,
+									children: option.label
+								}, option.value))
+							}, group.label))]
+						})
+					}) : null, /* @__PURE__ */ (0, react_jsx_runtime.jsx)(Field, {
+						label: copy.thinking,
+						children: /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("select", {
+							value: String(data.reasoning ?? ""),
+							onChange: (event) => onPatch({ reasoning: event.target.value || null }),
+							children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("option", {
+								value: "",
+								children: "(default)"
+							}), effortOptions.map((effort) => /* @__PURE__ */ (0, react_jsx_runtime.jsx)("option", {
+								value: effort.id,
+								children: effort.name
+							}, effort.id))]
+						})
+					})]
+				}),
+				effortsKnown && effortOptions.length === 0 ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+					className: "wf-hint",
+					children: copy.thinkingUnsupportedHint
+				}) : null,
+				toolCount != null ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+					className: "wf-hint",
+					children: copy.modeSummary.replace("{count}", String(toolCount))
+				}) : null,
+				/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("details", {
+					className: "wf-advanced",
+					children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("summary", { children: copy.advanced }), /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+						className: "wf-advanced__content",
+						children: [
+							/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+								className: "wf-form-grid-2",
+								children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)(Field, {
+									label: copy.retryLimit,
+									children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)("input", {
+										type: "number",
+										min: 1,
+										max: 20,
+										value: Number(data.retryLimit ?? 3),
+										onChange: (event) => onPatch({ retryLimit: Math.max(1, Math.min(20, Number(event.target.value) || 3)) })
+									})
+								}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)(Field, {
+									label: copy.reactLimit,
+									children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)("input", {
+										type: "number",
+										min: 0,
+										placeholder: copy.reactLimitHint,
+										value: Number(data.reactLimit ?? 0) || "",
+										onChange: (event) => onPatch({ reactLimit: Number(event.target.value) > 0 ? Number(event.target.value) : null })
+									})
+								})]
+							}),
+							!isParent ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)(Field, {
+								label: copy.loopLimit,
+								children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)("input", {
+									type: "number",
+									min: 0,
+									max: 20,
+									placeholder: copy.loopLimitHint,
+									value: Number(data.loopLimit ?? 0) || "",
+									onChange: (event) => onPatch({ loopLimit: Number(event.target.value) > 0 ? Math.max(1, Math.min(20, Number(event.target.value))) : null })
+								})
+							}) : null,
+							isParent ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+								className: "wf-hint",
+								children: copy.parentAdvancedHint
+							}) : /* @__PURE__ */ (0, react_jsx_runtime.jsxs)(react_jsx_runtime.Fragment, { children: [
+								/* @__PURE__ */ (0, react_jsx_runtime.jsx)(TextAreaField, {
+									label: copy.inputSchema,
+									value: data.inputSchema,
+									placeholder: copy.inputSchemaExample,
+									onChange: (value) => onPatch({ inputSchema: value })
+								}),
+								/* @__PURE__ */ (0, react_jsx_runtime.jsx)(TextAreaField, {
+									label: copy.outputSchema,
+									value: data.outputSchema,
+									placeholder: copy.outputSchemaExample,
+									onChange: (value) => onPatch({ outputSchema: value })
+								}),
+								/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+									type: "button",
+									className: "wf-btn wf-btn--xs",
+									onClick: () => onPatch({ outputSchema: DEFAULT_OUTPUT_CONTRACT_TEXT }),
+									children: copy.contractRestoreDefault
+								})
+							] })
+						]
+					})]
+				})
+			] });
+		}
+		// src/client/components/panels/inspector/task-form.tsx
+		function TaskForm({ data, copy, onPatch, onFilesPicked, heading, contentLabel }) {
+			const fileInputRef = (0, react.useRef)(null);
+			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", { children: [
+				/* @__PURE__ */ (0, react_jsx_runtime.jsx)("h3", { children: heading ?? copy.nodeKinds.task }),
+				/* @__PURE__ */ (0, react_jsx_runtime.jsx)(NameField, {
+					data,
+					copy,
+					onPatch
+				}),
+				/* @__PURE__ */ (0, react_jsx_runtime.jsx)(TextAreaField, {
+					label: contentLabel ?? copy.taskContent,
+					value: data.content,
+					placeholder: copy.taskContent,
+					minHeight: 180,
+					onChange: (value) => onPatch({ content: value })
+				}),
+				/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+					className: "wf-form-row",
+					children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+						type: "button",
+						className: "wf-btn",
+						title: String(copy.pickFiles),
+						onClick: () => fileInputRef.current?.click(),
+						children: copy.pickFiles
+					}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("input", {
+						ref: fileInputRef,
+						type: "file",
+						multiple: true,
+						className: "wf-import-hidden",
+						"aria-label": String(copy.pickFiles),
+						onChange: (event) => {
+							const picked = Array.from(event.target.files ?? []);
+							if (picked.length > 0) onFilesPicked(picked);
+							event.target.value = "";
+						}
+					})]
+				})
+			] });
+		}
+		// src/client/components/panels/inspector/database-form.tsx
+		function DatabaseForm({ data, copy, onPatch, onTest }) {
+			const isServer = data.dbType === "server";
+			const conn = data.conn ?? {};
+			const vectorOptions = data.vectorOptions ?? {};
+			/**
+			* 已存口令不回显（D07-05）：受控值只承载「本次会话内用户新输入的口令」，失焦即清空，
+			* 因此打开属性栏不会把已存明文重新下发到浏览器 DOM。data.conn.password 仍是运行期
+			* 事实源（driver.ts 依赖），这里只改展示口径，不改写入时机与字段。
+			*/
+			const [passwordDraft, setPasswordDraft] = (0, react.useState)(null);
+			const setOpt = (patch) => onPatch({ vectorOptions: {
+				...vectorOptions,
+				...patch
+			} });
+			const clampInt = (value, min, _fallback, max) => {
+				const n = Number(value);
+				if (!Number.isFinite(n) || n < min) return min;
+				return max === void 0 ? n : Math.min(max, n);
+			};
+			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", { children: [
+				/* @__PURE__ */ (0, react_jsx_runtime.jsx)("h3", { children: copy.nodeKinds.database }),
+				/* @__PURE__ */ (0, react_jsx_runtime.jsx)(NameField, {
+					data,
+					copy,
+					onPatch
+				}),
+				/* @__PURE__ */ (0, react_jsx_runtime.jsx)(TextAreaField, {
+					label: copy.description,
+					value: data.description,
+					placeholder: copy.descriptionHint,
+					onChange: (value) => onPatch({ description: value })
+				}),
+				/* @__PURE__ */ (0, react_jsx_runtime.jsx)(Field, {
+					label: copy.dbTypeLabel,
+					children: /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("select", {
+						value: String(data.dbType ?? "local"),
+						onChange: (event) => onPatch({ dbType: event.target.value }),
+						children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("option", {
+							value: "local",
+							children: copy.dbTypeLocal
+						}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("option", {
+							value: "server",
+							children: copy.dbTypeServer
+						})]
+					})
+				}),
+				isServer ? /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+					className: "wf-form-grid-1",
+					children: [
+						/* @__PURE__ */ (0, react_jsx_runtime.jsx)(Field, {
+							label: copy.dbKindLabel,
+							children: /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("select", {
+								value: String(data.dbKind ?? "mysql"),
+								onChange: (event) => onPatch({ dbKind: event.target.value }),
+								children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("option", {
+									value: "mysql",
+									children: "MySQL"
+								}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("option", {
+									value: "postgresql",
+									children: "PostgreSQL"
+								})]
+							})
+						}),
+						/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+							className: "wf-form-grid-wide",
+							children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)(InputField, {
+								label: copy.dbHost,
+								value: conn.host,
+								onChange: (value) => onPatch({ conn: {
+									...conn,
+									host: value
+								} })
+							}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)(InputField, {
+								label: copy.dbPort,
+								type: "number",
+								value: conn.port ?? "",
+								onChange: (value) => onPatch({ conn: {
+									...conn,
+									port: Number(value) || 0
+								} })
+							})]
+						}),
+						/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+							className: "wf-form-grid-2",
+							children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)(InputField, {
+								label: copy.dbUser,
+								value: conn.user,
+								onChange: (value) => onPatch({ conn: {
+									...conn,
+									user: value
+								} })
+							}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)(Field, {
+								label: copy.dbPassword,
+								children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)("input", {
+									type: "password",
+									value: passwordDraft ?? "",
+									placeholder: String(conn.password ?? "") === "" ? copy.dbPasswordPlaceholder : copy.dbPasswordStored,
+									onChange: (event) => {
+										setPasswordDraft(event.target.value);
+										onPatch({ conn: {
+											...conn,
+											password: event.target.value
+										} });
+									},
+									onBlur: () => setPasswordDraft(null)
+								})
+							})]
+						}),
+						/* @__PURE__ */ (0, react_jsx_runtime.jsx)(InputField, {
+							label: copy.dbName,
+							value: conn.db,
+							onChange: (value) => onPatch({ conn: {
+								...conn,
+								db: value
+							} })
+						}),
+						/* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", { children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+							type: "button",
+							className: "wf-btn",
+							onClick: onTest,
+							disabled: !conn.host,
+							children: copy.dbTest
+						}) })
+					]
+				}) : /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+					className: "wf-form-grid-1",
+					children: [
+						/* @__PURE__ */ (0, react_jsx_runtime.jsx)(InputField, {
+							label: copy.dbLocalPath,
+							value: data.localPath,
+							placeholder: copy.dbLocalPathPlaceholder,
+							onChange: (value) => onPatch({ localPath: value })
+						}),
+						/* @__PURE__ */ (0, react_jsx_runtime.jsx)(Field, {
+							label: copy.dbVectorSource,
+							children: /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("select", {
+								value: String(data.vectorSource ?? "embedding"),
+								onChange: (event) => onPatch({ vectorSource: event.target.value }),
+								children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("option", {
+									value: "embedding",
+									children: copy.dbVectorEmbedding
+								}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("option", {
+									value: "bm25",
+									children: copy.dbVectorBm25
+								})]
+							})
+						}),
+						/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+							className: "wf-hint",
+							children: copy.dbLocalHint
+						})
+					]
+				}),
+				/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("details", {
+					className: "wf-advanced",
+					children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("summary", { children: copy.dbAdvanced }), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+						className: "wf-advanced__content",
+						children: /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+							className: "wf-form-grid-1",
+							children: [
+								/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+									className: "wf-form-grid-2",
+									children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)(Field, {
+										label: copy.dbTopK,
+										children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)("input", {
+											type: "number",
+											min: 1,
+											max: 50,
+											value: Number(vectorOptions.topK ?? 5),
+											onChange: (event) => setOpt({ topK: clampInt(event.target.value, 1, 5, 50) })
+										})
+									}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)(Field, {
+										label: copy.dbScoreThreshold,
+										children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)("input", {
+											type: "number",
+											step: "0.1",
+											value: Number(vectorOptions.scoreThreshold ?? 0),
+											onChange: (event) => setOpt({ scoreThreshold: Number(event.target.value) || 0 })
+										})
+									})]
+								}),
+								/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+									className: "wf-form-grid-2",
+									children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)(Field, {
+										label: copy.dbOverlap,
+										children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)("input", {
+											type: "number",
+											min: 0,
+											value: Number(vectorOptions.overlap ?? 128),
+											onChange: (event) => setOpt({ overlap: clampInt(event.target.value, 0, 0) })
+										})
+									}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)(Field, {
+										label: copy.dbChunkSize,
+										children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)("input", {
+											type: "number",
+											min: 1,
+											value: Number(vectorOptions.chunkSize ?? 384),
+											onChange: (event) => setOpt({ chunkSize: clampInt(event.target.value, 1, 1) })
+										})
+									})]
+								}),
+								/* @__PURE__ */ (0, react_jsx_runtime.jsx)(Field, {
+									label: copy.dbMaxRows,
+									children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)("input", {
+										type: "number",
+										min: 1,
+										value: Number(vectorOptions.maxRows ?? 1e4),
+										onChange: (event) => setOpt({ maxRows: clampInt(event.target.value, 1, 1) })
+									})
+								}),
+								/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+									className: "wf-hint wf-form-preline",
+									children: copy.dbAdvancedHint
+								})
+							]
+						})
+					})]
+				})
+			] });
+		}
+		// src/client/components/panels/inspector/node-forms.tsx
+		/** 阶段属性只读（无描述字段，无保存按钮）；名称由调用方按界面语言注入。 */
+		function StageForm({ copy, nodeLabel }) {
+			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", { children: [
+				/* @__PURE__ */ (0, react_jsx_runtime.jsx)("h3", { children: nodeLabel }),
+				/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+					className: "wf-pathbox",
+					children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+						className: "wf-pathbox__label",
+						children: copy.label
+					}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+						className: "wf-pathbox__value",
+						children: nodeLabel
+					})]
+				}),
+				/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+					className: "wf-hint",
+					children: copy.stageReadonlyHint
+				})
+			] });
+		}
+		/** Team（名称/协作 Prompt/成员列表删除）。模板态无成员（成员在画布内拖入登记），隐藏成员区。 */
+		function GroupForm({ data, copy, members, onPatch, onLoadMd, onRemoveMember, maxActiveSubagents = 8 }) {
+			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", { children: [
+				/* @__PURE__ */ (0, react_jsx_runtime.jsx)("h3", { children: copy.nodeKinds.group }),
+				/* @__PURE__ */ (0, react_jsx_runtime.jsx)(NameField, {
+					data,
+					copy,
+					onPatch
+				}),
+				/* @__PURE__ */ (0, react_jsx_runtime.jsx)(Field, {
+					label: copy.collabPrompt,
+					children: /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+						className: "wf-form-stack",
+						children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)(ExpandableTextArea, {
+							label: copy.collabPrompt,
+							value: data.collabPrompt,
+							placeholder: copy.collabPromptHint,
+							onChange: (value) => onPatch({ collabPrompt: value })
+						}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+							className: "wf-form-row",
+							children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+								type: "button",
+								className: "wf-btn",
+								title: copy.loadMdTitle,
+								onClick: onLoadMd,
+								children: copy.loadMd
+							})
+						})]
+					})
+				}),
+				/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+					className: "wf-form-check wf-form-check--section",
+					children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("input", {
+						type: "checkbox",
+						className: "wf-form-check__box",
+						checked: data.dynamic === true,
+						onChange: (event) => onPatch({
+							dynamic: event.target.checked,
+							...event.target.checked ? {} : { memberRolePrompt: "" }
+						})
+					}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+						title: String(copy.dynamicTeamHint),
+						children: String(copy.dynamicTeam)
+					})]
+				}),
+				data.dynamic === true ? /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+					className: "wf-form-stack wf-dynamic-team-fields",
+					children: [
+						/* @__PURE__ */ (0, react_jsx_runtime.jsx)(Field, {
+							label: String(copy.dynamicTeamLimit),
+							children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)("input", {
+								type: "number",
+								min: 1,
+								max: 64,
+								value: String(data.maxMembers ?? 4),
+								title: String(copy.dynamicTeamLimitHint),
+								onChange: (event) => onPatch({ maxMembers: Math.max(1, Math.min(64, Number(event.target.value) || 1)) })
+							})
+						}),
+						/* @__PURE__ */ (0, react_jsx_runtime.jsx)(Field, {
+							label: String(copy.memberRoleTemplate),
+							children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)(ExpandableTextArea, {
+								label: String(copy.memberRoleTemplate),
+								value: data.memberRolePrompt,
+								placeholder: String(copy.memberRoleTemplateHint),
+								minHeight: 220,
+								onChange: (value) => onPatch({ memberRolePrompt: value })
+							})
+						}),
+						Number(data.maxMembers ?? 4) > maxActiveSubagents ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+							className: "wf-hint wf-dynamic-team-warning",
+							children: String(copy.dynamicTeamLimitExceeds).replace("{max}", String(data.maxMembers ?? 4)).replace("{limit}", String(maxActiveSubagents))
+						}) : null
+					]
+				}) : null,
+				members !== void 0 ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)(Field, {
+					label: copy.groupMembers,
+					children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+						className: "wf-check-list",
+						children: members.length === 0 ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+							className: "wf-hint",
+							children: copy.groupMemberHint
+						}) : members.map((member) => /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("label", {
+							className: "wf-check-list__row",
+							children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", { children: member.label || member.id }), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+								type: "button",
+								className: "wf-btn is-danger wf-btn--xs",
+								onClick: () => onRemoveMember(member.id),
+								children: "✕"
+							})]
+						}, member.id))
+					})
+				}) : null
+			] });
+		}
+		/**
+		* 虚拟节点表单：引用主节点只读，另可编辑显示名（画布上替代节点种类名）。
+		*/
+		function ProxyForm({ data, copy, onPatch, mainLabel }) {
+			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", { children: [
+				/* @__PURE__ */ (0, react_jsx_runtime.jsx)("h3", { children: copy.nodeKinds.proxy }),
+				/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+					className: "wf-pathbox",
+					children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+						className: "wf-pathbox__label",
+						children: copy.proxyMainLabel
+					}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+						className: "wf-pathbox__value",
+						children: mainLabel || String(data.proxySourceId ?? "—")
+					})]
+				}),
+				/* @__PURE__ */ (0, react_jsx_runtime.jsx)(Field, {
+					label: String(copy.proxyLabel),
+					children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)("input", {
+						type: "text",
+						value: String(data.label ?? ""),
+						placeholder: String(copy.proxyLabelHint),
+						onChange: (event) => onPatch({ label: event.target.value })
+					})
+				}),
+				/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+					className: "wf-hint",
+					children: copy.proxyReadonlyHint
+				})
+			] });
+		}
+		// src/client/lib/subgraph.ts
+		/** 读取节点内部的子图结构（非子图/损坏数据返回 null）。 */
+		function subgraphGraphOf(node) {
+			if (!node || node.kind !== "subgraph") return null;
+			const graph = node.data?.graph;
+			if (!graph || !Array.isArray(graph.nodes) || !Array.isArray(graph.lines)) return null;
+			return graph;
+		}
+		/** 子图是否为合法的最小完整图（恰一个 start，至少一个 end）。 */
+		function subgraphCompleteness(graph) {
+			const nodes = graph?.nodes ?? [];
+			const starts = nodes.filter((node) => node.kind === "start").length;
+			const ends = nodes.filter((node) => node.kind === "end").length;
+			return {
+				starts,
+				ends,
+				ok: starts === 1 && ends >= 1
+			};
+		}
+		/** 新子图的最小起止图（与 host 工厂保持相同语义；客户端不能 import host 运行时工厂）。 */
+		function defaultSubgraphGraph(mode) {
+			const startId = `node-${Math.random().toString(36).slice(2, 10)}`;
+			const endId = `node-${Math.random().toString(36).slice(2, 10)}`;
+			return {
+				nodes: [{
+					id: startId,
+					kind: "start",
+					position: {
+						x: 60,
+						y: 100
+					},
+					data: { label: STAGE_LABELS[mode].start }
+				}, {
+					id: endId,
+					kind: "end",
+					position: {
+						x: 360,
+						y: 100
+					},
+					data: { label: STAGE_LABELS[mode].end }
+				}],
+				lines: [{
+					id: `line-${Math.random().toString(36).slice(2, 10)}`,
+					source: startId,
+					target: endId,
+					sourceHandle: "flow-out",
+					targetHandle: "flow-in"
+				}]
+			};
+		}
+		/**
+		* 复制一个工作流模板的图作为子图内容。
+		* 所有节点/连线 id 重新生成，并同步重写 groupId / memberIds / proxySourceId；
+		* 模板中的阶段标签按目标模式归一，防止 mode2 的「输入/输出」进入 mode1。
+		*/
+		function importSubgraphFromTemplate(template, mode) {
+			if (template.nodes.some((node) => node.kind === "subgraph")) throw new Error("The template contains a subgraph node; nested subgraphs are not supported.");
+			const idMap = /* @__PURE__ */ new Map();
+			for (const node of template.nodes) idMap.set(node.id, `node-${Math.random().toString(36).slice(2, 10)}`);
+			return {
+				nodes: template.nodes.map((node) => {
+					const copy = structuredClone(node);
+					copy.id = idMap.get(node.id) ?? node.id;
+					if (copy.kind === "start" || copy.kind === "end" || copy.kind === "pause") copy.data.label = STAGE_LABELS[mode][copy.kind];
+					const data = copy.data;
+					if (copy.kind === "parent" || copy.kind === "agent") data.groupId = typeof data.groupId === "string" ? idMap.get(data.groupId) ?? data.groupId : data.groupId;
+					if (copy.kind === "group") data.memberIds = (Array.isArray(data.memberIds) ? data.memberIds : []).map((id) => idMap.get(String(id)) ?? String(id));
+					if (copy.kind === "proxy") copy.proxySourceId = idMap.get(copy.proxySourceId) ?? copy.proxySourceId;
+					return copy;
+				}),
+				lines: template.lines.map((line) => ({
+					...line,
+					id: `line-${Math.random().toString(36).slice(2, 10)}`,
+					source: idMap.get(line.source) ?? line.source,
+					target: idMap.get(line.target) ?? line.target
+				}))
+			};
+		}
+		// src/client/components/panels/inspector/subgraph-form.tsx
+		function SubgraphForm({ data, copy, mode, flowTemplates, onPatch }) {
+			const graph = subgraphGraphOf({
+				kind: "subgraph",
+				data
+			});
+			const completeness = subgraphCompleteness(graph);
+			const candidates = flowTemplates.filter((template) => template.mode === mode);
+			const [selected, setSelected] = (0, react.useState)(candidates[0]?.id ?? "");
+			const [error, setError] = (0, react.useState)("");
+			const importTemplate = () => {
+				const template = candidates.find((item) => item.id === selected);
+				if (!template) return;
+				try {
+					onPatch({
+						graph: importSubgraphFromTemplate(template, mode),
+						sourceTemplateId: template.id
+					});
+					setError("");
+				} catch (cause) {
+					setError(cause instanceof Error ? cause.message : String(cause));
+				}
+			};
+			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", { children: [
+				/* @__PURE__ */ (0, react_jsx_runtime.jsx)("h3", { children: copy.nodeKinds.subgraph }),
+				/* @__PURE__ */ (0, react_jsx_runtime.jsx)(NameField, {
+					data,
+					copy,
+					onPatch
+				}),
+				/* @__PURE__ */ (0, react_jsx_runtime.jsx)(Field, {
+					label: copy.subgraphDescription,
+					children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)(ExpandableTextArea, {
+						label: copy.subgraphDescription,
+						value: data.description,
+						placeholder: copy.subgraphDescriptionHint,
+						minHeight: 80,
+						onChange: (value) => onPatch({ description: value })
+					})
+				}),
+				/* @__PURE__ */ (0, react_jsx_runtime.jsx)(Field, {
+					label: copy.subgraphStructure,
+					children: /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+						className: "wf-form-stack",
+						children: [
+							/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+								className: "wf-pathbox",
+								children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+									className: "wf-pathbox__label",
+									children: copy.subgraphNodeCount
+								}), /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("span", {
+									className: "wf-pathbox__value",
+									children: [graph?.nodes.length ?? 0, graph ? ` · ${copy.subgraphLineCount} ${graph.lines.length}` : ""]
+								})]
+							}),
+							!completeness.ok ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+								className: "wf-hint is-warning",
+								children: completeness.starts !== 1 ? copy.subgraphNoStart : copy.subgraphNoEnd
+							}) : null,
+							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+								className: "wf-hint",
+								children: copy.subgraphStructureHint
+							}),
+							/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+								className: "wf-form-row",
+								children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("select", {
+									"aria-label": copy.subgraphImportTemplate,
+									value: selected,
+									onChange: (event) => setSelected(event.target.value),
+									disabled: candidates.length === 0,
+									children: candidates.length === 0 ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("option", {
+										value: "",
+										children: copy.subgraphNoTemplates
+									}) : candidates.map((template) => /* @__PURE__ */ (0, react_jsx_runtime.jsx)("option", {
+										value: template.id,
+										children: template.name || template.id
+									}, template.id))
+								}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+									type: "button",
+									className: "wf-btn",
+									onClick: importTemplate,
+									disabled: !selected,
+									children: copy.subgraphImport
+								})]
+							}),
+							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+								className: "wf-hint",
+								children: copy.subgraphImportTemplateHint
+							}),
+							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+								className: "wf-form-row",
+								children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+									type: "button",
+									className: "wf-btn",
+									onClick: () => onPatch({
+										graph: defaultSubgraphGraph(mode),
+										sourceTemplateId: void 0
+									}),
+									children: copy.subgraphReset
+								})
+							}),
+							error ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+								className: "wf-hint is-warning",
+								children: error
+							}) : null
+						]
+					})
+				})
+			] });
+		}
+		// src/client/components/panels/inspector/flow-forms.tsx
+		function LinePanel({ data, copy, onPatch }) {
+			const condition = data.condition ?? null;
+			const type = condition?.type ?? "flow";
+			const channel = data.sourceHandle === "ctx-out" ? "ctx" : data.sourceHandle === "db-out" ? "db" : "flow";
+			const isContent = type === "content";
+			const availableChannels = data.availableChannels;
+			const setType = (value) => {
+				if (value === "flow") onPatch({ condition: null });
+				else onPatch({ condition: {
+					type: value,
+					label: condition?.label ?? ""
+				} });
+			};
+			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", { children: [
+				/* @__PURE__ */ (0, react_jsx_runtime.jsx)("h3", { children: copy.line }),
+				/* @__PURE__ */ (0, react_jsx_runtime.jsx)(Field, {
+					label: copy.lineChannel,
+					children: /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("select", {
+						value: channel,
+						onChange: (event) => onPatch({ channel: event.target.value }),
+						children: [
+							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("option", {
+								value: "flow",
+								disabled: availableChannels && !availableChannels.includes("flow"),
+								children: copy.lineTypeFlow
+							}),
+							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("option", {
+								value: "ctx",
+								disabled: availableChannels && !availableChannels.includes("ctx"),
+								children: copy.lineTypeContext
+							}),
+							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("option", {
+								value: "db",
+								disabled: availableChannels && !availableChannels.includes("db"),
+								children: copy.lineTypeDatabase
+							})
+						]
+					})
+				}),
+				channel === "flow" ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)(Field, {
+					label: copy.lineType,
+					children: /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("select", {
+						value: type,
+						onChange: (event) => setType(event.target.value),
+						children: [
+							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("option", {
+								value: "flow",
+								children: copy.lineUnconditional
+							}),
+							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("option", {
+								value: "pass",
+								children: copy.lineTypePass
+							}),
+							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("option", {
+								value: "fail",
+								children: copy.lineTypeFail
+							}),
+							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("option", {
+								value: "content",
+								children: copy.lineTypeContent
+							})
+						]
+					})
+				}) : null,
+				channel === "flow" && isContent ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)(InputField, {
+					label: copy.lineContentValue,
+					value: condition?.label ?? "",
+					placeholder: copy.lineContentHint,
+					onChange: (value) => onPatch({ condition: {
+						type: "content",
+						label: value
+					} })
+				}) : null,
+				/* @__PURE__ */ (0, react_jsx_runtime.jsx)(Field, {
+					label: copy.connectionStyle,
+					children: /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("select", {
+						value: String(data.appearance?.type ?? "rounded"),
+						onChange: (event) => onPatch({ appearance: {
+							...data.appearance ?? {},
+							type: event.target.value
+						} }),
+						children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("option", {
+							value: "rounded",
+							children: copy.roundedConnection
+						}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("option", {
+							value: "bezier",
+							children: copy.bezierConnection
+						})]
+					})
+				}),
+				channel === "flow" ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+					className: "wf-hint",
+					children: copy.lineConditionHint
+				}) : null
+			] });
+		}
+		function WorkflowForm({ data, copy, isService, flowMeta, onPatch }) {
+			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", { children: [
+				/* @__PURE__ */ (0, react_jsx_runtime.jsx)("h3", { children: isService ? copy.service : copy.workflow }),
+				/* @__PURE__ */ (0, react_jsx_runtime.jsx)(InputField, {
+					label: copy.flowName,
+					value: data.name,
+					onChange: (value) => onPatch({ name: value })
+				}),
+				/* @__PURE__ */ (0, react_jsx_runtime.jsx)(TextAreaField, {
+					label: copy.flowDescription,
+					value: data.description,
+					placeholder: copy.flowDescription,
+					minHeight: 200,
+					onChange: (value) => onPatch({ description: value })
+				}),
+				/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+					className: "wf-pathbox",
+					children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+						className: "wf-pathbox__label",
+						children: copy.meta
+					}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+						className: "wf-pathbox__value",
+						children: `${flowMeta.nodeCount} ${copy.nodes} · rev ${flowMeta.revision} · ${isService ? copy.mode2 : copy.mode1}`
+					})]
+				})
+			] });
+		}
+		// src/client/components/panels/inspector/asset-versions.tsx
+		/** 版本创建时间展示（epoch 毫秒 → 本地时间字符串）。 */
+		function createdAtText(createdAt) {
+			const date = new Date(createdAt);
+			return Number.isNaN(date.getTime()) ? "—" : date.toLocaleString();
+		}
+		function AssetVersions({ copy, versions, assetId, onRollback, onClose }) {
+			const items = versions && versions.assetId === assetId ? versions.items : null;
+			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)(react_jsx_runtime.Fragment, { children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+				className: "wf-asset-versions__backdrop",
+				onClick: onClose
+			}), /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+				className: "wf-asset-versions",
+				children: [/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+					className: "wf-asset-versions__head",
+					children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+						className: "wf-asset-versions__title",
+						children: copy.assetVersionsTitle
+					}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+						type: "button",
+						className: "wf-btn wf-btn--xs",
+						onClick: onClose,
+						children: copy.assetVersionsClose
+					})]
+				}), items === null ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+					className: "wf-asset-versions__hint",
+					children: copy.assetVersionsLoading
+				}) : items.length === 0 ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+					className: "wf-asset-versions__hint",
+					children: copy.assetVersionsEmpty
+				}) : /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+					className: "wf-asset-versions__list",
+					children: items.map((item) => /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("button", {
+						type: "button",
+						className: `wf-asset-versions__item${item.active ? " is-active" : ""}`,
+						onClick: () => onRollback(item.versionId),
+						children: [
+							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+								className: "wf-asset-versions__version",
+								children: `v${item.versionId}`
+							}),
+							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+								className: "wf-asset-versions__name",
+								children: item.name
+							}),
+							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+								className: "wf-asset-versions__meta",
+								children: `${copy.assetVersionSource[item.source] ?? item.source} · ${createdAtText(item.createdAt)}`
+							}),
+							item.active ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+								className: "wf-asset-versions__badge",
+								children: copy.assetVersionActive
+							}) : null
+						]
+					}, item.rowId))
+				})]
+			})] });
+		}
+		// src/client/lib/experience-stats.ts
+		/**
+		* 属性栏展示的六项统计及其顺序。
+		* 取值键直接来自共享契约，`satisfies` 在编译期保证字段确实存在：契约改名时此处报错，
+		* 而不是静默读成 undefined 后把「未知」显示成某个数。
+		*/
+		const EXPERIENCE_STAT_FIELDS = [
+			"trust",
+			"empiricalValue",
+			"evidenceStrength",
+			"stability",
+			"usedCount",
+			"harmRate"
+		];
+		/** 使用次数是计数值，按整数展示；其余四项是 [0,1] / [-1,1] 的比率，统一两位小数。 */
+		function statText(field, value) {
+			return field === "usedCount" ? String(Math.round(value)) : value.toFixed(2);
+		}
+		/** 统计行投影：stats 缺失或任一项不是有限数时返回 null（界面显示「暂无统计」）。 */
+		function experienceStatRowsOf(stats) {
+			if (typeof stats !== "object" || stats === null) return null;
+			const record = stats;
+			const rows = [];
+			for (const field of EXPERIENCE_STAT_FIELDS) {
+				const value = record[field];
+				if (typeof value !== "number" || !Number.isFinite(value)) return null;
+				rows.push({
+					field,
+					text: statText(field, value)
+				});
+			}
+			return rows;
+		}
+		// src/client/components/panels/inspector/experience-form.tsx
+		/** 时间展示（epoch 毫秒 → 本地时间；非法值显示占位符，不抛错）。 */
+		function timeText(value) {
+			const date = new Date(Number(value));
+			return Number.isFinite(date.getTime()) ? date.toLocaleString() : "—";
+		}
+		/** 只读值展示：缺省或空白统一显示占位符，避免出现只有标签的半截行。 */
+		function valueText$1(value) {
+			const text = String(value ?? "").trim();
+			return text === "" ? "—" : text;
+		}
+		/** 数组 → 文本域内容（每行一条；非数组按空处理）。 */
+		function linesOf(value) {
+			return Array.isArray(value) ? value.map((item) => String(item ?? "")).join("\n") : "";
+		}
+		/** 文本域内容 → 数组（按行切分，丢弃空行；空文本域即空数组）。 */
+		function listOf(text) {
+			return text.split("\n").map((line) => line.trim()).filter((line) => line !== "");
+		}
+		/** 归档原因 → 词典文案；未知/缺失值显示占位符（不把磁盘原始值直接暴露给用户）。 */
+		function retireReasonText(value, copy) {
+			switch (value) {
+				case "manual": return copy.experienceRetireReasonManual;
+				case "harmful": return copy.experienceRetireReasonHarmful;
+				case "long_unused": return copy.experienceRetireReasonLongUnused;
+				default: return "—";
+			}
+		}
+		function ExperienceForm({ data, copy, onPatch }) {
+			const statRows = experienceStatRowsOf(data.stats);
+			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", { children: [
+				/* @__PURE__ */ (0, react_jsx_runtime.jsx)("h3", { children: copy.libTabExperience }),
+				/* @__PURE__ */ (0, react_jsx_runtime.jsx)(TextAreaField, {
+					label: copy.experienceResponsibility,
+					value: data.responsibility,
+					minHeight: 50,
+					onChange: (responsibility) => onPatch({ responsibility })
+				}),
+				/* @__PURE__ */ (0, react_jsx_runtime.jsx)(InputField, {
+					label: copy.experienceTaskType,
+					value: data.taskType,
+					onChange: (taskType) => onPatch({ taskType })
+				}),
+				/* @__PURE__ */ (0, react_jsx_runtime.jsx)(TextAreaField, {
+					label: copy.experienceDecisionDomain,
+					value: data.decisionDomain,
+					minHeight: 50,
+					onChange: (decisionDomain) => onPatch({ decisionDomain })
+				}),
+				/* @__PURE__ */ (0, react_jsx_runtime.jsx)(TextAreaField, {
+					label: copy.experienceSituation,
+					value: data.situation,
+					minHeight: 70,
+					onChange: (situation) => onPatch({ situation })
+				}),
+				/* @__PURE__ */ (0, react_jsx_runtime.jsx)(TextAreaField, {
+					label: copy.experienceTrigger,
+					value: data.trigger,
+					minHeight: 50,
+					onChange: (trigger) => onPatch({ trigger })
+				}),
+				/* @__PURE__ */ (0, react_jsx_runtime.jsx)(TextAreaField, {
+					label: copy.experiencePrinciple,
+					value: data.principle,
+					minHeight: 80,
+					onChange: (principle) => onPatch({ principle })
+				}),
+				/* @__PURE__ */ (0, react_jsx_runtime.jsx)(TextAreaField, {
+					label: copy.experienceRecommendedAction,
+					value: data.recommendedAction,
+					minHeight: 60,
+					onChange: (recommendedAction) => onPatch({ recommendedAction })
+				}),
+				/* @__PURE__ */ (0, react_jsx_runtime.jsx)(TextAreaField, {
+					label: copy.experienceExclusions,
+					value: linesOf(data.exclusions),
+					placeholder: copy.experienceListPlaceholder,
+					minHeight: 50,
+					onChange: (text) => onPatch({ exclusions: listOf(text) })
+				}),
+				/* @__PURE__ */ (0, react_jsx_runtime.jsx)(TextAreaField, {
+					label: copy.experienceEvidence,
+					value: linesOf(data.evidence),
+					placeholder: copy.experienceListPlaceholder,
+					minHeight: 50,
+					onChange: (text) => onPatch({ evidence: listOf(text) })
+				}),
+				/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+					className: "wf-form-stack",
+					children: [
+						/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+							className: "wf-hint",
+							children: copy.experienceStatsTitle
+						}),
+						statRows === null ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+							className: "wf-hint",
+							children: copy.experienceStatsEmpty
+						}) : /* @__PURE__ */ (0, react_jsx_runtime.jsx)("dl", {
+							className: "wf-stat-list",
+							children: statRows.map((row) => /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+								className: "wf-stat",
+								children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("dt", {
+									className: "wf-stat__label",
+									children: copy.experienceStatsFields[row.field]
+								}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("dd", {
+									className: "wf-stat__value",
+									children: row.text
+								})]
+							}, row.field))
+						}),
+						/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+							className: "wf-hint",
+							children: copy.experienceStatsHint
+						})
+					]
+				}),
+				/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+					className: "wf-form-stack",
+					children: [
+						/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+							className: "wf-hint",
+							children: copy.experienceLifecycleTitle
+						}),
+						/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+							className: "wf-hint",
+							children: `${copy.experienceLifecycleStatus}：${data.active === false ? copy.experienceStatusRetired : copy.experienceStatusActive}`
+						}),
+						/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+							className: "wf-hint",
+							children: `${copy.experienceRetiredAt}：${timeText(data.retiredAt)}`
+						}),
+						/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+							className: "wf-hint",
+							children: `${copy.experienceRetiredReason}：${retireReasonText(data.retiredReason, copy)}`
+						}),
+						/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+							className: "wf-hint",
+							children: `${copy.experienceReactivatedAt}：${timeText(data.reactivatedAt)}`
+						})
+					]
+				}),
+				/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+					className: "wf-form-stack",
+					children: [
+						/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+							className: "wf-hint",
+							children: copy.experienceRetrievalTitle
+						}),
+						/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+							className: "wf-hint",
+							children: `${copy.experienceTaskRetrievalText}：${valueText$1(data.taskRetrievalText)}`
+						}),
+						/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+							className: "wf-hint",
+							children: `${copy.experienceDecisionRetrievalText}：${valueText$1(data.decisionRetrievalText)}`
+						})
+					]
+				}),
+				/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+					className: "wf-form-stack",
+					children: [
+						/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+							className: "wf-hint",
+							children: copy.experienceProvenanceTitle
+						}),
+						/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+							className: "wf-hint",
+							children: `${copy.experienceIdLabel}：${String(data.id ?? "")}`
+						}),
+						/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+							className: "wf-hint",
+							children: `${copy.experienceSourceRun}：${valueText$1(data.sourceRunId)}`
+						}),
+						/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+							className: "wf-hint",
+							children: `${copy.experienceGenerationPromptId}：${valueText$1(data.generationPromptId)}`
+						}),
+						/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+							className: "wf-hint",
+							children: `${copy.experienceGenerationPromptVersion}：${valueText$1(data.generationPromptVersion)}`
+						}),
+						/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+							className: "wf-hint",
+							children: `${copy.experienceEmbeddingModel}：${valueText$1(data.embeddingModel)}`
+						}),
+						/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+							className: "wf-hint",
+							children: `${copy.experienceEmbeddingDimension}：${valueText$1(data.embeddingDimension)}`
+						}),
+						/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+							className: "wf-hint",
+							children: `${copy.experienceCreatedAt}：${timeText(data.createdAt)}`
+						}),
+						/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+							className: "wf-hint",
+							children: `${copy.experienceUpdatedAt}：${timeText(data.updatedAt)}`
+						})
+					]
+				})
+			] });
+		}
+		// src/client/components/panels/inspector/prompt-asset-form.tsx
+		/** 只读值展示：缺省或空白统一显示占位符。 */
+		function valueText(value) {
+			const text = String(value ?? "").trim();
+			return text === "" ? "—" : text;
+		}
+		function PromptAssetForm({ data, copy, onPatch }) {
+			const experienceType = String(data.experienceType ?? "");
+			const typeName = copy.experienceTypeNames[experienceType] ?? valueText(experienceType);
+			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", { children: [
+				/* @__PURE__ */ (0, react_jsx_runtime.jsx)("h3", { children: copy.promptAssetTitle }),
+				/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+					className: "wf-form-stack",
+					children: [
+						/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+							className: "wf-hint",
+							children: `${copy.promptAssetName}：${valueText(data.name)}`
+						}),
+						/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+							className: "wf-hint",
+							children: `${copy.promptAssetExperienceType}：${typeName}`
+						}),
+						/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+							className: "wf-hint",
+							children: `${copy.promptAssetDescription}：${valueText(data.description)}`
+						}),
+						/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+							className: "wf-hint",
+							children: `${copy.promptAssetVersion}：v${String(data.versionId ?? "")}（${valueText(data.promptVersion)}）`
+						}),
+						/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+							className: "wf-hint",
+							children: `${copy.promptAssetVersionRowId}：${valueText(data.rowId)}`
+						})
+					]
+				}),
+				/* @__PURE__ */ (0, react_jsx_runtime.jsx)(TextAreaField, {
+					label: copy.promptAssetBody,
+					value: data.prompt,
+					minHeight: 360,
+					onChange: (prompt) => onPatch({ prompt })
+				}),
+				/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+					className: "wf-hint",
+					children: copy.promptAssetImmutableHint
+				}),
+				/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+					className: "wf-hint",
+					children: copy.promptAssetActiveOnlyHint
+				})
+			] });
+		}
+		// src/client/components/panels/inspector/Inspector.tsx
+		function Inspector(props) {
+			const { copy: t, open, width, editorData, presets, models, combos, flowMeta, flowTemplates = [], onPatch, onDelete, onSave, onCollapse, maxActiveSubagents, onSaveAsTemplate, onDuplicateTemplate, onPromote, promoteLocked, onOpenVersions, onRollbackVersion, onCloseVersions, assetVersions, onCopyProxy, onRemoveMember, onFilesPicked, onLoadMd, onLoadGroupMd, onTestDb, saveDisabled, importBusy } = props;
+			const [versionsAssetId, setVersionsAssetId] = (0, react.useState)(null);
+			let content;
+			if (!editorData) content = /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+				className: "wf-empty",
+				children: t.inspectorEmpty
+			});
+			else {
+				const data = editorData.data;
+				switch (editorData.kind) {
+					case "workflow":
+					case "service":
+						content = /* @__PURE__ */ (0, react_jsx_runtime.jsx)(WorkflowForm, {
+							data,
+							copy: t,
+							isService: editorData.kind === "service",
+							flowMeta,
+							onPatch
+						});
+						break;
+					case "role":
+						content = /* @__PURE__ */ (0, react_jsx_runtime.jsx)(RoleForm, {
+							data,
+							copy: t,
+							presets,
+							models,
+							combos,
+							onPatch,
+							onLoadMd,
+							isParent: editorData.isParent === true,
+							showCombos: editorData.isParent !== true
+						});
+						break;
+					case "task":
+						content = /* @__PURE__ */ (0, react_jsx_runtime.jsx)(TaskForm, {
+							data,
+							copy: t,
+							onPatch,
+							onFilesPicked,
+							contentLabel: String(t.promptContent)
+						});
+						break;
+					case "step":
+						content = /* @__PURE__ */ (0, react_jsx_runtime.jsx)(TaskForm, {
+							data,
+							copy: t,
+							onPatch,
+							onFilesPicked,
+							heading: String(t.nodeKinds.step),
+							contentLabel: String(t.stepContent)
+						});
+						break;
+					case "database":
+						content = /* @__PURE__ */ (0, react_jsx_runtime.jsx)(DatabaseForm, {
+							data,
+							copy: t,
+							onPatch,
+							onTest: onTestDb
+						});
+						break;
+					case "group":
+						content = /* @__PURE__ */ (0, react_jsx_runtime.jsx)(GroupForm, {
+							data,
+							copy: t,
+							members: editorData.members,
+							onPatch,
+							onLoadMd: onLoadGroupMd,
+							onRemoveMember,
+							maxActiveSubagents
+						});
+						break;
+					case "stage": {
+						const stageLabel = editorData.stageKind ? stageNodeLabelOf(editorData.mode ?? "mode1", editorData.stageKind, t.nodeKinds) : String(data.label ?? "");
+						content = /* @__PURE__ */ (0, react_jsx_runtime.jsx)(StageForm, {
+							copy: t,
+							nodeLabel: stageLabel
+						});
+						break;
+					}
+					case "proxy":
+						content = /* @__PURE__ */ (0, react_jsx_runtime.jsx)(ProxyForm, {
+							data,
+							copy: t,
+							onPatch,
+							mainLabel: editorData.mainLabel ?? ""
+						});
+						break;
+					case "subgraph":
+						content = /* @__PURE__ */ (0, react_jsx_runtime.jsx)(SubgraphForm, {
+							data,
+							copy: t,
+							mode: editorData.mode ?? "mode1",
+							flowTemplates,
+							onPatch
+						});
+						break;
+					case "edge":
+						content = /* @__PURE__ */ (0, react_jsx_runtime.jsx)(LinePanel, {
+							data,
+							copy: t,
+							onPatch
+						});
+						break;
+					case "experience":
+						content = /* @__PURE__ */ (0, react_jsx_runtime.jsx)(ExperienceForm, {
+							data,
+							copy: t,
+							onPatch
+						});
+						break;
+					case "prompt":
+						content = /* @__PURE__ */ (0, react_jsx_runtime.jsx)(PromptAssetForm, {
+							data,
+							copy: t,
+							onPatch
+						});
+						break;
+					default: content = /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+						className: "wf-empty",
+						children: t.inspectorEmpty
+					});
+				}
+			}
+			/**
+			* 可回滚对象 id：资产自身（属性栏编辑的资产），或**画布角色节点**绑定的来源角色资产。
+			* 画布节点是该资产的画布内联副本（data.sourceAssetId 是绑定事实），批注要求它与左侧栏
+			* 角色资产具备同样的回滚能力；未绑定来源资产的内联节点没有版本可回滚，故不显示回滚按钮。
+			* 计算放在渲染分支之外：版本列表的显示判据也要用它。
+			*/
+			const nodeSourceAssetId = editorData?.sourceAssetId ?? "";
+			const rollbackAssetId = (editorData?.assetId ?? "") !== "" ? editorData.assetId : nodeSourceAssetId;
+			/** 经验编辑对象：经验没有版本控制，一切与版本相关的按钮（回滚 / 版本列表）都不出现。 */
+			const isExperienceEditor = editorData?.experience === true;
+			/** 提示词资产编辑对象：只有正文可编辑；可保存新版本与回滚，但没有归档 / 恢复入口。 */
+			const isPromptEditor = editorData?.promptAsset === true;
+			/** 已归档（历史资产 / 非活跃经验）：状态按钮翻转为「恢复」，版本列表一律收起。 */
+			const isRetiredEditor = editorData?.retired === true;
+			const footer = [];
+			if (editorData) {
+				const kind = editorData.kind;
+				const isStage = kind === "stage";
+				const isAsset = editorData.asset === true || editorData.roleAsset === true || isPromptEditor;
+				const canRollback = !isExperienceEditor && !isRetiredEditor && rollbackAssetId !== "" && (isAsset || kind === "role" && editorData.template !== true && nodeSourceAssetId !== "");
+				const versionsOpen = versionsAssetId !== null && versionsAssetId === rollbackAssetId;
+				const canCopyProxy = kind === "role" && !editorData.template && !isAsset;
+				const canPromote = !isAsset && !isExperienceEditor && editorData.template === true && (kind === "workflow" || kind === "role") && onPromote !== void 0;
+				if (!isStage) footer.push(/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+					type: "button",
+					className: "wf-btn is-primary",
+					onClick: onSave,
+					disabled: importBusy || saveDisabled,
+					children: t.inspectorSave
+				}, "save"));
+				if (!isAsset && !isExperienceEditor && editorData.template === true && kind === "workflow" && onDuplicateTemplate !== void 0) footer.push(/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+					type: "button",
+					className: "wf-btn",
+					onClick: onDuplicateTemplate,
+					disabled: importBusy,
+					children: t.copyTemplate
+				}, "copy-template"));
+				if (isAsset || isExperienceEditor) {
+					if (!isPromptEditor) footer.push(/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+						type: "button",
+						className: `wf-btn${isRetiredEditor ? "" : " is-danger"}`,
+						onClick: onDelete,
+						disabled: importBusy,
+						title: isExperienceEditor ? isRetiredEditor ? t.experienceRestoreHint : t.experienceArchiveHint : isRetiredEditor ? t.assetRestoreHint : t.assetArchiveHint,
+						children: isRetiredEditor ? t.assetRestore : t.assetArchive
+					}, "retire"));
+				} else footer.push(/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+					type: "button",
+					className: "wf-btn is-danger",
+					onClick: onDelete,
+					disabled: importBusy,
+					children: t.inspectorDelete
+				}, "delete"));
+				if (canPromote) footer.push(/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+					type: "button",
+					className: "wf-btn",
+					onClick: onPromote,
+					disabled: importBusy || promoteLocked === true,
+					title: promoteLocked === true ? t.assetPromoteLockedHint : t.assetPromoteHint,
+					children: t.assetPromote
+				}, "promote"));
+				if (canRollback && onOpenVersions) footer.push(/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+					type: "button",
+					className: "wf-btn",
+					onClick: () => {
+						if (versionsOpen) {
+							setVersionsAssetId(null);
+							onCloseVersions?.();
+							return;
+						}
+						setVersionsAssetId(rollbackAssetId);
+						onOpenVersions();
+					},
+					disabled: importBusy,
+					title: t.assetRollbackHint,
+					children: t.assetRollback
+				}, "rollback"));
+				if (canCopyProxy) footer.push(/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+					type: "button",
+					className: "wf-btn",
+					onClick: onCopyProxy,
+					disabled: importBusy,
+					children: t.inspectorCopy
+				}, "copy"));
+				if ((kind === "workflow" || kind === "service") && !editorData.template && !isAsset && onSaveAsTemplate) footer.push(/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+					type: "button",
+					className: "wf-btn",
+					onClick: onSaveAsTemplate,
+					disabled: importBusy,
+					children: String(t.saveAsTemplate)
+				}, "save-as-template"));
+			}
+			const showVersions = !isExperienceEditor && !isRetiredEditor && versionsAssetId !== null && rollbackAssetId !== "" && versionsAssetId === rollbackAssetId && (editorData?.asset === true || editorData?.roleAsset === true || editorData?.promptAsset === true || editorData?.sourceAssetId !== void 0);
+			const collapseButton = onCollapse ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+				type: "button",
+				className: "wf-inspector__collapse",
+				title: String(t.inspectorCollapse),
+				"aria-label": String(t.inspectorCollapse),
+				onClick: onCollapse,
+				children: "›"
+			}, "collapse") : null;
+			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("aside", {
+				className: `wf-inspector${open ? "" : " is-collapsed"}`,
+				style: { width: open ? width : void 0 },
+				children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+					className: "wf-inspector__scroll",
+					children: content
+				}), footer.length > 0 || collapseButton ? /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+					className: "wf-inspector__footer",
+					children: [
+						collapseButton,
+						footer,
+						showVersions ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)(AssetVersions, {
+							copy: t,
+							versions: assetVersions ?? null,
+							assetId: rollbackAssetId,
+							onClose: () => {
+								setVersionsAssetId(null);
+								onCloseVersions?.();
+							},
+							onRollback: (versionId) => {
+								setVersionsAssetId(null);
+								onRollbackVersion?.(versionId);
+							}
+						}) : null
+					]
+				}) : null]
+			});
+		}
+		// src/client/components/canvas/SubgraphCanvasEditor.tsx
+		function innerGraph(node) {
+			const graph = node.data.graph;
+			return {
+				nodes: graph?.nodes ?? [],
+				edges: graph?.lines ?? []
+			};
+		}
+		function newId(prefix) {
+			return `${prefix}-${Math.random().toString(36).slice(2, 10)}`;
+		}
+		function SubgraphCanvasEditor({ node, copy, mode, onClose, onDraftChange, presets, models, combos, flowTemplates = [], onSave, maxActiveSubagents, runtimeFocus = false, runStatusByNode }) {
+			const initial = (0, react.useMemo)(() => innerGraph(node), [node.id]);
+			const [nodes, setNodes] = (0, react.useState)(initial.nodes);
+			const [edges, setEdges] = (0, react.useState)(initial.edges);
+			const innerRunStatus = (0, react.useMemo)(() => Object.fromEntries(nodes.flatMap((inner) => {
+				const status = runStatusByNode?.[`${node.id}__${inner.id}`];
+				return status ? [[inner.id, status]] : [];
+			})), [
+				nodes,
+				node.id,
+				runStatusByNode
+			]);
+			const innerRunningIds = (0, react.useMemo)(() => Object.keys(innerRunStatus).filter((id) => runtimeFocus && innerRunStatus[id].status === "running"), [innerRunStatus, runtimeFocus]);
+			const [selectedNode, setSelectedNode] = (0, react.useState)(null);
+			const [selectedEdge, setSelectedEdge] = (0, react.useState)(null);
+			const [inspectorOpen, setInspectorOpen] = (0, react.useState)(true);
+			const initializedFor = (0, react.useRef)(node.id);
+			const fitOnce = (0, react.useRef)(false);
+			(0, react.useEffect)(() => {
+				if (initializedFor.current === node.id) return;
+				initializedFor.current = node.id;
+				const next = innerGraph(node);
+				setNodes(next.nodes);
+				setEdges(next.edges);
+				setSelectedNode(null);
+				setSelectedEdge(null);
+				setInspectorOpen(true);
+			}, [node.id, node]);
+			const apply = (0, react.useCallback)((nextNodes, nextEdges) => {
+				setNodes(nextNodes);
+				setEdges(nextEdges);
+				onDraftChange(nextNodes, nextEdges);
+			}, [onDraftChange]);
+			const patchNode = (0, react.useCallback)((id, patch) => {
+				apply(nodes.map((item) => item.id === id ? {
+					...item,
+					data: {
+						...item.data,
+						...patch
+					}
+				} : item), edges);
+			}, [
+				apply,
+				edges,
+				nodes
+			]);
+			const addNode = (0, react.useCallback)((kind) => {
+				if (kind === "pause" && mode === "mode2") return;
+				const label = kind === "agent" ? copy.nodeKinds.agent : kind === "step" ? copy.nodeKinds.step : kind === "task" ? copy.nodeKinds.task : copy.nodeKinds.pause;
+				const id = newId(kind);
+				const count = nodes.length;
+				const position = {
+					x: 120 + count % 4 * 240,
+					y: 120 + Math.floor(count / 4) * 160
+				};
+				const next = blankNode(kind, id, `${label} ${count + 1}`, position, void 0, mode);
+				apply([...nodes, {
+					...next,
+					data: {
+						...next.data,
+						label: `${label} ${count + 1}`
+					}
+				}], edges);
+				setSelectedNode(id);
+				setSelectedEdge(null);
+			}, [
+				apply,
+				copy.nodeKinds.agent,
+				copy.nodeKinds.pause,
+				copy.nodeKinds.task,
+				edges,
+				mode,
+				nodes
+			]);
+			const removeNode = (0, react.useCallback)((id) => {
+				const target = nodes.find((item) => item.id === id);
+				if (!target || target.kind === "start" || target.kind === "end") return;
+				apply(nodes.filter((item) => item.id !== id), edges.filter((edge) => edge.source !== id && edge.target !== id));
+				if (selectedNode === id) setSelectedNode(null);
+			}, [
+				apply,
+				edges,
+				nodes,
+				selectedNode
+			]);
+			const duplicateNode = (0, react.useCallback)(() => {
+				if (!selectedNode) return;
+				const target = nodes.find((item) => item.id === selectedNode);
+				if (!target || target.kind === "start" || target.kind === "end") return;
+				const copies = duplicateNodes(target, nodes, () => newId(target.kind), `${String(target.data.label ?? target.kind)} ${String(copy.subgraphCopySuffix)}`, {
+					x: target.position.x + 30,
+					y: target.position.y + 30
+				});
+				apply([...nodes, ...copies], edges);
+				setSelectedNode(copies[0]?.id ?? null);
+			}, [
+				apply,
+				edges,
+				nodes,
+				selectedNode
+			]);
+			const onConnect = (0, react.useCallback)((connection) => {
+				const edge = {
+					id: newId("line"),
+					source: connection.source,
+					target: connection.target,
+					sourceHandle: connection.sourceHandle,
+					targetHandle: connection.targetHandle,
+					...connection.appearance ? { appearance: connection.appearance } : {}
+				};
+				if (!connectionProblem(nodes, edges, edge).valid) return;
+				apply(nodes, [...edges, edge]);
+				setSelectedEdge(edge.id);
+				setSelectedNode(null);
+			}, [
+				apply,
+				edges,
+				nodes
+			]);
+			const tidyGraph = (0, react.useCallback)(() => {
+				const arranged = autoLayoutGraph(nodes, edges, { autoReferences: false });
+				apply(arranged.nodes, arranged.edges);
+				setSelectedNode(null);
+				setSelectedEdge(null);
+			}, [
+				apply,
+				edges,
+				nodes
+			]);
+			const routeGraph = (0, react.useCallback)(() => {
+				if (!edges.length) return;
+				apply(nodes, autoRouteEdges(edges));
+			}, [
+				apply,
+				edges,
+				nodes
+			]);
+			const selected = selectedNode ? nodes.find((item) => item.id === selectedNode) ?? null : null;
+			const selectedEdgeData = selectedEdge ? edges.find((item) => item.id === selectedEdge) ?? null : null;
+			const editorData = selected ? nodeEditorDataOf(selected, nodes, mode) : selectedEdgeData ? {
+				kind: "edge",
+				data: {
+					...selectedEdgeData,
+					availableChannels: availableConnectionChannels(nodes, selectedEdgeData)
+				},
+				name: ""
+			} : null;
+			const innerStart = nodes.filter((item) => item.kind === "start").length;
+			const innerEnd = nodes.filter((item) => item.kind === "end").length;
+			const patchEdge = (0, react.useCallback)((id, patch) => {
+				const channel = typeof patch.channel === "string" && [
+					"flow",
+					"ctx",
+					"db"
+				].includes(patch.channel) ? `${patch.channel}-` : "";
+				const next = edges.map((edge) => {
+					if (edge.id !== id) return edge;
+					const nextEdge = {
+						...edge,
+						...patch
+					};
+					if (channel) {
+						nextEdge.sourceHandle = `${channel}out`;
+						nextEdge.targetHandle = `${channel}in`;
+					}
+					if ("channel" in nextEdge) delete nextEdge.channel;
+					return nextEdge;
+				});
+				apply(nodes, next);
+			}, [
+				apply,
+				edges,
+				nodes
+			]);
+			const removeSelected = (0, react.useCallback)(() => {
+				if (selected) removeNode(selected.id);
+				else if (selectedEdgeData) {
+					apply(nodes, edges.filter((edge) => edge.id !== selectedEdgeData.id));
+					setSelectedEdge(null);
+				}
+			}, [
+				apply,
+				edges,
+				nodes,
+				removeNode,
+				selected,
+				selectedEdgeData
+			]);
+			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+				className: "wf-subgraph-editor",
+				title: String(copy.subgraphEditHint),
+				children: [
+					/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+						className: "wf-subgraph-editor__bar",
+						children: [
+							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+								type: "button",
+								className: "wf-subgraph-editor__back",
+								onClick: onClose,
+								children: String(copy.subgraphBack)
+							}),
+							/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+								className: "wf-subgraph-editor__title",
+								children: [
+									/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", { children: String(copy.nodeKinds.subgraph) }),
+									/* @__PURE__ */ (0, react_jsx_runtime.jsx)("strong", { children: String(node.data.label ?? copy.nodeKinds.subgraph) }),
+									/* @__PURE__ */ (0, react_jsx_runtime.jsx)("small", { children: `${String(copy.subgraphNodeCount)} ${nodes.length} · ${String(copy.subgraphLineCount)} ${edges.length}` })
+								]
+							}),
+							/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+								className: "wf-subgraph-editor__add",
+								children: [
+									/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+										type: "button",
+										className: "wf-btn is-ghost",
+										onClick: tidyGraph,
+										disabled: nodes.length === 0,
+										children: String(copy.tidy)
+									}),
+									/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+										type: "button",
+										className: "wf-btn is-ghost",
+										onClick: routeGraph,
+										disabled: edges.length === 0,
+										children: String(copy.autoRoute)
+									}),
+									/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("button", {
+										type: "button",
+										className: "wf-btn",
+										onClick: () => addNode("agent"),
+										children: ["+ ", String(copy.nodeKinds.agent)]
+									}),
+									/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("button", {
+										type: "button",
+										className: "wf-btn",
+										onClick: () => addNode("step"),
+										children: ["+ ", String(copy.nodeKinds.step)]
+									}),
+									/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("button", {
+										type: "button",
+										className: "wf-btn",
+										onClick: () => addNode("task"),
+										children: ["+ ", String(copy.nodeKinds.task)]
+									}),
+									mode === "mode1" ? /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("button", {
+										type: "button",
+										className: "wf-btn",
+										onClick: () => addNode("pause"),
+										children: ["+ ", String(copy.nodeKinds.pause)]
+									}) : null
+								]
+							})
+						]
+					}),
+					innerStart !== 1 || innerEnd < 1 ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+						className: "wf-subgraph-editor__warning",
+						children: String(copy.subgraphStructureHint)
+					}) : null,
+					/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+						className: "wf-subgraph-editor__body",
+						children: [
+							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+								className: "wf-subgraph-editor__canvas",
+								children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)(GraphCanvas, {
+									documentKey: `subgraph-editor:${node.id}`,
+									nodes,
+									edges,
+									copy,
+									mode,
+									selectedNode,
+									selectedEdge,
+									runStatusByNode: innerRunStatus,
+									highlightedNodeIds: innerRunningIds,
+									runtimeFocus,
+									onInit: (api) => {
+										if (!fitOnce.current) {
+											fitOnce.current = true;
+											requestAnimationFrame(() => api.fitView());
+										}
+									},
+									onNodeDragStart: () => {},
+									onNodeMove: (id, position) => apply(nodes.map((item) => item.id === id ? {
+										...item,
+										position
+									} : item), edges),
+									onNodeDropToGroup: () => {},
+									onNodeSelect: (id) => {
+										setSelectedNode(id);
+										setSelectedEdge(null);
+										setInspectorOpen(true);
+									},
+									onEdgeSelect: (id) => {
+										setSelectedEdge(id);
+										setSelectedNode(null);
+										setInspectorOpen(true);
+									},
+									onPaneClick: () => {
+										setSelectedNode(null);
+										setSelectedEdge(null);
+									},
+									onConnect,
+									onConnectionRejected: () => {},
+									onNodeDuplicate: duplicateNode,
+									onNodeDelete: removeNode,
+									onEdgeDelete: (id) => {
+										apply(nodes, edges.filter((edge) => edge.id !== id));
+										setSelectedEdge(null);
+									},
+									onGroupResize: (id, size) => apply(nodes.map((item) => item.id === id ? {
+										...item,
+										data: {
+											...item.data,
+											size
+										}
+									} : item), edges),
+									onSwapPorts: () => {},
+									fitLabel: String(copy.fitView),
+									zoomInLabel: String(copy.zoomIn),
+									zoomOutLabel: String(copy.zoomOut),
+									emptyHint: String(copy.subgraphEmpty),
+									workflowCaption: String(node.data.label ?? ""),
+									onOpenSubgraph: void 0
+								})
+							}),
+							!inspectorOpen ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+								type: "button",
+								className: "wf-subgraph-editor__inspector-open",
+								title: String(copy.inspectorExpand),
+								"aria-label": String(copy.inspectorExpand),
+								onClick: () => setInspectorOpen(true),
+								children: "‹"
+							}) : null,
+							/* @__PURE__ */ (0, react_jsx_runtime.jsx)(Inspector, {
+								copy,
+								open: inspectorOpen,
+								width: 300,
+								editorData,
+								presets,
+								models,
+								combos,
+								flowMeta: {
+									nodeCount: nodes.length,
+									revision: 0
+								},
+								flowTemplates,
+								maxActiveSubagents,
+								onPatch: (patch) => {
+									if (selected) patchNode(selected.id, patch);
+									else if (selectedEdgeData) patchEdge(selectedEdgeData.id, patch);
+								},
+								onDelete: removeSelected,
+								onCollapse: () => setInspectorOpen(false),
+								onSave: () => onSave?.(),
+								onCopyProxy: () => {},
+								onRemoveMember: (memberId) => {
+									if (!selected || selected.kind !== "group") return;
+									const memberIds = (selected.data.memberIds ?? []).filter((id) => id !== memberId);
+									patchNode(selected.id, { memberIds });
+								},
+								onFilesPicked: () => {},
+								onLoadMd: () => {},
+								onLoadGroupMd: () => {},
+								onTestDb: () => {},
+								saveDisabled: false,
+								importBusy: false
+							})
+						]
+					})
+				]
+			});
+		}
+		// src/client/components/sidebar/NodePalette.tsx
+		function NodePalette({ copy, nodes, kinds, references = false, query = "", disabled, onPlace, onBeginDrag }) {
+			const [referencesOpen, setReferencesOpen] = (0, react.useState)(false);
+			const roles = nodes.filter((node) => node.kind === "agent" || node.kind === "parent");
+			const matches = (label) => label.toLowerCase().includes(query.trim().toLowerCase());
+			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+				className: "wf-node-palette",
+				children: [
+					kinds.filter((kind) => matches(copy.nodeKinds[kind])).map((kind) => /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+						type: "button",
+						className: "wf-docitem",
+						"data-basic-node-kind": kind,
+						title: copy.addCardsHint,
+						disabled: disabled || (kind === "parent" || kind === "start") && nodes.some((node) => node.kind === kind),
+						onClick: (event) => {
+							if (event.detail === 0) onPlace(kind);
+						},
+						onPointerDown: (event) => onBeginDrag(event, {
+							label: copy.nodeKinds[kind],
+							onClick: () => onPlace(kind),
+							onDrop: (position) => onPlace(kind, position)
+						}),
+						children: copy.nodeKinds[kind]
+					}, kind)),
+					references && (matches(copy.nodeReference) || roles.some((node) => matches(String(node.data.label || node.id)))) ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+						type: "button",
+						className: "wf-docitem",
+						disabled: disabled || !roles.length,
+						title: !roles.length ? copy.referenceRequiresRole : copy.nodeReference,
+						"aria-expanded": referencesOpen,
+						onClick: () => setReferencesOpen(!referencesOpen),
+						children: copy.nodeReference
+					}) : null,
+					references && referencesOpen ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("ul", {
+						className: "wf-node-palette__references",
+						"aria-label": copy.referenceSource,
+						children: roles.filter((node) => matches(copy.nodeReference) || matches(String(node.data.label || node.id))).map((node) => /* @__PURE__ */ (0, react_jsx_runtime.jsx)("li", { children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+							type: "button",
+							title: String(node.data.label || node.id),
+							"data-reference-id": node.id,
+							onClick: (event) => {
+								if (event.detail === 0) {
+									onPlace("proxy", void 0, node.id);
+									setReferencesOpen(false);
+								}
+							},
+							onPointerDown: (event) => onBeginDrag(event, {
+								label: String(node.data.label || node.id),
+								onClick: () => {
+									onPlace("proxy", void 0, node.id);
+									setReferencesOpen(false);
+								},
+								onDrop: (position) => {
+									onPlace("proxy", position, node.id);
+									setReferencesOpen(false);
+								}
+							}),
+							children: String(node.data.label || node.id)
+						}) }, node.id))
+					}) : null
+				]
+			});
+		}
+		// src/client/components/sidebar/library-model.ts
+		/** 资产态「历史」分栏 key（左侧栏的折叠状态以这几个 key 为准；底栏不折叠）。
+		*  经验与资产同属资产态：归档后的条目同样落入默认折叠的历史分栏。 */
+		const ASSET_HISTORY_SECTIONS = {
+			workflow: "assetWorkflowHistory",
+			role: "assetRoleHistory",
+			experience: "assetExperienceHistory"
+		};
+		/** 四 Tag（与左栏一致；底栏以图标展示）。 */
+		const TAB_DEFS = [
+			{
+				key: "workflow",
+				icon: "▦"
+			},
+			{
+				key: "role",
+				icon: "◆"
+			},
+			{
+				key: "data",
+				icon: "▤"
+			},
+			{
+				key: "other",
+				icon: "⋯"
+			}
+		];
+		function truncate(value, limit) {
+			const text = String(value ?? "").trim();
+			return text.length > limit ? `${text.slice(0, limit)}…` : text || "—";
+		}
+		/** 角色模板卡副行：System Prompt 截断展示（不可编辑，超过 20 字截断；
+		*  从 .md 加载时显示所选 .md 文件名）。 */
+		function roleSubline(template) {
+			const source = String(template.systemPromptSource ?? "").trim();
+			if (source) return source;
+			return truncate(String(template.systemPrompt ?? ""), 20);
+		}
+		/** 任务模板卡副行：任务描述截断展示（单行省略）。 */
+		function taskSubline(template) {
+			return truncate(String(template.content ?? ""), 60);
+		}
+		/** 构造库内容模型（纯函数；不渲染，不读 DOM/时钟）。 */
+		function buildLibraryModel(input) {
+			const { copy: t, libTab, workflows, currentSessionId, flowTemplates, parentTemplate, roleTemplates, taskTemplates, databaseTemplates, groupTemplates, stageKinds, libSelection, onSelectWorkflow, onSelectFlowTemplate, onSelectFlowAsset, onOpenRoleAsset, onPlaceRoleAsset, onOpenExperience, onOpenPromptAsset, onSelectLib, onPlaceTemplate, onPlaceTemplateIntoGroup, onPlaceStage, onPlaceGroupFromTemplate, onPlaceParent } = input;
+			const librarySource = input.librarySource === "asset" ? "asset" : "template";
+			const assets = input.assets ?? {
+				workflows: [],
+				roles: []
+			};
+			const experiences = input.experiences ?? [];
+			const collapsedSections = input.collapsedSections ?? [];
+			const query = String(input.libSearch ?? "").trim().toLowerCase();
+			const searching = query !== "";
+			/** 搜索命中判定（任一字段包含关键词即命中；空关键词全命中）。 */
+			const hit = (...fields) => !searching || fields.some((field) => String(field ?? "").toLowerCase().includes(query));
+			const isActive = (kind, id) => libSelection?.kind === kind && libSelection?.id === id;
+			function card(key, kind, id, icon, name, sub, payload, pinned = false, runStatus, isCurrent = false) {
+				return {
+					key,
+					kind,
+					id,
+					icon,
+					name,
+					sub,
+					pinned,
+					runStatus,
+					isCurrent,
+					active: isActive(kind, id),
+					payload
+				};
+			}
+			/**
+			* 历史资产分栏（可折叠）。
+			* 折叠态由视图层持有的 `collapsedSections` 决定：搜索只做过滤，不因命中而自动展开
+			* ——«折叠»是一种显式隐藏行为，自动展开会让用户的展开/收起操作失去可预期性。
+			*/
+			function historySection(key, title, emptyText, cards) {
+				return {
+					key,
+					title,
+					plus: false,
+					emptyText,
+					collapsible: true,
+					collapsed: collapsedSections.includes(key),
+					cards
+				};
+			}
+			const sections = [];
+			if (librarySource === "asset") {
+				if (libTab === "workflow") {
+					sections.push({
+						key: "assetWorkflows",
+						title: t.assetActiveSection,
+						plus: false,
+						emptyText: t.assetEmptyHint,
+						cards: (assets.workflows ?? []).filter((item) => hit(item.name, item.description)).map((item) => card(item.assetId, "flowAsset", item.assetId, "▦", String(item.name ?? ""), item.description ? truncate(item.description, 60) : `v${item.versionId}`, {
+							label: String(item.name ?? ""),
+							onClick: () => onSelectFlowAsset?.(item.assetId),
+							onDrop: () => onSelectFlowAsset?.(item.assetId)
+						}))
+					});
+					sections.push(historySection(ASSET_HISTORY_SECTIONS.workflow, t.assetHistorySection, t.assetHistoryEmpty, (assets.retiredWorkflows ?? []).filter((item) => hit(item.name, item.description)).map((item) => card(item.assetId, "flowAsset", item.assetId, "▦", String(item.name ?? ""), item.description ? truncate(item.description, 60) : `v${item.versionId}`, {
+						label: String(item.name ?? ""),
+						onClick: () => onSelectFlowAsset?.(item.assetId)
+					}))));
+				} else if (libTab === "role") {
+					sections.push({
+						key: "assetRoles",
+						title: t.assetActiveSection,
+						plus: false,
+						emptyText: t.assetEmptyHint,
+						cards: (assets.roles ?? []).filter((item) => item.roleAssetType !== "inline").filter((item) => hit(item.name, item.summary)).map((item) => card(item.assetId, "roleAsset", item.assetId, "◆", String(item.name ?? ""), item.kind === "parent" ? t.parentAgent : String(t.roleAssetType[item.roleAssetType] || `v${item.versionId}`), {
+							label: String(item.name ?? ""),
+							onClick: () => onOpenRoleAsset?.(item.assetId),
+							onDrop: (position) => onPlaceRoleAsset?.(item.assetId, position ?? {
+								x: 120,
+								y: 80
+							})
+						}))
+					});
+					sections.push(historySection(ASSET_HISTORY_SECTIONS.role, t.assetHistorySection, t.assetHistoryEmpty, (assets.retiredRoles ?? []).filter((item) => hit(item.name, item.summary)).map((item) => card(item.assetId, "roleAsset", item.assetId, "◆", String(item.name ?? ""), item.kind === "parent" ? t.parentAgent : String(t.roleAssetType[item.roleAssetType] || `v${item.versionId}`), {
+						label: String(item.name ?? ""),
+						onClick: () => onOpenRoleAsset?.(item.assetId)
+					}))));
+				} else if (libTab === "data") {
+					const active = experiences.filter((item) => item.active);
+					const retired = experiences.filter((item) => !item.active);
+					const experienceCard = (item) => card(item.id, "experience", item.id, "✦", String(item.responsibility ?? ""), truncate(String(item.principle ?? ""), 60), {
+						label: String(item.responsibility ?? ""),
+						onClick: () => onOpenExperience?.(item.id)
+					});
+					const hits = (item) => hit(item.taskType, item.responsibility, item.decisionDomain, item.situation, item.trigger, item.principle, item.recommendedAction, item.evidence);
+					sections.push({
+						key: "assetExperiences",
+						title: t.experienceActiveSection,
+						plus: false,
+						emptyText: t.experienceEmptyHint,
+						cards: active.filter(hits).map(experienceCard)
+					});
+					sections.push(historySection(ASSET_HISTORY_SECTIONS.experience, t.experienceHistorySection, t.experienceHistoryEmpty, retired.filter(hits).map(experienceCard)));
+				} else if (libTab === "other") sections.push({
+					key: "assetPrompts",
+					title: t.promptAssetsSection,
+					plus: false,
+					emptyText: t.promptAssetsEmpty,
+					cards: (assets.prompts ?? []).filter((item) => hit(item.name, item.description, item.prompt)).map((item) => card(item.assetId, "promptAsset", item.assetId, "✎", String(item.name ?? ""), `${String(t.experienceTypeNames[item.experienceType] ?? item.experienceType)} · v${item.versionId}`, {
+						label: String(item.name ?? ""),
+						onClick: () => onOpenPromptAsset?.(item.assetId)
+					}))
+				});
+			} else if (libTab === "workflow") {
+				sections.push({
+					key: "instances",
+					title: t.flowInstances,
+					plus: false,
+					emptyText: t.libEmptyTemplates,
+					cards: (workflows ?? []).filter((item) => hit(item.name, item.description)).map((item) => card(item.id, "workflow", item.id, "▦", String(item.name ?? ""), item.description ? truncate(item.description, 60) : `${item.nodes?.length ?? 0} ${t.nodes}`, {
+						label: String(item.name ?? ""),
+						onClick: () => onSelectWorkflow(item.id),
+						onDrop: () => onSelectWorkflow(item.id)
+					}, false, item.runStatus, item.sessionId === currentSessionId))
+				});
+				sections.push({
+					key: "flowTemplates",
+					title: t.flowTemplates,
+					plus: true,
+					plusKind: "flowTemplate",
+					emptyText: t.libEmptyTemplates,
+					cards: (flowTemplates ?? []).filter((item) => hit(item.name, item.description)).map((item) => card(item.id, "workflowTemplate", item.id, "▦", String(item.name ?? ""), item.description ? truncate(item.description, 60) : `${item.nodes?.length ?? 0} ${t.nodes}`, {
+						label: String(item.name ?? ""),
+						onClick: () => onSelectFlowTemplate(item.id),
+						onDrop: () => onSelectFlowTemplate(item.id)
+					}))
+				});
+			} else if (libTab === "role") {
+				if (parentTemplate && hit(parentTemplate.name, parentTemplate.systemPrompt)) sections.push({
+					key: "parent",
+					title: t.parentAgent,
+					plus: false,
+					emptyText: t.libEmptyTemplates,
+					cards: [card(parentTemplate.id, "parentTemplate", parentTemplate.id, t.parentMarker, String(parentTemplate.name ?? t.parentAgent), roleSubline(parentTemplate), {
+						label: String(parentTemplate.name ?? t.parentAgent),
+						onClick: () => onSelectLib("parentTemplate", parentTemplate.id),
+						onDrop: (position) => onPlaceParent(parentTemplate.id, position ?? {
+							x: 120,
+							y: 80
+						})
+					}, false)]
+				});
+				sections.push({
+					key: "roles",
+					title: t.roleTemplates,
+					plus: true,
+					emptyText: t.libEmptyTemplates,
+					cards: (roleTemplates ?? []).filter((item) => hit(item.name, item.systemPrompt)).map((item) => card(item.id, "role", item.id, "◆", String(item.name ?? ""), roleSubline(item), {
+						label: String(item.name ?? ""),
+						onClick: () => onSelectLib("role", item.id),
+						onDrop: (position) => onPlaceTemplate("role", item.id, position ?? {
+							x: 120,
+							y: 80
+						}),
+						onDropIntoGroup: (groupId, position) => onPlaceTemplateIntoGroup("role", item.id, groupId, position ?? {
+							x: 120,
+							y: 80
+						})
+					}))
+				});
+			} else if (libTab === "data") {
+				sections.push({
+					key: "tasks",
+					title: t.tasks,
+					plus: true,
+					plusKind: "task",
+					emptyText: t.libEmptyTemplates,
+					cards: (taskTemplates ?? []).filter((item) => hit(item.name, item.content)).map((item) => card(item.id, "task", item.id, "▤", String(item.name ?? ""), taskSubline(item), {
+						label: String(item.name ?? ""),
+						onClick: () => onSelectLib("task", item.id),
+						onDrop: (position) => onPlaceTemplate("task", item.id, position ?? {
+							x: 120,
+							y: 80
+						})
+					}))
+				});
+				sections.push({
+					key: "databases",
+					title: t.databases,
+					plus: true,
+					plusKind: "database",
+					emptyText: t.libEmptyTemplates,
+					cards: (databaseTemplates ?? []).filter((item) => hit(item.name, item.description)).map((item) => card(item.id, "database", item.id, "▦", String(item.name ?? ""), truncate(String(item.description ?? ""), 60), {
+						label: String(item.name ?? ""),
+						onClick: () => onSelectLib("database", item.id),
+						onDrop: (position) => onPlaceTemplate("database", item.id, position ?? {
+							x: 120,
+							y: 80
+						})
+					}))
+				});
+			} else {
+				sections.push({
+					key: "stages",
+					title: t.stages,
+					plus: false,
+					emptyText: t.libEmptyTemplates,
+					cards: (stageKinds ?? []).filter((item) => hit(item.label)).map((card0) => card(card0.kind, "stage", card0.kind, "⬢", String(card0.label), String(t.stagePinHint), {
+						label: String(card0.label),
+						onClick: () => onSelectLib("stage", card0.kind),
+						onDrop: (position) => onPlaceStage(card0.kind, position ?? {
+							x: 120,
+							y: 80
+						})
+					}))
+				});
+				sections.push({
+					key: "groups",
+					title: t.groupTemplates,
+					plus: true,
+					plusKind: "group",
+					emptyText: t.libEmptyTemplates,
+					cards: (groupTemplates ?? []).filter((item) => hit(item.name, item.collabPrompt)).map((item) => card(item.id, "groupTemplate", item.id, "☰", String(item.name ?? ""), truncate(String(item.collabPrompt ?? ""), 60), {
+						label: String(item.name ?? ""),
+						onClick: () => onSelectLib("groupTemplate", item.id),
+						onDrop: (position) => onPlaceGroupFromTemplate(item.id, position ?? {
+							x: 120,
+							y: 80
+						})
+					}))
+				});
+			}
+			let emptyHint = null;
+			const matched = sections.some((section) => section.cards.length > 0);
+			if (searching && !matched) emptyHint = t.searchNoResult;
+			const visible = searching ? sections.filter((section) => section.cards.length > 0) : sections;
+			return {
+				tabs: TAB_DEFS.map((def) => ({
+					...def,
+					label: librarySource === "asset" && def.key === "data" ? t.libTabExperience : t.libTab[def.key]
+				})),
+				sections: visible,
+				emptyHint
+			};
+		}
+		// src/client/components/sidebar/LeftPanel.tsx
+		/** 库来源切换标签（模版 / 资产；两个标签，is-active 切状态）。 */
+		const SOURCE_DEFS = [{
+			key: "template",
+			labelKey: "libSourceTemplate"
+		}, {
+			key: "asset",
+			labelKey: "libSourceAsset"
+		}];
+		function LeftPanel(props) {
+			const { copy: t, libTab, onSetTab, librarySource, onSetLibrarySource, libSearch, onSetLibSearch, open, width, onCreateNew, onBeginDrag } = props;
+			/**
+			* 分栏折叠态（纯渲染态，属组件本地状态）：历史分栏默认折叠，用户可手动展开。
+			* 不做持久化——折叠是「这次的查看方式」，把它写进业务状态会让状态机承担界面呈现细节。
+			*/
+			const [collapsedSections, setCollapsedSections] = (0, react.useState)(() => [
+				ASSET_HISTORY_SECTIONS.workflow,
+				ASSET_HISTORY_SECTIONS.role,
+				ASSET_HISTORY_SECTIONS.experience
+			]);
+			const toggleSection = (key) => {
+				setCollapsedSections((previous) => previous.includes(key) ? previous.filter((item) => item !== key) : [...previous, key]);
+			};
+			const model = buildLibraryModel({
+				...props,
+				collapsedSections
+			});
+			const allSections = buildLibraryModel({
+				...props,
+				libSearch: "",
+				collapsedSections
+			}).sections;
+			const basicKinds = (section) => {
+				if (section === "parent") return ["parent"];
+				if (section === "roles") return allSections.some((item) => item.key === "parent") ? ["agent"] : ["agent", "parent"];
+				if (section === "tasks") return ["task", "step"];
+				if (section === "databases") return ["database"];
+				if (section === "groups") return ["group", "subgraph"];
+				if (section === "stages") return props.mode === "mode1" ? [
+					"start",
+					"end",
+					"pause"
+				] : ["start", "end"];
+				return [];
+			};
+			const query = libSearch.trim().toLowerCase();
+			const sections = props.onPlaceBasicNode && librarySource === "template" && query ? allSections.map((section) => model.sections.find((item) => item.key === section.key) ?? {
+				...section,
+				cards: []
+			}).filter((section) => section.cards.length || basicKinds(section.key).some((kind) => t.nodeKinds[kind].toLowerCase().includes(query)) || section.key === "roles" && (t.nodeReference.toLowerCase().includes(query) || props.canvasNodes?.some((node) => (node.kind === "agent" || node.kind === "parent") && String(node.data.label || node.id).toLowerCase().includes(query)))) : model.sections;
+			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("aside", {
+				className: `wf-docrail${open ? "" : " is-collapsed"}`,
+				style: { width: open ? width : void 0 },
+				children: [
+					/* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+						className: "wf-lib-tabs",
+						role: "tablist",
+						children: model.tabs.map((def) => /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+							type: "button",
+							role: "tab",
+							title: def.label,
+							"aria-label": def.label,
+							className: `wf-lib-tab${libTab === def.key ? " is-active" : ""}`,
+							onClick: () => onSetTab(def.key),
+							children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", { children: def.label })
+						}, def.key))
+					}),
+					/* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+						className: "wf-lib-search",
+						children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)("input", {
+							type: "search",
+							className: "wf-lib-search__input",
+							"aria-label": t.libSearchAria,
+							placeholder: t.libSearchPlaceholder,
+							value: libSearch,
+							onChange: (event) => onSetLibSearch(event.target.value)
+						})
+					}),
+					/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+						className: "wf-docrail__list",
+						children: [
+							props.onPlaceBasicNode && !props.canPlaceNodes ? /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("button", {
+								className: "wf-docitem",
+								type: "button",
+								onClick: () => onCreateNew("workflow", "flowTemplate"),
+								children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+									className: "wf-docitem__icon",
+									"aria-hidden": "true",
+									children: "＋"
+								}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+									className: "wf-docitem__texts",
+									children: t.newWorkflow
+								})]
+							}) : null,
+							model.emptyHint && !sections.length ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+								className: "wf-hint",
+								children: model.emptyHint
+							}) : null,
+							sections.map((section) => /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", { children: [
+								/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+									className: "wf-docgroup",
+									children: [section.collapsible ? /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("button", {
+										type: "button",
+										className: `wf-docgroup__toggle${section.collapsed ? " is-collapsed" : ""}`,
+										"aria-expanded": section.collapsed !== true,
+										title: section.collapsed ? t.libSectionExpand : t.libSectionCollapse,
+										onClick: () => toggleSection(section.key),
+										children: [
+											/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+												className: "wf-docgroup__title",
+												children: section.title
+											}),
+											section.collapsed === true && section.cards.length > 0 ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+												className: "wf-docgroup__count",
+												children: section.cards.length
+											}) : null,
+											/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+												className: "wf-docgroup__caret",
+												"aria-hidden": "true"
+											})
+										]
+									}) : /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", { children: section.title }), section.plus ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+										type: "button",
+										className: "wf-docgroup__add",
+										title: t.newTemplate,
+										onClick: () => onCreateNew(libTab, section.plusKind),
+										children: "＋"
+									}) : null]
+								}),
+								props.onPlaceBasicNode && librarySource === "template" && section.collapsed !== true ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)(NodePalette, {
+									copy: t,
+									nodes: props.canvasNodes ?? [],
+									kinds: basicKinds(section.key),
+									references: section.key === "roles",
+									query: libSearch,
+									disabled: !props.canPlaceNodes,
+									onPlace: props.onPlaceBasicNode,
+									onBeginDrag
+								}) : null,
+								section.collapsed === true || props.onPlaceBasicNode && librarySource === "template" && section.key === "stages" ? null : section.cards.length === 0 ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+									className: "wf-hint",
+									style: { padding: "2px 8px" },
+									children: section.emptyText
+								}) : section.cards.map((item) => {
+									const statusText = statusLabelOf(t, item.runStatus);
+									return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("button", {
+										type: "button",
+										className: `wf-docitem${item.pinned ? " is-pinned" : ""}${item.active ? " is-active" : ""}`,
+										onPointerDown: (event) => onBeginDrag(event, item.payload),
+										children: [
+											/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+												className: "wf-docitem__icon",
+												children: item.icon
+											}),
+											/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("span", {
+												className: "wf-docitem__texts",
+												children: [/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("span", {
+													className: "wf-docitem__title-row",
+													children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+														className: "wf-docitem__label",
+														children: item.name
+													}), item.isCurrent ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+														className: "wf-docitem__badge is-current",
+														children: t.currentSessionBadge
+													}) : null]
+												}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+													className: "wf-docitem__path",
+													children: item.sub
+												})]
+											}),
+											statusText ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+												className: "wf-docitem__badge",
+												children: statusText
+											}) : null
+										]
+									}, item.key);
+								})
+							] }, section.key))
+						]
+					}),
+					/* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+						className: "wf-lib-source",
+						role: "tablist",
+						"aria-label": t.libSourceAria,
+						children: SOURCE_DEFS.map((def) => /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+							type: "button",
+							role: "tab",
+							"aria-selected": librarySource === def.key,
+							className: `wf-lib-source__tab${librarySource === def.key ? " is-active" : ""}`,
+							onClick: () => onSetLibrarySource(def.key),
+							children: t[def.labelKey]
+						}, def.key))
+					})
+				]
+			});
+		}
+		// src/client/components/sidebar/BottomPanel.tsx
+		function BottomPanel(props) {
+			const { copy: t, libTab, onSetTab, libSearch, onSetLibSearch, open, height, onCreateNew, onBeginDrag } = props;
+			const model = buildLibraryModel(props);
+			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("aside", {
+				className: `wf-bottombar${open ? "" : " is-collapsed"}`,
+				style: { height: open ? height : void 0 },
+				children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+					className: "wf-bottombar__tags",
+					role: "tablist",
+					children: model.tabs.map((def) => /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+						type: "button",
+						role: "tab",
+						title: def.label,
+						"aria-label": def.label,
+						className: `wf-bottombar__tag${libTab === def.key ? " is-active" : ""}`,
+						onClick: () => onSetTab(def.key),
+						children: def.label
+					}, def.key))
+				}), /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+					className: "wf-bottombar__scroll",
+					children: [
+						/* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+							className: "wf-lib-search wf-lib-search--bottom",
+							children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)("input", {
+								type: "search",
+								className: "wf-lib-search__input",
+								"aria-label": t.libSearchAria,
+								placeholder: t.libSearchPlaceholder,
+								value: libSearch,
+								onChange: (event) => onSetLibSearch(event.target.value)
+							})
+						}),
+						model.emptyHint ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+							className: "wf-hint",
+							children: model.emptyHint
+						}) : null,
+						model.sections.map((section) => /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+							className: "wf-bottombar__section",
+							children: [/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+								className: "wf-bottombar__group",
+								children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+									className: "wf-bottombar__group-title",
+									children: section.title
+								}), section.plus ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+									type: "button",
+									className: "wf-docgroup__add",
+									title: t.newTemplate,
+									onClick: () => onCreateNew(libTab, section.plusKind),
+									children: "＋"
+								}) : null]
+							}), section.cards.length === 0 ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+								className: "wf-hint",
+								children: section.emptyText
+							}) : /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+								className: "wf-bottombar__cards",
+								children: section.cards.map((item) => /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+									type: "button",
+									className: `wf-hcard${item.active ? " is-active" : ""}`,
+									onPointerDown: (event) => onBeginDrag(event, item.payload),
+									children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+										className: "wf-hcard__name",
+										children: item.name
+									})
+								}, item.key))
+							})]
+						}, section.key))
+					]
+				})]
+			});
+		}
+		// src/client/components/toolbar/Toolbar.tsx
+		function Toolbar(props) {
+			const { copy: t, mode, panelsCollapsed, onTogglePanels, saveLabel, onUndo, onRedo, onClear, canClear, clearTitle, onTidy, canTidy, onRoute, canRoute, onSave, canSave, running, stopping, canContinue, onStop, onRun, onOpenHistory, canHistory, serviceStatus, showNewSession, instanceOptions, onInstanceOptionsChange, onEditWorkingDirectory } = props;
+			const isMode2 = mode === "mode2";
+			const [autoReferences, setAutoReferences] = (0, react.useState)(Boolean(props.hasAutomaticReferences));
+			const layoutBubbleId = (0, react.useId)();
+			const layoutBubbleRef = (0, react.useRef)(null);
+			const bubbleTimer = (0, react.useRef)(null);
+			const cancelBubbleClose = () => {
+				if (bubbleTimer.current) clearTimeout(bubbleTimer.current);
+				bubbleTimer.current = null;
+			};
+			const showLayoutBubble = () => {
+				cancelBubbleClose();
+				layoutBubbleRef.current?.showPopover?.();
+			};
+			const closeLayoutBubble = () => {
+				cancelBubbleClose();
+				layoutBubbleRef.current?.hidePopover?.();
+			};
+			const scheduleBubbleClose = () => {
+				cancelBubbleClose();
+				bubbleTimer.current = setTimeout(() => {
+					bubbleTimer.current = null;
+					layoutBubbleRef.current?.hidePopover?.();
+				}, 160);
+			};
+			(0, react.useEffect)(() => () => {
+				if (bubbleTimer.current) clearTimeout(bubbleTimer.current);
+			}, []);
+			const statusText = isMode2 && serviceStatus ? serviceStatus.status === "running" ? serviceStatus.port ? `${t.serviceRunning} · ${serviceStatus.port}` : t.serviceStarting : serviceStatus.status === "crashed" ? t.serviceCrashed : t.serviceStopped : null;
+			const statusRunning = serviceStatus?.status === "running";
+			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+				className: "wf-toolbar",
+				children: [
+					/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+						type: "button",
+						className: `wf-btn wf-iconbtn is-ghost wf-toolbar__panels${panelsCollapsed ? " is-collapsed" : ""}`,
+						title: t.togglePanels,
+						"aria-label": t.togglePanels,
+						onClick: onTogglePanels,
+						children: /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("svg", {
+							viewBox: "0 0 24 24",
+							width: "16",
+							height: "16",
+							"aria-hidden": "true",
+							style: { color: "currentColor" },
+							children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("path", {
+								fill: "none",
+								stroke: "currentColor",
+								strokeWidth: "2",
+								d: "M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"
+							}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("path", {
+								fill: "none",
+								stroke: "currentColor",
+								strokeWidth: "2",
+								d: "M9 5v14M15 5v14"
+							})]
+						})
+					}),
+					/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+						type: "button",
+						className: "wf-btn wf-iconbtn is-ghost",
+						title: `${t.undo} · Ctrl/Cmd+Z`,
+						"aria-label": t.undo,
+						onClick: onUndo,
+						children: "↶"
+					}),
+					/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+						type: "button",
+						className: "wf-btn wf-iconbtn is-ghost",
+						title: `${t.redo} · Ctrl/Cmd+Shift+Z`,
+						"aria-label": t.redo,
+						onClick: onRedo,
+						children: "↷"
+					}),
+					/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+						type: "button",
+						className: "wf-btn is-ghost",
+						title: clearTitle,
+						onClick: onClear,
+						disabled: !canClear,
+						children: t.clear
+					}),
+					/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+						className: "wf-layout-control",
+						onPointerEnter: showLayoutBubble,
+						onPointerLeave: scheduleBubbleClose,
+						onBlurCapture: (event) => {
+							if (!event.currentTarget.contains(event.relatedTarget)) scheduleBubbleClose();
+						},
+						onKeyDown: (event) => {
+							if (event.key === "Escape") {
+								event.stopPropagation();
+								closeLayoutBubble();
+							}
+						},
+						children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+							type: "button",
+							className: "wf-btn is-ghost wf-layout-anchor",
+							title: t.tidy,
+							"aria-controls": layoutBubbleId,
+							onFocus: showLayoutBubble,
+							onClick: () => onTidy({ autoReferences: autoReferences && !running }),
+							disabled: !canTidy,
+							children: t.tidy
+						}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+							id: layoutBubbleId,
+							ref: layoutBubbleRef,
+							className: "wf-layout-popover",
+							popover: "manual",
+							role: "group",
+							"aria-label": t.autoLayoutOptions,
+							onPointerEnter: cancelBubbleClose,
+							onPointerLeave: scheduleBubbleClose,
+							children: /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("label", {
+								className: "wf-layout-options",
+								title: t.autoLayoutReferencesHint,
+								children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("input", {
+									type: "checkbox",
+									checked: autoReferences,
+									onChange: (event) => setAutoReferences(event.target.checked),
+									disabled: running || !canTidy
+								}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", { children: t.autoLayoutReferences })]
+							})
+						})]
+					}),
+					/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+						type: "button",
+						className: "wf-btn is-ghost",
+						title: t.autoRouteHint,
+						onClick: onRoute,
+						disabled: !canRoute,
+						children: t.autoRoute
+					}),
+					/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+						type: "button",
+						className: "wf-btn",
+						onClick: onSave,
+						disabled: !canSave,
+						children: saveLabel
+					}),
+					running || stopping ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+						type: "button",
+						className: "wf-btn is-danger",
+						onClick: onStop,
+						disabled: stopping,
+						"aria-busy": Boolean(stopping),
+						children: stopping ? t.stoppingRun : t.stop
+					}) : /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+						type: "button",
+						className: "wf-btn is-primary",
+						onClick: onRun,
+						disabled: !canSave,
+						children: isMode2 ? t.startService : canContinue ? t.continueRun : t.run
+					}),
+					/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+						type: "button",
+						className: "wf-btn is-ghost",
+						onClick: onOpenHistory,
+						disabled: !canHistory,
+						children: t.history
+					}),
+					onEditWorkingDirectory ? /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("button", {
+						type: "button",
+						className: "wf-btn is-ghost",
+						onClick: onEditWorkingDirectory,
+						children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("svg", {
+							width: "14",
+							height: "14",
+							viewBox: "0 0 24 24",
+							"aria-hidden": "true",
+							children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)("path", {
+								fill: "none",
+								stroke: "currentColor",
+								strokeWidth: "1.5",
+								strokeLinecap: "round",
+								strokeLinejoin: "round",
+								d: "M3 8V5a2 2 0 0 1 2-2h4l2 3h8a2 2 0 0 1 2 2v2M3 8h18l-3 12H5L2 10a2 2 0 0 1 1-2Z"
+							})
+						}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", { children: t.sessionWorkingDirectory })]
+					}) : null,
+					statusText ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+						className: `wf-status${statusRunning ? " is-running" : ""}`,
+						children: statusText
+					}) : null,
+					showNewSession ? /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("label", {
+						className: "wf-toolbar__switch",
+						title: t.newSessionHint,
+						children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("input", {
+							type: "checkbox",
+							checked: instanceOptions.newSession,
+							onChange: (event) => onInstanceOptionsChange({ newSession: event.target.checked })
+						}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", { children: t.newSession })]
+					}) : null
+				]
+			});
+		}
+		// src/client/components/modal/Modal.tsx
+		/** 打开中的弹层（登记顺序不可作为层级依据，见 isCovered）。 */
+		const openModals = [];
+		/**
+		* 是否有另一个打开中的弹层盖在本弹层之上。
+		* 为什么不能只看登记顺序：真嵌套弹层（如组合管理里的「从 mcp.json 导入」）的 effect 是
+		* 子先父后执行，登记顺序与视觉层级相反；故同时按 DOM 包含关系判定。
+		*   - 本弹层内含的弹层（真嵌套的子弹层）在上；
+		*   - 包含本弹层的祖先弹层在下（它是容器，不算覆盖）；
+		*   - 互不包含时，后登记（后打开）者在上。
+		*/
+		function isCovered(dialog, index) {
+			return openModals.some((other, otherIndex) => {
+				if (other === dialog) return false;
+				if (dialog.contains(other)) return true;
+				if (other.contains(dialog)) return false;
+				return otherIndex > index;
+			});
+		}
+		/** 可聚焦元素（不含 disabled 与 tabindex="-1"）。 */
+		const FOCUSABLE = "a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex=\"-1\"])";
+		function Modal({ className, backdropClassName, label, onClose, children }) {
+			const dialogRef = (0, react.useRef)(null);
+			const onCloseRef = (0, react.useRef)(onClose);
+			(0, react.useEffect)(() => {
+				onCloseRef.current = onClose;
+			}, [onClose]);
+			(0, react.useEffect)(() => {
+				const dialog = dialogRef.current;
+				if (!dialog) return void 0;
+				const previouslyFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+				openModals.push(dialog);
+				if (!isCovered(dialog, openModals.length - 1)) dialog.focus();
+				const onKeyDown = (event) => {
+					if (isCovered(dialog, openModals.indexOf(dialog))) return;
+					if (event.key === "Escape") {
+						event.preventDefault();
+						onCloseRef.current();
+						return;
+					}
+					if (event.key !== "Tab") return;
+					const focusables = [...dialog.querySelectorAll(FOCUSABLE)];
+					if (focusables.length === 0) {
+						event.preventDefault();
+						dialog.focus();
+						return;
+					}
+					const first = focusables[0];
+					const last = focusables[focusables.length - 1];
+					const active = document.activeElement;
+					const inside = active !== dialog && dialog.contains(active);
+					if (event.shiftKey) {
+						if (!inside || active === first) {
+							event.preventDefault();
+							last.focus();
+						}
+					} else if (!inside || active === last) {
+						event.preventDefault();
+						first.focus();
+					}
+				};
+				document.addEventListener("keydown", onKeyDown);
+				return () => {
+					document.removeEventListener("keydown", onKeyDown);
+					const index = openModals.lastIndexOf(dialog);
+					if (index >= 0) openModals.splice(index, 1);
+					if (previouslyFocused && document.contains(previouslyFocused)) previouslyFocused.focus();
+				};
+			}, []);
+			return /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+				className: backdropClassName,
+				children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+					ref: dialogRef,
+					className: `wf-modal ${className}`,
+					role: "dialog",
+					"aria-modal": "true",
+					"aria-label": label,
+					tabIndex: -1,
+					children
+				})
+			});
+		}
+		// src/client/components/confirm-dialog/ConfirmDialog.tsx
+		function ConfirmDialog({ confirm, copy, onClose, onSaveAndProceed, onDiscardAndProceed, onResolveImport }) {
+			if (!confirm) return null;
+			const title = confirm.kind === "unsaved" ? copy.unsavedTitle : confirm.kind === "importConflict" ? copy.importConflictTitle : confirm.title ?? copy.confirmDelete;
+			const message = confirm.kind === "unsaved" ? copy.unsavedMessage : confirm.message ?? "";
+			const actions = confirm.kind === "unsaved" ? [
+				/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+					type: "button",
+					className: "wf-btn is-primary",
+					onClick: onSaveAndProceed,
+					children: copy.unsavedSave
+				}, "save"),
+				/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+					type: "button",
+					className: "wf-btn is-danger",
+					onClick: onDiscardAndProceed,
+					children: copy.unsavedDiscard
+				}, "discard"),
+				/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+					type: "button",
+					className: "wf-btn",
+					onClick: onClose,
+					children: copy.unsavedCancel
+				}, "cancel")
+			] : confirm.kind === "importConflict" ? [
+				/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+					type: "button",
+					className: "wf-btn is-danger",
+					onClick: () => onResolveImport("overwrite"),
+					children: copy.importOverwrite
+				}, "overwrite"),
+				/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+					type: "button",
+					className: "wf-btn",
+					onClick: () => onResolveImport("rename"),
+					children: copy.importRename
+				}, "rename"),
+				/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+					type: "button",
+					className: "wf-btn",
+					onClick: onClose,
+					children: copy.importCancel
+				}, "cancel")
+			] : [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+				type: "button",
+				className: "wf-btn is-danger",
+				onClick: () => {
+					const handler = confirm.onConfirm;
+					onClose();
+					handler?.();
+				},
+				children: confirm.confirmLabel ?? copy.inspectorDelete
+			}, "ok"), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+				type: "button",
+				className: "wf-btn",
+				onClick: onClose,
+				children: copy.unsavedCancel
+			}, "cancel")];
+			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)(Modal, {
+				className: "wf-confirm",
+				backdropClassName: "wf-confirm-backdrop",
+				label: String(title),
+				onClose,
+				children: [
+					/* @__PURE__ */ (0, react_jsx_runtime.jsx)("h3", { children: title }),
+					/* @__PURE__ */ (0, react_jsx_runtime.jsx)("p", { children: message }),
+					/* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+						className: "wf-confirm__actions",
+						children: actions
+					})
+				]
+			});
+		}
+		// src/client/components/run-history/RunHistory.tsx
+		/** 运行历史里的状态文案：词典缺失时回退状态码原文（便于识别新状态）。 */
+		function statusLabel(status, copy) {
+			return statusLabelOf(copy, status) || String(status ?? "");
+		}
+		function formatTime(value) {
+			if (!value) return "";
+			try {
+				const date = new Date(value);
+				if (Number.isNaN(date.getTime())) return String(value);
+				return date.toLocaleString();
+			} catch {
+				return String(value);
+			}
+		}
+		const RESUMABLE = new Set(RESUMABLE_RUN_STATUSES);
+		function RunHistory({ history, selectedRunId, copy, onSelect, onClose, onResume, canResume }) {
+			const items = Array.isArray(history) ? history : [];
+			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)(Modal, {
+				className: "wf-history",
+				backdropClassName: "wf-history-backdrop",
+				label: String(copy.history),
+				onClose,
+				children: [
+					/* @__PURE__ */ (0, react_jsx_runtime.jsx)("h3", { children: copy.history }),
+					items.length === 0 ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("p", {
+						style: {
+							color: "var(--wf-ink-2)",
+							fontSize: 12
+						},
+						children: copy.historyEmpty
+					}) : /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+						className: "wf-history__list",
+						children: items.map((run) => {
+							const resumable = canResume && RESUMABLE.has(run.status);
+							return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+								className: `wf-history__item${run.id === selectedRunId ? " is-active" : ""}`,
+								children: [/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("button", {
+									type: "button",
+									className: "wf-history__select",
+									onClick: () => onSelect(run.id),
+									children: [
+										/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("span", {
+											className: "wf-history__title",
+											children: [
+												/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", { className: `wf-status-dot${run.status === "running" ? " is-running" : ""}` }),
+												`${run.flowName ?? run.flowId}`,
+												run.resumedFromRunId ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+													className: "wf-history__chain",
+													children: `${copy.resumedFrom} #${String(run.resumedFromRunId).slice(0, 8)}`
+												}) : null
+											]
+										}),
+										/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+											className: "wf-history__meta",
+											children: `${statusLabel(run.status, copy)} · ${formatTime(run.startedAt)}${run.resumeFromNodeId ? ` · ${copy.resumeFromNode} ${run.resumeFromNodeId}` : ""}${run.summary ? ` · ${run.summary}` : ""}`
+										}),
+										run.nodes?.length ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+											className: "wf-history__meta",
+											children: run.nodes.map((node) => `${node.nodeId}:${statusLabel(node.status, copy)}`).join("  ")
+										}) : null
+									]
+								}), resumable ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+									className: "wf-history__resume",
+									children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+										type: "button",
+										className: "wf-btn is-primary",
+										onClick: () => onResume(run.id),
+										children: copy.resumeRun
+									})
+								}) : null]
+							}, run.id);
+						})
+					}),
+					/* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+						className: "wf-history__actions",
+						children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+							type: "button",
+							className: "wf-btn",
+							onClick: onClose,
+							children: "✕"
+						})
+					})
+				]
+			});
+		}
+		// src/client/components/service-console/ServiceConsole.tsx
+		function ServiceConsole({ copy, service, busy, debug }) {
+			const [prompt, setPrompt] = (0, react.useState)("");
+			const outputRef = (0, react.useRef)(null);
+			(0, react.useEffect)(() => {
+				const node = outputRef.current;
+				if (node) node.scrollTop = node.scrollHeight;
+			}, [debug.output]);
+			const running = (service?.status ?? "stopped") === "running";
+			if (!service || !running) return null;
+			return /* @__PURE__ */ (0, react_jsx_runtime.jsx)("section", {
+				className: "wf-service-console",
+				children: /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+					className: "wf-service-console__debug",
+					children: [
+						/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+							className: "wf-service-console__debug-head",
+							children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+								className: "wf-service-console__debug-title",
+								children: copy.serviceDebugTitle
+							}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+								className: "wf-hint",
+								children: copy.serviceDebugHint
+							})]
+						}),
+						/* @__PURE__ */ (0, react_jsx_runtime.jsx)("textarea", {
+							className: "wf-service-console__input",
+							value: prompt,
+							rows: 2,
+							placeholder: copy.serviceDebugPlaceholder,
+							disabled: busy,
+							onChange: (event) => setPrompt(event.target.value),
+							onKeyDown: (event) => {
+								if (event.key === "Enter" && !event.shiftKey) {
+									event.preventDefault();
+									debug.send(prompt);
+								}
+							}
+						}),
+						/* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+							className: "wf-service-console__debug-actions",
+							children: debug.streaming ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+								type: "button",
+								className: "wf-btn is-danger",
+								onClick: debug.stop,
+								children: copy.serviceDebugStop
+							}) : /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+								type: "button",
+								className: "wf-btn is-primary",
+								onClick: () => debug.send(prompt),
+								disabled: busy || !prompt.trim(),
+								children: copy.serviceDebugSend
+							})
+						}),
+						/* @__PURE__ */ (0, react_jsx_runtime.jsx)("pre", {
+							ref: outputRef,
+							className: "wf-service-console__output",
+							children: debug.output || copy.serviceDebugEmpty
+						})
+					]
+				})
+			});
+		}
+		// src/client/hooks/useToolCombos.ts
+		const EMPTY_CATALOG = {
+			items: [],
+			mcp: [],
+			loadedPlugins: [],
+			disabledTools: []
+		};
+		function useToolCombos(remote, sessionId) {
+			const [catalog, setCatalog] = (0, react.useState)(EMPTY_CATALOG);
+			const [combos, setCombos] = (0, react.useState)([]);
+			const [disabledTools, setDisabledTools] = (0, react.useState)(/* @__PURE__ */ new Set());
+			const [busy, setBusy] = (0, react.useState)(false);
+			const mountedRef = (0, react.useRef)(true);
+			(0, react.useEffect)(() => {
+				mountedRef.current = true;
+				return () => {
+					mountedRef.current = false;
+				};
+			}, []);
+			/** 单次请求的统一 busy 与挂载校验包装。 */
+			const run = (0, react.useCallback)(async (task) => {
+				setBusy(true);
+				try {
+					const result = await task();
+					return mountedRef.current ? result : null;
+				} finally {
+					if (mountedRef.current) setBusy(false);
+				}
+			}, []);
+			const load = (0, react.useCallback)(async () => {
+				const [catalogData, combosData] = await Promise.all([remote.call(EP_PLUGIN_CATALOG, { sessionId }).catch(() => EMPTY_CATALOG), remote.call(EP_TOOL_COMBOS).catch(() => [])]);
+				const cat = catalogData ?? {};
+				const nextCatalog = {
+					items: Array.isArray(cat.items) ? cat.items : [],
+					mcp: Array.isArray(cat.mcp) ? cat.mcp : [],
+					loadedPlugins: Array.isArray(cat.loadedPlugins) ? cat.loadedPlugins : [],
+					disabledTools: Array.isArray(cat.disabledTools) ? cat.disabledTools : []
+				};
+				const nextCombos = Array.isArray(combosData) ? combosData : [];
+				if (mountedRef.current) {
+					setCatalog(nextCatalog);
+					setDisabledTools(new Set(nextCatalog.disabledTools));
+					setCombos(nextCombos);
+				}
+				return {
+					catalog: nextCatalog,
+					combos: nextCombos
+				};
+			}, [remote, sessionId]);
+			return {
+				catalog,
+				combos,
+				disabledTools,
+				busy,
+				load,
+				saveCombo: (0, react.useCallback)(async (combo) => {
+					await run(async () => {
+						await remote.call(EP_TOOL_COMBO_PUT, { combo });
+						await load();
+					});
+				}, [
+					load,
+					remote,
+					run
+				]),
+				deleteCombo: (0, react.useCallback)(async (id) => {
+					await run(async () => {
+						await remote.call(EP_TOOL_COMBO_DELETE, { id });
+						await load();
+					});
+				}, [
+					load,
+					remote,
+					run
+				]),
+				setToolDisabled: (0, react.useCallback)(async (name, disabled) => {
+					const list = await run(async () => {
+						const response = await remote.call("toolSwitchPut", {
+							name,
+							disabled
+						});
+						return Array.isArray(response?.disabled) ? response.disabled.map((item) => String(item)) : [];
+					}) ?? [];
+					if (mountedRef.current) setDisabledTools(new Set(list));
+					return list;
+				}, [remote, run]),
+				setToolsDisabled: (0, react.useCallback)(async (names, disabled) => {
+					const list = await run(async () => {
+						const response = await remote.call("toolSwitchPutMany", {
+							names,
+							disabled
+						});
+						return Array.isArray(response?.disabled) ? response.disabled.map((item) => String(item)) : [];
+					}) ?? [];
+					if (mountedRef.current) setDisabledTools(new Set(list));
+					return list;
+				}, [remote, run]),
+				saveMcp: (0, react.useCallback)(async (server) => {
+					await run(async () => {
+						await remote.call(EP_MCP_PUT, { server });
+						await load();
+					});
+				}, [
+					load,
+					remote,
+					run
+				]),
+				deleteMcp: (0, react.useCallback)(async (id) => {
+					await run(async () => {
+						await remote.call(EP_MCP_DELETE, { id });
+						await load();
+					});
+				}, [
+					load,
+					remote,
+					run
+				]),
+				setMcpDisabled: (0, react.useCallback)(async (id, disabled) => {
+					await run(async () => {
+						await remote.call(EP_MCP_TOGGLE, {
+							id,
+							disabled
+						});
+						await load();
+					});
+				}, [
+					load,
+					remote,
+					run
+				])
+			};
+		}
+		// src/client/lib/mcp-form.ts
+		/** 把 {command, args} 拼回一整行（含空格的 token 加引号），供导入时回填 commandLine。 */
+		function joinCommandLine(command, args) {
+			return [String(command ?? ""), ...(Array.isArray(args) ? args : []).map((arg) => String(arg))].filter((token) => token !== "").map((token) => {
+				if (/^[A-Za-z0-9_./\\:=@%+,\[\]{}#-]+$/.test(token) && !/["']/.test(token)) return token;
+				if (!token.includes("\"")) return `"${token}"`;
+				if (!token.includes("'")) return `'${token}'`;
+				return `"${token.replace(/"/g, "\\\"")}"`;
+			}).join(" ");
+		}
+		/** 解析 env / headers 的 JSON 字符串为对象（空串 → {}）。 */
+		function parseJsonObject(text) {
+			const value = String(text ?? "").trim();
+			if (!value) return {
+				ok: true,
+				value: {}
+			};
+			try {
+				const obj = JSON.parse(value);
+				if (obj && typeof obj === "object" && !Array.isArray(obj)) return {
+					ok: true,
+					value: obj
+				};
+			} catch {}
+			return {
+				ok: false,
+				reason: "invalid"
+			};
+		}
+		/**
+		* 从粘贴的 mcp.json 文本生成表单草稿：
+		* 支持 {mcpServers:{name:{...}}}（取首个）或单个 server 对象。
+		*/
+		function mcpFormFromJson(raw) {
+			const text = String(raw ?? "").trim();
+			if (!text) return {
+				ok: false,
+				reason: "emptyInput"
+			};
+			let data;
+			try {
+				data = JSON.parse(text);
+			} catch (error) {
+				return {
+					ok: false,
+					reason: "invalidJson",
+					detail: error instanceof Error ? error.message : String(error)
+				};
+			}
+			if (data && typeof data === "object" && data.mcpServers && typeof data.mcpServers === "object") {
+				const entries = Object.entries(data.mcpServers);
+				if (entries.length === 0) return {
+					ok: false,
+					reason: "serversEmpty"
+				};
+				const [name, server] = entries[0];
+				data = {
+					...server,
+					serverName: server?.serverName ?? name
+				};
+			}
+			const transport = data.transport === "streamable-http" || data.url ? "streamable-http" : "stdio";
+			const command = String(data.command ?? "");
+			const args = Array.isArray(data.args) ? data.args.map((item) => String(item)) : [];
+			return {
+				ok: true,
+				form: {
+					id: void 0,
+					serverName: String(data.serverName ?? data.name ?? ""),
+					transport,
+					commandLine: transport === "stdio" ? joinCommandLine(command, args) : "",
+					env: data.env && typeof data.env === "object" && Object.keys(data.env).length > 0 ? JSON.stringify(data.env) : "",
+					headers: data.headers && typeof data.headers === "object" && Object.keys(data.headers).length > 0 ? JSON.stringify(data.headers) : "",
+					url: String(data.url ?? "")
+				}
+			};
+		}
+		/** 编辑既有服务器 → 表单草稿（列表「编辑」入口）。 */
+		function mcpFormFromServer(server) {
+			const name = String(server.serverName ?? "").trim() || String(server.id ?? "");
+			return {
+				id: server.id,
+				serverName: name,
+				transport: server.transport ?? "stdio",
+				commandLine: String(server.commandLine ?? server.command ?? ""),
+				env: server.env && Object.keys(server.env).length > 0 ? JSON.stringify(server.env) : "",
+				headers: server.headers && Object.keys(server.headers).length > 0 ? JSON.stringify(server.headers) : "",
+				url: server.url ?? ""
+			};
+		}
+		/**
+		* 表单 → 后端 server 负载（按传输方式收窄字段：stdio 用 commandLine/env，
+		* streamable-http 用 url/headers；空对象不写入）。
+		*/
+		function mcpServerPayload(form, parsed) {
+			const stdio = form.transport === "stdio";
+			return {
+				id: form.id ?? null,
+				serverName: form.serverName,
+				transport: form.transport,
+				commandLine: stdio ? form.commandLine : void 0,
+				env: stdio && Object.keys(parsed.env).length > 0 ? parsed.env : void 0,
+				headers: !stdio && Object.keys(parsed.headers).length > 0 ? parsed.headers : void 0,
+				url: !stdio ? form.url : void 0
+			};
+		}
+		// src/client/lib/tool-tags.ts
+		/** MCP 工具名前缀常量（官方 publicToolName 拼装规则）。 */
+		const MCP_TOOL_PREFIX = "mcp__";
+		/** 「官方工具」Tag 键。 */
+		const TAG_BUILTIN = "builtin";
+		/**
+		* 从工具名解析 MCP 服务器命名空间（mcp__<server>__<tool> → <server>）。
+		* 非 MCP 名 / 形如 mcp__xxx（无第二段）返回 null。
+		*/
+		function mcpServerOfToolName(name) {
+			const text = String(name ?? "");
+			if (!text.startsWith("mcp__")) return null;
+			const rest = text.slice(5);
+			const sep = rest.indexOf("__");
+			if (sep <= 0) return null;
+			return rest.slice(0, sep);
+		}
+		/**
+		* 判断工具名是否属于某服务器（前缀匹配；server 为配置名或解析命名空间均可）。
+		*/
+		function toolBelongsToServer(name, server) {
+			return String(name ?? "").startsWith(`${MCP_TOOL_PREFIX}${server}__`);
+		}
+		/**
+		* 服务器名规范化（镜像官方 mcp-client 的 INVALID_NAME_CHARS 替换规则：
+		* 非 [A-Za-z0-9_-] 字符替换为下划线）。用于把工具名解析出的命名空间
+		* 反查回已配置 serverName（标签显示配置原名）。
+		*/
+		function normalizeServerName(serverName) {
+			return String(serverName ?? "").replace(/[^A-Za-z0-9_-]/g, "_");
+		}
+		/**
+		* 构建 Tag 列表：[全部] + [官方工具] + 动态 MCP Tag（首次出现顺序）。
+		* @param toolNames 工具目录全量名（pluginCatalog.items[].name）
+		* @param configuredServers 已配置 MCP 服务器（serverName 优先作为标签显示）
+		*/
+		function buildToolTags(toolNames, configuredServers = []) {
+			const namespaces = [];
+			for (const name of toolNames ?? []) {
+				const server = mcpServerOfToolName(name);
+				if (server === null) continue;
+				if (!namespaces.includes(server)) namespaces.push(server);
+			}
+			const configured = configuredServers.map((item) => String(item?.serverName ?? "").trim()).filter(Boolean);
+			const tags = [{
+				key: "all",
+				kind: "all"
+			}, {
+				key: TAG_BUILTIN,
+				kind: "builtin"
+			}];
+			for (const namespace of namespaces) {
+				const label = configured.find((serverName) => normalizeServerName(serverName) === namespace) ?? namespace;
+				tags.push({
+					key: `mcp:${namespace}`,
+					label,
+					kind: "mcp",
+					server: namespace
+				});
+			}
+			return tags;
+		}
+		/**
+		* 按当前激活 Tag 过滤工具名（纯函数）：
+		*   - all：全部保留；
+		*   - builtin：仅非 MCP 工具；
+		*   - mcp:<server>：仅隶属于该命名空间的工具（前缀匹配）。
+		*/
+		function filterToolNamesByTag(toolNames, activeTag) {
+			return (toolNames ?? []).filter((name) => {
+				if (activeTag === "all") return true;
+				if (activeTag === "builtin") return mcpServerOfToolName(name) === null;
+				if (activeTag.startsWith("mcp:")) return toolBelongsToServer(name, activeTag.slice(4));
+				return true;
+			});
+		}
+		// src/client/components/combo-manager/ComboCatalog.tsx
+		function ComboCatalog(props) {
+			const { copy, catalog, tab, onTabChange, search, onSearchChange, activeTag, onTagChange, disabledTools, comboDraft, busy, onToggleTool, onToggleMcp, onToggleToolDisabled, onToggleMcpDisabled, onEditMcp, onDeleteMcp, onBulkToolDisabled } = props;
+			const items = Array.isArray(catalog.items) ? catalog.items : [];
+			const mcpServers = Array.isArray(catalog.mcp) ? catalog.mcp : [];
+			const tabs = [{
+				key: "plugins",
+				label: copy.comboTabDsh,
+				count: items.length
+			}, {
+				key: "mcp",
+				label: copy.comboTabMcp,
+				count: mcpServers.length
+			}];
+			/** 筛选标签（动态构建）：[全部] + [官方工具] + MCP 服务器 Tag（按目录首次出现顺序） */
+			const toolTags = (0, react.useMemo)(() => buildToolTags(items.map((item) => item.name), mcpServers), [items, mcpServers]);
+			/**
+			* 当前激活标签命中的工具集合（一键开关目标；MCP 服务器标签 / 官方工具标签）。
+			* 「全部」标签回退为空集（无明确批量语义，按钮禁用）。
+			*/
+			const tagToolNames = (0, react.useMemo)(() => activeTag === "all" ? [] : filterToolNamesByTag(items.map((item) => item.name), activeTag), [activeTag, items]);
+			/** 当前标签下工具是否已全部关闭（一键开关按钮目标态：全部关闭 → 显示「一键开启」）。 */
+			const tagToolsAllDisabled = (0, react.useMemo)(() => tagToolNames.length > 0 && tagToolNames.every((name) => disabledTools.has(name)), [tagToolNames, disabledTools]);
+			const cards = (0, react.useMemo)(() => {
+				const keyword = String(search ?? "").trim().toLowerCase();
+				if (tab === "plugins") {
+					const taggedNames = activeTag === "all" ? null : new Set(tagToolNames);
+					return items.filter((item) => taggedNames === null || taggedNames.has(item.name)).filter((item) => !keyword || String(item.name ?? "").toLowerCase().includes(keyword) || String(item.description ?? "").toLowerCase().includes(keyword)).map((item) => {
+						const disabledTool = disabledTools.has(item.name);
+						return {
+							key: item.key ?? `item:${item.name}`,
+							name: item.name,
+							description: item.description,
+							disabled: disabledTool,
+							checked: !disabledTool && (comboDraft.tools ?? []).includes(item.name),
+							onToggle: disabledTool ? () => {} : () => onToggleTool(item.name),
+							onToggleDisabled: () => onToggleToolDisabled(item.name, !disabledTool)
+						};
+					});
+				}
+				return mcpServers.filter((server) => !keyword || String(server.serverName ?? "").toLowerCase().includes(keyword) || String(server.description ?? "").toLowerCase().includes(keyword)).map((server) => {
+					const name = String(server.serverName ?? "").trim() || String(server.id ?? "");
+					return {
+						key: `mcp:${server.id}`,
+						name,
+						description: server.description,
+						disabled: server.disabled === true,
+						badge: server.disabled ? copy.mcpDisabledBadge : server.transport === "streamable-http" ? "HTTP" : "stdio",
+						checked: (comboDraft.mcpServers ?? []).includes(name),
+						onToggle: () => onToggleMcp(name),
+						onEdit: () => onEditMcp(server),
+						onToggleDisabled: () => onToggleMcpDisabled(server.id, server.disabled !== true),
+						onDelete: () => onDeleteMcp(server.id)
+					};
+				});
+			}, [
+				activeTag,
+				comboDraft.mcpServers,
+				comboDraft.tools,
+				copy.mcpDisabledBadge,
+				disabledTools,
+				items,
+				mcpServers,
+				onDeleteMcp,
+				onEditMcp,
+				onToggleMcp,
+				onToggleMcpDisabled,
+				onToggleTool,
+				onToggleToolDisabled,
+				search,
+				tab,
+				tagToolNames
+			]);
+			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+				className: "wf-combo__catalog",
+				children: [
+					/* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+						className: "wf-combo__tabs",
+						children: tabs.map((item) => /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("button", {
+							type: "button",
+							className: `wf-combo__tab${tab === item.key ? " is-active" : ""}`,
+							onClick: () => onTabChange(item.key),
+							children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", { children: item.label }), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+								className: "wf-combo__tab-count",
+								children: String(item.count)
+							})]
+						}, item.key))
+					}),
+					/* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+						className: "wf-combo__search",
+						children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)("input", {
+							type: "text",
+							value: search,
+							placeholder: copy.comboSearch,
+							onChange: (event) => onSearchChange(event.target.value)
+						})
+					}),
+					tab === "plugins" && toolTags.length > 1 ? /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+						className: "wf-combo__tags",
+						children: [toolTags.map((tag) => /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+							type: "button",
+							className: `wf-combo-tag${activeTag === tag.key ? " is-active" : ""}`,
+							onClick: () => onTagChange(activeTag === tag.key ? "all" : tag.key),
+							children: tag.kind === "all" ? copy.comboTagAll : tag.kind === "builtin" ? copy.comboTagBuiltin : tag.label
+						}, tag.key)), tagToolNames.length > 0 ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+							type: "button",
+							className: "wf-combo-tag wf-combo-tag__bulk",
+							onClick: () => onBulkToolDisabled(!tagToolsAllDisabled, tagToolNames),
+							disabled: busy,
+							title: copy.comboTagBulkHint,
+							children: tagToolsAllDisabled ? copy.comboTagEnableAll : copy.comboTagDisableAll
+						}) : null]
+					}) : null,
+					/* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+						className: "wf-combo__grid",
+						children: cards.length === 0 ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+							className: "wf-hint wf-combo__grid-empty",
+							children: String(search ?? "").trim() ? copy.comboSearchEmpty : copy.comboEmpty
+						}) : cards.map((item) => /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+							className: `wf-combo-card${item.checked ? " is-checked" : ""}${item.disabled ? " is-disabled" : ""}`,
+							children: [
+								/* @__PURE__ */ (0, react_jsx_runtime.jsx)("input", {
+									type: "checkbox",
+									checked: item.checked === true,
+									disabled: item.disabled,
+									onChange: item.onToggle,
+									tabIndex: -1,
+									"aria-hidden": "true"
+								}),
+								/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+									type: "button",
+									className: "wf-combo-card__main",
+									onClick: item.onToggle,
+									title: item.name,
+									disabled: item.disabled,
+									"aria-pressed": item.checked,
+									children: /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("span", {
+										className: "wf-combo-card__body",
+										children: [
+											/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+												className: "wf-combo-card__name",
+												children: item.name
+											}),
+											/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+												className: "wf-combo-card__desc",
+												children: item.description
+											}),
+											item.badge ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+												className: "wf-combo-card__badge",
+												children: item.badge
+											}) : null
+										]
+									})
+								}),
+								item.onEdit || item.onDelete || item.onToggleDisabled ? /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("span", {
+									className: "wf-combo-card__actions",
+									children: [
+										item.onEdit ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+											type: "button",
+											className: "wf-btn wf-btn--xs",
+											onClick: (event) => {
+												event.stopPropagation();
+												item.onEdit?.();
+											},
+											children: copy.mcpEdit
+										}) : null,
+										item.onToggleDisabled ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+											type: "button",
+											className: "wf-btn wf-btn--xs",
+											onClick: (event) => {
+												event.stopPropagation();
+												item.onToggleDisabled?.();
+											},
+											children: item.disabled ? copy.toolEnable : copy.toolDisable
+										}) : null,
+										item.onDelete ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+											type: "button",
+											className: "wf-btn is-danger wf-btn--xs",
+											onClick: (event) => {
+												event.stopPropagation();
+												item.onDelete?.();
+											},
+											children: copy.mcpDelete
+										}) : null
+									]
+								}) : null
+							]
+						}, item.key))
+					})
+				]
+			});
+		}
+		// src/client/components/combo-manager/ComboSidePanel.tsx
+		function ComboSidePanel(props) {
+			const { copy, combos, activeComboId, comboDraft, busy, confirmDelete, onSelect, onNew, onDraftNameChange, onRemoveTool, onRemoveMcp, onSave, onDelete } = props;
+			const selectedChips = [...comboDraft.tools.map((name) => ({
+				key: `t:${name}`,
+				label: name,
+				remove: () => onRemoveTool(name)
+			})), ...comboDraft.mcpServers.map((name) => ({
+				key: `m:${name}`,
+				label: name,
+				remove: () => onRemoveMcp(name)
+			}))];
+			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+				className: "wf-combo__side",
+				children: [
+					/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+						className: "wf-combo__side-head",
+						children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("h4", { children: copy.combos }), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+							type: "button",
+							className: "wf-btn",
+							onClick: onNew,
+							disabled: busy,
+							children: `＋ ${copy.comboNew}`
+						})]
+					}),
+					/* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+						className: "wf-combo__side-list",
+						children: combos.length === 0 ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+							className: "wf-hint",
+							children: copy.comboEmpty
+						}) : combos.map((combo) => /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("button", {
+							type: "button",
+							className: `wf-combo-item${combo.id === activeComboId ? " is-active" : ""}`,
+							onClick: () => onSelect(combo.id),
+							children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+								className: "wf-combo-item__label",
+								children: combo.name
+							}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+								className: "wf-combo-item__meta",
+								children: `${combo.tools?.length ?? 0} ${copy.comboTabTool} · ${combo.mcpServers?.length ?? 0} MCP`
+							})]
+						}, combo.id))
+					}),
+					/* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+						className: "wf-combo__edit",
+						children: /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("label", { children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+							className: "wf-hint",
+							children: copy.comboName
+						}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("input", {
+							value: comboDraft.name,
+							placeholder: copy.comboName,
+							onChange: (event) => onDraftNameChange(event.target.value)
+						})] })
+					}),
+					/* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+						className: "wf-combo__selection",
+						children: selectedChips.length === 0 ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+							className: "wf-hint",
+							children: copy.comboEmptySelection
+						}) : selectedChips.map((chip) => /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("span", {
+							className: "wf-combo-chip",
+							children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", { children: chip.label }), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+								type: "button",
+								onClick: chip.remove,
+								title: copy.inspectorDelete,
+								children: "×"
+							})]
+						}, chip.key))
+					}),
+					/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+						className: "wf-combo__side-foot",
+						children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+							type: "button",
+							className: "wf-btn is-danger",
+							onClick: onDelete,
+							disabled: !activeComboId || busy,
+							children: confirmDelete ? copy.comboDeleteConfirm : copy.comboDelete
+						}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+							type: "button",
+							className: "wf-btn is-primary",
+							onClick: onSave,
+							disabled: busy,
+							children: copy.inspectorSave
+						})]
+					}),
+					/* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+						className: "wf-combo-hint",
+						children: copy.comboHint
+					})
+				]
+			});
+		}
+		// src/client/components/combo-manager/McpFormPanel.tsx
+		function McpFormPanel(props) {
+			const { copy, tab, form, busy, importOpen, importText, onFormChange, onSave, onImportOpenChange, onImportTextChange, onImportApply } = props;
+			if (tab !== "mcp") return null;
+			const editing = form !== null;
+			const stdio = (form?.transport ?? "stdio") === "stdio";
+			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)(react_jsx_runtime.Fragment, { children: [editing ? /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+				className: "wf-mcp-form",
+				children: [
+					/* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+						className: "wf-combo__head wf-combo__head--sub",
+						children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)("h4", { children: form.id ? copy.mcpEdit : copy.mcpNew })
+					}),
+					/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+						className: "wf-mcp-form__inline",
+						children: [/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("label", {
+							className: "wf-mcp-form__grow",
+							children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+								className: "wf-hint",
+								children: copy.mcpName
+							}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("input", {
+								value: form.serverName ?? "",
+								onChange: (event) => onFormChange({
+									...form,
+									serverName: event.target.value
+								})
+							})]
+						}), /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("label", {
+							className: "wf-mcp-form__grow",
+							children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+								className: "wf-hint",
+								children: copy.mcpTransport
+							}), /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("select", {
+								value: form.transport ?? "stdio",
+								onChange: (event) => onFormChange({
+									...form,
+									transport: event.target.value
+								}),
+								children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("option", {
+									value: "stdio",
+									children: copy.mcpTransportStdio
+								}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("option", {
+									value: "streamable-http",
+									children: copy.mcpTransportHttp
+								})]
+							})]
+						})]
+					}),
+					stdio ? /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+						className: "wf-mcp-form__stack",
+						children: [
+							/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("label", { children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+								className: "wf-hint",
+								children: copy.mcpCommand
+							}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("input", {
+								value: form.commandLine ?? "",
+								placeholder: copy.mcpCommandPlaceholder,
+								onChange: (event) => onFormChange({
+									...form,
+									commandLine: event.target.value
+								})
+							})] }),
+							/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("label", { children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+								className: "wf-hint",
+								children: copy.mcpEnv
+							}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("input", {
+								value: form.env ?? "",
+								placeholder: copy.mcpEnvPlaceholder,
+								onChange: (event) => onFormChange({
+									...form,
+									env: event.target.value
+								})
+							})] }),
+							copy.mcpCommandHint ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+								className: "wf-hint wf-hint--block",
+								children: copy.mcpCommandHint
+							}) : null
+						]
+					}) : /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+						className: "wf-mcp-form__stack",
+						children: [/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("label", { children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+							className: "wf-hint",
+							children: copy.mcpUrl
+						}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("input", {
+							value: form.url ?? "",
+							placeholder: copy.mcpUrlPlaceholder,
+							onChange: (event) => onFormChange({
+								...form,
+								url: event.target.value
+							})
+						})] }), /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("label", { children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+							className: "wf-hint",
+							children: copy.mcpHeaders
+						}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("input", {
+							value: form.headers ?? "",
+							placeholder: copy.mcpHeadersPlaceholder,
+							onChange: (event) => onFormChange({
+								...form,
+								headers: event.target.value
+							})
+						})] })]
+					}),
+					/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+						className: "wf-mcp-form__inline",
+						children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+							type: "button",
+							className: "wf-btn is-primary",
+							onClick: onSave,
+							disabled: busy,
+							children: copy.mcpSave
+						}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+							type: "button",
+							className: "wf-btn",
+							onClick: () => onFormChange(null),
+							disabled: busy,
+							children: copy.importCancel
+						})]
+					})
+				]
+			}) : /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+				className: "wf-mcp-form",
+				children: /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+					className: "wf-mcp-form__row",
+					children: [
+						/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+							type: "button",
+							className: "wf-btn",
+							onClick: () => onFormChange({
+								serverName: "",
+								transport: "stdio",
+								commandLine: "",
+								env: "",
+								headers: "",
+								url: ""
+							}),
+							disabled: busy,
+							children: `＋ ${copy.mcpNew}`
+						}),
+						/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+							type: "button",
+							className: "wf-btn",
+							onClick: () => onImportOpenChange(true),
+							disabled: busy,
+							children: copy.mcpImport
+						}),
+						/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+							className: "wf-hint wf-mcp-form__note",
+							children: copy.mcpRestartHint
+						})
+					]
+				})
+			}), importOpen ? /* @__PURE__ */ (0, react_jsx_runtime.jsxs)(Modal, {
+				className: "wf-combo wf-combo--dialog",
+				backdropClassName: "wf-combo-backdrop",
+				label: String(copy.mcpImport),
+				onClose: () => onImportOpenChange(false),
+				children: [/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+					className: "wf-combo__head",
+					children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("h4", { children: copy.mcpImport }), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+						type: "button",
+						className: "wf-btn wf-combo__close",
+						onClick: () => onImportOpenChange(false),
+						children: "✕"
+					})]
+				}), /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+					className: "wf-mcp-import__body",
+					children: [
+						/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+							className: "wf-hint wf-hint--block",
+							children: copy.mcpImportHint
+						}),
+						/* @__PURE__ */ (0, react_jsx_runtime.jsx)("textarea", {
+							className: "wf-mcp-import__text",
+							value: importText,
+							onChange: (event) => onImportTextChange(event.target.value),
+							placeholder: copy.mcpImportPlaceholder
+						}),
+						/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+							className: "wf-mcp-form__row",
+							children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+								type: "button",
+								className: "wf-btn is-primary",
+								onClick: onImportApply,
+								disabled: busy,
+								children: copy.mcpImportApply
+							}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+								type: "button",
+								className: "wf-btn",
+								onClick: () => onImportOpenChange(false),
+								disabled: busy,
+								children: copy.importCancel
+							})]
+						})
+					]
+				})]
+			}) : null] });
+		}
+		// src/client/components/combo-manager/ComboManager.tsx
+		/** 空组合草稿。 */
+		const EMPTY_DRAFT = {
+			name: "",
+			tools: [],
+			mcpServers: []
+		};
+		/** 组合 id 生成（combo- 前缀；与定时任务 task- 口径一致）。 */
+		function newComboId() {
+			return `combo-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
+		}
+		/** 组合条目 → 编辑草稿（剔除官方保留传输名：子代理自带，且官方 restrict 禁止其进入名单）。 */
+		function draftOf(combo) {
+			return {
+				name: combo?.name ?? "",
+				tools: (combo?.tools ?? []).filter((name) => name !== RESERVED_TRANSPORT_TOOL),
+				mcpServers: [...combo?.mcpServers ?? []]
+			};
+		}
+		function ComboManager({ copy, remote, sessionId, onClose, onToast, onChanged }) {
+			const combosFace = useToolCombos(remote, sessionId);
+			const [tab, setTab] = (0, react.useState)("plugins");
+			const [search, setSearch] = (0, react.useState)("");
+			const [activeTag, setActiveTag] = (0, react.useState)("all");
+			const [activeComboId, setActiveComboId] = (0, react.useState)(null);
+			const [comboDraft, setComboDraft] = (0, react.useState)(EMPTY_DRAFT);
+			const [confirmDelete, setConfirmDelete] = (0, react.useState)(false);
+			const [mcpForm, setMcpForm] = (0, react.useState)(null);
+			const [mcpImportOpen, setMcpImportOpen] = (0, react.useState)(false);
+			const [mcpImportText, setMcpImportText] = (0, react.useState)("");
+			const loadedRef = (0, react.useRef)(false);
+			const activeComboIdRef = (0, react.useRef)(null);
+			(0, react.useEffect)(() => {
+				activeComboIdRef.current = activeComboId;
+			}, [activeComboId]);
+			/** 加载完成后确定选中项：仍存在则沿用，否则回退首个组合。 */
+			const selectAfterLoad = (0, react.useCallback)((list) => {
+				const current = activeComboIdRef.current;
+				if (current && list.some((item) => item.id === current)) return;
+				const first = list[0];
+				if (!first) return;
+				setActiveComboId(first.id);
+				setComboDraft(draftOf(first));
+			}, []);
+			const { load } = combosFace;
+			(0, react.useEffect)(() => {
+				if (loadedRef.current) return;
+				loadedRef.current = true;
+				(async () => {
+					try {
+						const { combos } = await load();
+						selectAfterLoad(combos);
+					} catch (error) {
+						onToast("error", remoteErrorMessageOf(error));
+					}
+				})();
+			}, [
+				load,
+				onToast,
+				selectAfterLoad
+			]);
+			/** 动作执行统一收口：成功 toast（按需通知宿主刷新组合列表），失败 toast 错误语义。 */
+			const runAction = (0, react.useCallback)(async (action, successText, options) => {
+				try {
+					await action();
+					if (options?.changed) try {
+						await onChanged?.();
+					} catch (error) {
+						onToast("error", remoteErrorMessageOf(error));
+					}
+					onToast("success", successText);
+					return true;
+				} catch (error) {
+					onToast("error", remoteErrorMessageOf(error));
+					return false;
+				}
+			}, [onChanged, onToast]);
+			const selectCombo = (0, react.useCallback)((id) => {
+				setActiveComboId(id);
+				setConfirmDelete(false);
+				const combo = combosFace.combos.find((item) => item.id === id);
+				setComboDraft(draftOf(combo));
+			}, [combosFace.combos]);
+			const newCombo = (0, react.useCallback)(() => {
+				setActiveComboId(newComboId());
+				setConfirmDelete(false);
+				setComboDraft(EMPTY_DRAFT);
+			}, []);
+			const saveCombo = (0, react.useCallback)(async () => {
+				if (!comboDraft.name.trim()) {
+					onToast("error", copy.comboSaveFirst);
+					return;
+				}
+				await runAction(() => combosFace.saveCombo({
+					id: activeComboId ?? newComboId(),
+					name: comboDraft.name.trim(),
+					tools: [...comboDraft.tools],
+					mcpServers: [...comboDraft.mcpServers]
+				}), copy.comboSaved, { changed: true });
+			}, [
+				activeComboId,
+				comboDraft,
+				combosFace,
+				copy.comboSaveFirst,
+				copy.comboSaved,
+				onToast,
+				runAction
+			]);
+			const deleteCombo = (0, react.useCallback)(async () => {
+				if (!activeComboId) return;
+				if (!confirmDelete) {
+					setConfirmDelete(true);
+					return;
+				}
+				setConfirmDelete(false);
+				if (await runAction(() => combosFace.deleteCombo(activeComboId), copy.comboDeleted, { changed: true })) {
+					setActiveComboId(null);
+					setComboDraft(EMPTY_DRAFT);
+				}
+			}, [
+				activeComboId,
+				combosFace,
+				confirmDelete,
+				copy.comboDeleted,
+				runAction
+			]);
+			const toggleTool = (0, react.useCallback)((name) => {
+				setComboDraft((draft) => ({
+					...draft,
+					tools: draft.tools.includes(name) ? draft.tools.filter((item) => item !== name) : [...draft.tools, name]
+				}));
+			}, []);
+			const toggleMcp = (0, react.useCallback)((serverName) => {
+				setComboDraft((draft) => ({
+					...draft,
+					mcpServers: draft.mcpServers.includes(serverName) ? draft.mcpServers.filter((item) => item !== serverName) : [...draft.mcpServers, serverName]
+				}));
+			}, []);
+			/**
+			* 单个工具的全局开关（父代理白名单「关闭」侧）：
+			*   - 关闭后该工具在所有会话的代理上下文中不可见（system-prompt/assemble 瀑布剔除）；
+			*   - 关闭的工具不得留在组合草稿（父代理不可用 → 子代理无法传入），自动去除勾选；
+			*   - 状态更新即全局即时生效（无需运行工作流）。
+			*/
+			const toggleToolDisabled = (0, react.useCallback)(async (name, disabled) => {
+				await runAction(async () => {
+					await combosFace.setToolDisabled(name, disabled);
+					if (disabled) setComboDraft((draft) => ({
+						...draft,
+						tools: draft.tools.filter((item) => item !== name)
+					}));
+				}, disabled ? copy.toolSwitchDisabled : copy.toolSwitchEnabled);
+			}, [
+				combosFace,
+				copy.toolSwitchDisabled,
+				copy.toolSwitchEnabled,
+				runAction
+			]);
+			/**
+			* 一键开关当前标签下全部工具（组合管理「标签」胶囊栏右侧按钮）：
+			*   - 仅作用于当前激活标签（官方工具 / MCP 服务器标签）命中的工具集合；
+			*   - 关闭成功后将标签下工具从组合草稿移除（父代理不可用 → 子代理无法传入）。
+			*/
+			const bulkToolDisabled = (0, react.useCallback)(async (disabled, toolNames) => {
+				if (toolNames.length === 0) return;
+				await runAction(async () => {
+					await combosFace.setToolsDisabled(toolNames, disabled);
+					if (disabled) setComboDraft((draft) => ({
+						...draft,
+						tools: draft.tools.filter((item) => !toolNames.includes(item))
+					}));
+				}, disabled ? copy.toolSwitchBatchDisabled : copy.toolSwitchBatchEnabled);
+			}, [
+				combosFace,
+				copy.toolSwitchBatchDisabled,
+				copy.toolSwitchBatchEnabled,
+				runAction
+			]);
+			const saveMcp = (0, react.useCallback)(async () => {
+				if (!mcpForm) return;
+				const env = parseJsonObject(mcpForm.env);
+				const headers = parseJsonObject(mcpForm.headers);
+				if (!env.ok || !headers.ok) {
+					onToast("error", copy.mcpEnvInvalid);
+					return;
+				}
+				if (await runAction(() => combosFace.saveMcp(mcpServerPayload(mcpForm, {
+					env: env.value,
+					headers: headers.value
+				})), copy.mcpSaved)) setMcpForm(null);
+			}, [
+				combosFace,
+				copy.mcpEnvInvalid,
+				copy.mcpSaved,
+				mcpForm,
+				onToast,
+				runAction
+			]);
+			/** 从 mcp.json 粘贴导入：支持 {mcpServers:{name:{...}}} 或单个 server 对象。 */
+			const importMcpJson = (0, react.useCallback)(() => {
+				const result = mcpFormFromJson(mcpImportText);
+				if (!result.ok) {
+					onToast("error", result.reason === "emptyInput" ? copy.mcpImportEmptyInput : result.reason === "serversEmpty" ? copy.mcpImportServersEmpty : String(result.detail ?? copy.mcpImportEmptyInput));
+					return;
+				}
+				setMcpForm(result.form);
+				setMcpImportOpen(false);
+				onToast("success", copy.mcpImported);
+			}, [
+				copy.mcpImportEmptyInput,
+				copy.mcpImported,
+				copy.mcpImportServersEmpty,
+				mcpImportText,
+				onToast
+			]);
+			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)(Modal, {
+				className: "wf-combo",
+				backdropClassName: "wf-combo-backdrop",
+				label: String(copy.comboManager),
+				onClose,
+				children: [
+					/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+						className: "wf-combo__head",
+						children: [
+							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("h3", { children: copy.comboManager }),
+							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+								className: "wf-status",
+								children: copy.comboHint
+							}),
+							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+								type: "button",
+								className: "wf-btn wf-combo__close",
+								onClick: onClose,
+								children: "✕"
+							})
+						]
+					}),
+					/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+						className: "wf-combo__body",
+						children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)(ComboCatalog, {
+							copy,
+							catalog: combosFace.catalog,
+							tab,
+							onTabChange: setTab,
+							search,
+							onSearchChange: setSearch,
+							activeTag,
+							onTagChange: setActiveTag,
+							disabledTools: combosFace.disabledTools,
+							comboDraft,
+							busy: combosFace.busy,
+							onToggleTool: toggleTool,
+							onToggleMcp: toggleMcp,
+							onToggleToolDisabled: (name, disabled) => {
+								toggleToolDisabled(name, disabled);
+							},
+							onToggleMcpDisabled: (id, disabled) => {
+								runAction(() => combosFace.setMcpDisabled(id, disabled), disabled ? copy.mcpDisabled : copy.mcpEnabled);
+							},
+							onEditMcp: (server) => setMcpForm(mcpFormFromServer(server)),
+							onDeleteMcp: (id) => {
+								runAction(() => combosFace.deleteMcp(id), copy.mcpDeleted);
+							},
+							onBulkToolDisabled: (disabled, names) => {
+								bulkToolDisabled(disabled, names);
+							}
+						}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)(ComboSidePanel, {
+							copy,
+							combos: combosFace.combos,
+							activeComboId,
+							comboDraft,
+							busy: combosFace.busy,
+							confirmDelete,
+							onSelect: selectCombo,
+							onNew: newCombo,
+							onDraftNameChange: (name) => setComboDraft((draft) => ({
+								...draft,
+								name
+							})),
+							onRemoveTool: toggleTool,
+							onRemoveMcp: toggleMcp,
+							onSave: () => {
+								saveCombo();
+							},
+							onDelete: () => {
+								deleteCombo();
+							}
+						})]
+					}),
+					/* @__PURE__ */ (0, react_jsx_runtime.jsx)(McpFormPanel, {
+						copy,
+						tab,
+						form: mcpForm,
+						busy: combosFace.busy,
+						importOpen: mcpImportOpen,
+						importText: mcpImportText,
+						onFormChange: setMcpForm,
+						onSave: () => {
+							saveMcp();
+						},
+						onImportOpenChange: setMcpImportOpen,
+						onImportTextChange: setMcpImportText,
+						onImportApply: importMcpJson
+					})
+				]
+			});
+		}
+		// src/client/hooks/useSchedulerTasks.ts
+		function useSchedulerTasks(remote) {
+			const [views, setViews] = (0, react.useState)([]);
+			const [templates, setTemplates] = (0, react.useState)([]);
+			const [busy, setBusy] = (0, react.useState)(false);
+			const mountedRef = (0, react.useRef)(true);
+			(0, react.useEffect)(() => {
+				mountedRef.current = true;
+				return () => {
+					mountedRef.current = false;
+				};
+			}, []);
+			const load = (0, react.useCallback)(async () => {
+				const [viewsData, templatesData] = await Promise.all([remote.call(EP_SCHEDULER_TASKS).catch(() => []), remote.call(EP_LIST_FLOW_TEMPLATES).catch(() => [])]);
+				const items = Array.isArray(viewsData) ? viewsData : [];
+				const tpls = (Array.isArray(templatesData) ? templatesData : []).filter((item) => item.mode === "mode1");
+				if (mountedRef.current) {
+					setViews(items);
+					setTemplates(tpls);
+				}
+				return {
+					views: items,
+					templates: tpls
+				};
+			}, [remote]);
+			const run = (0, react.useCallback)(async (task) => {
+				setBusy(true);
+				try {
+					return await task();
+				} finally {
+					if (mountedRef.current) setBusy(false);
+				}
+			}, []);
+			return {
+				views,
+				templates,
+				busy,
+				load,
+				saveTask: (0, react.useCallback)(async (task) => {
+					return await run(async () => {
+						const result = await remote.call(EP_SCHEDULER_TASK_PUT, { task });
+						await load();
+						return result;
+					});
+				}, [
+					load,
+					remote,
+					run
+				]),
+				deleteTask: (0, react.useCallback)(async (taskId) => {
+					await run(async () => {
+						await remote.call(EP_SCHEDULER_TASK_DELETE, { taskId });
+						await load();
+					});
+				}, [
+					load,
+					remote,
+					run
+				])
+			};
+		}
+		/**
+		* 本地时区（浏览器/Node resolvedOptions）。探测不可用返回 null —— 不静默按上海解释：
+		* 把未知时区当成已知事实会让全部触发时刻整体偏移，故由调用方提示用户手动选择
+		* （SchedulerManager 的 schedulerTimezoneUnavailable；草稿落库另用 FALLBACK_TIMEZONE）。
+		*/
+		function detectLocalTimezone() {
+			try {
+				return Intl.DateTimeFormat().resolvedOptions().timeZone || null;
+			} catch {
+				return null;
+			}
+		}
+		/** 本地日期 "YYYY-MM-DD"（今天）。 */
+		function localDateOnly(date = /* @__PURE__ */ new Date()) {
+			return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+		}
+		/** 日期偏移（"YYYY-MM-DD"）。 */
+		function shiftDateOnly(dateOnly, days) {
+			const [y, m, d] = dateOnly.split("-").map(Number);
+			const utc = Date.UTC(y, m - 1, d) + days * 864e5;
+			return localDateOnly(new Date(utc));
+		}
+		/** 任务 id 生成（`task-` 前缀；与组合 combo- 模式一致）。 */
+		function newTaskId() {
+			return `task-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
+		}
+		/** 空任务草稿（默认值：今天起 30 天、每天、一个 09:00–18:00 时间段、定点触发 09:00）。 */
+		function createTaskDraft(ownerSessionId, now = /* @__PURE__ */ new Date()) {
+			const today = localDateOnly(now);
+			return {
+				taskId: newTaskId(),
+				name: "",
+				workflowTemplateId: "",
+				sessionMode: "new-session",
+				ownerSessionId,
+				enabled: true,
+				timezone: detectLocalTimezone() ?? "Asia/Shanghai",
+				window: {
+					startDate: today,
+					endDate: shiftDateOnly(today, 30),
+					daysOfWeek: [],
+					timeRanges: [{
+						start: "09:00",
+						end: "18:00"
+					}]
+				},
+				triggerMode: "daily_time",
+				dailyTimeConfig: { timePoints: ["09:00"] },
+				intervalConfig: {
+					intervalMinutes: 120,
+					startFrom: "09:00"
+				},
+				runtimePolicy: {
+					missedTrigger: "skip",
+					concurrency: "skip",
+					configUpdate: "immediate"
+				},
+				condition: {
+					enabled: false,
+					scriptPath: ""
+				},
+				createdAt: now.toISOString(),
+				updatedAt: now.toISOString()
+			};
+		}
+		/** 视图 → 草稿（深拷贝，避免表单编辑污染列表数据）。 */
+		function taskFromView(view) {
+			return JSON.parse(JSON.stringify(view.task));
+		}
+		/** 表单即时校验：返回第一处错误消息（null = 通过基础检查）。 */
+		function validateTaskDraft(task) {
+			if (!String(task.name ?? "").trim()) return "schedulerNeedName";
+			if (!String(task.workflowTemplateId ?? "").trim()) return "schedulerNeedTemplate";
+			return null;
+		}
+		/**
+		* 粗判宿主绝对路径（Windows 盘符/UNC 或 POSIX 根路径）。
+		* 仅用于筛选文件选择结果，避免把浏览器给的文件名当路径写进草稿；
+		* 保存时的权威判定在 Host（path.isAbsolute + 文件存在性）。
+		*/
+		function isAbsoluteHostPath(value) {
+			const path = String(value ?? "").trim();
+			return /^[A-Za-z]:[\\/]/.test(path) || path.startsWith("\\\\") || path.startsWith("/");
+		}
+		/**
+		* 显示格式化：ISO → 本地可读。
+		* locale 由调用方从词典注入（lib 不持有词典）：年月日/时分顺序与 AM/PM 表达随界面
+		* 语言变化，硬编码 'zh-CN' 会让英文界面一直显示中文习惯的日期格式。
+		*/
+		function formatIso(value, locale) {
+			if (!value) return "—";
+			const date = new Date(value);
+			if (Number.isNaN(date.getTime())) return String(value);
+			try {
+				return new Intl.DateTimeFormat(locale, {
+					year: "numeric",
+					month: "2-digit",
+					day: "2-digit",
+					hour: "2-digit",
+					minute: "2-digit"
+				}).format(date);
+			} catch {
+				return date.toLocaleString();
+			}
+		}
+		// src/client/components/date-picker/DateRangePicker.tsx
+		/** 解析 "YYYY-MM-DD"；非法返回 null。 */
+		function parseDate(value) {
+			if (!value) return null;
+			const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+			if (!match) return null;
+			const year = Number(match[1]);
+			const month = Number(match[2]);
+			const day = Number(match[3]);
+			const probe = new Date(Date.UTC(year, month - 1, day));
+			if (probe.getUTCFullYear() !== year || probe.getUTCMonth() !== month - 1 || probe.getUTCDate() !== day) return null;
+			return {
+				year,
+				month,
+				day
+			};
+		}
+		function fmt(year, month, day) {
+			return `${String(year).padStart(4, "0")}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+		}
+		const DAY_MS = 864e5;
+		/** 日期键（UTC 日序号；范围比较用）。 */
+		function dayKey(year, month, day) {
+			return Math.floor(Date.UTC(year, month - 1, day) / DAY_MS);
+		}
+		function todayKey() {
+			const now = /* @__PURE__ */ new Date();
+			return dayKey(now.getFullYear(), now.getMonth() + 1, now.getDate());
+		}
+		/**
+		* 生成某月视图：首行前导位与前月灰显格、末行补齐位与次月灰显格
+		* （与参考素材一致：前后月日号灰显、不可点击）。
+		*/
+		function buildMonthView(year, month) {
+			const firstWeekday = new Date(Date.UTC(year, month - 1, 1)).getUTCDay();
+			const daysInMonth = new Date(Date.UTC(year, month, 0)).getUTCDate();
+			const prevYear = month === 1 ? year - 1 : year;
+			const prevMonth = month === 1 ? 12 : month - 1;
+			const daysInPrev = new Date(Date.UTC(prevYear, prevMonth, 0)).getUTCDate();
+			const nextYear = month === 12 ? year + 1 : year;
+			const nextMonth = month === 12 ? 1 : month + 1;
+			const cells = [];
+			const total = Math.ceil((firstWeekday + daysInMonth) / 7) * 7;
+			for (let i = 0; i < total; i += 1) {
+				const day = i + 1 - firstWeekday;
+				if (day < 1) cells.push({
+					key: `p:${day}`,
+					year: prevYear,
+					month: prevMonth,
+					day: daysInPrev + day,
+					inMonth: false
+				});
+				else if (day > daysInMonth) cells.push({
+					key: `n:${day}`,
+					year: nextYear,
+					month: nextMonth,
+					day: day - daysInMonth,
+					inMonth: false
+				});
+				else cells.push({
+					key: `d:${day}`,
+					year,
+					month,
+					day,
+					inMonth: true
+				});
+			}
+			return {
+				year,
+				month,
+				cells
+			};
+		}
+		function DateRangePicker({ value, onChange, weekdays, prevLabel, nextLabel, startLabel, endLabel, formatMonth }) {
+			const today = todayKey();
+			const start = parseDate(value.start);
+			const end = parseDate(value.end);
+			const startKey = start ? dayKey(start.year, start.month, start.day) : null;
+			const endKey = end ? dayKey(end.year, end.month, end.day) : null;
+			const weekHeader = weekdays;
+			/** 月偏移（跨年归一）。 */
+			const addMonths = (year, month, delta) => {
+				const total = year * 12 + (month - 1) + delta;
+				return {
+					year: Math.floor(total / 12),
+					month: (total % 12 + 12) % 12 + 1
+				};
+			};
+			const monthIndex = (p) => p.year * 12 + (p.month - 1);
+			/** 左/右月独立导航（右月恒 > 左月）；初始 = 起点所属月 + 次月。 */
+			const [range, setRange] = (0, react.useState)(() => {
+				const base = start ?? {
+					year: (/* @__PURE__ */ new Date()).getFullYear(),
+					month: (/* @__PURE__ */ new Date()).getMonth() + 1
+				};
+				return {
+					left: {
+						year: base.year,
+						month: base.month
+					},
+					right: addMonths(base.year, base.month, 1)
+				};
+			});
+			const syncedRef = (0, react.useRef)(value.start);
+			(0, react.useEffect)(() => {
+				if (value.start && value.start !== syncedRef.current) {
+					syncedRef.current = value.start;
+					const s = parseDate(value.start);
+					if (s) {
+						const left = {
+							year: s.year,
+							month: s.month
+						};
+						setRange((prev) => {
+							const nextLeft = left;
+							return {
+								left: nextLeft,
+								right: monthIndex(nextLeft) >= monthIndex(prev.right) ? addMonths(nextLeft.year, nextLeft.month, 1) : prev.right
+							};
+						});
+					}
+				}
+			}, [value.start]);
+			/** 左月翻页：左月移动；若 ≥ 右月则右月跟进为左月+1。 */
+			const moveLeft = (delta) => {
+				const nextLeft = addMonths(range.left.year, range.left.month, delta);
+				const nextRight = monthIndex(nextLeft) >= monthIndex(range.right) ? addMonths(nextLeft.year, nextLeft.month, 1) : range.right;
+				setRange({
+					left: nextLeft,
+					right: nextRight
+				});
+			};
+			/** 右月翻页：右月移动；若 ≤ 左月则钳制为左月+1。 */
+			const moveRight = (delta) => {
+				let nextRight = addMonths(range.right.year, range.right.month, delta);
+				if (monthIndex(nextRight) <= monthIndex(range.left)) nextRight = addMonths(range.left.year, range.left.month, 1);
+				setRange({
+					left: range.left,
+					right: nextRight
+				});
+			};
+			const leftView = (0, react.useMemo)(() => buildMonthView(range.left.year, range.left.month), [range]);
+			const rightView = (0, react.useMemo)(() => buildMonthView(range.right.year, range.right.month), [range]);
+			const pick = (year, month, day) => {
+				const key = dayKey(year, month, day);
+				if (startKey === null || endKey !== null) {
+					const newStart = fmt(year, month, day);
+					syncedRef.current = newStart;
+					onChange({
+						start: newStart,
+						end: null
+					});
+					return;
+				}
+				if (key < startKey) {
+					const newStart = fmt(year, month, day);
+					syncedRef.current = newStart;
+					onChange({
+						start: newStart,
+						end: null
+					});
+					return;
+				}
+				onChange({
+					start: value.start,
+					end: fmt(year, month, day)
+				});
+			};
+			const cellClass = (key, inMonth) => {
+				if (!inMonth) return "wf-cal-cell is-dim";
+				const classes = ["wf-cal-cell"];
+				if (key === today) classes.push("is-today");
+				const isStart = startKey === key;
+				const isEnd = endKey === key || startKey === key && endKey === null;
+				if (isStart) classes.push("is-start");
+				if (isEnd) classes.push("is-end");
+				return classes.join(" ");
+			};
+			/** 渲染单个月（带 ‹ › 翻页；left/right 面板各自控制自己的月）。 */
+			const renderMonth = (view, move) => /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+				className: "wf-cal-month",
+				children: [
+					/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+						className: "wf-cal-month__head",
+						children: [
+							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+								type: "button",
+								className: "wf-cal-nav",
+								title: prevLabel,
+								"aria-label": prevLabel,
+								onClick: () => move(-1),
+								children: "‹"
+							}),
+							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+								className: "wf-cal-month__title",
+								children: formatMonth(view.year, view.month)
+							}),
+							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+								type: "button",
+								className: "wf-cal-nav",
+								title: nextLabel,
+								"aria-label": nextLabel,
+								onClick: () => move(1),
+								children: "›"
+							})
+						]
+					}),
+					/* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+						className: "wf-cal-grid",
+						children: weekHeader.map((label) => /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+							className: "wf-cal-week",
+							children: label
+						}, label))
+					}),
+					/* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+						className: "wf-cal-grid",
+						children: view.cells.map((cell) => {
+							const key = dayKey(cell.year, cell.month, cell.day);
+							const isStart = cell.inMonth && startKey === key;
+							const isEndTag = cell.inMonth && endKey !== null && endKey === key;
+							return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("button", {
+								type: "button",
+								className: cellClass(key, cell.inMonth),
+								disabled: !cell.inMonth,
+								onClick: () => pick(cell.year, cell.month, cell.day),
+								tabIndex: cell.inMonth ? 0 : -1,
+								children: [
+									/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+										className: "wf-cal-cell__num",
+										children: cell.day
+									}),
+									isStart ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+										className: "wf-cal-cell__tag",
+										children: startLabel
+									}) : null,
+									isEndTag ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+										className: "wf-cal-cell__tag",
+										children: endLabel
+									}) : null
+								]
+							}, cell.key);
+						})
+					})
+				]
+			});
+			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+				className: "wf-cal",
+				children: [renderMonth(leftView, moveLeft), renderMonth(rightView, moveRight)]
+			});
+		}
+		// src/client/components/time-input/TimeInput.tsx
+		/** 解析 "HH:mm" / "H:mm" / "HHmm" / "Hmm"/ "HH" / "H" → {hour, minute}（非法 null）。 */
+		function parseTimeText(text) {
+			const raw = String(text ?? "").trim();
+			if (!raw) return null;
+			const colon = /^(\d{1,2}):(\d{1,2})$/.exec(raw);
+			if (colon) {
+				const hour = Number(colon[1]);
+				const minute = Number(colon[2]);
+				if (hour <= 23 && minute <= 59) return {
+					hour,
+					minute
+				};
+				return null;
+			}
+			if (!/^\d{1,4}$/.test(raw)) return null;
+			const digits = raw;
+			if (digits.length === 1) return {
+				hour: Number(digits),
+				minute: 0
+			};
+			if (digits.length === 2) {
+				const two = Number(digits);
+				if (two <= 23) return {
+					hour: two,
+					minute: 0
+				};
+				return {
+					hour: Number(digits[0]),
+					minute: Number(digits[1])
+				};
+			}
+			if (digits.length === 3) {
+				const hour = Number(digits[0]);
+				const minute = Number(digits.slice(1));
+				if (hour <= 23 && minute <= 59) return {
+					hour,
+					minute
+				};
+				return null;
+			}
+			const hour = Number(digits.slice(0, 2));
+			const minute = Number(digits.slice(2));
+			if (hour <= 23 && minute <= 59) return {
+				hour,
+				minute
+			};
+			return null;
+		}
+		/** 按位输入时的渐进格式化（键入 1125 → 11:25；键入 112 → 11:2；键入 925 → 9:25；键入 9 → 9）。 */
+		function formatTimeBuffer(digits) {
+			if (!digits) return "";
+			if (digits.length <= 2) {
+				const asHour = Number(digits);
+				if (digits.length === 2 && asHour > 23) return `${digits[0]}:${digits[1]}`;
+				return digits;
+			}
+			if (digits.length === 3) return Number(digits.slice(0, 2)) <= 23 ? `${digits.slice(0, 2)}:${digits[2]}` : `${digits[0]}:${digits.slice(1)}`;
+			return `${digits.slice(0, 2)}:${digits.slice(2)}`;
+		}
+		/** 归一化显示 "HH:mm"。 */
+		function pad2(num) {
+			return String(num).padStart(2, "0");
+		}
+		/** 时/分候选列表（0..23 / 0..59，两位显示）。 */
+		const HOURS = Array.from({ length: 24 }, (_, i) => i);
+		const MINUTES = Array.from({ length: 60 }, (_, i) => i);
+		function TimeInput({ value, onChange, placeholder, ariaLabel, pickerLabel, hourLabel, minuteLabel }) {
+			const [open, setOpen] = (0, react.useState)(false);
+			const [pendingHour, setPendingHour] = (0, react.useState)(null);
+			const [pendingMinute, setPendingMinute] = (0, react.useState)(null);
+			const [text, setText] = (0, react.useState)(value);
+			const focusedRef = (0, react.useRef)(false);
+			(0, react.useEffect)(() => {
+				if (!focusedRef.current) setText(value);
+			}, [value]);
+			const commit = (0, react.useCallback)((next) => {
+				onChange(next);
+				setText(next);
+				setOpen(false);
+				setPendingHour(null);
+				setPendingMinute(null);
+			}, [onChange]);
+			const handleTextChange = (0, react.useCallback)((raw) => {
+				let digits = raw;
+				if (raw.includes(":")) {
+					setText(raw);
+					return;
+				}
+				digits = raw.replace(/\D/g, "").slice(0, 4);
+				setText(formatTimeBuffer(digits));
+			}, []);
+			const commitText = (0, react.useCallback)(() => {
+				const parsed = parseTimeText(text);
+				if (parsed) {
+					onChange(`${pad2(parsed.hour)}:${pad2(parsed.minute)}`);
+					setText(`${pad2(parsed.hour)}:${pad2(parsed.minute)}`);
+				} else setText(value);
+			}, [
+				text,
+				value,
+				onChange
+			]);
+			const openPicker = (0, react.useCallback)(() => {
+				setOpen((current) => {
+					const next = !current;
+					if (next) {
+						setPendingHour(null);
+						setPendingMinute(null);
+					}
+					return next;
+				});
+			}, []);
+			const pickHour = (0, react.useCallback)((hour) => {
+				setPendingHour(hour);
+			}, []);
+			const pickMinute = (0, react.useCallback)((minute) => {
+				setPendingMinute(minute);
+			}, []);
+			(0, react.useEffect)(() => {
+				if (open && pendingHour !== null && pendingMinute !== null) commit(`${pad2(pendingHour)}:${pad2(pendingMinute)}`);
+			}, [
+				open,
+				pendingHour,
+				pendingMinute,
+				commit
+			]);
+			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("span", {
+				className: "wf-time",
+				children: [
+					/* @__PURE__ */ (0, react_jsx_runtime.jsx)("input", {
+						type: "text",
+						className: "wf-time__field",
+						value: text,
+						placeholder,
+						"aria-label": ariaLabel,
+						inputMode: "numeric",
+						onFocus: () => {
+							focusedRef.current = true;
+						},
+						onChange: (event) => handleTextChange(event.target.value),
+						onBlur: () => {
+							focusedRef.current = false;
+							commitText();
+						},
+						onKeyDown: (event) => {
+							if (event.key === "Enter") {
+								event.preventDefault();
+								commitText();
+							} else if (event.key === "Escape") {
+								setOpen(false);
+								setPendingHour(null);
+								setPendingMinute(null);
+							}
+						}
+					}),
+					/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+						type: "button",
+						className: "wf-time__clock",
+						title: ariaLabel ?? pickerLabel,
+						"aria-label": ariaLabel ?? pickerLabel,
+						onClick: openPicker,
+						children: "🕑"
+					}),
+					open ? /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("span", {
+						className: "wf-time__picker",
+						role: "listbox",
+						"aria-label": pickerLabel,
+						children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+							className: "wf-time__col",
+							role: "listbox",
+							"aria-label": hourLabel,
+							children: HOURS.map((hour) => /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+								type: "button",
+								role: "option",
+								"aria-selected": pendingHour === hour,
+								className: `wf-time__opt${pendingHour === hour ? " is-active" : ""}`,
+								onClick: () => pickHour(hour),
+								children: pad2(hour)
+							}, `h:${hour}`))
+						}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+							className: "wf-time__col",
+							role: "listbox",
+							"aria-label": minuteLabel,
+							children: MINUTES.map((minute) => /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+								type: "button",
+								role: "option",
+								"aria-selected": pendingMinute === minute,
+								className: `wf-time__opt${pendingMinute === minute ? " is-active" : ""}`,
+								onClick: () => pickMinute(minute),
+								children: pad2(minute)
+							}, `m:${minute}`))
+						})]
+					}) : null
+				]
+			});
+		}
+		// src/client/components/scheduler/SchedulerTaskForm.tsx
+		function SchedulerTaskForm(props) {
+			const { copy, draft, templates, timezoneOptions, unbounded, calendarOpen, dateRange, activeView, busy, confirmDelete, onPatch, onPatchWindow, onToggleUnbounded, onToggleCalendar, onCloseCalendar, onSetDaysAll, onToggleDay, onPatchRange, onAddRange, onRemoveRange, onPatchTimePoint, onAddTimePoint, onRemoveTimePoint, onScriptFilePicked, onSave, onDelete } = props;
+			const scriptInputRef = (0, react.useRef)(null);
+			const conditionEnabled = draft?.condition?.enabled === true;
+			const conditionScriptPath = draft?.condition?.scriptPath ?? "";
+			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+				className: "wf-sched__form",
+				children: [/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+					className: "wf-sched__form-scroll",
+					children: [
+						/* @__PURE__ */ (0, react_jsx_runtime.jsx)(Field, {
+							variant: "scheduler",
+							label: copy.schedulerTemplate,
+							children: /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("select", {
+								value: draft?.workflowTemplateId ?? "",
+								onChange: (event) => onPatch({ workflowTemplateId: event.target.value }),
+								disabled: !draft,
+								children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("option", {
+									value: "",
+									children: templates.length === 0 ? copy.schedulerTemplateEmpty : copy.schedulerTemplatePlaceholder
+								}), templates.map((item) => /* @__PURE__ */ (0, react_jsx_runtime.jsx)("option", {
+									value: item.id,
+									children: item.name ?? item.id
+								}, item.id))]
+							})
+						}),
+						/* @__PURE__ */ (0, react_jsx_runtime.jsx)(Field, {
+							variant: "scheduler",
+							label: copy.schedulerName,
+							children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)("input", {
+								value: draft?.name ?? "",
+								placeholder: copy.schedulerName,
+								onChange: (event) => onPatch({ name: event.target.value }),
+								disabled: !draft
+							})
+						}),
+						/* @__PURE__ */ (0, react_jsx_runtime.jsxs)(Field, {
+							variant: "scheduler",
+							label: copy.schedulerSessionMode,
+							hint: draft?.sessionMode === "current-session" ? copy.schedulerSessionCurrentHint : copy.schedulerSessionNewHint,
+							children: [/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+								className: "wf-sched-radios",
+								children: [/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("label", {
+									className: "wf-sched-radio",
+									children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("input", {
+										type: "radio",
+										name: "sched-session",
+										checked: draft?.sessionMode === "new-session",
+										disabled: !draft,
+										onChange: () => onPatch({ sessionMode: "new-session" })
+									}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", { children: copy.schedulerSessionNew })]
+								}), /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("label", {
+									className: "wf-sched-radio",
+									children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("input", {
+										type: "radio",
+										name: "sched-session",
+										checked: draft?.sessionMode === "current-session",
+										disabled: !draft,
+										onChange: () => onPatch({ sessionMode: "current-session" })
+									}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", { children: copy.schedulerSessionCurrent })]
+								})]
+							}), draft?.sessionMode === "new-session" ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("input", {
+								type: "text",
+								className: "wf-sched-workspace",
+								value: String(draft.workspacePath ?? ""),
+								placeholder: copy.workspacePlaceholder,
+								title: copy.workspaceHint,
+								onChange: (event) => onPatch({ workspacePath: event.target.value.trim() || void 0 }),
+								disabled: !draft
+							}) : null]
+						}),
+						/* @__PURE__ */ (0, react_jsx_runtime.jsx)(Field, {
+							variant: "scheduler",
+							label: copy.schedulerTimezone,
+							children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)("select", {
+								value: draft?.timezone ?? "",
+								onChange: (event) => onPatch({ timezone: event.target.value }),
+								disabled: !draft,
+								children: timezoneOptions
+							})
+						}),
+						/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("section", {
+							className: "wf-sched-group",
+							children: [
+								/* @__PURE__ */ (0, react_jsx_runtime.jsx)("h5", { children: copy.schedulerWindow }),
+								/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+									className: "wf-sched-field__hint",
+									children: copy.schedulerWindowHint
+								}),
+								/* @__PURE__ */ (0, react_jsx_runtime.jsx)(Field, {
+									variant: "scheduler",
+									label: `${copy.schedulerWindowDates}（${copy.schedulerWindowDateStart} ~ ${copy.schedulerWindowDateEnd}）`,
+									children: /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+										className: "wf-sched-dates",
+										children: [
+											/* @__PURE__ */ (0, react_jsx_runtime.jsx)("input", {
+												type: "text",
+												readOnly: true,
+												value: draft ? unbounded ? copy.schedulerWindowUnbounded : `${draft.window.startDate || "…"} ~ ${draft.window.endDate || "…"}` : "",
+												placeholder: copy.schedulerWindowDaysAll
+											}),
+											/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+												type: "button",
+												className: `wf-btn${unbounded ? " is-primary" : ""}`,
+												title: copy.schedulerWindowUnbounded,
+												onClick: onToggleUnbounded,
+												disabled: !draft,
+												children: copy.schedulerWindowUnbounded
+											}),
+											/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+												type: "button",
+												className: "wf-btn",
+												onClick: onToggleCalendar,
+												disabled: !draft || unbounded,
+												children: calendarOpen ? "▾" : "📅"
+											})
+										]
+									})
+								}),
+								calendarOpen && draft && !unbounded ? /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+									className: "wf-cal-card",
+									children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)(DateRangePicker, {
+										value: dateRange,
+										onChange: (value) => onPatchWindow({
+											startDate: value.start ?? "",
+											endDate: value.end ?? ""
+										}),
+										weekdays: copy.schedulerWeekdays,
+										prevLabel: copy.schedulerCalendarPreviousMonth,
+										nextLabel: copy.schedulerCalendarNextMonth,
+										startLabel: copy.schedulerCalendarStart,
+										endLabel: copy.schedulerCalendarEnd,
+										formatMonth: (year, month) => copy.schedulerCalendarMonthTitle.replace("{month}", copy.schedulerCalendarMonthNames[month - 1] ?? String(month)).replace("{year}", String(year))
+									}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+										className: "wf-cal-card__foot",
+										children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+											type: "button",
+											className: "wf-btn is-primary",
+											onClick: onCloseCalendar,
+											children: copy.inspectorSave
+										})
+									})]
+								}) : null,
+								/* @__PURE__ */ (0, react_jsx_runtime.jsx)(Field, {
+									variant: "scheduler",
+									label: copy.schedulerWindowDays,
+									children: /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+										className: "wf-sched-days",
+										children: [copy.schedulerWeekdays.map((label, day) => /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+											type: "button",
+											className: `wf-sched-day${(draft?.window.daysOfWeek ?? []).includes(day) ? " is-active" : ""}`,
+											onClick: () => onToggleDay(day),
+											disabled: !draft,
+											children: label
+										}, label)), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+											type: "button",
+											className: `wf-sched-day is-all${(draft?.window.daysOfWeek ?? []).length === 0 ? " is-active" : ""}`,
+											onClick: onSetDaysAll,
+											disabled: !draft,
+											children: copy.schedulerWindowDaysAll
+										})]
+									})
+								}),
+								/* @__PURE__ */ (0, react_jsx_runtime.jsx)(Field, {
+									variant: "scheduler",
+									label: copy.schedulerWindowRanges,
+									hint: copy.schedulerRangeCrossHint,
+									children: /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+										className: "wf-sched-ranges",
+										children: [(draft?.window.timeRanges ?? []).map((range, index) => /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+											className: "wf-sched-range-row",
+											children: [
+												/* @__PURE__ */ (0, react_jsx_runtime.jsx)(TimeInput, {
+													value: range.start,
+													onChange: (value) => onPatchRange(index, { start: value }),
+													placeholder: copy.schedulerTimePlaceholder,
+													ariaLabel: copy.schedulerRangeStart,
+													pickerLabel: copy.schedulerTimePicker,
+													hourLabel: copy.schedulerHour,
+													minuteLabel: copy.schedulerMinute
+												}),
+												/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", { children: "~" }),
+												/* @__PURE__ */ (0, react_jsx_runtime.jsx)(TimeInput, {
+													value: range.end,
+													onChange: (value) => onPatchRange(index, { end: value }),
+													placeholder: copy.schedulerTimePlaceholder,
+													ariaLabel: copy.schedulerRangeEnd,
+													pickerLabel: copy.schedulerTimePicker,
+													hourLabel: copy.schedulerHour,
+													minuteLabel: copy.schedulerMinute
+												}),
+												/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+													type: "button",
+													className: "wf-btn wf-iconbtn",
+													title: copy.inspectorDelete,
+													onClick: () => onRemoveRange(index),
+													children: "×"
+												})
+											]
+										}, `${index}:${range.start}-${range.end}`)), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+											type: "button",
+											className: "wf-btn is-ghost",
+											onClick: onAddRange,
+											disabled: !draft,
+											children: `＋ ${copy.schedulerRangeAdd}`
+										})]
+									})
+								})
+							]
+						}),
+						/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("section", {
+							className: "wf-sched-group",
+							children: [
+								/* @__PURE__ */ (0, react_jsx_runtime.jsx)("h5", { children: copy.schedulerTrigger }),
+								/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+									className: "wf-sched-radios",
+									children: [/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("label", {
+										className: "wf-sched-radio",
+										children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("input", {
+											type: "radio",
+											name: "sched-trigger",
+											checked: draft?.triggerMode === "daily_time",
+											disabled: !draft,
+											onChange: () => onPatch({ triggerMode: "daily_time" })
+										}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", { children: copy.schedulerTriggerDaily })]
+									}), /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("label", {
+										className: "wf-sched-radio",
+										children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("input", {
+											type: "radio",
+											name: "sched-trigger",
+											checked: draft?.triggerMode === "interval",
+											disabled: !draft,
+											onChange: () => onPatch({ triggerMode: "interval" })
+										}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", { children: copy.schedulerTriggerInterval })]
+									})]
+								}),
+								draft?.triggerMode === "daily_time" ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)(Field, {
+									variant: "scheduler",
+									label: copy.schedulerTimePoints,
+									children: /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+										className: "wf-sched-ranges",
+										children: [(draft.dailyTimeConfig?.timePoints ?? []).map((point, index) => /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+											className: "wf-sched-range-row",
+											children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)(TimeInput, {
+												value: point,
+												onChange: (value) => onPatchTimePoint(index, value),
+												placeholder: copy.schedulerTimePlaceholder,
+												ariaLabel: copy.schedulerTimePoints,
+												pickerLabel: copy.schedulerTimePicker,
+												hourLabel: copy.schedulerHour,
+												minuteLabel: copy.schedulerMinute
+											}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+												type: "button",
+												className: "wf-btn wf-iconbtn",
+												title: copy.inspectorDelete,
+												onClick: () => onRemoveTimePoint(index),
+												children: "×"
+											})]
+										}, `${index}:${point}`)), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+											type: "button",
+											className: "wf-btn is-ghost",
+											onClick: onAddTimePoint,
+											disabled: !draft,
+											children: `＋ ${copy.schedulerTimePointAdd}`
+										})]
+									})
+								}) : /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+									className: "wf-sched-row2",
+									children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)(Field, {
+										variant: "scheduler",
+										label: copy.schedulerInterval,
+										children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)("input", {
+											type: "number",
+											min: 1,
+											max: 1439,
+											step: 1,
+											value: draft?.intervalConfig?.intervalMinutes ?? 120,
+											onChange: (event) => onPatch({ intervalConfig: {
+												...draft?.intervalConfig ?? {
+													intervalMinutes: 120,
+													startFrom: "09:00"
+												},
+												intervalMinutes: Number(event.target.value) || 120
+											} }),
+											disabled: !draft
+										})
+									}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)(Field, {
+										variant: "scheduler",
+										label: copy.schedulerIntervalStartFrom,
+										children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)(TimeInput, {
+											value: draft?.intervalConfig?.startFrom ?? "09:00",
+											onChange: (value) => onPatch({ intervalConfig: {
+												...draft?.intervalConfig ?? {
+													intervalMinutes: 120,
+													startFrom: "09:00"
+												},
+												startFrom: value
+											} }),
+											ariaLabel: copy.schedulerIntervalStartFrom,
+											placeholder: copy.schedulerTimePlaceholder,
+											pickerLabel: copy.schedulerTimePicker,
+											hourLabel: copy.schedulerHour,
+											minuteLabel: copy.schedulerMinute
+										})
+									})]
+								}),
+								/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+									className: "wf-sched-field__hint",
+									children: copy.schedulerIntervalHint
+								})
+							]
+						}),
+						/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("section", {
+							className: "wf-sched-group",
+							children: [
+								/* @__PURE__ */ (0, react_jsx_runtime.jsx)("h5", { children: copy.schedulerCondition }),
+								/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("label", {
+									className: "wf-sched-enabled",
+									children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("input", {
+										type: "checkbox",
+										checked: conditionEnabled,
+										disabled: !draft,
+										onChange: (event) => onPatch({ condition: {
+											enabled: event.target.checked,
+											scriptPath: conditionScriptPath
+										} })
+									}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", { children: copy.schedulerConditionEnable })]
+								}),
+								/* @__PURE__ */ (0, react_jsx_runtime.jsx)(Field, {
+									variant: "scheduler",
+									label: copy.schedulerConditionScript,
+									children: /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+										className: "wf-sched-dates",
+										children: [
+											/* @__PURE__ */ (0, react_jsx_runtime.jsx)("input", {
+												type: "text",
+												value: conditionScriptPath,
+												placeholder: copy.schedulerConditionScriptPlaceholder,
+												onChange: (event) => onPatch({ condition: {
+													enabled: conditionEnabled,
+													scriptPath: event.target.value
+												} }),
+												disabled: !draft || !conditionEnabled
+											}),
+											/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+												type: "button",
+												className: "wf-btn",
+												onClick: () => scriptInputRef.current?.click(),
+												disabled: !draft || !conditionEnabled,
+												children: copy.schedulerConditionPick
+											}),
+											/* @__PURE__ */ (0, react_jsx_runtime.jsx)("input", {
+												ref: scriptInputRef,
+												type: "file",
+												accept: ".mjs,.cjs,.js",
+												className: "wf-import-hidden",
+												"aria-label": String(copy.schedulerConditionPick),
+												onChange: (event) => {
+													const picked = event.target.files?.[0];
+													if (picked) onScriptFilePicked(picked);
+													event.target.value = "";
+												}
+											})
+										]
+									})
+								}),
+								/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+									className: "wf-sched-field__hint",
+									children: copy.schedulerConditionScriptHint
+								}),
+								/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+									className: "wf-sched-field__hint",
+									children: copy.schedulerConditionLateHint
+								})
+							]
+						}),
+						/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("section", {
+							className: "wf-sched-group",
+							children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("h5", { children: copy.schedulerPolicy }), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+								className: "wf-sched-field__hint",
+								children: copy.schedulerPolicyText
+							})]
+						}),
+						/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("section", {
+							className: "wf-sched-group",
+							children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("h5", { children: copy.schedulerCurrentRun }), /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+								className: "wf-sched-status-grid",
+								children: [
+									/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("span", {
+										className: "wf-sched-status-cell",
+										children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", { className: `wf-sched-dot is-${activeView?.runtime.status ?? "idle"}` }), schedulerStatusLabelOf(copy, activeView?.runtime.status ?? "idle")]
+									}),
+									/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+										className: "wf-sched-status-cell",
+										children: `${copy.schedulerNextRun}：${formatIso(activeView?.runtime.nextTriggerAt ?? null, copy.schedulerLocale)}`
+									}),
+									/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+										className: "wf-sched-status-cell",
+										children: `${copy.schedulerLastOutcome}：${schedulerResultLabelOf(copy, activeView?.runtime.lastResult ?? null)}`
+									}),
+									activeView?.runtime.lastError ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+										className: "wf-sched-status-cell is-error",
+										children: activeView.runtime.lastError
+									}) : null
+								]
+							})]
+						})
+					]
+				}), /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+					className: "wf-sched__form-foot",
+					children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+						type: "button",
+						className: "wf-btn is-danger",
+						onClick: onDelete,
+						disabled: !draft || busy,
+						children: confirmDelete ? copy.schedulerDeleteConfirm : copy.schedulerDelete
+					}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+						type: "button",
+						className: "wf-btn is-primary",
+						onClick: onSave,
+						disabled: !draft || busy,
+						children: copy.inspectorSave
+					})]
+				})]
+			});
+		}
+		// src/client/components/scheduler/SchedulerTaskList.tsx
+		function SchedulerTaskList(props) {
+			const { copy, views, templates, activeTaskId, draftEnabled, hasDraft, busy, onSelect, onNew, onToggleEnabled } = props;
+			/** 任务列表项展示元信息（模板名 + 下次触发）。 */
+			const itemMeta = (view) => {
+				const parts = [templates.find((item) => item.id === view.task.workflowTemplateId)?.name ?? view.task.workflowTemplateId];
+				if (view.runtime.nextTriggerAt) parts.push(`${copy.schedulerNextRun} ${formatIso(view.runtime.nextTriggerAt, copy.schedulerLocale)}`);
+				return parts.join(" · ");
+			};
+			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+				className: "wf-combo__side",
+				children: [
+					/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+						className: "wf-combo__side-head",
+						children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("h4", { children: copy.scheduler }), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+							type: "button",
+							className: "wf-btn",
+							onClick: onNew,
+							disabled: busy,
+							children: `＋ ${copy.schedulerNew}`
+						})]
+					}),
+					/* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+						className: "wf-combo__side-list",
+						children: views.length === 0 ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+							className: "wf-hint",
+							children: copy.schedulerEmpty
+						}) : views.map((view) => /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("button", {
+							type: "button",
+							className: `wf-combo-item${view.task.taskId === activeTaskId ? " is-active" : ""}`,
+							onClick: () => onSelect(view.task.taskId),
+							children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+								className: "wf-combo-item__label",
+								children: view.task.name
+							}), /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("span", {
+								className: "wf-sched-list-meta",
+								children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+									className: `wf-sched-dot is-${view.runtime.status}`,
+									title: schedulerStatusLabelOf(copy, view.runtime.status)
+								}), itemMeta(view)]
+							})]
+						}, view.task.taskId))
+					}),
+					/* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+						className: "wf-combo-hint",
+						children: copy.schedulerDeleteHint
+					}),
+					/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("label", {
+						className: "wf-sched-enabled",
+						children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("input", {
+							type: "checkbox",
+							checked: draftEnabled,
+							disabled: !hasDraft,
+							onChange: (event) => onToggleEnabled(event.target.checked)
+						}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", { children: copy.schedulerEnabled })]
+					})
+				]
+			});
+		}
+		// src/client/components/scheduler/SchedulerManager.tsx
+		function SchedulerManager({ copy, remote, sessionId, filePathResolver, onClose, onToast }) {
+			const tasks = useSchedulerTasks(remote);
+			const [activeTaskId, setActiveTaskId] = (0, react.useState)(null);
+			const [draft, setDraft] = (0, react.useState)(null);
+			const [confirmDelete, setConfirmDelete] = (0, react.useState)(false);
+			const [calendarOpen, setCalendarOpen] = (0, react.useState)(false);
+			const loadedRef = (0, react.useRef)(false);
+			const activeTaskIdRef = (0, react.useRef)(null);
+			(0, react.useEffect)(() => {
+				activeTaskIdRef.current = activeTaskId;
+			}, [activeTaskId]);
+			/** 加载完成后确定选中项：仍存在则沿用，否则回退首个任务。 */
+			const selectAfterLoad = (0, react.useCallback)((list) => {
+				const current = activeTaskIdRef.current;
+				if (current && list.some((item) => item.task.taskId === current)) return;
+				const first = list[0];
+				if (!first) return;
+				setActiveTaskId(first.task.taskId);
+				setDraft(taskFromView(first));
+			}, []);
+			const { load } = tasks;
+			(0, react.useEffect)(() => {
+				if (loadedRef.current) return;
+				loadedRef.current = true;
+				(async () => {
+					try {
+						const { views } = await load();
+						selectAfterLoad(views);
+					} catch (error) {
+						onToast("error", remoteErrorMessageOf(error));
+					}
+				})();
+			}, [
+				load,
+				onToast,
+				selectAfterLoad
+			]);
+			const timezoneWarnedRef = (0, react.useRef)(false);
+			(0, react.useEffect)(() => {
+				if (timezoneWarnedRef.current || detectLocalTimezone() !== null) return;
+				timezoneWarnedRef.current = true;
+				onToast("error", copy.schedulerTimezoneUnavailable);
+			}, [copy.schedulerTimezoneUnavailable, onToast]);
+			const activeView = (0, react.useMemo)(() => tasks.views.find((item) => item.task.taskId === activeTaskId) ?? null, [tasks.views, activeTaskId]);
+			const selectTask = (0, react.useCallback)((id) => {
+				setActiveTaskId(id);
+				setConfirmDelete(false);
+				setCalendarOpen(false);
+				const view = tasks.views.find((item) => item.task.taskId === id);
+				if (view) setDraft(taskFromView(view));
+			}, [tasks.views]);
+			const newTask = (0, react.useCallback)(() => {
+				const draftTask = createTaskDraft(sessionId);
+				setActiveTaskId(draftTask.taskId);
+				setDraft(draftTask);
+				setConfirmDelete(false);
+				setCalendarOpen(false);
+			}, [sessionId]);
+			const patch = (0, react.useCallback)((part) => {
+				setDraft((current) => current ? {
+					...current,
+					...part
+				} : current);
+			}, []);
+			/**
+			* 条件脚本选择结果：只在解析到宿主绝对路径时写入草稿。
+			* 浏览器拿不到绝对路径（降级为文件名）时提示手填，避免把文件名当路径让保存必然失败。
+			*/
+			const pickScriptFile = (0, react.useCallback)((file) => {
+				const resolved = filePathResolver?.(file) ?? "";
+				if (!isAbsoluteHostPath(resolved)) {
+					onToast("error", copy.schedulerConditionPickUnavailable);
+					return;
+				}
+				patch({ condition: {
+					enabled: true,
+					scriptPath: resolved
+				} });
+			}, [
+				copy.schedulerConditionPickUnavailable,
+				filePathResolver,
+				onToast,
+				patch
+			]);
+			const patchWindow = (0, react.useCallback)((part) => {
+				setDraft((current) => current ? {
+					...current,
+					window: {
+						...current.window,
+						...part
+					}
+				} : current);
+			}, []);
+			const saveTask = (0, react.useCallback)(async () => {
+				if (!draft) return;
+				const validation = validateTaskDraft(draft);
+				if (validation !== null) {
+					onToast("error", String(copy[validation] ?? validation));
+					return;
+				}
+				try {
+					const saved = await tasks.saveTask(draft);
+					setActiveTaskId(saved.taskId);
+					onToast("success", copy.schedulerSaved);
+				} catch (error) {
+					onToast("error", remoteErrorMessageOf(error));
+				}
+			}, [
+				copy,
+				draft,
+				onToast,
+				tasks
+			]);
+			const deleteTask = (0, react.useCallback)(async () => {
+				if (!activeTaskId) return;
+				if (!confirmDelete) {
+					setConfirmDelete(true);
+					return;
+				}
+				setConfirmDelete(false);
+				try {
+					await tasks.deleteTask(activeTaskId);
+					setActiveTaskId(null);
+					setDraft(null);
+					onToast("success", copy.schedulerDeleted);
+				} catch (error) {
+					onToast("error", String(error?.message ?? error));
+				}
+			}, [
+				activeTaskId,
+				confirmDelete,
+				copy.schedulerDeleted,
+				onToast,
+				tasks
+			]);
+			/** 星期切换（0=周日 … 6=周六）。 */
+			const toggleDay = (0, react.useCallback)((day) => {
+				setDraft((current) => {
+					if (!current) return current;
+					const days = current.window.daysOfWeek ?? [];
+					const next = days.includes(day) ? days.filter((d) => d !== day) : [...days, day].sort((a, b) => a - b);
+					return {
+						...current,
+						window: {
+							...current.window,
+							daysOfWeek: next
+						}
+					};
+				});
+			}, []);
+			const patchRange = (0, react.useCallback)((index, part) => {
+				setDraft((current) => {
+					if (!current) return current;
+					const ranges = current.window.timeRanges.map((range, i) => i === index ? {
+						...range,
+						...part
+					} : range);
+					return {
+						...current,
+						window: {
+							...current.window,
+							timeRanges: ranges
+						}
+					};
+				});
+			}, []);
+			const addRange = (0, react.useCallback)(() => {
+				setDraft((current) => current ? {
+					...current,
+					window: {
+						...current.window,
+						timeRanges: [...current.window.timeRanges, {
+							start: "09:00",
+							end: "18:00"
+						}]
+					}
+				} : current);
+			}, []);
+			const removeRange = (0, react.useCallback)((index) => {
+				setDraft((current) => current ? {
+					...current,
+					window: {
+						...current.window,
+						timeRanges: current.window.timeRanges.filter((_, i) => i !== index)
+					}
+				} : current);
+			}, []);
+			const patchTimePoint = (0, react.useCallback)((index, value) => {
+				setDraft((current) => {
+					if (!current) return current;
+					const points = [...current.dailyTimeConfig?.timePoints ?? []];
+					points[index] = value;
+					const sorted = points.sort((a, b) => a.localeCompare(b));
+					return {
+						...current,
+						dailyTimeConfig: { timePoints: sorted }
+					};
+				});
+			}, []);
+			const addTimePoint = (0, react.useCallback)(() => {
+				setDraft((current) => current ? {
+					...current,
+					dailyTimeConfig: { timePoints: [...current.dailyTimeConfig?.timePoints ?? [], "09:00"] }
+				} : current);
+			}, []);
+			const removeTimePoint = (0, react.useCallback)((index) => {
+				setDraft((current) => {
+					if (!current) return current;
+					const points = (current.dailyTimeConfig?.timePoints ?? []).filter((_, i) => i !== index);
+					return {
+						...current,
+						dailyTimeConfig: { timePoints: points }
+					};
+				});
+			}, []);
+			/** 日期不限开关：true = 忽略日期范围（仅 daysOfWeek + timeRanges）；关闭时补默认范围。 */
+			const unbounded = draft?.window?.unbounded === true;
+			const toggleUnbounded = (0, react.useCallback)(() => {
+				setDraft((current) => {
+					if (!current) return current;
+					const next = !(current.window.unbounded === true);
+					const window = {
+						...current.window,
+						unbounded: next
+					};
+					if (!next && !window.startDate && !window.endDate) {
+						const today = localDateOnly();
+						window.startDate = today;
+						window.endDate = shiftDateOnly(today, 30);
+					}
+					return {
+						...current,
+						window
+					};
+				});
+			}, []);
+			const timezones = (0, react.useMemo)(() => {
+				const list = [...SCHEDULER_TIMEZONE_SUGGESTIONS];
+				const local = detectLocalTimezone();
+				if (local && !list.includes(local)) list.unshift(local);
+				return list;
+			}, []);
+			const timezoneOptions = (0, react.useMemo)(() => timezones.map((tz) => /* @__PURE__ */ (0, react_jsx_runtime.jsx)("option", {
+				value: tz,
+				children: tz
+			}, tz)), [timezones]);
+			/** 日期范围（把空串视为"未定" → null，使日历能在"仅起点"状态下继续点选终点）。 */
+			const dateRange = {
+				start: draft?.window.startDate || null,
+				end: draft?.window.endDate || null
+			};
+			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)(Modal, {
+				className: "wf-combo wf-sched",
+				backdropClassName: "wf-combo-backdrop",
+				label: String(copy.schedulerManager),
+				onClose,
+				children: [/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+					className: "wf-combo__head",
+					children: [
+						/* @__PURE__ */ (0, react_jsx_runtime.jsx)("h3", { children: copy.schedulerManager }),
+						/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+							className: "wf-status",
+							children: copy.schedulerHint
+						}),
+						/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+							type: "button",
+							className: "wf-btn wf-combo__close",
+							onClick: onClose,
+							children: "✕"
+						})
+					]
+				}), /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+					className: "wf-combo__body",
+					children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)(SchedulerTaskForm, {
+						copy,
+						draft,
+						templates: tasks.templates,
+						timezoneOptions,
+						unbounded,
+						calendarOpen,
+						dateRange,
+						activeView,
+						busy: tasks.busy,
+						confirmDelete,
+						onPatch: patch,
+						onPatchWindow: patchWindow,
+						onToggleUnbounded: toggleUnbounded,
+						onToggleCalendar: () => setCalendarOpen((open) => !open),
+						onCloseCalendar: () => setCalendarOpen(false),
+						onSetDaysAll: () => patchWindow({ daysOfWeek: [] }),
+						onToggleDay: toggleDay,
+						onPatchRange: patchRange,
+						onAddRange: addRange,
+						onRemoveRange: removeRange,
+						onPatchTimePoint: patchTimePoint,
+						onAddTimePoint: addTimePoint,
+						onRemoveTimePoint: removeTimePoint,
+						onScriptFilePicked: pickScriptFile,
+						onSave: () => {
+							saveTask();
+						},
+						onDelete: () => {
+							deleteTask();
+						}
+					}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)(SchedulerTaskList, {
+						copy,
+						views: tasks.views,
+						templates: tasks.templates,
+						activeTaskId,
+						draftEnabled: draft?.enabled === true,
+						hasDraft: draft !== null,
+						busy: tasks.busy,
+						onSelect: selectTask,
+						onNew: newTask,
+						onToggleEnabled: (enabled) => patch({ enabled })
+					})]
+				})]
+			});
+		}
+		// src/client/hooks/useAutoLayout.ts
+		/**
+		* 自动布局接线（每个「当前文档 id」只尝试一次；失败不阻断编辑）。
+		* 与「整理布局」共用同一布局入口 lib/graph-model.layoutNodes，保证两条路径结果一致。
+		*/
+		function useAutoLayout(state, dispatch, options = {}) {
+			/** 已尝试过自动布局的文档 key（id:kind）；重开同一文档不再重复尝试。 */
+			const attemptedRef = (0, react.useRef)("");
+			/** 回调经 ref 转发，避免因 options 对象每次渲染变化而重复触发副作用。 */
+			const optionsRef = (0, react.useRef)(options);
+			optionsRef.current = options;
+			const { currentId, currentKind, canvas } = state;
+			(0, react.useEffect)(() => {
+				if (!currentId || !currentKind) return;
+				const key = `${currentKind}:${currentId}`;
+				if (attemptedRef.current === key) return;
+				const nodes = canvas.nodes;
+				if (nodes.length === 0) return;
+				attemptedRef.current = key;
+				if (needsAutoLayout(nodes)) {
+					const next = layoutNodes(nodes, canvas.edges);
+					dispatch({
+						type: "GRAPH_REPLACED",
+						nodes: next,
+						edges: canvas.edges,
+						dirty: true
+					});
+					Promise.resolve(optionsRef.current.saveCanvas?.({
+						auto: true,
+						nodes: next,
+						edges: canvas.edges
+					})).catch(() => {});
+					optionsRef.current.onApplied?.(next);
+					return;
+				}
+				const boxes = layoutBoxesOf(nodes, (node) => groupCardSizeOf(node), collapsedIdsOf(toLayoutInputs(nodes, (node) => groupCardSizeOf(node))));
+				const overlapTip = optionsRef.current.tips?.overlap;
+				if (findLayoutOverlaps(boxes).length === 0 || !overlapTip) return;
+				optionsRef.current.notify?.("info", overlapTip);
+			}, [
+				currentId,
+				currentKind,
+				canvas.nodes,
+				canvas.edges,
+				dispatch
+			]);
+		}
+		// src/client/lib/sse-delta.ts
+		/**
+		* 解析后端 SSE data 行的内容增量。
+		* @returns { content?, error? } 增量文本或错误消息（无匹配返回空对象）。
+		*/
+		function parseSseDelta(data) {
+			let parsed;
+			try {
+				parsed = JSON.parse(data);
+			} catch {
+				return {};
+			}
+			if (parsed.error?.message) return { error: String(parsed.error.message) };
+			const content = parsed.choices?.[0]?.delta?.content ?? parsed.delta?.content;
+			return typeof content === "string" && content ? { content } : {};
+		}
+		/** 单行字符上限（防御：一行被无限追加时也要有界；超出即折行，不丢字符）。 */
+		const MAX_SERVICE_DEBUG_LINE_CHARS = 2e4;
+		/** 服务调试输出累积器（纯状态机：不读时钟/随机源/DOM）。 */
+		var ServiceDebugOutput = class {
+			/** 逻辑行；末尾元素始终是「正在追加的行」。 */
+			lines = [""];
+			/** 各行长度之和（截断判定用；不含行间换行符）。 */
+			chars = 0;
+			/** 是否发生过截断（置位后持续到 reset）。 */
+			truncated = false;
+			/** 已丢弃的字符数（省略提示里的数字）。 */
+			droppedChars = 0;
+			/** 重新开始一轮流（清空文本与截断标记）。 */
+			reset() {
+				this.lines = [""];
+				this.chars = 0;
+				this.truncated = false;
+				this.droppedChars = 0;
+			}
+			/** 追加正文增量：文本自带的换行符按逻辑行拆分，不插入额外分隔符。 */
+			appendContent(text) {
+				if (!text) return;
+				const segments = text.split("\n");
+				this.appendToCurrentLine(segments[0] ?? "");
+				for (let index = 1; index < segments.length; index += 1) {
+					this.lines.push("");
+					this.appendToCurrentLine(segments[index] ?? "");
+				}
+				this.trim();
+			}
+			/** 追加错误行（自成一行；已有内容时其前留一空行，与旧的整串累加口径一致）。 */
+			appendError(prefixedError) {
+				if (!prefixedError) return;
+				if (this.hasContent()) {
+					this.lines.push("");
+					this.lines.push("");
+				}
+				this.appendToCurrentLine(prefixedError);
+				this.trim();
+			}
+			/** 显示文本；发生过截断时把省略提示放在最前（用户知道早期输出已丢弃）。 */
+			format(omittedLabel = "") {
+				const body = this.lines.join("\n");
+				if (!this.truncated || omittedLabel === "") return body;
+				return `${omittedLabel}${this.droppedChars}\n${body}`;
+			}
+			/** 有内容即视为「已开始输出」（空串追加不改变该判定）。 */
+			hasContent() {
+				return this.lines.length > 1 || this.lines[0] !== "";
+			}
+			/** 把一段无换行文本追加到当前行；当前行满则折行继续（不丢字符）。 */
+			appendToCurrentLine(segment) {
+				let rest = segment;
+				while (rest.length > 0) {
+					const last = this.lines.length - 1;
+					const room = MAX_SERVICE_DEBUG_LINE_CHARS - this.lines[last].length;
+					if (room <= 0) {
+						this.lines.push("");
+						continue;
+					}
+					const head = rest.slice(0, room);
+					this.lines[last] += head;
+					this.chars += head.length;
+					rest = rest.slice(head.length);
+				}
+			}
+			/** 丢弃最旧行直到回到上限内（至少保留一行，保证「正在追加的行」始终存在）。 */
+			trim() {
+				while (this.lines.length > 5e3 || this.chars > 2e5 && this.lines.length > 1) {
+					const removed = this.lines.shift();
+					if (removed === void 0) return;
+					this.truncated = true;
+					this.droppedChars += removed.length;
+					this.chars -= removed.length;
+				}
+			}
+		};
+		// src/client/hooks/useServiceDebugStream.ts
+		function useServiceDebugStream(remote, options) {
+			const { serviceId, sessionId, enabled, errorPrefix, omittedLabel } = options;
+			const [output, setOutput] = (0, react.useState)("");
+			const [streaming, setStreaming] = (0, react.useState)(false);
+			const abortRef = (0, react.useRef)(null);
+			/** 输出累积器（跨渲染保持；整串 state 只在每次追加后按当前文本刷新一次）。 */
+			const bufferRef = (0, react.useRef)(new ServiceDebugOutput());
+			const mountedRef = (0, react.useRef)(true);
+			(0, react.useEffect)(() => {
+				mountedRef.current = true;
+				return () => {
+					mountedRef.current = false;
+					abortRef.current?.abort();
+					abortRef.current = null;
+				};
+			}, []);
+			/** 累积器 → state（重挂载后仍按最新文本显示）。 */
+			const flush = (0, react.useCallback)(() => {
+				setOutput(bufferRef.current.format(omittedLabel));
+			}, [omittedLabel]);
+			(0, react.useEffect)(() => {
+				if (enabled) return;
+				abortRef.current?.abort();
+				abortRef.current = null;
+				setStreaming(false);
+			}, [enabled]);
+			const stop = (0, react.useCallback)(() => {
+				abortRef.current?.abort();
+				abortRef.current = null;
+			}, []);
+			return {
+				output,
+				streaming,
+				send: (0, react.useCallback)((prompt) => {
+					const text = prompt.trim();
+					if (!text || !enabled || streaming) return;
+					const controller = new AbortController();
+					abortRef.current = controller;
+					setStreaming(true);
+					bufferRef.current.reset();
+					setOutput("");
+					(async () => {
+						try {
+							await remote.stream(EP_SERVICE_DEBUG, {
+								serviceId,
+								sessionId,
+								prompt: text
+							}, (line) => {
+								if (!mountedRef.current) return;
+								if (!line.startsWith("data: ")) return;
+								const data = line.slice(6).trim();
+								if (!data || data === "[DONE]") return;
+								const delta = parseSseDelta(data);
+								if (delta.error) {
+									bufferRef.current.appendError(`${errorPrefix}${delta.error}`);
+									flush();
+								} else if (delta.content) {
+									bufferRef.current.appendContent(delta.content);
+									flush();
+								}
+							}, controller.signal);
+						} catch (error) {
+							if (!mountedRef.current) return;
+							const message = error instanceof Error ? error.message : String(error);
+							bufferRef.current.appendError(`${errorPrefix}${message}`);
+							flush();
+						} finally {
+							if (mountedRef.current) setStreaming(false);
+							abortRef.current = null;
+						}
+					})();
+				}, [
+					enabled,
+					errorPrefix,
+					flush,
+					remote,
+					serviceId,
+					sessionId,
+					streaming
+				]),
+				stop
+			};
+		}
+		// src/client/studio/StudioLayout.tsx
+		/** 工作台渲染层（JSX 组合 + 自动布局接线与弹层装配；数据/回调全部来自 props）。 */
+		function StudioLayout(props) {
+			const { t, state, sessionId, remote, currentFlow, currentService, editorData, edgeList, toolbarRunning, runStatusByNode, highlightedNodeIds, modeName, agentPatchedNodeIds, libraryProps, lockedNodeIds, lockedEdgeIds, instanceRunning, canvasApiRef, canvasShellRef, libraryImportRef, personaInputRef, groupMdInputRef, dispatch, doc, assets, canvas, editor, run, transfer, selection, history, guard, panels, toast, dragPreview, dropGroupId, modeMenuOpen, setModeMenuOpen, switchMode, canvasCaption, leftOpen, bottomOpen, inspectorOpen, handleRun, panelsCollapsed, onTogglePanels, instanceOptions, onInstanceOptionsChange, onEditWorkingDirectory, filePathResolver } = props;
+			const canvasCopy = (0, react.useMemo)(() => ({
+				...t,
+				modeName
+			}), [t, modeName]);
+			const [routingRevision, setRoutingRevision] = (0, react.useState)(0);
+			const [maxActiveSubagents, setMaxActiveSubagents] = (0, react.useState)(void 0);
+			const [subgraphEditorId, setSubgraphEditorId] = (0, react.useState)(null);
+			const subgraphEditorNode = subgraphEditorId ? state.canvas.nodes.find((node) => node.id === subgraphEditorId && node.kind === "subgraph") ?? null : null;
+			(0, react.useEffect)(() => {
+				const controller = new AbortController();
+				fetch("studio/subagent-limits", {
+					signal: controller.signal,
+					credentials: "same-origin"
+				}).then((response) => response.ok ? response.json() : null).then((value) => {
+					const limit = Number(value?.maxActiveSubagents);
+					if (Number.isFinite(limit) && limit > 0) setMaxActiveSubagents(limit);
+				}).catch(() => {});
+				return () => controller.abort();
+			}, []);
+			const [textExpand, setTextExpand] = (0, react.useState)(null);
+			(0, react.useEffect)(() => {
+				setTextExpand(null);
+			}, [state.editor, inspectorOpen]);
+			const textExpandHost = (0, react.useMemo)(() => ({
+				open: setTextExpand,
+				expandLabel: String(t.textExpand)
+			}), [t.textExpand]);
+			const closeTextExpand = (0, react.useCallback)(() => {
+				setTextExpand(null);
+			}, []);
+			useAutoLayout(state, dispatch, {
+				saveCanvas: doc.saveCanvas,
+				notify: toast,
+				tips: { overlap: t.canvasOverlapHint },
+				onApplied: (nodes) => canvasApiRef.current?.fitView({ nodes })
+			});
+			const serviceDebug = useServiceDebugStream(remote, {
+				serviceId: currentService?.id ?? "",
+				sessionId: currentService?.sessionId ?? sessionId,
+				enabled: state.mode === "mode2" && currentService?.status === "running",
+				errorPrefix: t.serviceDebugErrorPrefix,
+				omittedLabel: t.serviceDebugOmitted
+			});
+			const isInstanceSource = isInstanceSourceKind(state.currentKind);
+			const commitSubgraphDraft = (0, react.useCallback)((nodes, edges) => {
+				if (!subgraphEditorId) return;
+				const nextNodes = state.canvas.nodes.map((parent) => parent.id === subgraphEditorId ? {
+					...parent,
+					data: {
+						...parent.data,
+						graph: {
+							nodes: serializeNodes(nodes, state.mode),
+							lines: serializeLines(edges)
+						}
+					}
+				} : parent);
+				dispatch({
+					type: "GRAPH_REPLACED",
+					nodes: nextNodes,
+					edges: state.canvas.edges,
+					dirty: true
+				});
+			}, [
+				dispatch,
+				state.canvas.edges,
+				state.canvas.nodes,
+				state.mode,
+				subgraphEditorId
+			]);
+			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+				className: "wf-root",
+				children: [
+					/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("nav", {
+						className: "wf-tabs",
+						children: [
+							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+								className: "wf-titlebar__title",
+								children: t.studio
+							}),
+							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+								className: "wf-titlebar__badge",
+								children: t.badge
+							}),
+							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+								className: "wf-titlebar__note",
+								children: t.note
+							}),
+							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", { className: "wf-titlebar__spacer" }),
+							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("input", {
+								ref: libraryImportRef,
+								type: "file",
+								accept: ".json,application/json",
+								className: "wf-import-hidden",
+								onChange: (event) => {
+									transfer.handleImportFile(event.target.files?.[0] ?? null);
+									event.target.value = "";
+								}
+							}),
+							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("input", {
+								ref: personaInputRef,
+								type: "file",
+								accept: ".md,.markdown",
+								className: "wf-import-hidden",
+								onChange: (event) => {
+									transfer.onPersonaMdSelected(event.target.files?.[0] ?? null);
+									event.target.value = "";
+								}
+							}),
+							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("input", {
+								ref: groupMdInputRef,
+								type: "file",
+								accept: ".md,.markdown",
+								className: "wf-import-hidden",
+								onChange: (event) => {
+									transfer.onGroupMdSelected(event.target.files?.[0] ?? null);
+									event.target.value = "";
+								}
+							}),
+							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+								type: "button",
+								className: "wf-btn is-ghost",
+								onClick: () => libraryImportRef.current?.click(),
+								children: t.importWorkflow
+							}),
+							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+								type: "button",
+								className: "wf-btn is-ghost",
+								onClick: () => {
+									transfer.exportCurrent();
+								},
+								children: t.exportWorkflow
+							}),
+							/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+								className: "wf-titlebar__mode",
+								children: [/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("button", {
+									type: "button",
+									className: "wf-btn",
+									onClick: () => setModeMenuOpen((open) => !open),
+									children: [state.mode === "mode2" ? t.mode2 : t.mode1, /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+										className: "wf-titlebar__caret",
+										children: "▾"
+									})]
+								}), modeMenuOpen ? /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+									className: "wf-mode-menu",
+									children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+										type: "button",
+										className: "wf-mode-menu__item",
+										onClick: () => {
+											setModeMenuOpen(false);
+											switchMode("mode1");
+										},
+										children: t.mode1
+									}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+										type: "button",
+										className: "wf-mode-menu__item",
+										onClick: () => {
+											setModeMenuOpen(false);
+											switchMode("mode2");
+										},
+										children: t.mode2
+									})]
+								}) : null]
+							}),
+							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+								type: "button",
+								className: "wf-btn",
+								title: t.scheduler,
+								onClick: () => dispatch({
+									type: "SCHEDULER_OPEN",
+									open: true
+								}),
+								children: t.scheduler
+							}),
+							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+								type: "button",
+								className: "wf-btn",
+								title: t.combos,
+								onClick: () => dispatch({
+									type: "COMBO_OPEN",
+									open: true
+								}),
+								children: t.combos
+							})
+						]
+					}),
+					/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("main", {
+						className: "wf-main",
+						children: [
+							/* @__PURE__ */ (0, react_jsx_runtime.jsx)(LeftPanel, {
+								copy: t,
+								...libraryProps,
+								canvasNodes: state.canvas.nodes,
+								canPlaceNodes: !!state.currentId,
+								onPlaceBasicNode: (kind, position, sourceId) => {
+									const rect = canvasShellRef.current?.getBoundingClientRect();
+									const center = rect ? canvasApiRef.current?.screenToWorld(rect.left + rect.width / 2, rect.top + rect.height / 2) : void 0;
+									canvas.placeBasicNode(kind, position ?? {
+										x: (center?.x ?? 200) - 104,
+										y: (center?.y ?? 200) - 58
+									}, sourceId);
+								},
+								open: leftOpen,
+								width: state.panels.leftWidth
+							}),
+							leftOpen ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+								className: "wf-splitter",
+								role: "separator",
+								"aria-orientation": "vertical",
+								onPointerDown: (event) => panels.beginResize("left", event)
+							}) : null,
+							/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+								className: "wf-canvas-shell",
+								ref: canvasShellRef,
+								children: [
+									/* @__PURE__ */ (0, react_jsx_runtime.jsx)(Toolbar, {
+										copy: t,
+										mode: state.mode,
+										panelsCollapsed,
+										onTogglePanels,
+										saveLabel: isInstanceSource ? state.mode === "mode2" ? t.createService : t.createInstance : state.mode === "mode2" ? t.saveServiceInstance : t.saveInstance,
+										onUndo: history.undo,
+										onRedo: history.redo,
+										onClear: canvas.clearGraph,
+										canClear: state.canvas.nodes.length > 0 && !instanceRunning,
+										clearTitle: instanceRunning ? t.clearRunningHint : t.clearCanvas,
+										onTidy: (options) => {
+											const nodes = canvas.tidyGraph(options);
+											canvasApiRef.current?.fitView({ nodes });
+										},
+										canTidy: state.canvas.nodes.length > 0,
+										onRoute: () => {
+											canvas.routeGraph();
+											setRoutingRevision((value) => value + 1);
+										},
+										canRoute: state.canvas.edges.length > 0,
+										hasAutomaticReferences: state.canvas.nodes.some((node) => Boolean(node.data?.autoLayoutReference)),
+										onSave: () => {
+											isInstanceSource ? doc.createInstanceFromCanvas() : doc.saveCanvas();
+										},
+										canSave: Boolean(state.currentId),
+										running: toolbarRunning,
+										stopping: state.run.stopping,
+										canContinue: Boolean(currentFlow && state.run.snapshot?.flowId === currentFlow.id && RESUMABLE_RUN_STATUSES.includes(state.run.snapshot.status)),
+										onStop: () => {
+											state.mode === "mode2" ? run.stopService() : run.stopRun();
+										},
+										onRun: () => {
+											handleRun();
+										},
+										onOpenHistory: () => {
+											run.openHistory();
+										},
+										canHistory: state.mode === "mode1" && Boolean(currentFlow),
+										serviceStatus: state.mode === "mode2" ? {
+											port: currentService?.port,
+											status: currentService?.status
+										} : null,
+										showNewSession: isInstanceSource,
+										instanceOptions,
+										onInstanceOptionsChange,
+										onEditWorkingDirectory
+									}, state.currentId ?? ""),
+									state.mode === "mode2" ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)(ServiceConsole, {
+										copy: t,
+										service: currentService,
+										busy: state.run.runId !== null,
+										debug: serviceDebug
+									}) : null,
+									subgraphEditorNode ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)(SubgraphCanvasEditor, {
+										node: subgraphEditorNode,
+										copy: canvasCopy,
+										mode: state.mode,
+										onClose: () => setSubgraphEditorId(null),
+										onDraftChange: commitSubgraphDraft,
+										presets: state.presets,
+										models: state.models,
+										combos: state.combos,
+										flowTemplates: state.flowTemplates,
+										maxActiveSubagents,
+										runtimeFocus: state.run.snapshot?.status === "running" && state.run.snapshot.flowId === state.currentId,
+										runStatusByNode,
+										onSave: () => {
+											doc.saveCanvas();
+										}
+									}) : /* @__PURE__ */ (0, react_jsx_runtime.jsx)(GraphCanvas, {
+										documentKey: `${state.currentKind}:${state.currentId}`,
+										nodes: state.canvas.nodes,
+										edges: edgeList,
+										copy: canvasCopy,
+										mode: state.mode,
+										selectedNode: state.selection.nodeId,
+										routingRevision,
+										selectedEdge: state.selection.edgeId,
+										runStatusByNode,
+										highlightedNodeIds,
+										runtimeFocus: state.run.snapshot?.status === "running" && state.run.snapshot.flowId === state.currentId,
+										lockedNodeIds,
+										lockedEdgeIds,
+										agentPatchedNodeIds,
+										onInit: (api) => {
+											canvasApiRef.current = api;
+										},
+										onNodeDragStart: canvas.onNodeDragStart,
+										onNodeMove: canvas.moveNode,
+										onNodeDropToGroup: canvas.addNodeToGroup,
+										onNodeSelect: (id) => selection.selectNode(id),
+										onOpenSubgraph: setSubgraphEditorId,
+										onEdgeSelect: (id) => {
+											if (!lockedEdgeIds.has(id)) selection.selectEdge(id);
+										},
+										onEdgeEditStart: canvas.rememberGraph,
+										onEdgeAppearanceChange: canvas.setEdgeAppearance,
+										onPaneClick: () => selection.clearSelection(),
+										onConnect: canvas.onConnect,
+										onConnectionRejected: canvas.onConnectionRejected,
+										onNodeDuplicate: canvas.duplicateSelected,
+										onNodeReference: canvas.copyToProxy,
+										onNodeDelete: canvas.removeNodeNow,
+										onEdgeDelete: canvas.removeLine,
+										onGroupResize: canvas.onGroupResize,
+										onSwapPorts: canvas.swapNodePorts,
+										dropTargetGroupId: dropGroupId,
+										fitLabel: t.fitView,
+										zoomInLabel: t.zoomIn,
+										zoomOutLabel: t.zoomOut,
+										emptyHint: t.emptyHint,
+										workflowCaption: canvasCaption
+									}),
+									textExpand ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)(TextExpandOverlay, {
+										copy: t,
+										request: textExpand,
+										onClose: closeTextExpand
+									}) : null
+								]
+							}),
+							inspectorOpen ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+								className: "wf-splitter",
+								role: "separator",
+								"aria-orientation": "vertical",
+								onPointerDown: (event) => panels.beginResize("right", event)
+							}) : null,
+							/* @__PURE__ */ (0, react_jsx_runtime.jsx)(TextExpandProvider, {
+								host: textExpandHost,
+								children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)(Inspector, {
+									copy: t,
+									open: inspectorOpen,
+									width: state.panels.rightWidth,
+									editorData,
+									presets: state.presets,
+									models: state.models,
+									combos: state.combos,
+									flowMeta: {
+										nodeCount: state.canvas.nodes.length,
+										revision: Number((currentFlow ?? currentService)?.revision ?? 0)
+									},
+									flowTemplates: state.flowTemplates,
+									onPatch: editor.patchEditor,
+									onDelete: () => {
+										editor.deleteEditor();
+									},
+									onCollapse: selection.clearSelection,
+									maxActiveSubagents,
+									onSave: () => {
+										editor.saveEditor();
+									},
+									onPromote: () => {
+										editor.promoteEditor();
+									},
+									promoteLocked: editor.promoteLocked,
+									onOpenVersions: () => {
+										editor.openAssetVersions();
+									},
+									onRollbackVersion: (versionId) => {
+										editor.rollbackAssetVersion(versionId);
+									},
+									onCloseVersions: assets.closeVersions,
+									assetVersions: state.assetVersions,
+									onSaveAsTemplate: () => {
+										doc.saveCurrentAsFlowTemplate();
+									},
+									onDuplicateTemplate: () => {
+										doc.duplicateCurrentFlowTemplate();
+									},
+									onCopyProxy: canvas.copyToProxy,
+									onRemoveMember: canvas.removeGroupMember,
+									onFilesPicked: (files) => {
+										transfer.pickFiles(files);
+									},
+									onLoadMd: () => {
+										transfer.loadPersonaMd();
+									},
+									onLoadGroupMd: () => {
+										transfer.loadGroupMd();
+									},
+									onTestDb: () => {
+										transfer.testDbConnection();
+									},
+									saveDisabled: state.mode === "mode2" && toolbarRunning,
+									importBusy: false
+								})
+							})
+						]
+					}),
+					bottomOpen ? /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+						className: "wf-bottom-area",
+						children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+							className: "wf-splitter wf-splitter--horizontal",
+							role: "separator",
+							"aria-orientation": "horizontal",
+							onPointerDown: (event) => panels.beginResize("bottom", event)
+						}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)(BottomPanel, {
+							copy: t,
+							...libraryProps,
+							open: bottomOpen,
+							height: state.panels.bottomHeight
+						})]
+					}) : null,
+					/* @__PURE__ */ (0, react_jsx_runtime.jsx)(ConfirmDialog, {
+						confirm: state.confirm,
+						copy: t,
+						onClose: () => dispatch({
+							type: "CONFIRM_SET",
+							confirm: null
+						}),
+						onSaveAndProceed: () => {
+							guard.saveAndProceed((onSaved) => editor.saveCanvasDocument({ onSaved }));
+						},
+						onDiscardAndProceed: guard.discardAndProceed,
+						onResolveImport: (mode) => {
+							transfer.resolveImportConflict(mode);
+						}
+					}),
+					state.historyOpen ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)(RunHistory, {
+						history: state.runHistory,
+						selectedRunId: state.selectedRunId,
+						copy: t,
+						onSelect: (id) => dispatch({
+							type: "RUN_HISTORY_SELECT",
+							id
+						}),
+						onClose: () => dispatch({
+							type: "HISTORY_OPEN",
+							open: false
+						}),
+						onResume: (runId) => {
+							run.resumeRun(runId);
+						},
+						canResume: state.mode === "mode1"
+					}) : null,
+					state.comboOpen ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)(ComboManager, {
+						copy: t,
+						remote,
+						sessionId,
+						onClose: () => dispatch({
+							type: "COMBO_OPEN",
+							open: false
+						}),
+						onToast: (kind, text) => toast(kind, text),
+						onChanged: () => remote.call(EP_TOOL_COMBOS).then((items) => dispatch({
+							type: "COMBOS_LOADED",
+							items: Array.isArray(items) ? items : []
+						}))
+					}) : null,
+					state.schedulerOpen ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)(SchedulerManager, {
+						copy: t,
+						remote,
+						sessionId,
+						filePathResolver,
+						onClose: () => dispatch({
+							type: "SCHEDULER_OPEN",
+							open: false
+						}),
+						onToast: (kind, text) => toast(kind, text)
+					}) : null,
+					dragPreview ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+						className: "wf-drag-preview",
+						style: {
+							left: dragPreview.x + 12,
+							top: dragPreview.y + 14
+						},
+						children: dragPreview.label
+					}) : null,
+					/* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+						className: "wf-toast-host",
+						children: state.toasts.map((item) => /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+							className: `wf-toast is-${item.kind}`,
+							children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", { className: "wf-toast__dot" }), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", { children: item.text })]
+						}, item.id))
+					})
+				]
+			});
+		}
+		// src/client/lib/run-status-map.ts
+		/** 子图内部节点在运行快照中的展开 id（必须与 host 的 subgraphChildIdPrefix 同源）。 */
+		function subgraphChildId(subgraphId, childId) {
+			return `${subgraphId}__${childId}`;
+		}
+		function innerNodeIds(node) {
+			return ((node.data?.graph)?.nodes ?? []).map((inner) => String(inner.id ?? "")).filter(Boolean).map((id) => subgraphChildId(node.id, id));
+		}
+		/**
+		* 运行快照 → 节点状态映射（画布回显用）。
+		* 传入画布节点时，把子图内部节点的状态聚合回折叠节点：running 优先，其次 fail，
+		* 只有全部内部节点都产出后才显示 ok。这样折叠后的子图也能看到运行进度。
+		*/
+		function runStatusMap(snapshot, nodes) {
+			const map = {};
+			for (const node of snapshot?.nodes ?? []) if (node?.nodeId) map[node.nodeId] = {
+				status: node.status,
+				attempts: node.attempts,
+				outputSummary: node.outputSummary
+			};
+			for (const node of nodes ?? []) {
+				if (node.kind !== "subgraph") continue;
+				const inner = innerNodeIds(node);
+				if (inner.length === 0) continue;
+				const entries = inner.map((id) => map[id]).filter((entry) => entry !== void 0);
+				if (entries.length === 0) continue;
+				const attempts = Math.max(...entries.map((entry) => entry.attempts));
+				const outputSummary = entries.map((entry) => entry.outputSummary).filter(Boolean).join(" · ");
+				if (entries.some((entry) => entry.status === "running")) map[node.id] = {
+					status: "running",
+					attempts,
+					outputSummary
+				};
+				else if (entries.some((entry) => entry.status === "fail")) map[node.id] = {
+					status: "fail",
+					attempts,
+					outputSummary
+				};
+				else if (inner.every((id) => map[id] !== void 0 && [
+					"ok",
+					"react-capped",
+					"armed"
+				].includes(map[id].status))) map[node.id] = {
+					status: "ok",
+					attempts,
+					outputSummary
+				};
+			}
+			return map;
+		}
+		/** 运行中节点 id 列表（「当前运行节点高亮」；画布高亮数据源，防回环只写视图）。 */
+		function runningNodeIds(snapshot, nodes) {
+			if (snapshot?.status !== "running") return [];
+			const ids = (snapshot?.nodes ?? []).filter((node) => node?.nodeId && node.status === "running").map((node) => node.nodeId);
+			const set = new Set(ids);
+			for (const node of nodes ?? []) {
+				if (node.kind !== "subgraph") continue;
+				if (innerNodeIds(node).some((id) => set.has(id))) set.add(node.id);
+			}
+			return [...set];
+		}
+		// src/client/lib/run-locks.ts
+		/** 已完成状态集合（ok 正常完成 / react-capped 触达 react 轮次上限后收尾）。 */
+		const COMPLETED_STATUSES = /* @__PURE__ */ new Set(["ok", "react-capped"]);
+		/** 执行中状态。 */
+		const RUNNING_STATUS = "running";
+		/** 已完成判定（未登记状态 / 其他状态一律 false）。 */
+		function isCompletedStatus(status) {
+			return status !== void 0 && COMPLETED_STATUSES.has(status);
+		}
+		/** 执行中判定。 */
+		function isRunningStatus(status) {
+			return status === RUNNING_STATUS;
+		}
+		/** enabled === false 时的全解锁结果（空集 + 全 false 谓词 + 恒可连）。 */
+		function unlockedSet() {
+			return {
+				lockedNodeIds: /* @__PURE__ */ new Set(),
+				lockedEdgeIds: /* @__PURE__ */ new Set(),
+				isNodeLocked: () => false,
+				isEdgeLocked: () => false,
+				canConnect: () => true,
+				isNodeCompleted: () => false,
+				isNodeRunning: () => false
+			};
+		}
+		/**
+		* 计算画布运行锁定判定集（纯函数；同一入参恒返回同一判定结果）。
+		*/
+		function computeRunLocks(input) {
+			const { enabled, nodes, edges, statusByNode } = input;
+			if (!enabled) return unlockedSet();
+			const byId = /* @__PURE__ */ new Map();
+			for (const node of nodes) byId.set(node.id, node);
+			/** 虚拟节点归主：proxy 取其 proxySourceId（字符串且非空）为主节点 id，否则用自身 id。 */
+			const ownerIdOf = (nodeId) => {
+				const node = byId.get(nodeId);
+				if (!node || node.kind !== "proxy") return nodeId;
+				const source = node.proxySourceId;
+				return typeof source === "string" && source.length > 0 ? source : nodeId;
+			};
+			/**
+			* 取节点（归主后）的运行状态：
+			*   1) 主节点 id → statusByNode；2) 主节点未登记状态时退化为虚拟节点自身 id；
+			*   3) 仍未登记 → 无状态（undefined，既非 completed 也非 running）。
+			* 不在画布中的 id 按规则 6 直接以自身 id 查状态（缺状态不构成拒绝理由）。
+			*/
+			const statusOf = (nodeId) => {
+				const ownerId = ownerIdOf(nodeId);
+				const status = statusByNode[ownerId];
+				if (status !== void 0) return status;
+				if (ownerId === nodeId) return void 0;
+				return statusByNode[nodeId];
+			};
+			const lockedNodeIds = /* @__PURE__ */ new Set();
+			for (const node of nodes) {
+				const status = statusOf(node.id);
+				if (isCompletedStatus(status) || isRunningStatus(status)) lockedNodeIds.add(node.id);
+			}
+			const lockedEdgeIds = /* @__PURE__ */ new Set();
+			for (const edge of edges) {
+				const sourceCompleted = isCompletedStatus(statusOf(edge.source));
+				const targetStatus = statusOf(edge.target);
+				if (sourceCompleted || isCompletedStatus(targetStatus) || isRunningStatus(targetStatus)) lockedEdgeIds.add(edge.id);
+			}
+			const canConnect = (sourceNodeId, targetNodeId) => !isCompletedStatus(statusOf(sourceNodeId)) && !isCompletedStatus(statusOf(targetNodeId)) && !isRunningStatus(statusOf(targetNodeId));
+			return {
+				lockedNodeIds,
+				lockedEdgeIds,
+				isNodeLocked: (nodeId) => lockedNodeIds.has(nodeId),
+				isEdgeLocked: (edgeId) => lockedEdgeIds.has(edgeId),
+				canConnect,
+				isNodeCompleted: (nodeId) => isCompletedStatus(statusOf(nodeId)),
+				isNodeRunning: (nodeId) => isRunningStatus(statusOf(nodeId))
+			};
+		}
+		/**
+		* 落盘值口径（与 keepInstanceOptions 的归一化一致），用于「值未变不写」比对。
+		* null = 当前文档没有可记忆的临时选项（模板态/实例态）。
+		*/
+		function optionsKeyOf(options) {
+			if (options === null) return null;
+			return JSON.stringify({ newSession: options.newSession === true });
+		}
+		/** 浏览器守卫：无 window / 取 localStorage 失败（隐私模式）时返回 null，落盘静默降级。 */
+		function storageOrNull() {
+			try {
+				return typeof window === "undefined" ? null : window.localStorage;
+			} catch {
+				return null;
+			}
+		}
+		/**
+		* 把资产态 instanceOptions 防抖落盘到注入的存储（浏览器环境默认 localStorage；
+		* 初始读取在 useStudioState 初始化工厂完成，本 hook 只写不读）。
+		* @param options - 需要记忆的临时选项；null 表示当前文档没有（模板态/实例态），不落盘。
+		* @param storage - 存储抽象（测试注入；缺省 localStorage）。
+		*/
+		function useInstanceOptionsCache(options, storage = storageOrNull()) {
+			/** 上次已落盘的值。以初始 state（可能来自缓存恢复）为基准：值未变时不产生任何写入。 */
+			const persistedRef = (0, react.useRef)(optionsKeyOf(options));
+			/**
+			* 最新值的镜像。卸载补写的 effect 依赖只有 storage，其清理闭包停留在首次渲染，
+			* 只能经 ref 读到「此刻」的值。
+			*/
+			const latestRef = (0, react.useRef)(options);
+			/** 待落盘的定时器句柄：存在即表示静默窗口尚未结束。 */
+			const timerRef = (0, react.useRef)(null);
+			/**
+			* 是否存在「已改动但尚未落盘」的值。与定时器句柄解耦——窗口 effect 的清理会先清掉句柄，
+			* 卸载补写仍须据此判断有无待落盘改动。
+			*/
+			const pendingRef = (0, react.useRef)(false);
+			(0, react.useEffect)(() => {
+				latestRef.current = options;
+			}, [options]);
+			(0, react.useEffect)(() => {
+				if (options === null) {
+					if (timerRef.current !== null) clearTimeout(timerRef.current);
+					timerRef.current = null;
+					pendingRef.current = false;
+					persistedRef.current = null;
+					return;
+				}
+				if (optionsKeyOf(options) === persistedRef.current) {
+					if (timerRef.current !== null) clearTimeout(timerRef.current);
+					timerRef.current = null;
+					pendingRef.current = false;
+					return;
+				}
+				if (!storage) return void 0;
+				pendingRef.current = true;
+				if (timerRef.current !== null) clearTimeout(timerRef.current);
+				timerRef.current = setTimeout(() => {
+					timerRef.current = null;
+					pendingRef.current = false;
+					const latest = latestRef.current;
+					if (latest === null) return;
+					keepInstanceOptions(storage, latest);
+					persistedRef.current = optionsKeyOf(latest);
+				}, 300);
+				return () => {
+					if (timerRef.current === null) return;
+					clearTimeout(timerRef.current);
+					timerRef.current = null;
+				};
+			}, [options, storage]);
+			(0, react.useEffect)(() => () => {
+				if (!pendingRef.current) return;
+				pendingRef.current = false;
+				if (!storage) return;
+				const latest = latestRef.current;
+				if (latest === null) return;
+				keepInstanceOptions(storage, latest);
+				persistedRef.current = optionsKeyOf(latest);
+			}, [storage]);
+		}
+		// src/client/sidebar/workspace-picker.ts
+		/** 官方目录选择器不可用（稳定错误类型，调用方据此显示词典文案而非通用错误）。 */
+		var WorkspacePickerUnavailableError = class extends Error {
+			constructor() {
+				super("official directory picker is unavailable in this environment");
+				this.name = "WorkspacePickerUnavailableError";
+			}
+		};
+		/** Electron preload 注入的全局键（与官方 directory-picker-native 客户端一致）。 */
+		const PRELOAD_KEY = "__DSH_DIRECTORY_PICKER__";
+		/** 读取 preload 接口（形状漂移时返回 null，不抛错）。 */
+		function preloadPickerOf() {
+			const candidate = globalThis[PRELOAD_KEY];
+			return typeof candidate === "object" && candidate !== null ? candidate : null;
+		}
+		/** 读取官方 ui-workspace 服务（未激活/形状不符时返回 null）。 */
+		function uiWorkspaceOf(ctx) {
+			const candidate = ctx.get?.("uiWorkspace");
+			return typeof candidate === "object" && candidate !== null ? candidate : null;
+		}
+		/** 选择结果归一化：非字符串/空白视为取消（不把脏值写进模板配置）。 */
+		function normalizePath(value) {
+			if (typeof value !== "string") return null;
+			const path = value.trim();
+			return path === "" ? null : path;
+		}
+		/**
+		* 构造官方目录选择器接入缝。
+		* @param ctx - 官方 client 插件上下文（只读服务，不持有生命周期）。
+		* @returns 选择器能力（可用性每次调用实时判定）。
+		*/
+		function createWorkspacePicker(ctx) {
+			return {
+				available() {
+					const preload = preloadPickerOf();
+					if (preload !== null && typeof preload.pick === "function") return true;
+					const uiWorkspace = uiWorkspaceOf(ctx);
+					return uiWorkspace !== null && typeof uiWorkspace.pickDirectory === "function";
+				},
+				async pick() {
+					const preload = preloadPickerOf();
+					if (preload !== null && typeof preload.pick === "function") return normalizePath(await preload.pick.call(preload));
+					const uiWorkspace = uiWorkspaceOf(ctx);
+					if (uiWorkspace === null || typeof uiWorkspace.pickDirectory !== "function") throw new WorkspacePickerUnavailableError();
+					return normalizePath(await uiWorkspace.pickDirectory.call(uiWorkspace));
+				}
+			};
+		}
+		// src/client/hooks/useNewSessionOptions.ts
+		/**
+		* 新会话选项交互编排 hook。
+		* @param args - 状态切片、写入面与宿主选择器注入。
+		* @returns 展示值与交互回调（引用在同一 state 下稳定）。
+		*/
+		function useNewSessionOptions(args) {
+			const { state, dispatch, setFlowTemplateOptions, notify, toastError, picker, t } = args;
+			const [picking, setPicking] = (0, react.useState)(false);
+			/** 防重入标记（同步生效，不依赖一次渲染）。 */
+			const busyRef = (0, react.useRef)(false);
+			/** 卸载守卫：异步结果只能写回仍存活的组件。 */
+			const aliveRef = (0, react.useRef)(true);
+			(0, react.useEffect)(() => {
+				aliveRef.current = true;
+				return () => {
+					aliveRef.current = false;
+				};
+			}, []);
+			const options = newSessionOptionsOf(state);
+			const showWorkspacePicker = state.currentKind === "flowTemplate";
+			return {
+				options,
+				showWorkspacePicker,
+				pickerAvailable: showWorkspacePicker && picker !== null && picker.available(),
+				picking,
+				onOptionsChange: (0, react.useCallback)((patch) => {
+					if (patch.newSession === void 0) return;
+					if (state.currentKind === "flowTemplate") {
+						setFlowTemplateOptions({ startNewSession: patch.newSession });
+						return;
+					}
+					dispatch({
+						type: "INSTANCE_OPTIONS_SET",
+						options: { newSession: patch.newSession }
+					});
+				}, [
+					dispatch,
+					setFlowTemplateOptions,
+					state.currentKind
+				]),
+				onPickWorkspace: (0, react.useCallback)(() => {
+					if (busyRef.current) return;
+					const active = picker;
+					if (active === null || !active.available()) {
+						notify("error", t.workspacePickerUnavailable);
+						return;
+					}
+					busyRef.current = true;
+					setPicking(true);
+					active.pick().then((path) => {
+						if (!aliveRef.current) return;
+						if (path !== null) setFlowTemplateOptions({ workspacePath: path });
+					}).catch((error) => {
+						if (!aliveRef.current) return;
+						if (error instanceof WorkspacePickerUnavailableError) notify("error", t.workspacePickerUnavailable);
+						else toastError(error);
+					}).finally(() => {
+						busyRef.current = false;
+						if (aliveRef.current) setPicking(false);
+					});
+				}, [
+					notify,
+					picker,
+					setFlowTemplateOptions,
+					t.workspacePickerUnavailable,
+					toastError
+				])
+			};
+		}
+		// src/client/hooks/use-instance-preview.ts
+		/** Reuse document loading and the unsaved guard, never change editor state directly. */
+		function useInstancePreview(request, navigation, workflows, guard, failed, missingMessage, opened) {
+			const latest = (0, react.useRef)({
+				guard,
+				failed,
+				missingMessage,
+				opened
+			});
+			latest.current = {
+				guard,
+				failed,
+				missingMessage,
+				opened
+			};
+			(0, react.useEffect)(() => {
+				if (!request) return;
+				let active = true;
+				workflows.loadWorkflows().then((flows) => {
+					if (!active) return;
+					const flow = flows.find((item) => item.id === request.flowId && item.sessionId === request.sessionId);
+					if (!flow) throw new Error(latest.current.missingMessage);
+					latest.current.guard.guard(() => {
+						workflows.openFlow(flow);
+						latest.current.opened?.();
+					});
+					navigation?.acknowledge(request.sequence);
+				}).catch((error) => {
+					if (active) {
+						latest.current.failed(error);
+						navigation?.acknowledge(request.sequence);
+					}
+				});
+				return () => {
+					active = false;
+				};
+			}, [
+				request?.sequence,
+				navigation,
+				workflows
+			]);
+		}
+		// src/client/studio/Studio.tsx
+		function Studio({ t, sessionId, remote: remoteProp, onRunImmersive, language, workspacePicker, filePathResolver, onEditSessionDirectory, previewRequest, instanceNavigation }) {
+			const defaultRemote = useRemote(t, language);
+			const remote = remoteProp ?? defaultRemote;
+			const { state, dispatch } = useStudioState(sessionId);
+			const { toast, toastError } = useToast(dispatch);
+			const workflows = useWorkflows(dispatch, remote);
+			const flowTemplates = useFlowTemplates(dispatch, remote);
+			const templates = useTemplates(dispatch, remote);
+			const selection = useSelection(dispatch);
+			const history = useGraphHistory(state, dispatch);
+			const guard = useUnsavedGuard(state, dispatch);
+			const explicitPreview = (0, react.useRef)(false);
+			if (previewRequest) explicitPreview.current = true;
+			useInstancePreview(previewRequest, instanceNavigation, workflows, guard, toastError, t.instancePreviewNotFound, () => {
+				dispatch({
+					type: "PANELS_SET",
+					panels: { mode: 2 }
+				});
+				selection.clearSelection();
+			});
+			const runControl = useRunControl(dispatch, remote);
+			const serviceControl = useServiceControl(dispatch, remote);
+			const modeSwitch = useModeSwitch(dispatch);
+			const panels = usePanelLayout(state, dispatch);
+			const currentFlow = currentFlowOf(state);
+			useRunPolling(state.run.sessionId ?? currentFlow?.sessionId ?? state.sessionId, state.run.runId, dispatch, remote);
+			useRunProgress(state.mode === "mode1" ? currentFlow : null, state.run.runId, dispatch, remote);
+			useActiveRunsPolling(dispatch, remote);
+			useFlowTemplatesPolling(dispatch, remote);
+			useServiceStatusPolling(state, dispatch, remote);
+			const teamMemberLimit = useTeamMemberLimit(remote);
+			const activeRunIndex = (0, react.useMemo)(() => activeRunIndexOf(state), [state.activeRuns]);
+			const canvasApiRef = (0, react.useRef)(null);
+			const canvasShellRef = (0, react.useRef)(null);
+			const libraryImportRef = (0, react.useRef)(null);
+			const personaInputRef = (0, react.useRef)(null);
+			const groupMdInputRef = (0, react.useRef)(null);
+			const currentService = currentServiceOf(state);
+			const currentFlowTemplate = currentFlowTemplateOf(state);
+			const currentFlowAsset = currentFlowAssetOf(state);
+			const editorData = editorDataOf(state);
+			const running = isRunningOf(state);
+			const canvasCaption = currentFlowTemplate ? `${t.canvasCaptionTemplate}${currentFlowTemplate.name ?? ""}` : currentFlowAsset ? `${t.canvasCaptionAsset}${currentFlowAsset.name ?? ""}` : currentService ? `${t.canvasCaptionInstance}${currentService.name ?? ""}` : currentFlow ? `${t.canvasCaptionInstance}${currentFlow.name ?? ""}` : "";
+			const canvasRunSnapshot = state.run.snapshot?.flowId === state.currentId && (state.currentKind === "workflow" || state.currentKind === "service") ? state.run.snapshot : null;
+			const highlightedNodeIds = (0, react.useMemo)(() => runningNodeIds(canvasRunSnapshot, state.canvas.nodes), [canvasRunSnapshot, state.canvas.nodes]);
+			const runStatusByNode = (0, react.useMemo)(() => runStatusMap(canvasRunSnapshot, state.canvas.nodes), [canvasRunSnapshot, state.canvas.nodes]);
+			const libraryFlows = state.mode === "mode2" ? state.services : state.workflows;
+			const instanceRunBadges = (0, react.useMemo)(() => instanceRunBadgesOf(libraryFlows, state.run, activeRunIndex), [
+				activeRunIndex,
+				libraryFlows,
+				state.run
+			]);
+			const agentPatchedNodeIds = (0, react.useMemo)(() => agentPatchedNodeIdsOf(state), [state]);
+			const roleTemplates = (0, react.useMemo)(() => state.templates.role.filter((item) => item.kind !== "parent"), [state.templates.role]);
+			const groupTemplates = state.templates.group;
+			const instanceRunning = instanceRunningOf(state);
+			const statusByNode = (0, react.useMemo)(() => {
+				const out = {};
+				for (const [id, value] of Object.entries(runStatusByNode)) out[id] = value.status;
+				return out;
+			}, [runStatusByNode]);
+			const runLocks = (0, react.useMemo)(() => computeRunLocks({
+				enabled: instanceRunning,
+				nodes: state.canvas.nodes,
+				edges: state.canvas.edges,
+				statusByNode
+			}), [
+				instanceRunning,
+				state.canvas.nodes,
+				state.canvas.edges,
+				statusByNode
+			]);
+			(0, react.useEffect)(() => {
+				if (state.mode !== "mode1") return;
+				if (!currentFlow) return;
+				const active = activeRunBadgeOf(activeRunIndex, currentFlow.id, currentFlow.sessionId);
+				if (active?.status !== "running") return;
+				if (state.run.runId === active.runId) return;
+				if (state.run.stopping || state.run.snapshot?.id === active.runId && state.run.snapshot.status !== "running") return;
+				dispatch({
+					type: "RUN_STARTED",
+					runId: active.runId,
+					runSessionId: active.sessionId
+				});
+			}, [
+				activeRunIndex,
+				currentFlow,
+				dispatch,
+				state.mode,
+				state.run.runId,
+				state.run.snapshot,
+				state.run.stopping
+			]);
+			(0, react.useEffect)(() => {
+				dispatch({
+					type: "SET_SESSION",
+					sessionId
+				});
+			}, [dispatch, sessionId]);
+			useInstanceOptionsCache(state.currentKind === "flowAsset" ? state.instanceOptions : null);
+			const notify = (0, react.useCallback)((kind, text) => {
+				toast(kind, text);
+			}, [toast]);
+			useFlowFileSync(state, dispatch, remote, {
+				workflow: t.workflowFileExternalChange,
+				service: t.serviceFileExternalChange
+			}, (0, react.useCallback)((message) => notify("error", message), [notify]));
+			const modeName = (0, react.useCallback)((presetId) => {
+				const value = String(presetId ?? "");
+				if (!value) return "—";
+				const names = t.modeNames;
+				if (names[value]) return names[value];
+				const preset = state.presets.find((item) => item.id === value);
+				if (preset) return preset.name ?? value;
+				const combo = state.combos.find((item) => item.id === value);
+				if (combo) return combo.name;
+				return value;
+			}, [
+				state.combos,
+				state.presets,
+				t.modeNames
+			]);
+			const doc = useDocumentActions(state, dispatch, guard, notify, toastError, workflows, flowTemplates, templates, selection, serviceControl, remote, t);
+			const newSession = useNewSessionOptions({
+				state,
+				dispatch,
+				setFlowTemplateOptions: doc.setFlowTemplateOptions,
+				notify,
+				toastError,
+				picker: workspacePicker ?? null,
+				t
+			});
+			const assets = useAssets(remote, dispatch, notify, toastError, t, state);
+			const experiences = useExperiences(remote, dispatch, notify, toastError, t, state);
+			const canvas = useCanvasActions(state, dispatch, notify, history, t, {
+				locks: runLocks,
+				saveCanvas: doc.saveCanvas,
+				teamMemberLimit
+			});
+			const editor = useEditorActions(state, dispatch, notify, toastError, t, workflows, flowTemplates, templates, assets, experiences, selection, remote, doc.saveCanvas, canvas.removeSelected, canvas.removeLine, doc.selectWorkflow, doc.selectFlowTemplate, {
+				locks: runLocks,
+				setEdgeChannel: canvas.setEdgeChannel
+			});
+			const run = useRunActions(state, dispatch, notify, toastError, t, remote, runControl, serviceControl, doc.saveCanvas, doc.createInstanceFromCanvas);
+			const transfer = useStudioTransfer(state, dispatch, notify, toastError, t, remote, templates, flowTemplates, workflows, editor.patchEditor, editorData, personaInputRef, groupMdInputRef, filePathResolver);
+			const { beginLibraryDrag, dragPreview, dropGroupId } = useLibraryDrag(canvasShellRef, canvasApiRef);
+			useKeyShortcuts(state, dispatch, selection, history, canvas.removeLine, canvas.removeSelected);
+			(0, react.useEffect)(() => {
+				assets.refresh();
+				experiences.refresh();
+			}, [assets.refresh, experiences.refresh]);
+			const setLibrarySource = (0, react.useCallback)((source) => {
+				if (source === state.librarySource) return;
+				guard.guard(() => {
+					dispatch({
+						type: "SET_LIBRARY_SOURCE",
+						source
+					});
+					dispatch({ type: "CLEAR_CANVAS" });
+				});
+			}, [
+				dispatch,
+				guard,
+				state.librarySource
+			]);
+			/** 打开工作流资产为画布文档（资产态；未保存守卫后装载详情并投影画布）。 */
+			const selectFlowAsset = (0, react.useCallback)((assetId) => {
+				guard.guard(() => {
+					assets.openFlowAsset(assetId);
+				});
+			}, [assets, guard]);
+			/** 角色资产拖入画布：先装载详情（节点字段来源），再生成内联节点并写 sourceAssetId。 */
+			const placeRoleAsset = (0, react.useCallback)((assetId, position) => {
+				(async () => {
+					const detail = await assets.loadAsset("role", assetId);
+					if (!detail || !("systemPrompt" in detail)) return;
+					canvas.placeRoleAssetNode(detail, position);
+				})();
+			}, [assets, canvas]);
+			useStudioBoot(state, dispatch, notify, toastError, remote, workflows, flowTemplates, templates, serviceControl, (...args) => explicitPreview.current ? null : pickInitialInstanceForSession(...args));
+			const switchMode = (0, react.useCallback)((mode) => {
+				if (mode === state.mode) return;
+				guard.guard(() => {
+					modeSwitch.setMode(mode);
+					dispatch({ type: "CLEAR_CANVAS" });
+					if (mode === "mode1") workflows.loadWorkflows().catch((error) => {
+						toastError(error);
+					});
+					else serviceControl.loadServices().catch((error) => {
+						toastError(error);
+					});
+				});
+			}, [
+				dispatch,
+				guard,
+				modeSwitch,
+				serviceControl,
+				state.mode,
+				workflows
+			]);
+			const [modeMenuOpen, setModeMenuOpen] = (0, react.useState)(false);
+			const handleRun = (0, react.useCallback)(() => {
+				onRunImmersive?.();
+				dispatch({
+					type: "PANELS_SET",
+					panels: { mode: 2 }
+				});
+				state.mode === "mode2" ? run.startService() : run.startRun();
+			}, [
+				dispatch,
+				onRunImmersive,
+				run,
+				state.mode
+			]);
+			const panelsCollapsed = panelsFullyCollapsedOf(state);
+			const togglePanels = (0, react.useCallback)(() => {
+				dispatch({
+					type: "PANELS_SET",
+					panels: { mode: nextPanelMode(state.panels.mode) }
+				});
+			}, [dispatch, state.panels.mode]);
+			const stageKinds = (0, react.useMemo)(() => stageTemplateKinds(state.mode, t.nodeKinds), [state.mode, t.nodeKinds]);
+			const parentTemplate = (0, react.useMemo)(() => state.templates.role.find((item) => item.kind === "parent") ?? null, [state.templates.role]);
+			const edgeList = state.canvas.edges;
+			const toolbarRunning = state.mode === "mode2" ? currentService?.status === "running" : running;
+			const leftOpen = leftPanelOpenOf(state);
+			const bottomOpen = bottomPanelOpenOf(state);
+			const inspectorOpen = inspectorOpenOf(state);
+			const libraryProps = (0, react.useMemo)(() => ({
+				libTab: state.libTab,
+				onSetTab: (tab) => dispatch({
+					type: "SET_LIB_TAB",
+					tab
+				}),
+				librarySource: state.librarySource,
+				onSetLibrarySource: setLibrarySource,
+				libSearch: state.libSearch,
+				onSetLibSearch: (query) => dispatch({
+					type: "SET_LIB_SEARCH",
+					query
+				}),
+				mode: state.mode,
+				currentSessionId: state.sessionId,
+				workflows: libraryFlows.map((item) => {
+					const badge = instanceRunBadges.get(item.id);
+					return {
+						id: item.id,
+						name: item.name,
+						description: item.description,
+						nodes: item.nodes,
+						sessionId: item.sessionId,
+						runStatus: badge?.currentSnapshot ?? badge?.active?.status ?? null
+					};
+				}),
+				flowTemplates: (state.flowTemplates ?? []).filter((item) => item.mode === state.mode),
+				assets: state.assets,
+				experiences: state.experiences,
+				parentTemplate,
+				roleTemplates,
+				taskTemplates: state.templates.task,
+				databaseTemplates: state.templates.database,
+				groupTemplates,
+				stageKinds,
+				libSelection: state.selection.lib,
+				modeName,
+				onSelectWorkflow: doc.selectWorkflow,
+				onSelectFlowTemplate: doc.selectFlowTemplate,
+				onSelectFlowAsset: selectFlowAsset,
+				onOpenRoleAsset: (id) => {
+					assets.openRoleAsset(id);
+				},
+				onPlaceRoleAsset: placeRoleAsset,
+				onOpenExperience: (id) => editor.selectLibraryCard("experience", id),
+				onOpenPromptAsset: (id) => editor.selectLibraryCard("promptAsset", id),
+				onSelectLib: editor.selectLibraryCard,
+				onPlaceTemplate: canvas.placeTemplateNode,
+				onPlaceTemplateIntoGroup: canvas.placeTemplateIntoGroup,
+				onPlaceStage: canvas.placeStageNode,
+				onPlaceGroup: canvas.placeGroupNode,
+				onPlaceGroupFromTemplate: canvas.placeGroupFromTemplate,
+				onPlaceParent: canvas.placeParentNode,
+				onCreateNew: doc.createNew,
+				onBeginDrag: beginLibraryDrag
+			}), [
+				assets,
+				beginLibraryDrag,
+				canvas,
+				dispatch,
+				doc,
+				editor,
+				groupTemplates,
+				instanceRunBadges,
+				libraryFlows,
+				modeName,
+				parentTemplate,
+				placeRoleAsset,
+				roleTemplates,
+				selectFlowAsset,
+				setLibrarySource,
+				stageKinds,
+				state
+			]);
+			return /* @__PURE__ */ (0, react_jsx_runtime.jsx)(StudioLayout, {
+				t,
+				state,
+				sessionId: state.sessionId,
+				remote,
+				currentFlow,
+				currentService,
+				currentFlowTemplate,
+				editorData,
+				edgeList,
+				stageKinds,
+				parentTemplate,
+				roleTemplates,
+				groupTemplates,
+				toolbarRunning,
+				runStatusByNode,
+				highlightedNodeIds,
+				agentPatchedNodeIds,
+				libraryProps,
+				lockedNodeIds: runLocks.lockedNodeIds,
+				lockedEdgeIds: runLocks.lockedEdgeIds,
+				instanceRunning,
+				modeName,
+				canvasCaption,
+				leftOpen,
+				bottomOpen,
+				inspectorOpen,
+				canvasApiRef,
+				canvasShellRef,
+				libraryImportRef,
+				personaInputRef,
+				groupMdInputRef,
+				dispatch,
+				doc,
+				assets,
+				canvas,
+				editor,
+				run,
+				transfer,
+				selection,
+				history,
+				guard,
+				panels,
+				toast,
+				beginLibraryDrag,
+				dragPreview,
+				dropGroupId,
+				modeMenuOpen,
+				setModeMenuOpen,
+				switchMode,
+				handleRun,
+				panelsCollapsed,
+				onTogglePanels: togglePanels,
+				instanceOptions: newSession.options,
+				onInstanceOptionsChange: newSession.onOptionsChange,
+				onEditWorkingDirectory: currentFlow && onEditSessionDirectory ? () => onEditSessionDirectory(currentFlow.sessionId) : void 0,
+				filePathResolver
+			});
+		}
+		// src/client/i18n.ts
+		const zh = {
+			studio: "工作台",
+			badge: "可视化编排",
+			note: "拖拽卡片 · 连线编排 · 一键运行",
+			workbenchInUse: "工作台已在另一个标签页中打开",
+			mode1: "流程编排",
+			mode2: "API服务",
+			workflows: "工作流",
+			services: "服务",
+			libTab: {
+				workflow: "工作流",
+				role: "角色",
+				data: "数据",
+				other: "其他"
+			},
+			parentMarker: "父",
+			flowInstances: "实例",
+			flowTemplates: "工作流模板",
+			parentAgent: "父代理",
+			roleTemplates: "角色模板",
+			tasks: "提示词 / 任务",
+			databases: "数据库",
+			stages: "阶段",
+			groupTemplates: "团队",
+			groupMemberLimitHint: "团队成员数量已达上限（上限由部署层 agent-team.maxMembers 决定）",
+			toastGroupMemberAdded: "已加入团队",
+			stagePinHint: "固定模板",
+			newTemplate: "新建模板",
+			libEmptyTemplates: "暂无模板，点击右侧 + 新建",
+			libSourceTemplate: "模版",
+			libSourceAsset: "资产",
+			libSourceAria: "切换库来源（模版 / 资产）",
+			libSearchAria: "搜索当前库",
+			libSearchPlaceholder: "搜索名称 / 描述 / 提示词…",
+			searchNoResult: "没有匹配的条目",
+			assetActiveSection: "活跃资产",
+			assetHistorySection: "历史资产",
+			assetHistoryEmpty: "暂无历史资产（归档后的资产会移到这里）",
+			libSectionExpand: "展开",
+			libSectionCollapse: "收起",
+			assetEmptyHint: "暂无资产（资产只能由模版入库晋升）",
+			promptAssetsSection: "经验生成提示词",
+			promptAssetsEmpty: "暂无经验生成提示词资产",
+			promptAssetTitle: "经验生成提示词",
+			promptAssetName: "名称（不可修改）",
+			promptAssetDescription: "描述（不可修改）",
+			promptAssetExperienceType: "主体类型（不可修改）",
+			promptAssetVersion: "当前版本",
+			promptAssetVersionRowId: "版本行 ID",
+			promptAssetBody: "提示词正文",
+			promptAssetImmutableHint: "名称、描述、主体类型是内置资产身份，不可修改；只有正文可以编辑，保存后登记为新版本。",
+			promptAssetActiveOnlyHint: "该资产必须保持活跃：不能归档 / 恢复，只能切换版本；经验会记录生成时使用的版本。",
+			promptAssetActiveOnly: "经验生成提示词资产必须保持活跃，不能归档",
+			experienceTypeNames: {
+				agent: "Agent 经验",
+				orchestrator: "编排经验"
+			},
+			roleAssetType: {
+				standalone: "独立资产",
+				inline: "内联资产",
+				shared: "共享资产"
+			},
+			canvasCaptionAsset: "资产：",
+			toastAssetPromoted: "已入库为资产 {id}（v{version}）",
+			toastAssetVersionSaved: "已登记新版本 {id}（v{version}）",
+			toastAssetRolledBack: "已回滚到所选版本",
+			toastAssetRetired: "资产已归档",
+			toastAssetRestored: "资产已恢复为活跃",
+			assetAutoArchived: "已归档 {count} 个不再被任何工作流引用的角色资产",
+			assetDuplicateCancelled: "重复入库已取消",
+			assetNotFound: "资产不存在，已刷新资产列表",
+			instancePreviewNotFound: "工作流实例不存在，或不属于指定会话",
+			assetPromote: "入库",
+			assetPromoteHint: "先保存当前模版，再入库为资产（同一模版再次入库 = 在同一资产下登记新版本）",
+			assetPromoteLockedHint: "已入库，模版未再修改",
+			assetPromoteUnchanged: "内容未变化，未新增版本",
+			assetRollback: "回滚",
+			assetRollbackHint: "回滚：把 Active 指针移到所选历史版本（只改指针、不改历史版本内容，也不改变活跃 / 归档状态）",
+			assetArchive: "归档",
+			assetRestore: "恢复",
+			assetArchiveHint: "归档：移出活跃复用面（父代理不再召回），历史版本与内容全部保留，可在「历史资产」中恢复；不删除任何版本",
+			assetRestoreHint: "恢复：取最新版本重新进入活跃复用面（父代理可再次召回）；需要旧版本时先恢复，再用「回滚」选择版本",
+			libTabExperience: "经验",
+			experienceActiveSection: "活跃经验",
+			experienceHistorySection: "历史经验",
+			experienceHistoryEmpty: "暂无历史经验（归档后的经验会移到这里）",
+			experienceEmptyHint: "暂无经验（主体在运行中判断值得沉淀时，用 wf_experience_learn 生成入库）",
+			experienceResponsibility: "责任范围",
+			experienceTaskType: "任务类型",
+			experienceDecisionDomain: "决策领域",
+			experienceSituation: "情境",
+			experienceTrigger: "触发信号",
+			experiencePrinciple: "原则",
+			experienceRecommendedAction: "建议行动",
+			experienceExclusions: "不适用条件",
+			experienceEvidence: "证据",
+			experienceListPlaceholder: "每行一条",
+			experienceStatsTitle: "长期统计（由评价历史聚合，只读）",
+			experienceStatsEmpty: "暂无统计",
+			experienceStatsHint: "统计由 Host 聚合得出，界面不可编辑；信任度 0.5 表示证据不足、保持中性",
+			experienceStatsFields: {
+				trust: "信任度",
+				empiricalValue: "经验价值",
+				evidenceStrength: "证据强度",
+				stability: "稳定性",
+				usedCount: "使用次数",
+				harmRate: "负向率"
+			},
+			experienceRetrievalTitle: "检索投影（系统生成，不可编辑）",
+			experienceTaskRetrievalText: "任务侧检索文本",
+			experienceDecisionRetrievalText: "决策侧检索文本",
+			experienceProvenanceTitle: "来源信息",
+			experienceEmbeddingModel: "嵌入模型",
+			experienceEmbeddingDimension: "向量维度",
+			experienceGenerationPromptId: "生成 Prompt",
+			experienceGenerationPromptVersion: "Prompt 版本",
+			experienceSourceRun: "来源运行",
+			experienceIdLabel: "经验 ID",
+			experienceCreatedAt: "创建时间",
+			experienceUpdatedAt: "更新时间",
+			experienceArchiveHint: "归档：退出父代理召回面（不再被召回），内容全部保留，可在「历史经验」中恢复；经验没有版本，不提供回滚",
+			experienceRestoreHint: "恢复：重新进入父代理召回面；经验没有版本，不提供回滚",
+			experienceLifecycleTitle: "生命周期（归档与恢复）",
+			experienceLifecycleStatus: "当前状态",
+			experienceStatusActive: "活跃",
+			experienceStatusRetired: "已归档",
+			experienceRetiredAt: "归档时间",
+			experienceRetiredReason: "归档原因",
+			experienceReactivatedAt: "最近恢复时间",
+			experienceRetireReasonManual: "手动归档",
+			experienceRetireReasonHarmful: "有害影响（出现负向评价）",
+			experienceRetireReasonLongUnused: "长期无用（多次使用与评价后从未产生价值）",
+			experienceRetireTitle: "归档经验",
+			experienceRetireMessage: "确定归档该经验？归档后父代理不再召回它，内容全部保留，可在「历史经验」中恢复。",
+			experienceRetireConfirm: "确认归档",
+			toastExperienceSaved: "经验已保存",
+			toastExperienceRetired: "经验已归档",
+			toastExperienceRestored: "经验已恢复",
+			experienceNotFound: "经验不存在，已刷新经验列表",
+			assetCascadeTitle: "确认保存",
+			assetCascadeRoleMessage: "该共享角色资产的修改会为它登记新版本，以下工作流资产引用了它：{names}。它们各自钉住已引用的固定版本、不会被改写。是否继续？",
+			assetCascadeWorkflowMessage: "本次保存会修改被多个工作流资产共享的角色资产，以下工作流资产也引用了它：{names}。它们各自钉住已引用的固定版本、不会被改写。是否继续？",
+			assetCascadeConfirm: "确认保存",
+			assetVersionsTitle: "版本历史",
+			assetVersionsLoading: "正在加载版本…",
+			assetVersionsEmpty: "暂无历史版本",
+			assetVersionsClose: "关闭",
+			assetVersionActive: "当前版本",
+			assetVersionSource: {
+				human: "人工",
+				agent: "代理"
+			},
+			assetRetireTitle: "归档资产",
+			assetRetireMessage: "确定归档该资产？归档后父代理不再召回它，历史版本与内容全部保留，可在「历史资产」中恢复为活跃资产。",
+			assetRetireSharedMessage: "该角色资产被 {count} 个工作流资产引用：{names}。归档后父代理不再召回它，这些工作流资产仍保留对其固定版本的引用。是否确认归档？",
+			assetRetireConfirm: "确认归档",
+			nodes: "节点",
+			undo: "撤销",
+			redo: "重做",
+			clear: "清空",
+			clearCanvas: "清空画布",
+			clearRunningHint: "实例运行中不可清空画布（已完成/执行中的流程不可变更），请先停止运行",
+			tidy: "自动布局",
+			autoRoute: "自动布线",
+			autoRouteHint: "保持卡片位置和引用不变，清除手动锚点与固定端口方向，重新优化连线；可撤销。",
+			autoLayoutOptions: "自动布局选项",
+			autoLayoutReferences: "自动放置引用",
+			autoLayoutReferencesHint: "为回绕或跨层长线放置局部角色引用；共享原角色配置与执行状态，不新增智能体。取消勾选后再次布局可移除自动引用。",
+			togglePanels: "切换左栏/底栏",
+			createInstance: "创建实例",
+			saveInstance: "保存实例",
+			createService: "创建服务",
+			saveServiceInstance: "保存服务",
+			run: "运行",
+			continueRun: "继续",
+			stop: "停止",
+			startService: "启动服务",
+			stopService: "停止服务",
+			serviceRunning: "运行中",
+			serviceStarting: "启动中…",
+			serviceStopped: "已停止",
+			serviceCrashed: "已崩溃",
+			serviceDebugTitle: "调试输入",
+			serviceDebugPlaceholder: "向运行中的服务发送问题，流式回复在此实时显示",
+			serviceDebugSend: "发送调试",
+			serviceDebugStop: "停止",
+			serviceDebugEmpty: "服务运行中，发送问题后 SSE 流式回答将实时显示在此处",
+			serviceDebugHint: "调试请求经独立调试会话发送，与真实用户会话隔离",
+			serviceDebugErrorPrefix: "[错误] ",
+			serviceDebugOmitted: "…… 已省略早期输出 ",
+			history: "运行历史",
+			saveAsTemplate: "另存为模板",
+			toastSavedAsTemplate: "已另存为模板",
+			toastCreatedInstance: "已创建实例",
+			workflowFileExternalChange: "实例文件已被外部修改，请先保存或放弃当前修改后再刷新",
+			serviceFileExternalChange: "服务文件已被外部修改，请先保存或放弃当前修改后再刷新",
+			emptyHint: "从左侧拖入卡片开始编排",
+			canvasCaptionTemplate: "模板：",
+			canvasCaptionInstance: "实例：",
+			canvasOverlapHint: "画布存在重叠节点，建议点击「自动布局」自动排布",
+			fitView: "全图",
+			zoomIn: "放大",
+			zoomOut: "缩小",
+			nodeKinds: {
+				parent: "父代理",
+				agent: "子代理",
+				task: "前置提示词",
+				step: "任务",
+				database: "数据库",
+				start: "启动",
+				end: "结束",
+				pause: "暂停",
+				input: "输入",
+				output: "输出",
+				group: "团队",
+				subgraph: "子图",
+				proxy: "虚拟节点"
+			},
+			subgraphOpen: "展开子图",
+			subgraphBack: "← 返回主图",
+			subgraphCopySuffix: "副本",
+			subgraphEditHint: "选择卡片编辑属性；拖动卡片移动，拖连接点连线，点击连线后可删除。",
+			subgraphEmpty: "子图内部为空",
+			subgraphNodeCount: "内部节点",
+			subgraphLineCount: "内部连线",
+			subgraphStructure: "内部结构",
+			subgraphStructureHint: "子图必须包含且只包含一个启动节点，至少一个结束节点；内部可包含条件分支。当前支持一层子图。",
+			subgraphImportTemplate: "从工作流模板导入",
+			subgraphImportTemplateHint: "导入会复制模板的节点和连线；源模板后续修改不会自动同步。",
+			subgraphNoTemplates: "暂无同模式的工作流模板，请先创建模板再导入。",
+			subgraphImport: "导入结构",
+			subgraphReset: "重置为起止图",
+			subgraphNoStart: "缺少启动节点",
+			subgraphNoEnd: "缺少结束节点",
+			subgraphDescription: "子图说明",
+			subgraphDescriptionHint: "仅用于画布/预览说明，不参与执行。",
+			dbLocalLabel: "本地库",
+			dbBm25Badge: "相似度检索（非语义）",
+			proxyBadge: "↻ 引用",
+			inspectorEmpty: "从左侧选择卡片或点击画布节点进行编辑",
+			inspectorSave: "保存",
+			inspectorDelete: "删除",
+			inspectorCollapse: "收起属性栏",
+			inspectorExpand: "展开属性栏",
+			inspectorCopy: "引用",
+			copyTemplate: "复制",
+			copyTemplateSuffix: "副本",
+			toastTemplateCopied: "已复制工作流模板",
+			label: "名称",
+			persona: "System Prompt",
+			personaHint: "描述该角色的身份、职责与任务目标（也可从 .md 文件加载）",
+			injectSystemPromptLabel: "系统提示词开关",
+			injectSystemPromptInjected: "当前已注入",
+			injectSystemPromptNotInjected: "未注入",
+			injectToolSectionsLabel: "工具提示词开关",
+			injectToolSectionsInjected: "当前已注入",
+			injectToolSectionsNotInjected: "未注入",
+			promptFilePath: "Prompt 文件路径",
+			promptFilePathPlaceholder: "如 D:\\work\\agent.md（可空，直接使用上方文本）",
+			promptFilePathHint: "设置文件路径：Prompt自动热重载",
+			loadMd: "从 .md 文件加载",
+			loadMdTitle: "选择一个 Markdown 文件作为角色与任务内容",
+			provider: "服务商",
+			model: "模型",
+			modeLabel: "工具组合",
+			thinking: "思考强度",
+			thinkingUnsupportedHint: "该模型不支持思考强度（保持默认）",
+			modeNames: {
+				standard: "标准",
+				minimal: "极简",
+				ptc: "ptc"
+			},
+			modeSummary: "已选 {count} 项",
+			advanced: "高级选项",
+			retryLimit: "回流重试上限",
+			loopLimit: "循环上限",
+			loopLimitHint: "仅通过性校验子代理使用：超过该次数后终止循环、清零计数并报告 Leader。",
+			reactLimit: "ReAct 迭代上限",
+			reactLimitHint: "0 = 不设限",
+			parentAdvancedHint: "父代理高级选项仅含 ReAct 迭代上限与回流重试上限",
+			inputSchema: "输入契约",
+			outputSchema: "输出契约",
+			inputSchemaExample: "如：上游结论；产出文件路径",
+			outputSchemaExample: "如：结论 / 产出文件路径 / 关键决策 / 未决问题",
+			contractRestoreDefault: "恢复默认",
+			taskContent: "任务描述",
+			promptContent: "提示词内容",
+			stepContent: "任务提示词",
+			/** 任务描述文本框下方的文件选择入口（只把路径追加进文本，不上传）。 */
+			pickFiles: "选择文件",
+			/** 多行文本域右下角：展开到画布区域的大文本编辑层。 */
+			textExpand: "展开编辑",
+			/** 扩展编辑层右上角：收起并回到属性栏。 */
+			textExpandCollapse: "收起",
+			/** 团队卡片拖拽悬停提示（放开以入组）。 */
+			groupDropHint: "放开以加入团队",
+			/** 角色卡元信息「模型」前缀。 */
+			nodeMetaModel: "模型",
+			/** 画布节点元信息「组合」前缀（显示选择的模式或组合）。 */
+			nodeMetaPreset: "组合",
+			description: "描述",
+			descriptionHint: "数据库用途说明",
+			dbTypeLabel: "类型",
+			dbTypeLocal: "本地",
+			dbTypeServer: "服务器",
+			dbKindLabel: "数据库引擎",
+			dbHost: "地址",
+			dbPort: "端口",
+			dbUser: "用户名",
+			dbPassword: "密码",
+			/** 已存口令不回显（D07-05）：只有在用户输入新口令时才写回 conn.password。 */
+			dbPasswordStored: "已保存口令（不回显），输入新口令即替换",
+			dbPasswordPlaceholder: "输入口令",
+			dbName: "库名",
+			dbTest: "测试连接",
+			dbTestSuccess: "数据库连接成功",
+			dbLocalPath: "本地数据库文件路径",
+			dbLocalPathPlaceholder: "./data/mydb.sqlite",
+			dbVectorSource: "检索方式",
+			dbVectorEmbedding: "语义向量检索",
+			dbVectorBm25: "BM25 相似度",
+			dbLocalHint: "本地库提供内置向量检索（bge-small-zh-v1.5）；资产缺失时自动降级 BM25",
+			dbAdvanced: "高级选项",
+			dbTopK: "召回条数",
+			dbChunkSize: "分块窗口(字符)",
+			dbOverlap: "分块重叠(字符)",
+			dbScoreThreshold: "相似度阈值",
+			dbMaxRows: "索引容量(行)",
+			dbAdvancedHint: "召回条数=每次返回命中数(默认5,上限50)\n分块窗口/重叠=索引分块大小(384/128)\n相似度阈值=仅保留更高分(默认0)\n索引容量=单库最多索引行数(默认10000)",
+			stageReadonlyHint: "阶段节点属性固定（名称硬编码），不支持编辑；删除按钮仅移除画布节点",
+			collabPrompt: "协作 Prompt",
+			collabPromptHint: "追加到组内成员任务消息的「组内说明」（可通信对象清单由插件统一注入，与是否官方团队成员无关）",
+			groupMembers: "团队成员",
+			groupMemberHint: "把角色拖入团队内（或删除成员以移出）",
+			dynamicTeam: "动态团队",
+			dynamicTeamHint: "开启后父代理可在运行期按模块数量用 spawn_teammate 创建成员，不再依赖画布预置成员",
+			dynamicTeamLimit: "成员上限",
+			dynamicTeamLimitHint: "1..64；同时受部署层 agent-team.maxMembers 名额限制",
+			dynamicTeamLimitExceeds: "当前动态团队上限 {max} 超过子智能体并行上限 {limit}，运行时可能无法同时启动全部成员。请调整团队上限或在设置中提高子智能体并行数量上限。",
+			memberRoleTemplate: "动态成员角色模板",
+			memberRoleTemplateHint: "父代理创建成员时会把这段职责写入 spawn_teammate 的 prompt；任务本身另行下发",
+			groupDefaultName: "团队",
+			/** 卡片右上角「交换左右连接点」按钮提示（用户批注：美化布线防交叉）。 */
+			swapPorts: "切换水平 / 垂直接点",
+			proxyMainLabel: "主节点",
+			proxyReadonlyHint: "虚拟节点不存储独立配置，与主节点共享执行实例；修改主节点实时同步",
+			proxyLabel: "显示名",
+			proxyLabelHint: "画布显示名（如「阶段复核」）；留空则显示节点种类名",
+			agentPatchedBadge: "AI 调整",
+			line: "连线",
+			lineChannel: "连线用途",
+			lineUnconditional: "无条件",
+			lineType: "流转条件",
+			lineTypeFlow: "流程",
+			lineTypeContext: "任务 / 上下文",
+			lineTypeDatabase: "数据",
+			addCardsHint: "点击添加到画布，或拖到指定位置",
+			nodeQuickActions: "节点快捷操作",
+			nodeDuplicate: "复制",
+			nodeCopySuffix: "副本",
+			nodeReference: "引用",
+			referenceSource: "选择引用节点",
+			referenceRequiresRole: "先添加一个角色，再创建引用",
+			closeNodeActions: "关闭节点快捷操作",
+			newConnectionType: "新连线类型",
+			drawingHint: "拖动端点，或依次点击两个端点；Esc 取消",
+			graphLegend: "连线用途",
+			legendPass: "通过 / 放行",
+			legendContent: "条件路由",
+			legendFail: "不通过 / 回环",
+			editConnection: "编辑连线",
+			edgeMoveSegment: "拖动直线段",
+			deleteAnchor: "删除锚点",
+			closeConnection: "关闭连线工具条",
+			anchorHint: "拖动调整；右键、双击或按 Delete 删除锚点",
+			connectionStyle: "线型",
+			roundedConnection: "圆角折线",
+			bezierConnection: "贝塞尔曲线",
+			resetConnection: "重置连线",
+			dragConnectionHint: "拖动连线或控制点调整路径",
+			lineTypePass: "通过",
+			lineTypeFail: "不通过",
+			lineTypeContent: "条件路由",
+			lineContentValue: "内容值",
+			lineContentHint: "如：路由 / 审批",
+			lineConditionHint: "条件连线仅流程出→流程入；「条件路由」由父代理按标签语义判断",
+			workflow: "工作流",
+			service: "服务",
+			flowName: "名称",
+			flowDescription: "描述",
+			meta: "状态",
+			newWorkflow: "新建工作流",
+			deleteFlow: "删除工作流",
+			templateDefaultName: {
+				workflow: "未命名工作流",
+				role: "新角色模板",
+				task: "新任务模板",
+				database: "新数据库模板",
+				group: "新团队模板"
+			},
+			untitledWorkflow: "未命名工作流",
+			untitledService: "未命名服务",
+			untitledFlowTemplate: "未命名工作流模板",
+			untitledServiceTemplate: "未命名服务模板",
+			confirmDelete: "确定删除？",
+			/** 运行中保存实例的二次确认（需求：保存后会更改父代理后续编排流程）。 */
+			saveRunningTitle: "保存将更改父代理后续编排",
+			saveRunningMessage: "当前实例正在运行中。保存后，最新画布内容会立即同步给父代理（标记为「编排变更」），父代理将据此调整后续编排流程（尚未执行的节点与连线按新拓扑执行）。是否确认保存？",
+			saveRunningConfirm: "确认保存",
+			unsavedTitle: "当前画布有未保存的修改",
+			unsavedMessage: "在继续之前，请选择如何处理当前画布的修改。",
+			unsavedSave: "保存修改",
+			unsavedDiscard: "放弃修改",
+			unsavedCancel: "取消",
+			importWorkflow: "导入",
+			exportWorkflow: "导出",
+			exportFileName: "visual-workflow",
+			exportEmpty: "当前没有可导出的内容（请先选择工作流或角色模板）",
+			importConflictTitle: "导入冲突",
+			importConflictMessage: "已存在同名「{name}」。请选择处理方式。",
+			importOverwrite: "覆盖",
+			importRename: "改名导入",
+			importCancel: "取消",
+			toastImported: "导入成功",
+			toastExported: "已导出",
+			needStartAndEnd: "请先添加启动和结束节点",
+			needParentForService: "模式二必须存在父代理节点",
+			toastRunning: "运行已开始",
+			toastStopped: "运行已停止",
+			toastSaved: "已保存",
+			toastSaveUnavailable: "当前文档无法保存，请重新打开后重试",
+			toastServiceStateShape: "宿主返回的服务状态不完整（缺少标识），工作区未更新；请重试该操作或重新打开服务列表",
+			revisionConflictRetry: "保存冲突：该资源已在别处被修改。已重新加载服务端最新版本列表（当前画布改动仍保留），请再次保存。",
+			sessionCreateFailed: "新建会话失败：未返回会话 id",
+			toastDeleted: "已删除",
+			toastNodeAdded: "已添加节点",
+			toastTidy: "已整理布局",
+			toastAutoRoute: "已按当前卡片位置重新布线",
+			stoppingRun: "正在停止…",
+			toastCleared: "已清空",
+			toastProxyCreated: "已创建虚拟节点",
+			toastServiceStarted: "服务已启动",
+			toastServiceStopped: "服务已停止",
+			toastResuming: "已从断点恢复运行",
+			parentDuplicatedHint: "每个工作流画布最多一个父代理节点",
+			stageDuplicatedHint: "启动节点在画布中只能存在一个",
+			/** 运行中画布锁定（已完成流程不可变更）的悬停/角标提示文案。 */
+			lockedCompletedNodeHint: "该节点已完成，其节点与连线不可修改、不可删除（可拖动移动）",
+			lockedRunningNodeHint: "该节点执行中，其左侧入口连线不可修改、不可删除（可拖动移动）",
+			lockedEdgeHint: "该连线属于已完成或正在执行的流程，不可修改、不可删除",
+			invalidConnection: "连接不合法",
+			selfLoop: "不允许自环",
+			duplicateConnection: "重复连线",
+			groupMemberFlowLine: "团队成员不能连流程线，仅可连上下文/数据库线",
+			status: {
+				pending: "等待",
+				running: "运行中",
+				armed: "待命",
+				ok: "完成",
+				fail: "失败",
+				skipped: "跳过",
+				"react-capped": "软截停",
+				stopped: "已停止",
+				completed: "完成",
+				failed: "失败",
+				paused: "已暂停",
+				interrupted: "已中断"
+			},
+			historyEmpty: "还没有运行记录",
+			resumedFrom: "续跑自",
+			resumeFromNode: "断点节点",
+			resumeRun: "恢复运行",
+			newSession: "开启新会话",
+			newSessionHint: "勾选后从当前模板「创建实例」时先新建独立主会话，实例绑定该新会话；勾选状态与工作区路径随当前模板保存（删除模板即随之删除），之后运行只认实例绑定的会话",
+			workspacePlaceholder: "如 D:\\work\\project（新会话工作区，须为存在的目录；留空则继承当前会话工作区）",
+			workspaceHint: "新会话工作区路径（绝对路径目录）；该路径即新会话 cwd，也是沙箱 workspace-write 根；未选择则继承当前会话工作区",
+			sessionWorkingDirectory: "工作目录",
+			workspacePickerUnavailable: "当前环境不支持官方目录选择器，无法选择工作区（未选择时将继承当前会话工作区）",
+			currentSessionBadge: "当前",
+			overwriteInstanceTitle: "覆盖已有实例",
+			overwriteInstanceMessage: "该会话已绑定一个工作流实例，新运行的工作流将会覆盖旧的工作流（旧实例内容将更新为新模板内容，运行历史保留）。是否继续？",
+			overwriteInstanceConfirm: "覆盖",
+			toastInstanceOverwritten: "已覆盖实例",
+			toastServiceRunningCannotOverwrite: "该会话的服务实例正在运行，请先停止服务后再覆盖",
+			combos: "工具组合",
+			comboManager: "工具组合管理",
+			comboTabDsh: "工具",
+			comboTabTool: "项",
+			comboTabMcp: "MCP 服务器",
+			comboSearch: "搜索工具名称或描述…",
+			comboSearchEmpty: "没有匹配的工具（支持按名称或中文描述搜索）",
+			comboNew: "新建组合",
+			comboName: "组合名称",
+			comboDelete: "删除组合",
+			comboHint: "勾选工具与 MCP 服务器组成模式配置",
+			comboEmptySelection: "还没有勾选任何工具或 MCP",
+			comboEmpty: "还没有组合，点击「新建组合」开始",
+			comboSaved: "组合已保存",
+			comboDeleted: "组合已删除",
+			comboSaveFirst: "请先为组合命名",
+			comboTagAll: "全部",
+			comboTagBuiltin: "官方工具",
+			comboTagDisableAll: "一键关闭",
+			comboTagEnableAll: "一键开启",
+			comboTagBulkHint: "一键开关当前标签下全部工具（不影响官方工具或其他标签）",
+			toolSwitchBatchEnabled: "已开启当前标签下全部工具",
+			toolSwitchBatchDisabled: "已关闭当前标签下全部工具",
+			mcpNew: "新建 MCP 服务器",
+			mcpEdit: "编辑",
+			mcpName: "服务器名称",
+			mcpTransport: "连接方式",
+			mcpTransportStdio: "stdio（本地命令）",
+			mcpTransportHttp: "streamable-http（远程 URL）",
+			mcpCommand: "启动命令（整行直接粘贴）",
+			mcpCommandPlaceholder: "npx -y @playwright/mcp@latest --headless",
+			mcpEnv: "环境变量（JSON，可选）",
+			mcpEnvPlaceholder: "{\"API_KEY\":\"...\"}",
+			mcpHeaders: "请求头（JSON，可选）",
+			mcpHeadersPlaceholder: "{\"Authorization\":\"Bearer ...\"}",
+			mcpCommandHint: "通用填写规范：① 本地脚本：node <脚本路径> [flags]　② npx 一行：npx -y <包名> [flags]（Windows 自动经 cmd 启动）　③ 远程服务：连接方式选 streamable-http + 填 URL。含空格的路径请用引号。",
+			mcpImport: "从 mcp.json 导入",
+			mcpImportApply: "导入",
+			mcpImportHint: "粘贴标准 mcp.json 的 server 对象或 {mcpServers:{name:{...}}}，导入后请核对再保存。",
+			mcpImported: "已导入，请核对后保存",
+			mcpDisabledBadge: "已停用",
+			mcpEnvInvalid: "环境变量/请求头需为 JSON 对象",
+			mcpImportEmptyInput: "请先粘贴 mcp.json 配置",
+			mcpImportServersEmpty: "mcpServers 配置为空",
+			mcpUrl: "URL",
+			mcpUrlPlaceholder: "https://example.com/mcp",
+			mcpImportPlaceholder: "{\"mcpServers\":{\"codegraph\":{\"command\":\"npx\",\"args\":[\"-y\",\"@colbymchenry/codegraph\"]}}}",
+			mcpSave: "保存服务器",
+			mcpDelete: "删除",
+			mcpEnabled: "MCP 服务器已启用（重启 dsh web 后生效）",
+			mcpDisabled: "MCP 服务器已停用（重启 dsh web 后生效）",
+			mcpSaved: "MCP 服务器已保存（重启 dsh web 后生效）",
+			mcpDeleted: "MCP 服务器已删除（重启 dsh web 后生效）",
+			mcpRestartHint: "MCP 增删改写入 profile 配置，重启 dsh web 后生效",
+			comboDeleteConfirm: "确认删除",
+			toolEnable: "开启",
+			toolDisable: "关闭",
+			toolSwitchEnabled: "工具已开启：所有会话的父代理均可见",
+			toolSwitchDisabled: "工具已关闭：所有会话的父代理与子代理均不再可见",
+			scheduler: "定时任务",
+			schedulerManager: "定时任务管理",
+			schedulerHint: "按执行窗口与触发策略自动运行所选工作流（触发 = 自动创建实例并运行）",
+			schedulerNew: "新建任务",
+			schedulerName: "任务名称",
+			schedulerTemplate: "执行工作流",
+			schedulerTemplatePlaceholder: "选择要执行的模式一工作流模板…",
+			schedulerTemplateEmpty: "暂无可用工作流模板（先在工作台「另存为模板」创建）",
+			schedulerSessionMode: "运行会话",
+			schedulerSessionNew: "新会话（每轮自动创建会话并运行）",
+			schedulerSessionCurrent: "当前会话（每轮复用本会话，不新建）",
+			schedulerSessionNewHint: "每轮触发创建新会话（任务执行不依赖手动激活的会话）；若流程被暂停未完成，续跑仍在当前会话内进行",
+			schedulerSessionCurrentHint: "每轮触发复用创建本任务时所在会话；会话未激活时触发将失败并跳过本轮",
+			schedulerTimezone: "时区",
+			schedulerWindow: "执行窗口（第一层）",
+			schedulerWindowHint: "错峰 API 调用的限制：窗口有效是触发的前提；运行到窗口结束仍未完成时挂起，下一窗口继续",
+			schedulerWindowDates: "有效日期范围",
+			schedulerWindowDateStart: "开始日期",
+			schedulerWindowDateEnd: "结束日期",
+			schedulerWindowUnbounded: "日期不限",
+			schedulerWindowDays: "有效星期",
+			schedulerWindowDaysAll: "每天",
+			schedulerWeekdays: [
+				"日",
+				"一",
+				"二",
+				"三",
+				"四",
+				"五",
+				"六"
+			],
+			schedulerCalendarPreviousMonth: "上月",
+			schedulerCalendarNextMonth: "下月",
+			schedulerCalendarStart: "开始",
+			schedulerCalendarEnd: "结束",
+			schedulerCalendarMonthNames: [
+				"1",
+				"2",
+				"3",
+				"4",
+				"5",
+				"6",
+				"7",
+				"8",
+				"9",
+				"10",
+				"11",
+				"12"
+			],
+			schedulerCalendarMonthTitle: "{year}年{month}月",
+			schedulerTimePicker: "选择时间",
+			schedulerTimePlaceholder: "HH:mm",
+			schedulerHour: "时",
+			schedulerMinute: "分",
+			schedulerWindowRanges: "可执行时间段",
+			schedulerRangeStart: "开始时间",
+			schedulerRangeEnd: "结束时间",
+			schedulerRangeAdd: "添加时间段",
+			schedulerRangeCrossHint: "结束不晚于开始时按跨天处理（如 22:00–06:00 覆盖次日凌晨）",
+			schedulerTrigger: "触发策略（第二层）",
+			schedulerTriggerDaily: "定点时刻",
+			schedulerTriggerInterval: "固定间隔",
+			schedulerTimePoints: "触发时刻",
+			schedulerTimePointAdd: "添加时刻",
+			schedulerInterval: "间隔（分钟）",
+			schedulerIntervalStartFrom: "起始时刻",
+			schedulerIntervalHint: "每个有效日从起始时刻起按间隔触发；跨过次日 00:00 的点自动废弃",
+			schedulerCondition: "条件触发（第三层）",
+			schedulerConditionEnable: "启用条件触发",
+			schedulerConditionScript: "条件脚本",
+			schedulerConditionScriptPlaceholder: "例如 C:\\scripts\\check-issue.mjs",
+			schedulerConditionScriptHint: "每个触发点先运行脚本；最后一行输出 true 才执行；false、异常或超时（10 秒）视为不通过。",
+			schedulerConditionPick: "选择文件",
+			schedulerConditionPickUnavailable: "当前环境无法获取文件绝对路径，请手动粘贴",
+			schedulerConditionLateHint: "实际执行会晚于「下次触发」显示的理论时刻",
+			schedulerPolicy: "运行时策略",
+			schedulerPolicyText: "错过触发：不补打（skip） · 上轮未结束：跳过本轮（skip） · 配置修改：立即生效（immediate）",
+			schedulerEnabled: "启用",
+			schedulerNextRun: "下次触发",
+			schedulerCurrentRun: "当前运行",
+			schedulerLastOutcome: "最近结果",
+			schedulerEmpty: "还没有定时任务，点击「新建任务」开始",
+			schedulerStatus: {
+				idle: "待触发",
+				running: "运行中",
+				waiting: "窗口暂停",
+				paused: "已暂停",
+				error: "触发失败"
+			},
+			schedulerLastResult: {
+				started: "已触发运行",
+				resumed: "窗口续跑",
+				failed: "触发失败",
+				skipped: "跳过"
+			},
+			schedulerDelete: "删除任务",
+			schedulerDeleteConfirm: "确认删除",
+			schedulerDeleteHint: "删除只影响未来触发，正在运行/暂停的流程不受干扰",
+			schedulerSaved: "任务已保存",
+			schedulerDeleted: "任务已删除",
+			schedulerNeedName: "请填写任务名称",
+			schedulerNeedTemplate: "请选择执行的工作流模板",
+			schedulerLocale: "zh-CN",
+			schedulerTimezoneUnavailable: "无法探测本机时区：请在「时区」中手动选择，否则按 Asia/Shanghai 计算触发时刻",
+			remoteTimeout: "工作流服务响应超时（{endpoint}）",
+			remoteConnection: "无法连接工作流服务：{detail}",
+			remoteHttpStatus: "工作流服务错误（HTTP {status}）",
+			remoteEmptyStream: "流式响应无内容",
+			remoteParse: "工作流服务返回了无法解析的响应（{endpoint}）"
+		};
+		const en = {
+			studio: "Workbench",
+			badge: "Visual Orchestration",
+			note: "Drag cards · Wire connections · Run",
+			workbenchInUse: "The studio is already open in another tab",
+			mode1: "Orchestration Mode",
+			mode2: "Service Mode",
+			workflows: "Workflows",
+			services: "Services",
+			libTab: {
+				workflow: "Workflows",
+				role: "Agents",
+				data: "Data",
+				other: "Other"
+			},
+			parentMarker: "P",
+			flowInstances: "Instances",
+			flowTemplates: "Workflow templates",
+			parentAgent: "Parent Agent",
+			roleTemplates: "Agent templates",
+			tasks: "Prompts / tasks",
+			databases: "Databases",
+			stages: "Stages",
+			groupTemplates: "Teams",
+			groupMemberLimitHint: "Team member limit reached (the limit comes from agent-team.maxMembers in the deployment layer)",
+			toastGroupMemberAdded: "Added to Team",
+			stagePinHint: "Fixed template",
+			newTemplate: "New template",
+			libEmptyTemplates: "No templates yet — click + to create",
+			libSourceTemplate: "Template",
+			libSourceAsset: "Asset",
+			libSourceAria: "Switch library source (template / asset)",
+			libSearchAria: "Search the current library",
+			libSearchPlaceholder: "Search name / description / prompt…",
+			searchNoResult: "No matching entries",
+			assetActiveSection: "Active assets",
+			assetHistorySection: "Historical assets",
+			assetHistoryEmpty: "No historical assets yet (archived assets move here)",
+			libSectionExpand: "Expand",
+			libSectionCollapse: "Collapse",
+			assetEmptyHint: "No assets yet (assets are promoted from templates)",
+			promptAssetsSection: "Experience generation prompts",
+			promptAssetsEmpty: "No experience generation prompt assets yet",
+			promptAssetTitle: "Experience generation prompt",
+			promptAssetName: "Name (read-only)",
+			promptAssetDescription: "Description (read-only)",
+			promptAssetExperienceType: "Subject type (read-only)",
+			promptAssetVersion: "Active version",
+			promptAssetVersionRowId: "Version row id",
+			promptAssetBody: "Prompt body",
+			promptAssetImmutableHint: "Name, description and subject type are fixed asset identity and cannot be edited; only the body can be edited, and saving registers a new version.",
+			promptAssetActiveOnlyHint: "This asset must stay active: it cannot be archived or restored, only version-switched; experience records the prompt version used at generation time.",
+			promptAssetActiveOnly: "Experience generation prompt assets must stay active and cannot be archived",
+			experienceTypeNames: {
+				agent: "Agent experience",
+				orchestrator: "Orchestration experience"
+			},
+			roleAssetType: {
+				standalone: "Standalone asset",
+				inline: "Inline asset",
+				shared: "Shared asset"
+			},
+			canvasCaptionAsset: "Asset: ",
+			toastAssetPromoted: "Promoted to asset {id} (v{version})",
+			toastAssetVersionSaved: "New version registered {id} (v{version})",
+			toastAssetRolledBack: "Rolled back to the selected version",
+			toastAssetRetired: "Asset archived",
+			toastAssetRestored: "Asset restored to active",
+			assetAutoArchived: "Archived {count} role asset(s) that no workflow references any more",
+			assetDuplicateCancelled: "Duplicate promotion cancelled",
+			assetNotFound: "Asset not found; the asset list was refreshed",
+			instancePreviewNotFound: "Workflow instance not found or belongs to another session",
+			assetPromote: "Promote",
+			assetPromoteHint: "Save the current template first, then promote it to an asset (promoting the same template again registers a new version of the same asset)",
+			assetPromoteLockedHint: "Already promoted; the template has not changed since",
+			assetPromoteUnchanged: "Content unchanged; no new version was created",
+			assetRollback: "Roll back",
+			assetRollbackHint: "Roll back: move the Active pointer to the selected historical version (pointer only — historical content and the active/archived state are untouched)",
+			assetArchive: "Archive",
+			assetRestore: "Restore",
+			assetArchiveHint: "Archive: leave the active reuse surface (the parent agent no longer recalls it); all versions and content are kept and it can be restored from the historical assets section — nothing is ever deleted",
+			assetRestoreHint: "Restore: re-enter the active reuse surface with the latest version (the parent agent can recall it again); to use an older version, restore first and then roll back",
+			libTabExperience: "Experience",
+			experienceActiveSection: "Active experience",
+			experienceHistorySection: "Historical experience",
+			experienceHistoryEmpty: "No historical experience yet (archived entries move here)",
+			experienceEmptyHint: "No experience yet (a subject creates one via wf_experience_learn when it judges the run worth learning from)",
+			experienceResponsibility: "Responsibility",
+			experienceTaskType: "Task type",
+			experienceDecisionDomain: "Decision domain",
+			experienceSituation: "Situation",
+			experienceTrigger: "Trigger",
+			experiencePrinciple: "Principle",
+			experienceRecommendedAction: "Recommended action",
+			experienceExclusions: "Exclusions",
+			experienceEvidence: "Evidence",
+			experienceListPlaceholder: "One item per line",
+			experienceStatsTitle: "Long-term statistics (aggregated from evaluation history, read-only)",
+			experienceStatsEmpty: "No statistics yet",
+			experienceStatsHint: "Statistics are aggregated by the host and cannot be edited here; trust 0.5 means insufficient evidence, kept neutral",
+			experienceStatsFields: {
+				trust: "Trust",
+				empiricalValue: "Empirical value",
+				evidenceStrength: "Evidence strength",
+				stability: "Stability",
+				usedCount: "Use count",
+				harmRate: "Harm rate"
+			},
+			experienceRetrievalTitle: "Retrieval projection (system-generated, read-only)",
+			experienceTaskRetrievalText: "Task retrieval text",
+			experienceDecisionRetrievalText: "Decision retrieval text",
+			experienceProvenanceTitle: "Provenance",
+			experienceEmbeddingModel: "Embedding model",
+			experienceEmbeddingDimension: "Embedding dimension",
+			experienceGenerationPromptId: "Generation prompt",
+			experienceGenerationPromptVersion: "Prompt version",
+			experienceSourceRun: "Source run",
+			experienceIdLabel: "Experience id",
+			experienceCreatedAt: "Created",
+			experienceUpdatedAt: "Updated",
+			experienceArchiveHint: "Archive: leave the parent agent recall surface (no longer recalled); all content is kept and it can be restored from the historical experience section — experience has no versions, so no rollback",
+			experienceRestoreHint: "Restore: re-enter the parent agent recall surface; experience has no versions, so no rollback",
+			experienceLifecycleTitle: "Lifecycle (archive and restore)",
+			experienceLifecycleStatus: "Status",
+			experienceStatusActive: "Active",
+			experienceStatusRetired: "Archived",
+			experienceRetiredAt: "Archived at",
+			experienceRetiredReason: "Archive reason",
+			experienceReactivatedAt: "Last restored",
+			experienceRetireReasonManual: "Manually archived",
+			experienceRetireReasonHarmful: "Harmful (a negative evaluation occurred)",
+			experienceRetireReasonLongUnused: "Long unused (no value after repeated use and evaluation)",
+			experienceRetireTitle: "Archive experience",
+			experienceRetireMessage: "Archive this experience? The parent agent will no longer recall it; all content is kept and it can be restored from the historical experience section.",
+			experienceRetireConfirm: "Archive",
+			toastExperienceSaved: "Experience saved",
+			toastExperienceRetired: "Experience archived",
+			toastExperienceRestored: "Experience restored",
+			experienceNotFound: "Experience not found; the experience list was refreshed",
+			assetCascadeTitle: "Confirm save",
+			assetCascadeRoleMessage: "Editing this shared role asset will register a new version of it. These workflow assets reference it: {names}. Each keeps pinning the version it already references, so their content is not rewritten. Continue?",
+			assetCascadeWorkflowMessage: "This save will modify role assets shared with other workflow assets. These workflow assets also reference them: {names}. Each keeps pinning the version it already references, so their content is not rewritten. Continue?",
+			assetCascadeConfirm: "Confirm save",
+			assetVersionsTitle: "Version history",
+			assetVersionsLoading: "Loading versions…",
+			assetVersionsEmpty: "No historical versions yet",
+			assetVersionsClose: "Close",
+			assetVersionActive: "Active",
+			assetVersionSource: {
+				human: "Human",
+				agent: "Agent"
+			},
+			assetRetireTitle: "Archive asset",
+			assetRetireMessage: "Archive this asset? The parent agent will no longer recall it; all versions and content are kept and it can be restored as an active asset from the historical assets section.",
+			assetRetireSharedMessage: "This role asset is referenced by {count} workflow asset(s): {names}. Once archived the parent agent no longer recalls it, while those workflow assets keep referencing its pinned version. Archive it?",
+			assetRetireConfirm: "Archive",
+			nodes: "nodes",
+			undo: "Undo",
+			redo: "Redo",
+			clear: "Clear",
+			clearCanvas: "Clear canvas",
+			clearRunningHint: "Cannot clear the canvas while the instance is running (completed/running flow is frozen); stop the run first",
+			tidy: "Auto layout",
+			autoRoute: "Auto route",
+			autoRouteHint: "Keep cards and references in place, clear manual anchors and fixed port sides, and optimize routes. Supports undo.",
+			autoLayoutOptions: "Auto layout options",
+			autoLayoutReferences: "Place references automatically",
+			autoLayoutReferencesHint: "Place local role references for long or returning edges. References share the original agent and state. Uncheck and lay out again to remove generated references.",
+			togglePanels: "Switch left/bottom panel",
+			createInstance: "Create instance",
+			saveInstance: "Save instance",
+			createService: "Create service",
+			saveServiceInstance: "Save service",
+			run: "Run",
+			continueRun: "Continue",
+			stop: "Stop",
+			startService: "Start service",
+			stopService: "Stop service",
+			serviceRunning: "Running",
+			serviceStarting: "Starting…",
+			serviceStopped: "Stopped",
+			serviceCrashed: "Crashed",
+			serviceDebugTitle: "Debug input",
+			serviceDebugPlaceholder: "Send a question to the running service; the streamed answer appears here",
+			serviceDebugSend: "Send",
+			serviceDebugStop: "Stop",
+			serviceDebugEmpty: "Run the service, then send a question to preview the SSE streamed answer",
+			serviceDebugHint: "Debug requests use a separate debug session, isolated from real users",
+			serviceDebugErrorPrefix: "[Error] ",
+			serviceDebugOmitted: "... earlier output omitted: ",
+			history: "Run History",
+			saveAsTemplate: "Save as template",
+			toastSavedAsTemplate: "Saved as template",
+			toastCreatedInstance: "Instance created",
+			workflowFileExternalChange: "The instance file was modified externally; save or discard your changes first, then refresh",
+			serviceFileExternalChange: "The service file was modified externally; save or discard your changes first, then refresh",
+			emptyHint: "Drag cards from the left to start",
+			canvasCaptionTemplate: "Template: ",
+			canvasCaptionInstance: "Instance: ",
+			canvasOverlapHint: "Some nodes overlap — click \"Auto layout\" to rearrange automatically",
+			fitView: "Fit view",
+			zoomIn: "Zoom in",
+			zoomOut: "Zoom out",
+			nodeKinds: {
+				parent: "Parent",
+				agent: "Agent",
+				task: "Upfront prompt",
+				step: "Task",
+				database: "Database",
+				start: "Start",
+				end: "End",
+				pause: "Pause",
+				input: "Input",
+				output: "Output",
+				group: "Team",
+				subgraph: "Subgraph",
+				proxy: "Proxy"
+			},
+			subgraphOpen: "Expand subgraph",
+			subgraphBack: "← Back to parent graph",
+			subgraphCopySuffix: "copy",
+			subgraphEditHint: "Select a card to edit it; drag cards to move them, drag ports to connect, select an edge to delete it.",
+			subgraphEmpty: "The subgraph is empty",
+			subgraphNodeCount: "Inner nodes",
+			subgraphLineCount: "Inner edges",
+			subgraphStructure: "Inner structure",
+			subgraphStructureHint: "A subgraph must contain exactly one start node and at least one end node; conditional branches are allowed. Only one level of subgraph is supported.",
+			subgraphImportTemplate: "Import from workflow template",
+			subgraphImportTemplateHint: "Import copies the template nodes and edges; later template edits are not synchronized.",
+			subgraphNoTemplates: "No workflow template in this mode; create one before importing.",
+			subgraphImport: "Import structure",
+			subgraphReset: "Reset to start/end",
+			subgraphNoStart: "Missing start node",
+			subgraphNoEnd: "Missing end node",
+			subgraphDescription: "Description",
+			subgraphDescriptionHint: "Used only in the canvas/preview; does not affect execution.",
+			dbLocalLabel: "Local DB",
+			dbBm25Badge: "BM25 (non-semantic)",
+			proxyBadge: "↻ ref",
+			inspectorEmpty: "Select a card on the left or a node on the canvas",
+			inspectorSave: "Save",
+			inspectorDelete: "Delete",
+			inspectorCollapse: "Collapse inspector",
+			inspectorExpand: "Expand inspector",
+			inspectorCopy: "Reference",
+			copyTemplate: "Copy",
+			copyTemplateSuffix: "copy",
+			toastTemplateCopied: "Workflow template copied",
+			label: "Label",
+			persona: "Role & Task",
+			personaHint: "Describe the agent role, duties and goals (or load from a .md file)",
+			injectSystemPromptLabel: "System Prompt switch",
+			injectSystemPromptInjected: "injected",
+			injectSystemPromptNotInjected: "not injected",
+			injectToolSectionsLabel: "Tool prompt switch",
+			injectToolSectionsInjected: "injected",
+			injectToolSectionsNotInjected: "not injected",
+			promptFilePath: "Prompt file path",
+			promptFilePathPlaceholder: "e.g. D:\\work\\agent.md (optional; use the text above instead)",
+			promptFilePathHint: "Set file path: Prompt auto-reloads",
+			loadMd: "Load from .md file",
+			loadMdTitle: "Choose a Markdown file as the role & task content",
+			provider: "Provider",
+			model: "Model",
+			modeLabel: "Tools combos",
+			thinking: "Thinking effort",
+			thinkingUnsupportedHint: "This model does not support thinking effort (keep default)",
+			modeNames: {
+				standard: "Standard",
+				minimal: "Minimal",
+				ptc: "ptc"
+			},
+			modeSummary: "{count} item(s) selected",
+			advanced: "Advanced",
+			retryLimit: "Retry limit",
+			loopLimit: "Loop limit",
+			loopLimitHint: "Validation gate only: stop the loop, reset the counter and report to the Leader after this many failed attempts.",
+			reactLimit: "ReAct limit",
+			reactLimitHint: "0 = unlimited",
+			parentAdvancedHint: "Parent advanced options: ReAct limit & retry limit only",
+			inputSchema: "Input contract",
+			outputSchema: "Output contract",
+			inputSchemaExample: "e.g. upstream conclusion; artifact paths",
+			outputSchemaExample: "e.g. conclusion / artifact paths / key decisions / open questions",
+			contractRestoreDefault: "Restore default",
+			taskContent: "Task description",
+			promptContent: "Prompt content",
+			stepContent: "Task prompt",
+			pickFiles: "Choose files",
+			textExpand: "Expand editor",
+			textExpandCollapse: "Collapse",
+			groupDropHint: "Drop to join the Team",
+			nodeMetaModel: "Model",
+			nodeMetaPreset: "Preset",
+			description: "Description",
+			descriptionHint: "Database purpose",
+			dbTypeLabel: "Type",
+			dbTypeLocal: "Local",
+			dbTypeServer: "Server",
+			dbKindLabel: "Engine",
+			dbHost: "Host",
+			dbPort: "Port",
+			dbUser: "User",
+			dbPassword: "Password",
+			/** 已存口令不回显（D07-05）：只有在用户输入新口令时才写回 conn.password。 */
+			dbPasswordStored: "Password saved (hidden) — type a new one to replace",
+			dbPasswordPlaceholder: "Enter password",
+			dbName: "Database",
+			dbTest: "Test connection",
+			dbTestSuccess: "Database connection OK",
+			dbLocalPath: "Local database file path",
+			dbLocalPathPlaceholder: "./data/mydb.sqlite",
+			dbVectorSource: "Retrieval mode",
+			dbVectorEmbedding: "Semantic vectors",
+			dbVectorBm25: "BM25 similarity",
+			dbLocalHint: "Local DB provides built-in vector search (bge-small-zh-v1.5); falls back to BM25 when assets are missing",
+			dbAdvanced: "Advanced options",
+			dbTopK: "Top-K recall",
+			dbChunkSize: "Chunk size (chars)",
+			dbOverlap: "Chunk overlap (chars)",
+			dbScoreThreshold: "Similarity threshold",
+			dbMaxRows: "Index rows cap",
+			dbAdvancedHint: "Top-K: hits per search (default 5, max 50)\nchunk size/overlap: index window (384/128)\nthreshold: keep only higher scores (default 0)\nindex rows cap: rows indexed per DB (default 10000)",
+			stageReadonlyHint: "Stage node attributes are fixed (hardcoded label); delete removes the canvas node only",
+			collabPrompt: "Collab prompt",
+			collabPromptHint: "Appended to the member task message as a \"team note\" (the reachable-agent list is injected by the plugin regardless of official Team membership)",
+			groupMembers: "Team members",
+			groupMemberHint: "Drag agents into the Team (or remove members to exit)",
+			dynamicTeam: "Dynamic Team",
+			dynamicTeamHint: "Let the parent create members at runtime with spawn_teammate based on the module count, instead of preset canvas members",
+			dynamicTeamLimit: "Member cap",
+			dynamicTeamLimitHint: "1..64; also bounded by the deployment agent-team.maxMembers quota",
+			dynamicTeamLimitExceeds: "Dynamic team limit {max} exceeds the subagent parallelism limit {limit}; not all members may start together. Lower the team limit or raise the subagent limit in Settings.",
+			memberRoleTemplate: "Dynamic member role template",
+			memberRoleTemplateHint: "The parent includes this responsibility in the spawn_teammate prompt; tasks are assigned separately",
+			groupDefaultName: "Team",
+			swapPorts: "Prefer horizontal / vertical ports",
+			proxyMainLabel: "Main node",
+			proxyReadonlyHint: "Proxy nodes share the main node instance; edits on the main node sync automatically",
+			proxyLabel: "Label",
+			proxyLabelHint: "Canvas label (e.g. \"stage review\"); empty falls back to the node kind name",
+			agentPatchedBadge: "AI edit",
+			line: "Line",
+			lineChannel: "Connection purpose",
+			lineUnconditional: "Unconditional",
+			lineType: "Routing condition",
+			lineTypeFlow: "Flow",
+			lineTypeContext: "Task / context",
+			lineTypeDatabase: "Data",
+			addCardsHint: "Click to add, or drag onto the canvas",
+			nodeQuickActions: "Node quick actions",
+			nodeDuplicate: "Duplicate",
+			nodeCopySuffix: "copy",
+			nodeReference: "Reference",
+			referenceSource: "Choose a referenced node",
+			referenceRequiresRole: "Add a role before creating a reference",
+			closeNodeActions: "Close node actions",
+			newConnectionType: "New connection type",
+			drawingHint: "Drag a port or click two ports; Esc to cancel",
+			graphLegend: "Connection types",
+			legendPass: "Approved / proceed",
+			legendContent: "Conditional route",
+			legendFail: "Rejected / rework",
+			editConnection: "Edit connection",
+			edgeMoveSegment: "Drag straight segment",
+			deleteAnchor: "Delete anchor",
+			closeConnection: "Close connection toolbar",
+			anchorHint: "Drag to move; right-click, double-click or press Delete to remove",
+			connectionStyle: "Line style",
+			roundedConnection: "Rounded",
+			bezierConnection: "Bezier",
+			resetConnection: "Reset route",
+			dragConnectionHint: "Drag the line or a control point to adjust its route",
+			lineTypePass: "Pass",
+			lineTypeFail: "Fail",
+			lineTypeContent: "Conditional route",
+			lineContentValue: "Content value",
+			lineContentHint: "e.g. routing / approval",
+			lineConditionHint: "Conditional lines only apply flow-out → flow-in; content type is judged semantically by the parent",
+			workflow: "Workflow",
+			service: "Service",
+			flowName: "Name",
+			flowDescription: "Description",
+			meta: "Status",
+			newWorkflow: "New workflow",
+			deleteFlow: "Delete workflow",
+			templateDefaultName: {
+				workflow: "Untitled workflow",
+				role: "New agent template",
+				task: "New task template",
+				database: "New database template",
+				group: "New Team template"
+			},
+			untitledWorkflow: "Untitled workflow",
+			untitledService: "Untitled service",
+			untitledFlowTemplate: "Untitled workflow template",
+			untitledServiceTemplate: "Untitled service template",
+			confirmDelete: "Delete?",
+			saveRunningTitle: "Saving will change later orchestration",
+			saveRunningMessage: "This instance is running. After saving, the latest canvas is synced to the parent agent immediately (marked as an orchestration change) and the parent agent will adjust the remaining orchestration accordingly (pending nodes and lines follow the new topology). Save now?",
+			saveRunningConfirm: "Save anyway",
+			unsavedTitle: "Unsaved canvas changes",
+			unsavedMessage: "Choose how to handle the current canvas changes before continuing.",
+			unsavedSave: "Save changes",
+			unsavedDiscard: "Discard",
+			unsavedCancel: "Cancel",
+			importWorkflow: "Import",
+			exportWorkflow: "Export",
+			exportFileName: "visual-workflow",
+			exportEmpty: "Nothing to export (select a workflow or agent template first)",
+			importConflictTitle: "Import conflict",
+			importConflictMessage: "\"{name}\" already exists. How should it be handled?",
+			importOverwrite: "Overwrite",
+			importRename: "Import as copy",
+			importCancel: "Cancel",
+			toastImported: "Imported",
+			toastExported: "Exported",
+			needStartAndEnd: "Add start and end nodes first",
+			needParentForService: "Mode 2 requires a parent agent node",
+			toastRunning: "Run started",
+			toastStopped: "Run stopped",
+			toastSaved: "Saved",
+			toastSaveUnavailable: "Unable to save the current document. Reopen it and try again.",
+			toastServiceStateShape: "The host returned an incomplete service state (missing id); the workspace was not updated — retry the action or reopen the service list",
+			revisionConflictRetry: "Save conflict: this resource was modified elsewhere. The latest server version list has been reloaded (your canvas changes are kept) — please save again.",
+			sessionCreateFailed: "Failed to create the session: no session id returned",
+			toastDeleted: "Deleted",
+			toastNodeAdded: "Node added",
+			toastTidy: "Layout tidied",
+			toastAutoRoute: "Connections rerouted on the current layout",
+			stoppingRun: "Stopping…",
+			toastCleared: "Cleared",
+			toastProxyCreated: "Proxy node created",
+			toastServiceStarted: "Service started",
+			toastServiceStopped: "Service stopped",
+			toastResuming: "Resumed from checkpoint",
+			parentDuplicatedHint: "At most one parent agent node per canvas",
+			stageDuplicatedHint: "Only one start node allowed on the canvas",
+			lockedCompletedNodeHint: "This node is done: it and its lines cannot be modified or deleted (dragging is allowed)",
+			lockedRunningNodeHint: "This node is running: its left inbound lines cannot be modified or deleted (dragging is allowed)",
+			lockedEdgeHint: "This line belongs to a finished or running flow: it cannot be modified or deleted",
+			invalidConnection: "Invalid connection",
+			selfLoop: "Self loops are not allowed",
+			duplicateConnection: "Duplicate connection",
+			groupMemberFlowLine: "Team members can only connect context/database lines, not flow lines",
+			status: {
+				pending: "Pending",
+				running: "Running",
+				armed: "Standby",
+				ok: "Done",
+				fail: "Failed",
+				skipped: "Skipped",
+				"react-capped": "Soft-capped",
+				stopped: "Stopped",
+				completed: "Done",
+				failed: "Failed",
+				paused: "Paused",
+				interrupted: "Interrupted"
+			},
+			historyEmpty: "No run records yet",
+			resumedFrom: "resumed from",
+			resumeFromNode: "checkpoint",
+			resumeRun: "Resume",
+			newSession: "Start in new session",
+			newSessionHint: "When on, creating an instance from the current template first creates a fresh main session and binds the instance to it; the checkbox and workspace path are saved with the template (removed with it). Subsequent runs only use the session the instance is bound to",
+			workspacePlaceholder: "e.g. D:\\work\\project (new-session workspace; must exist; blank inherits the current session workspace)",
+			workspaceHint: "New-session workspace path (absolute directory); it becomes the new-session cwd and the sandbox workspace-write root; unset inherits the current session workspace",
+			sessionWorkingDirectory: "Working directory",
+			workspacePickerUnavailable: "The official directory picker is unavailable in this environment (the current session workspace is inherited when unset)",
+			currentSessionBadge: "Current",
+			overwriteInstanceTitle: "Overwrite existing instance",
+			overwriteInstanceMessage: "This session already holds a workflow instance; the new workflow will overwrite the old one (the old instance content is replaced with the new template content, run history is kept). Continue?",
+			overwriteInstanceConfirm: "Overwrite",
+			toastInstanceOverwritten: "Instance overwritten",
+			toastServiceRunningCannotOverwrite: "The service instance of this session is running; stop it before overwriting",
+			combos: "Tools combos",
+			comboManager: "Tools Combo Manager",
+			comboTabDsh: "Tools",
+			comboTabTool: "items",
+			comboTabMcp: "MCP servers",
+			comboSearch: "Search tools by name or description…",
+			comboSearchEmpty: "No matching tools (search by name or Chinese description)",
+			comboNew: "New combo",
+			comboName: "Combo name",
+			comboDelete: "Delete combo",
+			comboHint: "Tick tools and MCP servers to form a mode config",
+			comboEmptySelection: "No tools or MCP selected yet",
+			comboEmpty: "No combos yet — click \"New combo\"",
+			comboSaved: "Combo saved",
+			comboDeleted: "Combo deleted",
+			comboSaveFirst: "Name the combo first",
+			comboTagAll: "All",
+			comboTagBuiltin: "Built-in tools",
+			comboTagDisableAll: "Disable all",
+			comboTagEnableAll: "Enable all",
+			comboTagBulkHint: "Toggle all tools under the current tag (official tools and other tags are unaffected)",
+			toolSwitchBatchEnabled: "Enabled all tools under the current tag",
+			toolSwitchBatchDisabled: "Disabled all tools under the current tag",
+			mcpNew: "New MCP server",
+			mcpEdit: "Edit",
+			mcpName: "Server name",
+			mcpTransport: "Transport",
+			mcpTransportStdio: "stdio (local command)",
+			mcpTransportHttp: "streamable-http (remote URL)",
+			mcpCommand: "Command (paste the whole line)",
+			mcpCommandPlaceholder: "npx -y @playwright/mcp@latest --headless",
+			mcpEnv: "Environment (JSON, optional)",
+			mcpEnvPlaceholder: "{\"API_KEY\":\"...\"}",
+			mcpHeaders: "Headers (JSON, optional)",
+			mcpHeadersPlaceholder: "{\"Authorization\":\"Bearer ...\"}",
+			mcpCommandHint: "How to fill: ① Local script: node <script path> [flags]　② npx one-liner: npx -y <pkg> [flags] (auto-launched via cmd on Windows)　③ Remote: pick streamable-http + enter URL. Quote any path with spaces.",
+			mcpImport: "Import from mcp.json",
+			mcpImportApply: "Import",
+			mcpImportHint: "Paste a standard mcp.json server object or {mcpServers:{name:{...}}}; review before saving.",
+			mcpImported: "Imported — review then save",
+			mcpDisabledBadge: "Disabled",
+			mcpEnvInvalid: "Env vars / headers must be a JSON object",
+			mcpImportEmptyInput: "Paste an mcp.json config first",
+			mcpImportServersEmpty: "mcpServers config is empty",
+			mcpUrl: "URL",
+			mcpUrlPlaceholder: "https://example.com/mcp",
+			mcpImportPlaceholder: "{\"mcpServers\":{\"codegraph\":{\"command\":\"npx\",\"args\":[\"-y\",\"@colbymchenry/codegraph\"]}}}",
+			mcpSave: "Save server",
+			mcpDelete: "Delete",
+			mcpEnabled: "MCP server enabled (restart dsh web to apply)",
+			mcpDisabled: "MCP server disabled (restart dsh web to apply)",
+			mcpSaved: "MCP server saved (restart dsh web to apply)",
+			mcpDeleted: "MCP server deleted (restart dsh web to apply)",
+			mcpRestartHint: "MCP changes are written to the profile config; restart dsh web to apply",
+			comboDeleteConfirm: "Confirm delete",
+			toolEnable: "Enable",
+			toolDisable: "Disable",
+			toolSwitchEnabled: "Tool enabled: visible to parent agents in every session",
+			toolSwitchDisabled: "Tool disabled: hidden from parent agents and their subagents in every session",
+			scheduler: "Schedule",
+			schedulerManager: "Scheduled Tasks",
+			schedulerHint: "Auto-run the selected workflow by execution window and trigger strategy (trigger = create instance and run)",
+			schedulerNew: "New task",
+			schedulerName: "Task name",
+			schedulerTemplate: "Workflow",
+			schedulerTemplatePlaceholder: "Choose a mode-1 workflow template…",
+			schedulerTemplateEmpty: "No mode-1 workflow templates yet (create one via \"Save as template\" in the studio)",
+			schedulerSessionMode: "Run session",
+			schedulerSessionNew: "New session (auto-create a session per round)",
+			schedulerSessionCurrent: "Current session (reuse this session each round)",
+			schedulerSessionNewHint: "Each round creates a fresh session (run does not depend on a manually activated session); a paused unfinished run continues within its current session",
+			schedulerSessionCurrentHint: "Each round reuses the session that created this task; if the session is inactive the trigger fails and skips the round",
+			schedulerTimezone: "Timezone",
+			schedulerWindow: "Execution window (layer 1)",
+			schedulerWindowHint: "Cost-shift window: the trigger only fires inside it; a run still unfinished at window end is suspended and resumes at the next window",
+			schedulerWindowDates: "Valid date range",
+			schedulerWindowDateStart: "Start date",
+			schedulerWindowDateEnd: "End date",
+			schedulerWindowUnbounded: "No date limit",
+			schedulerWindowDays: "Valid weekdays",
+			schedulerWindowDaysAll: "Every day",
+			schedulerWeekdays: [
+				"Sun",
+				"Mon",
+				"Tue",
+				"Wed",
+				"Thu",
+				"Fri",
+				"Sat"
+			],
+			schedulerCalendarPreviousMonth: "Previous month",
+			schedulerCalendarNextMonth: "Next month",
+			schedulerCalendarStart: "Start",
+			schedulerCalendarEnd: "End",
+			schedulerCalendarMonthNames: [
+				"January",
+				"February",
+				"March",
+				"April",
+				"May",
+				"June",
+				"July",
+				"August",
+				"September",
+				"October",
+				"November",
+				"December"
+			],
+			schedulerCalendarMonthTitle: "{month} {year}",
+			schedulerTimePicker: "Choose time",
+			schedulerTimePlaceholder: "HH:mm",
+			schedulerHour: "Hour",
+			schedulerMinute: "Minute",
+			schedulerWindowRanges: "Executable time ranges",
+			schedulerRangeStart: "Start time",
+			schedulerRangeEnd: "End time",
+			schedulerRangeAdd: "Add range",
+			schedulerRangeCrossHint: "An end time not later than the start is treated as crossing midnight (e.g. 22:00–06:00 covers next-day early morning)",
+			schedulerTrigger: "Trigger strategy (layer 2)",
+			schedulerTriggerDaily: "Fixed times",
+			schedulerTriggerInterval: "Fixed interval",
+			schedulerTimePoints: "Trigger times",
+			schedulerTimePointAdd: "Add time",
+			schedulerInterval: "Interval (minutes)",
+			schedulerIntervalStartFrom: "Start from",
+			schedulerIntervalHint: "Each valid day counts from the start time; points crossing next-day 00:00 are dropped",
+			schedulerCondition: "Condition trigger (layer 3)",
+			schedulerConditionEnable: "Enable condition trigger",
+			schedulerConditionScript: "Condition script",
+			schedulerConditionScriptPlaceholder: "e.g. C:\\scripts\\check-issue.mjs",
+			schedulerConditionScriptHint: "The script runs at each trigger point; the task executes only if its last output line is true. false, errors or a 10s timeout block this round.",
+			schedulerConditionPick: "Choose file",
+			schedulerConditionPickUnavailable: "Cannot resolve an absolute path here; paste it manually",
+			schedulerConditionLateHint: "Execution happens after the theoretical next-trigger time",
+			schedulerPolicy: "Runtime policy",
+			schedulerPolicyText: "Missed trigger: skip (no catch-up) · Busy round: skip · Config change: immediate",
+			schedulerEnabled: "Enabled",
+			schedulerNextRun: "Next trigger",
+			schedulerCurrentRun: "Current run",
+			schedulerLastOutcome: "Last result",
+			schedulerEmpty: "No scheduled tasks yet — click \"New task\" to start",
+			schedulerStatus: {
+				idle: "Idle",
+				running: "Running",
+				waiting: "Window paused",
+				paused: "Paused",
+				error: "Trigger failed"
+			},
+			schedulerLastResult: {
+				started: "Started",
+				resumed: "Window resumed",
+				failed: "Trigger failed",
+				skipped: "Skipped"
+			},
+			schedulerDelete: "Delete task",
+			schedulerDeleteConfirm: "Confirm delete",
+			schedulerDeleteHint: "Deleting only affects future triggers; a running/paused run is untouched",
+			schedulerSaved: "Task saved",
+			schedulerDeleted: "Task deleted",
+			schedulerNeedName: "Please enter a task name",
+			schedulerNeedTemplate: "Please choose a workflow template",
+			schedulerLocale: "en-US",
+			schedulerTimezoneUnavailable: "Local timezone could not be detected — choose one under \"Timezone\", otherwise trigger times are computed in Asia/Shanghai",
+			remoteTimeout: "Workflow service timed out ({endpoint})",
+			remoteConnection: "Could not connect to the workflow service: {detail}",
+			remoteHttpStatus: "Workflow service error (HTTP {status})",
+			remoteEmptyStream: "The streaming response was empty",
+			remoteParse: "The workflow service returned an unparseable response ({endpoint})"
+		};
+		function text(language) {
+			return String(language ?? "").toLowerCase().startsWith("zh") ? zh : en;
+		}
+		/** 从 locale 服务取值中提取语言码（防御式）。 */
+		function detectLanguage(locale, navigatorLanguage) {
+			try {
+				if (typeof locale === "string") return locale;
+				if (locale && typeof locale === "object") {
+					const record = locale;
+					if (typeof record.language === "string") return record.language;
+					if (typeof record.current === "string") return record.current;
+					if (typeof record.get === "function") {
+						const value = record.get("language");
+						if (typeof value === "string") return value;
+					}
+					if (typeof record.getSnapshot === "function") {
+						const snapshot = record.getSnapshot();
+						if (snapshot && typeof snapshot.active === "string") return snapshot.active;
+					}
+					if (typeof record.getLocale === "function") {
+						const snapshot = record.getLocale();
+						if (snapshot && typeof snapshot.active === "string") return snapshot.active;
+					}
+				}
+			} catch {}
+			try {
+				return typeof navigator !== "undefined" ? navigator.language ?? navigatorLanguage ?? "en" : navigatorLanguage ?? "en";
+			} catch {
+				return navigatorLanguage ?? "en";
+			}
+		}
+		// src/client/sidebar/session-root.ts
+		/** 取当前快照（0.1.5 用 getSnapshot；旧运行时可回退 get）。 */
+		function snapshotOf(sessions) {
+			const list = sessions?.list;
+			if (!list) return void 0;
+			if (typeof list.getSnapshot === "function") return list.getSnapshot();
+			if (typeof list.get === "function") return list.get();
+		}
+		/**
+		* 取被主视图（mainView）持有的第一个会话 id（无则空串）。
+		* 顺序口径：优先官方 `ids` 数组（多个 mainView 时取第一个），缺失时回退 `byId` 键序。
+		*/
+		function mainViewSessionOf(snapshot) {
+			const byId = snapshot?.byId;
+			if (!byId || typeof byId !== "object") return "";
+			const rawIds = snapshot?.ids;
+			const order = Array.isArray(rawIds) ? rawIds.map((id) => String(id ?? "")) : Object.keys(byId);
+			for (const id of order) {
+				if (!id) continue;
+				const entry = byId[id];
+				const retained = Number(entry?.retainedBy?.mainView ?? 0);
+				if (Number.isFinite(retained) && retained > 0) return id;
+			}
+			return "";
+		}
+		/**
+		* 解析当前选中会话 id（无会话返回空串）。
+		* @param ctx - 取服务的最小上下文（`get(name)`）。
+		* @returns 当前会话 id，或空串。
+		*/
+		function currentSessionOf(ctx) {
+			const sessions = ctx.get?.("sessions");
+			const snapshot = snapshotOf(sessions);
+			const current = snapshot?.current;
+			if (typeof current === "string" && current) return current;
+			return mainViewSessionOf(snapshot);
+		}
+		/**
+		* 沿父链上溯到会话树根（无父/父不在快照中即返回自身；带环检测）。
+		* @param current - 当前选中会话 id。
+		* @param sessions - 官方 sessions 服务（可空）。
+		* @returns 会话树根 id；current 为空时返回空串。
+		*/
+		function rootSessionIdOf(current, sessions) {
+			if (!current) return "";
+			const snapshot = snapshotOf(sessions);
+			if (!snapshot?.byId) return current;
+			let cursor = current;
+			const seen = /* @__PURE__ */ new Set();
+			while (cursor && !seen.has(cursor)) {
+				seen.add(cursor);
+				const entry = snapshot.byId[cursor];
+				const rawParent = entry?.parentId ?? entry?.parentSessionId;
+				const parent = typeof rawParent === "string" ? rawParent : "";
+				if (!parent || !snapshot.byId[parent]) return cursor;
+				cursor = parent;
+			}
+			return cursor;
+		}
+		// src/client/sidebar/locale-bridge.ts
+		/** 当前词典（默认英文：与「无 locale 服务时按浏览器语言」的降级路径一致，此处仅兜底）。 */
+		let current = en;
+		const listeners = /* @__PURE__ */ new Set();
+		/** 读取当前词典（useSyncExternalStore 的 getSnapshot；返回稳定引用）。 */
+		function getWorkbenchDict() {
+			return current;
+		}
+		/** 订阅词典变化（useSyncExternalStore 的 subscribe）。 */
+		function subscribeWorkbenchDict(listener) {
+			listeners.add(listener);
+			return () => {
+				listeners.delete(listener);
+			};
+		}
+		/**
+		* 更新当前词典并通知订阅者（entry.ts 在首次渲染与每次语言切换时调用）。
+		* 同引用不通知（避免无意义重渲染）。
+		* @param next - 新词典。
+		*/
+		function setWorkbenchDict(next) {
+			if (next === current) return;
+			current = next;
+			for (const listener of [...listeners]) try {
+				listener();
+			} catch {}
+		}
+		/** 订阅当前词典的 React hook（组件因此跟随语言切换重渲染）。 */
+		function useWorkbenchDict() {
+			return (0, react.useSyncExternalStore)(subscribeWorkbenchDict, getWorkbenchDict, getWorkbenchDict);
+		}
+		// src/client/sidebar/workbench-tab.tsx
+		/** 本实现在标签页系统中的唯一身份；同时是 body / title 插槽的注册 key。 */
+		const WORKBENCH_TAB_ID = "dsh-visual-workflow";
+		/** 页面类型的类型判别符（`ctx.sidebarRight.openTab(kind)` 用它打开）。 */
+		const WORKBENCH_TAB_KIND = "visual-workflow";
+		/** body 注册的插槽 key。 */
+		const WORKBENCH_TAB_SLOT = "sidebar.right.pane.tab";
+		/** 常驻容器的 DOM id（entry.ts 创建；样式在 styles/host-mount.ts）。 */
+		const WORKBENCH_CONTAINER_ID = "visual-workflow-workbench-host";
+		/** 常驻容器的隐藏持有者 id（无标签页持有容器时容器回到这里）。 */
+		const WORKBENCH_HOLDER_ID = "visual-workflow-workbench-holder";
+		/**
+		* 构造标签页类型定义。
+		*
+		* - 不写 `patterns` → 页面类型（按 kind 打开，不参与资源地址认领，绝不会抢官方文件预览）；
+		* - 不写 `guide` → **刻意**：官方 `defaultSeed` 按 guide 条目总数决定新面板的默认页，
+		*   当前随包组合只有「文件」1 条；再加一条会把新面板默认页从「文件」变成 guide 页，
+		*   属改变官方既有行为。工作台改由插件入口按钮打开。
+		* @returns 类型定义（每次调用返回新对象；title 为读取词典桥的 thunk）。
+		*/
+		function workbenchTabDefinition() {
+			return {
+				id: WORKBENCH_TAB_ID,
+				kind: WORKBENCH_TAB_KIND,
+				priority: "builtin",
+				title: () => getWorkbenchDict().workflows
+			};
+		}
+		/** 当前常驻容器宿主（entry.ts 在 apply 时设置，卸载时清空）。 */
+		let mountHost = null;
+		/** 存活的标签页 body 挂载点（按挂载先后排序；末位为「最新挂载者」）。 */
+		const liveHosts = [];
+		/**
+		* 设置（或清空）常驻容器宿主。
+		* @param host - 宿主信息；null 表示插件卸载（清空全部挂载点登记）。
+		*/
+		function setWorkbenchMountHost(host) {
+			mountHost = host;
+			liveHosts.length = 0;
+			if (host !== null) placeWorkbenchContainer();
+		}
+		/**
+		* 登记一个标签页 body 挂载点并接管常驻容器；返回注销（body 卸载时调用）。
+		* @param host - body 内的挂载点元素。
+		* @returns 注销函数（把容器交还给下一个存活挂载点或隐藏 holder）。
+		*/
+		function attachWorkbenchHost(host) {
+			if (!liveHosts.includes(host)) liveHosts.push(host);
+			placeWorkbenchContainer();
+			return () => {
+				const at = liveHosts.indexOf(host);
+				if (at >= 0) liveHosts.splice(at, 1);
+				if (host.dataset.wfMount !== void 0) delete host.dataset.wfMount;
+				placeWorkbenchContainer();
+			};
+		}
+		/**
+		* 把常驻容器安置到「最新挂载的存活 body」；无存活 body 时放回隐藏 holder。
+		* 同时给每个挂载点打 `data-wf-mount`（held / empty），供 CSS 控制占位提示的显示。
+		* 只写 DOM、不触发 React 状态更新（挂载/卸载本身已由 React 驱动）。
+		*/
+		function placeWorkbenchContainer() {
+			const mount = mountHost;
+			if (mount === null) return;
+			for (let index = liveHosts.length - 1; index >= 0; index -= 1) if (!liveHosts[index].isConnected) liveHosts.splice(index, 1);
+			const target = liveHosts.length > 0 ? liveHosts[liveHosts.length - 1] : mount.holder;
+			if (mount.container.parentElement !== target) target.append(mount.container);
+			for (const host of liveHosts) host.dataset.wfMount = host.contains(mount.container) ? "held" : "empty";
+		}
+		/**
+		* 工作台标签页 body：只承载常驻容器。
+		* - 激活时把常驻容器移入本节点（Studio 立即可见，且**从未卸载**，状态原样）；
+		* - 卸载时把容器交还（下一个存活 body，或隐藏 holder）；
+		* - 未持有容器时（多 body 并存）显示占位提示，避免出现「空白面板」。
+		*/
+		function WorkbenchTabBody() {
+			const hostRef = (0, react.useRef)(null);
+			const dict = useWorkbenchDict();
+			(0, react.useLayoutEffect)(() => {
+				const host = hostRef.current;
+				if (host === null) return;
+				return attachWorkbenchHost(host);
+			}, []);
+			return /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+				className: "wf-tab-mount",
+				ref: hostRef,
+				children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+					className: "wf-tab-mount__placeholder",
+					children: dict.workbenchInUse
+				})
+			});
+		}
+		/**
+		* 若官方右侧 Sidebar 处于**全屏**展示，则点击官方自己的展示模式切换按钮把它缩回；
+		* 非全屏时保持原状（返回 false，不做任何事）。
+		*
+		* 为什么用 DOM 点击而不是 API：官方 `ctx.sidebarRight`（ISidebarRight）**没有**任何
+		* fullscreen 方法（只有 isExpanded / toggleExpanded，官方注释明确「presentation switch
+		* 是面板自己的控件，不属于该 face」）；`ctx.layout.openRightbar(track, fullscreen)` 是
+		* 面板 seat **向** layout frame 的单向上报通道，反向调用会与 seat 的下一次上报互相打架。
+		* 故采用官方自带的自动化属性：面板元素带 `data-sidebar-right-panel="fullscreen"` 表示
+		* 处于全屏，此时其模式按钮带 `data-sidebar-right-mode="push"`（该属性恒为「下一个模式」）。
+		*
+		* @returns 是否执行了缩回（true = 曾处于全屏且已点击；false = 非全屏或未找到按钮）。
+		*/
+		function shrinkOfficialSidebarIfFullscreen() {
+			if (typeof document === "undefined") return false;
+			try {
+				if (document.querySelector("[data-sidebar-right-panel=\"fullscreen\"]") === null) return false;
+				const button = document.querySelector("[data-sidebar-right-mode=\"push\"]");
+				if (button === null || typeof button.click !== "function") return false;
+				button.click();
+				return true;
+			} catch {
+				return false;
+			}
+		}
+		/** 把 invoke 结果（可能是函数 / 迭代器 / undefined）收窄为可调用 disposer。 */
+		function toDisposer(value) {
+			return typeof value === "function" ? value : () => {};
+		}
+		/**
+		* 阶段一：注册工作台标签页类型。
+		* @param tabs - ctx.sidebarRightTabs。
+		* @returns 注销函数（由 ctx.effect 拥有）。
+		*/
+		function registerWorkbenchTabType(tabs) {
+			return toDisposer(tabs.register(workbenchTabDefinition()));
+		}
+		/**
+		* 阶段二：把 body 注册进 keyed 插槽 `sidebar.right.pane.tab`（key = 类型定义的 id）。
+		* @param slots - ctx.slots。
+		* @returns 注销函数（由 ctx.effect 拥有）。
+		*/
+		function injectWorkbenchTabBody(slots) {
+			if (typeof slots.inject !== "function" || typeof slots.register !== "function") return () => {};
+			return toDisposer(slots.inject(WORKBENCH_TAB_SLOT, () => slots.register({
+				name: WORKBENCH_TAB_SLOT,
+				key: WORKBENCH_TAB_ID
+			}, WorkbenchTabBody)));
+		}
+		// src/client/studio/WorkbenchHost.tsx
+		/** 解析当前会话树根（守卫式读取；服务缺失返回空串）。 */
+		function rootSessionOf(ctx) {
+			return rootSessionIdOf(currentSessionOf(ctx), ctx.get?.("sessions"));
+		}
+		/**
+		* 工作台宿主组件。
+		* @param ctx - 官方 client 上下文（读取 sessions 快照、组装官方目录选择器接入缝）。
+		* @param t - 文案词典（语言切换时由 entry.ts 重渲染传入）。
+		*/
+		function WorkbenchHost({ ctx, t }) {
+			const navigation = ctx.get?.("visualWorkflowNavigation");
+			const [previewRequest, setPreviewRequest] = (0, react.useState)(() => navigation?.pending() ?? null);
+			(0, react.useEffect)(() => {
+				const off = navigation?.subscribe(() => setPreviewRequest(navigation.pending()));
+				setPreviewRequest(navigation?.pending() ?? null);
+				return off;
+			}, [navigation]);
+			const [sessionId, setSessionId] = (0, react.useState)(() => rootSessionOf(ctx));
+			const workspacePicker = (0, react.useMemo)(() => createWorkspacePicker(ctx), [ctx]);
+			const filePathResolver = (0, react.useMemo)(() => createFilePathResolver(), []);
+			const [, setTick] = (0, react.useState)(0);
+			(0, react.useEffect)(() => {
+				const timer = setTimeout(() => {
+					setTick((value) => value + 1);
+				}, 0);
+				return () => {
+					clearTimeout(timer);
+				};
+			}, []);
+			(0, react.useEffect)(() => {
+				const off = (ctx.get?.("sessions"))?.list?.subscribe?.(() => {
+					setSessionId(rootSessionOf(ctx));
+				});
+				return () => {
+					off?.();
+				};
+			}, [ctx]);
+			const directoryEditor = ctx.get?.("sessionDirectoryEditor");
+			return /* @__PURE__ */ (0, react_jsx_runtime.jsx)(Studio, {
+				previewRequest,
+				instanceNavigation: navigation,
+				language: detectLanguage(ctx.get?.("locale") ?? ctx.locale),
+				t,
+				sessionId,
+				onRunImmersive: shrinkOfficialSidebarIfFullscreen,
+				workspacePicker,
+				filePathResolver,
+				onEditSessionDirectory: typeof directoryEditor?.edit === "function" ? (id) => {
+					(ctx.get?.("sessionDirectoryEditor"))?.edit?.(id);
+				} : void 0
+			});
+		}
+		/** 工作台全部样式（片段各自的拼接顺序即覆盖顺序）。 */
+		const styles = [
+			`
+:root,
+.wf-root {
+  --wf-border: var(--dsw-alias-border-l1);
+  --wf-border-strong: var(--dsw-alias-border-l2);
+  --wf-bg: var(--dsw-alias-bg-base);
+  --wf-layer: var(--dsw-alias-bg-layer-1);
+  --wf-layer-2: var(--dsw-alias-bg-layer-2);
+  --wf-brand: var(--dsw-alias-brand-primary);
+  --wf-on-brand: var(--dsw-alias-label-primary-inverse, var(--dsw-alias-label-reverse, #ffffff));
+  --wf-ink: var(--dsw-alias-label-primary);
+  --wf-ink-2: var(--dsw-alias-label-secondary);
+  /* 弱化文字（日历前后月灰显）：刻意不随主题变化，保持与历史渲染一致 */
+  --wf-ink-3: #6b7075;
+  --wf-ok: var(--dsw-alias-state-success-primary);
+  --wf-warn: var(--dsw-alias-state-warn-primary);
+  --wf-err: var(--dsw-alias-state-error-primary);
+  --wf-flow: var(--wf-brand);
+  --wf-context: #b7791f;
+  --wf-database: #3b82f6;
+  --wf-pass: #3fbf7f;
+  --wf-fail: #e05c5c;
+  --wf-content: #9a7fd0;
+  --wf-port-in: var(--wf-brand);
+  --wf-port-out: var(--wf-brand);
+}
+`,
+			`
+/* ---- 工作台骨架：根容器与全局字体 ---- */
+.wf-root {
+  position: relative;
+  inset: auto;
+  width: 100%;
+  height: 100%;
+  max-height: 100vh;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: 48px minmax(0, 1fr) auto;
+  background: var(--wf-bg);
+  color: var(--wf-ink);
+  font: 13px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  overflow: hidden;
+}
+
+.wf-root * {
+  box-sizing: border-box;
+}
+
+.wf-root button,
+.wf-root input,
+.wf-root select,
+.wf-root textarea {
+  font: inherit;
+}
+
+.wf-root button {
+  cursor: pointer;
+}
+
+/* ---- 顶栏标签栏（标题 / 徽标 / 说明） ---- */
+.wf-tabs {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 20px;
+  background: var(--wf-layer);
+  border-bottom: 1px solid var(--wf-border);
+  flex: none;
+  min-width: 0;
+}
+
+.wf-titlebar__title {
+  font-size: 14px;
+  font-weight: 720;
+  color: var(--wf-ink);
+  white-space: nowrap;
+}
+
+.wf-titlebar__badge {
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--wf-brand) 10%, transparent);
+  color: var(--wf-brand);
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.wf-titlebar__note {
+  color: var(--wf-ink-2);
+  font-size: 11px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wf-titlebar__spacer {
+  margin-left: auto;
+  flex: 1;
+}
+
+.wf-titlebar__mode {
+  position: relative;
+  flex: none;
+}
+
+.wf-titlebar__caret {
+  margin-left: 4px;
+  font-size: 9px;
+  color: var(--wf-ink-2);
+}
+
+/* ---- 顶栏模式菜单 ---- */
+.wf-mode-menu {
+  position: absolute;
+  z-index: 60;
+  right: 0;
+  top: calc(100% + 6px);
+  min-width: 170px;
+  padding: 6px;
+  border: 1px solid var(--wf-border-strong);
+  border-radius: 10px;
+  background: var(--wf-layer);
+  box-shadow: 0 14px 34px color-mix(in srgb, var(--wf-ink) 22%, transparent);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.wf-mode-menu__item {
+  text-align: left;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--wf-ink);
+  padding: 7px 10px;
+  font-size: 12px;
+}
+
+.wf-mode-menu__item:hover {
+  background: color-mix(in srgb, var(--wf-brand) 10%, var(--wf-layer));
+  color: var(--wf-brand);
+}
+
+/* ---- 主区容器（左右栏 + 画布） ---- */
+.wf-main {
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+  display: flex;
+}
+`,
+			`
+/* ---- 工具栏 ---- */
+.wf-toolbar {
+  flex: none;
+  height: 52px;
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--wf-layer);
+  border-bottom: 1px solid var(--wf-border);
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+}
+
+.wf-toolbar>* {
+  flex: none;
+}
+
+.wf-layout-control { display: inline-flex; align-items: center; gap: 8px; }
+.wf-layout-anchor { anchor-name: --wf-layout-anchor; }
+.wf-layout-popover {
+  position: fixed; position-anchor: --wf-layout-anchor; inset: auto; top: anchor(bottom); left: anchor(left); margin: 8px 0 0;
+  position-try-fallbacks: flip-inline; padding: 9px 11px; overflow: visible;
+  border: 1px solid var(--wf-border-strong); border-radius: 10px; background: var(--wf-layer); color: var(--wf-ink);
+  box-shadow: 0 5px 16px color-mix(in srgb, var(--wf-ink) 12%, transparent);
+}
+.wf-layout-popover:not(:popover-open) { display: none; }
+.wf-layout-popover::before {
+  content: ''; position: absolute; top: -5px; left: 20px; width: 8px; height: 8px; transform: rotate(45deg);
+  background: var(--wf-layer); border-top: 1px solid var(--wf-border-strong); border-left: 1px solid var(--wf-border-strong); pointer-events: none;
+}
+.wf-layout-popover .wf-layout-options { font-size: 12px; color: var(--wf-ink); }
+.wf-layout-options:has(input:disabled) { cursor: default; opacity: .6; }
+
+.wf-toolbar__switch, .wf-layout-options {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--wf-ink-2);
+  font-size: 10px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.wf-toolbar__switch input, .wf-layout-options input {
+  width: auto;
+  flex: 0 0 auto;
+  min-width: 0;
+  margin: 0;
+  accent-color: var(--wf-brand);
+  cursor: pointer;
+}
+
+/* 顶部一键折叠/展开两侧按钮（批注：折叠时图标泛品牌色，提示当前可展开） */
+.wf-toolbar__panels svg {
+  color: var(--wf-ink-2);
+}
+
+.wf-toolbar__panels.is-collapsed {
+  border-color: color-mix(in srgb, var(--wf-brand) 45%, var(--wf-border-strong));
+}
+
+.wf-toolbar__panels.is-collapsed svg {
+  color: var(--wf-brand);
+}
+
+/* ---- 通用按钮（主 / 危险 / 幽灵 / 禁用） ---- */
+.wf-btn {
+  border: 1px solid var(--wf-border-strong);
+  border-radius: 8px;
+  background: var(--wf-layer-2);
+  color: var(--wf-ink);
+  padding: 6px 11px;
+  transition: border-color .15s ease, transform .15s ease, background .15s ease;
+  white-space: nowrap;
+}
+
+.wf-btn:hover {
+  border-color: var(--wf-brand);
+  transform: translateY(-1px);
+}
+
+/* 主按钮：采用 DSH 官方主按钮语义（--dsw-alias-button-primary-fill 与
+   --dsw-alias-label-primary-foreground）：深色主题=浅底深字、浅色主题=深底白字，
+   无论主题如何都保持文字可见（此前 fallback #fff 在深色主题浅底上白字不可见） */
+.wf-btn.is-primary {
+  border-color: var(--dsw-alias-button-primary-fill, var(--wf-brand));
+  background: var(--dsw-alias-button-primary-fill, var(--wf-brand));
+  color: var(--dsw-alias-label-primary-foreground, var(--wf-bg));
+  font-weight: 650;
+}
+
+.wf-btn.is-primary:hover {
+  border-color: var(--dsw-alias-button-primary-hover, var(--wf-brand));
+}
+
+.wf-btn.is-danger {
+  border-color: color-mix(in srgb, var(--wf-err) 55%, var(--wf-border-strong));
+  color: var(--wf-err);
+}
+
+.wf-btn.is-danger:hover {
+  border-color: var(--wf-err);
+}
+
+.wf-btn.is-ghost {
+  background: transparent;
+}
+
+.wf-btn:disabled {
+  opacity: .5;
+  cursor: default;
+}
+
+/* ---- 工具栏右侧状态文案 ---- */
+.wf-status {
+  color: var(--wf-ink-2);
+  font-size: 12px;
+  margin-left: auto;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 38%;
+}
+
+.wf-status.is-running {
+  color: var(--wf-ok);
+}
+`,
+			`
+/* ---- 画布容器与网格背景 ---- */
+.wf-canvas-shell {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--wf-bg);
+  overflow: hidden;
+}
+
+.wf-canvas-stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  overflow: hidden;
+}
+
+.wf-canvas {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  overflow: hidden;
+  touch-action: none;
+  user-select: none;
+  background-color: var(--wf-bg);
+  background-image: radial-gradient(circle, var(--wf-border-strong) 1.1px, transparent 1.2px), radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--wf-brand) 6%, transparent), transparent 42%);
+  background-size: 24px 24px, 100% 100%;
+  cursor: grab;
+}
+
+.wf-canvas.is-panning {
+  cursor: grabbing;
+}
+
+/* ---- 图舞台：连线 / 箭头 / 标签 ---- */
+.wf-graph__stage {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1px;
+  height: 1px;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+
+.wf-graph__edges {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1px;
+  height: 1px;
+  overflow: visible;
+  pointer-events: none;
+}
+
+/* 覆盖层：只画成员入线进入 Team 卡片后的短段。层级位于卡片内容之上（z-index:auto）
+   与接点（z-index:4）之下，使线端落到接点而不遮挡卡片文字与接点。 */
+.wf-graph__edges.is-overlay {
+  z-index: 3;
+}
+
+:is(.wf-graph__edge, .wf-legend-line) {
+  fill: none !important;
+  stroke: var(--wf-flow);
+  stroke-width: 2.6;
+  stroke-linecap: butt;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  filter: none;
+  pointer-events: none;
+}
+
+.wf-graph__edge.is-selected {
+  stroke-width: 3.6;
+  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--wf-brand) 58%, transparent));
+}
+
+:is(.wf-graph__edge, .wf-legend-line).is-ctx {
+  stroke: var(--wf-context);
+  stroke-dasharray: 7 4;
+}
+
+:is(.wf-graph__edge, .wf-legend-line).is-db {
+  stroke: var(--wf-database);
+  stroke-dasharray: 2 5;
+}
+
+:is(.wf-graph__edge, .wf-legend-line).is-pass {
+  stroke: var(--wf-pass);
+}
+
+:is(.wf-graph__edge, .wf-legend-line).is-fail {
+  stroke: var(--wf-fail);
+  stroke-dasharray: 10 4 2 4;
+}
+
+:is(.wf-graph__edge, .wf-legend-line).is-content {
+  stroke: var(--wf-content);
+}
+
+.wf-arrow-head {
+  fill: var(--wf-flow);
+  stroke: none;
+}
+
+.wf-arrow-head.is-pass {
+  fill: var(--wf-pass);
+}
+
+.wf-arrow-head.is-fail {
+  fill: var(--wf-fail);
+}
+
+.wf-arrow-head.is-content {
+  fill: var(--wf-content);
+}
+
+.wf-graph__edge.is-running {
+  stroke-dasharray: 8 5;
+  animation: wf-edge-progress 1s linear infinite;
+}
+
+@keyframes wf-edge-progress { to { stroke-dashoffset: -26; } }
+@media (prefers-reduced-motion: reduce) { .wf-graph__edge.is-running { animation: none; } }
+
+.wf-graph__edge.is-related { stroke-width: 3.8; filter: drop-shadow(0 0 3px color-mix(in srgb, var(--wf-brand) 32%, transparent)); }
+.wf-graph__edge.is-dimmed, g.is-dimmed .wf-edge-label-group { opacity: .18; }
+.wf-canvas.is-runtime-focused .wf-graph__edge.is-dimmed { opacity: .18; filter: none; stroke-width: 2.6; }
+.wf-arrow-head.is-ctx { fill: var(--wf-context); }
+.wf-arrow-head.is-db { fill: var(--wf-database); }
+.wf-graph__legend { position: absolute; z-index: 8; right: 12px; bottom: 12px; display: flex; flex-wrap: wrap; gap: 8px 14px; max-width: calc(100% - 80px); padding: 9px 12px; border: 1px solid var(--wf-border); border-radius: 12px; background: var(--wf-layer); color: var(--wf-ink-2); font-size: 11px; pointer-events: none; }
+.wf-graph__legend span { display: inline-flex; align-items: center; gap: 6px; }
+.wf-graph__legend svg { width: 36px; height: 12px; overflow: visible; flex: none; }
+
+/* 运行中锁定连线（已完成流程 / 执行中节点左入口）：灰化虚线 + 不可点击（点击不选中、属性栏不展开） */
+.wf-graph__edge.is-locked:not(.is-runtime-related) {
+  stroke: var(--wf-ink-2);
+  stroke-dasharray: 3 4;
+  opacity: .55;
+  filter: none;
+}
+
+.wf-graph__edge-hit {
+  fill: none !important;
+  stroke: transparent;
+  stroke-width: 18;
+  vector-effect: non-scaling-stroke;
+  pointer-events: stroke;
+  cursor: pointer;
+}
+
+g.is-locked .wf-graph__edge-hit {
+  cursor: not-allowed;
+}
+
+.wf-graph__connection {
+  fill: none !important;
+  stroke: var(--wf-brand);
+  stroke-width: 2;
+  stroke-dasharray: 7 5;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+}
+
+.wf-graph__label-bg {
+  fill: var(--wf-layer);
+  stroke: var(--wf-border);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.wf-graph__label-leader { stroke: var(--wf-border-strong); stroke-width: 1; fill: none; vector-effect: non-scaling-stroke; }
+.wf-edge-control { fill: var(--wf-layer); stroke: var(--wf-brand); stroke-width: 2; vector-effect: non-scaling-stroke; pointer-events: all; cursor: move; }
+.wf-edge-segment { fill: var(--wf-brand); stroke: var(--wf-layer); stroke-width: 1.5; vector-effect: non-scaling-stroke; pointer-events: all; }
+.wf-edge-segment.is-horizontal { cursor: ns-resize; }
+.wf-edge-segment.is-vertical { cursor: ew-resize; }
+.wf-edge-toolbar { position: absolute; z-index: 12; display: flex; flex-wrap: wrap; align-items: center; gap: 5px; width: 360px; max-width: calc(100% - 24px); padding: 7px; border: 1px solid var(--wf-border-strong); border-radius: 12px; background: var(--wf-layer); box-shadow: 0 8px 24px color-mix(in srgb, var(--wf-ink) 14%, transparent); }
+.wf-edge-toolbar button { padding: 6px 9px; border: 0; border-radius: 7px; background: var(--wf-layer-2); color: var(--wf-ink); cursor: pointer; font-size: 12px; }
+.wf-edge-toolbar button[aria-pressed=true] { background: var(--wf-brand); color: var(--wf-on-brand); }
+.wf-edge-toolbar__types { display: flex; gap: 3px; }
+.wf-edge-toolbar__close { margin-left: auto; }
+.wf-edge-toolbar span { flex-basis: 100%; padding: 2px 4px; color: var(--wf-ink-2); font-size: 11px; }
+.wf-node-toolbar, .wf-drawing-options { position: absolute; z-index: 13; display: flex; align-items: center; flex-wrap: wrap; gap: 5px; padding: 6px; border: 1px solid var(--wf-border-strong); border-radius: 11px; background: var(--wf-layer); box-shadow: 0 6px 18px color-mix(in srgb, var(--wf-ink) 12%, transparent); }
+.wf-node-toolbar button, .wf-drawing-options button { padding: 6px 9px; border: 0; border-radius: 7px; color: var(--wf-ink); background: var(--wf-layer-2); font-size: 12px; cursor: pointer; }
+.wf-node-toolbar button.is-danger { color: var(--wf-fail); }
+.wf-node-toolbar button:disabled { opacity: .4; cursor: not-allowed; }
+.wf-drawing-options { top: 12px; right: 12px; max-width: calc(100% - 24px); }
+.wf-drawing-options > span, .wf-drawing-options small { color: var(--wf-ink-2); font-size: 11px; padding: 0 4px; }
+.wf-drawing-options button[aria-pressed=true] { color: var(--wf-on-brand); background: var(--wf-brand); }
+.wf-drawing-options small { flex-basis: 100%; }
+.wf-node-palette { display: flex; flex-direction: column; gap: 5px; }
+.wf-node-palette:empty { display: none; }
+.wf-node-palette > button { display: block; flex-shrink: 0; min-height: 36px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: left; border-color: var(--wf-border); cursor: grab; }
+.wf-node-palette button:disabled { opacity: .35; cursor: not-allowed; }
+.wf-node-palette__references { display: block; flex: none; list-style: none; margin: 0; padding: 0; max-height: 216px; overflow-y: auto; overscroll-behavior: contain; }
+.wf-node-palette__references li { display: block; margin: 0 0 5px; padding: 0; }
+.wf-node-palette__references li:last-child { margin-bottom: 0; }
+.wf-node-palette__references button { display: block; width: 100%; min-height: 36px; padding: 8px 10px; line-height: 1.4; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; border: 1px solid var(--wf-border); border-radius: 8px; background: var(--wf-layer); color: var(--wf-ink); cursor: grab; }
+.wf-anchor-menu { position: absolute; z-index: 14; padding: 5px; border: 1px solid var(--wf-border-strong); border-radius: 10px; background: var(--wf-layer); box-shadow: 0 8px 24px color-mix(in srgb, var(--wf-ink) 14%, transparent); }
+.wf-anchor-menu button { border: 0; padding: 7px 14px; border-radius: 6px; background: var(--wf-layer); color: var(--wf-ink); font: inherit; cursor: pointer; }
+.wf-anchor-menu button:hover { background: var(--wf-layer-2); }
+
+.wf-graph__label {
+  fill: var(--wf-ink);
+  font-size: 11px;
+  font-weight: 750;
+  text-anchor: middle;
+  dominant-baseline: middle;
+  pointer-events: none;
+}
+
+/* ---- 节点定位与接点（入口蓝 / 出口橙，side 由交换决定） ---- */
+.wf-graph__node {
+  position: absolute;
+  width: 208px;
+  height: 116px;
+  pointer-events: auto;
+  cursor: grab;
+}
+
+.wf-graph__node.is-dragging {
+  cursor: grabbing;
+}
+
+.wf-graph__handle {
+  position: absolute;
+  z-index: 4;
+  top: 50%;
+  width: 13px;
+  height: 13px;
+  padding: 0;
+  border: 2px solid var(--wf-bg);
+  border-radius: 50%;
+  background: var(--wf-brand);
+  transform: translateY(-50%);
+  cursor: crosshair;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--wf-brand) 65%, var(--wf-border-strong));
+  transition: transform .14s ease, box-shadow .14s ease;
+}
+
+.wf-graph__handle:hover,
+.wf-graph__handle:focus-visible {
+  transform: translateY(-50%) scale(1.18);
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--wf-brand) 18%, transparent);
+  outline: 0;
+}
+
+/* 接点左右位置：普通卡片（角色/任务/数据库/阶段/虚拟）按交换状态动态指定 side；Team 卡固定 target/source */
+.wf-graph__handle.is-side-left {
+  left: -6px;
+}
+
+.wf-graph__handle.is-side-right {
+  right: -6px;
+}
+
+/* 接点颜色区分入口/出口（用户批注：入口=蓝、出口=橙；位置由交换决定，颜色标识方向） */
+.wf-graph__handle.is-in {
+  background: var(--wf-port-in);
+}
+
+.wf-graph__handle.is-out {
+  background: var(--wf-port-out);
+}
+
+.wf-graph__handle.is-side-top, .wf-graph__handle.is-side-bottom { transform: translateX(-50%); }
+.wf-graph__handle.is-side-top { bottom: auto; }
+.wf-graph__handle.is-side-bottom { top: auto; }
+.wf-graph__handle.is-side-top:hover, .wf-graph__handle.is-side-bottom:hover { transform: translateX(-50%) scale(1.2); }
+
+.wf-graph__handle { opacity: 0; pointer-events: none; transition: opacity .12s ease; }
+.wf-graph__handle.is-connected,
+.wf-node.is-selected > .wf-graph__handle,
+.wf-graph__node:hover .wf-graph__handle,
+.wf-canvas.is-connecting[data-connection-direction=in] .wf-graph__handle.is-out { opacity: 1; pointer-events: auto; }
+.wf-canvas.is-connecting[data-connection-kind=flow] .wf-graph__handle[data-handles~=flow-in],
+.wf-canvas.is-connecting[data-connection-kind=flow] .wf-graph__handle[data-handle=flow-in],
+.wf-canvas.is-connecting[data-connection-kind=ctx] .wf-graph__handle[data-handles~=ctx-in],
+.wf-canvas.is-connecting[data-connection-kind=ctx] .wf-graph__handle[data-handle=ctx-in],
+.wf-canvas.is-connecting[data-connection-kind=db] .wf-graph__handle[data-handles~=db-in],
+.wf-canvas.is-connecting[data-connection-kind=db] .wf-graph__handle[data-handle=db-in] { opacity: 1; pointer-events: auto; }
+
+.wf-graph__handle--target {
+  left: -6px;
+  background: var(--wf-port-in);
+}
+
+
+/* ---- 画布缩放控件 ---- */
+.wf-graph__controls {
+  position: absolute;
+  z-index: 8;
+  left: 12px;
+  bottom: 12px;
+  display: grid;
+  border: 1px solid var(--wf-border-strong);
+  border-radius: 9px;
+  overflow: hidden;
+  background: var(--wf-layer);
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--wf-ink) 9%, transparent);
+}
+
+.wf-graph__controls button {
+  width: 32px;
+  height: 30px;
+  border: 0;
+  border-bottom: 1px solid var(--wf-border);
+  background: var(--wf-layer-2);
+  color: var(--wf-ink);
+  font-weight: 750;
+}
+
+.wf-graph__controls button:last-child {
+  border-bottom: 0;
+}
+
+.wf-graph__controls button:hover {
+  background: color-mix(in srgb, var(--wf-brand) 10%, var(--wf-layer-2));
+  color: var(--wf-brand);
+}
+
+/* ---- 节点卡片本体（悬停 / 选中 / 高亮 / 虚拟节点 / 锁定） ---- */
+.wf-node {
+  width: 100%;
+  height: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--wf-border-strong);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--wf-layer) 96%, var(--wf-brand) 4%);
+  color: var(--wf-ink);
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--wf-ink) 9%, transparent);
+  transition: border-color .16s ease, box-shadow .16s ease, transform .16s ease;
+  overflow: hidden;
+}
+
+.wf-node:hover {
+  border-color: color-mix(in srgb, var(--wf-brand) 55%, var(--wf-border-strong));
+  box-shadow: 0 12px 30px color-mix(in srgb, var(--wf-ink) 12%, transparent);
+}
+
+.wf-node.is-selected {
+  border-color: var(--wf-brand);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--wf-brand) 18%, transparent), 0 12px 30px color-mix(in srgb, var(--wf-ink) 12%, transparent);
+}
+
+.wf-node.is-highlighted, .wf-node.is-highlighted.is-locked {
+  border-color: var(--wf-brand);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--wf-brand) 26%, transparent), 0 0 18px color-mix(in srgb, var(--wf-brand) 30%, transparent);
+}
+
+.wf-node.is-proxy {
+  border-style: dashed;
+  border-color: var(--wf-warn);
+}
+
+.wf-graph__node.is-runtime-dimmed, .wf-group__member.is-runtime-dimmed { opacity: .42; }
+.wf-canvas.is-runtime-focused .wf-node.is-selected:not(.is-highlighted) { box-shadow: none; border-color: var(--wf-border); }
+.wf-node.is-proxy.is-highlighted { border-color: var(--wf-brand); }
+.wf-group__member.is-highlighted { outline: 2px solid var(--wf-brand); outline-offset: -2px; background: color-mix(in srgb, var(--wf-brand) 9%, var(--wf-layer)); }
+
+.wf-node__kind {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--wf-ink-2);
+  margin-bottom: 2px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.wf-node__label {
+  font-weight: 650;
+  font-size: 13px;
+  word-break: break-word;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.wf-node__proxy-badge {
+  flex: none;
+  font-size: 9px;
+  font-weight: 750;
+  color: var(--wf-warn);
+  border: 1px solid var(--wf-warn);
+  border-radius: 999px;
+  padding: 0 5px;
+  line-height: 15px;
+}
+
+/* 运行中锁定角标（已完成/执行中节点；仅提示不可修改，节点仍可拖动移动） */
+.wf-node__lock-badge {
+  flex: none;
+  font-size: 9px;
+  line-height: 14px;
+  opacity: .75;
+  cursor: help;
+}
+
+/* P4：父代理补丁改动的节点角标 */
+.wf-node__agent-badge {
+  flex: none;
+  font-size: 9px;
+  font-weight: 750;
+  color: var(--wf-brand);
+  border: 1px solid var(--wf-brand);
+  border-radius: 999px;
+  padding: 0 5px;
+  line-height: 15px;
+  opacity: .9;
+}
+
+.wf-node.is-locked {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--wf-ink-2) 35%, transparent);
+}
+
+/* Team 卡片运行中：官方团队正在执行（成员由官方机制调度），外圈品牌色提示 */
+.wf-node--group.is-running {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--wf-brand) 22%, transparent), 0 10px 26px color-mix(in srgb, var(--wf-ink) 10%, transparent);
+}
+
+.wf-node.is-locked .wf-node__label {
+  opacity: .92;
+}
+
+.wf-node__prompt {
+  margin-top: 5px;
+  font-size: 11px;
+  color: var(--wf-ink-2);
+  white-space: pre-wrap;
+  max-height: 34px;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+/* 卡片右上角「交换左右连接点」按钮（用户批注：美化布线防交叉；交换后连线端点随之换向） */
+
+
+
+/* 画布左上角工作流名称角标（用户批注：模板/实例 + 名称；固定不随缩放平移） */
+.wf-canvas-caption {
+  position: absolute;
+  z-index: 7;
+  top: 12px;
+  left: 14px;
+  max-width: 46%;
+  padding: 5px 11px;
+  border: 1px solid var(--wf-border-strong);
+  border-radius: 9px;
+  background: var(--wf-layer);
+  color: var(--wf-ink-2);
+  font-size: 11px;
+  font-weight: 650;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--wf-ink) 8%, transparent);
+}
+
+.wf-canvas-caption strong {
+  color: var(--wf-ink);
+  font-weight: 720;
+}
+
+/* ---- 按节点种类着色（wf-node--<kind>） ---- */
+.wf-node--parent .wf-node__kind {
+  color: var(--wf-brand);
+}
+
+.wf-node--agent .wf-node__kind {
+  color: var(--wf-brand);
+}
+
+.wf-node--file .wf-node__kind {
+  color: var(--wf-ink-2);
+}
+
+.wf-node--database .wf-node__kind {
+  color: var(--wf-database);
+}
+
+.wf-node--start .wf-node__kind {
+  color: var(--wf-ok);
+}
+
+.wf-node--end .wf-node__kind {
+  color: var(--wf-err);
+}
+
+.wf-node--pause .wf-node__kind {
+  color: var(--wf-warn);
+}
+
+.wf-node--group .wf-node__kind {
+  color: var(--wf-warn);
+}
+
+.wf-node--subgraph .wf-node__kind {
+  color: var(--wf-brand);
+}
+
+.wf-node--subgraph {
+  border-style: double;
+}
+
+.wf-node__subgraph-open {
+  flex: none;
+  margin-left: auto;
+  padding: 0 5px;
+  border: 1px solid var(--wf-border-strong);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--wf-brand);
+  font: inherit;
+  font-size: 9px;
+  line-height: 15px;
+  cursor: pointer;
+}
+
+.wf-node__subgraph-open:hover {
+  border-color: var(--wf-brand);
+  background: color-mix(in srgb, var(--wf-brand) 8%, transparent);
+}
+
+/* 只读子图预览：不显示接线点，避免被误认为可编辑 */
+.wf-canvas.is-readonly .wf-graph__handle {
+  display: none;
+}
+
+/* ---- Team 卡片 ---- */
+.wf-node--group {
+  display: flex;
+  flex-direction: column;
+  padding: 10px 12px;
+}
+
+/* 标题区固定单行：成员接点锚点按固定列表顶边计算，标题换行会把整列成员下移，
+   让连线端点逐行偏离实际接点（GROUP_MEMBER_LIST_TOP 的成立前提）。 */
+.wf-node--group .wf-node__kind,
+.wf-node--group .wf-node__label {
+  flex: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wf-group-node {
+  width: 300px;
+  height: 220px;
+}
+
+/* 拖拽悬停入组高亮（卡片插入 Team 卡片区域即识别为入组） */
+.wf-group-node.is-drop-target .wf-node--group {
+  border-color: var(--wf-pass);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--wf-pass) 26%, transparent), 0 0 22px color-mix(in srgb, var(--wf-pass) 32%, transparent);
+}
+
+.wf-group__drop-hint {
+  flex: none;
+  margin: 6px 0 2px;
+  padding: 4px 8px;
+  border: 1px dashed var(--wf-pass);
+  border-radius: 8px;
+  color: var(--wf-pass);
+  font-size: 10px;
+  font-weight: 700;
+  text-align: center;
+  pointer-events: none;
+}
+
+/* ---- Team 成员列表（缩小版角色卡） ---- */
+.wf-group__members {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 6px;
+  padding: 6px;
+  border: 1px solid var(--wf-border);
+  border-radius: 8px;
+  background: var(--wf-layer-2);
+  scrollbar-width: thin;
+}
+
+/* 组内成员 = 缩小版角色卡：仅名称+状态，数据库/上下文接点，无流程接点（用户批注） */
+.wf-group__member {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  border: 1px solid var(--wf-border-strong);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--wf-layer) 90%, var(--wf-brand) 10%);
+  color: var(--wf-ink);
+  padding: 6px 10px;
+  font-size: 11px;
+  text-align: left;
+  box-shadow: 0 2px 6px color-mix(in srgb, var(--wf-ink) 8%, transparent);
+  transition: border-color .16s ease, box-shadow .16s ease;
+}
+
+.wf-group__member:hover {
+  border-color: color-mix(in srgb, var(--wf-brand) 55%, var(--wf-border-strong));
+  box-shadow: 0 2px 10px color-mix(in srgb, var(--wf-ink) 12%, transparent);
+}
+
+.wf-graph__handle--mini {
+  width: 9px;
+  height: 9px;
+  border-width: 1px;
+}
+
+/* Team 卡片流程接点（居中）：位置随语义类下沉，不得退回内联样式 */
+
+/* 团队整体任务入点：靠近标题，与居中的流程入点拉开（用户批注：团队卡片新增上下文入） */
+
+/* 组内成员接点的固定纵向位置（成员行内锚点；用户批注：左侧 db/ctx 接点拉开间距）。
+   成员迷你卡保留紧凑的输入按钮，输出上下文可在侧栏配置。 */
+.wf-graph__handle--member-db-in {
+  top: 30%;
+}
+
+.wf-graph__handle--member-ctx-in {
+  top: 64%;
+}
+
+.wf-graph__handle--mini:hover {
+  transform: translateY(-50%) scale(1.25);
+}
+
+.wf-group__member-name {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 650;
+}
+
+.wf-group__member-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  flex: none;
+  font-size: 10px;
+  color: var(--wf-ink-2);
+  padding: 1px 6px;
+  border: 1px solid var(--wf-border-strong);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--wf-layer) 92%, var(--wf-ink) 8%);
+}
+
+.wf-group__resize {
+  position: absolute;
+  z-index: 6;
+  right: -4px;
+  bottom: -4px;
+  width: 14px;
+  height: 14px;
+  border-right: 3px solid var(--wf-border-strong);
+  border-bottom: 3px solid var(--wf-border-strong);
+  border-radius: 0 0 6px 0;
+  cursor: nwse-resize;
+}
+
+.wf-group__resize:hover {
+  border-color: var(--wf-brand);
+}
+
+/* ---- 画布空态提示 ---- */
+.wf-canvas-empty {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
+.wf-canvas-empty__hint {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  color: var(--wf-ink-2);
+  font-size: 12px;
+  text-align: center;
+  opacity: .85;
+}
+
+.wf-canvas-empty__icon {
+  width: 52px;
+  height: 52px;
+  border: 1px dashed var(--wf-border-strong);
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  font-size: 22px;
+  color: var(--wf-brand);
+}
+`,
+			`
+/* ---- 左侧资源树容器 ---- */
+.wf-docrail {
+  flex: none;
+  width: auto;
+  display: flex;
+  flex-direction: column;
+  background: var(--wf-layer);
+  min-height: 0;
+  overflow: hidden;
+}
+
+.wf-docrail.is-collapsed {
+  visibility: hidden;
+  pointer-events: none;
+  width: 0;
+}
+
+.wf-docrail__list {
+  flex: 1 1 0;
+  height: 0;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 9px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  scrollbar-width: thin;
+}
+
+/* ---- 左栏标签页 ---- */
+.wf-lib-tabs {
+  flex: none;
+  display: flex;
+  gap: 4px;
+  padding: 8px 10px 0;
+  border-bottom: 1px solid var(--wf-border);
+}
+
+.wf-lib-tab {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 0;
+  border-radius: 9px 9px 0 0;
+  background: transparent;
+  color: var(--wf-ink-2);
+  padding: 7px 4px;
+  font-size: 11px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.wf-lib-tab:hover {
+  color: var(--wf-ink);
+  background: color-mix(in srgb, var(--wf-brand) 6%, transparent);
+}
+
+.wf-lib-tab.is-active {
+  color: var(--wf-brand);
+  background: color-mix(in srgb, var(--wf-brand) 10%, transparent);
+  box-shadow: inset 0 -2px 0 var(--wf-brand);
+}
+
+/* ---- 库搜索栏（两态常驻：模版 / 资产共用同一关键词；左栏与底栏各一入口） ---- */
+.wf-lib-search {
+  flex: none;
+  padding: 8px 10px 4px;
+}
+
+/* 底栏内的搜索栏：底栏卡片区已有内边距，去掉左右重复留白 */
+.wf-lib-search--bottom {
+  padding: 8px 9px 4px;
+}
+
+.wf-lib-search__input {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--wf-border);
+  border-radius: 8px;
+  background: var(--wf-layer-2);
+  color: var(--wf-ink);
+  padding: 6px 8px;
+  font-size: 11px;
+}
+
+.wf-lib-search__input:focus {
+  outline: none;
+  border-color: var(--wf-brand);
+}
+
+.wf-lib-search__input::placeholder {
+  color: var(--wf-ink-2);
+}
+
+/* ---- 库来源切换（左栏底部：模版 / 资产；切换同时切库来源与画布文档类型） ---- */
+.wf-lib-source {
+  flex: none;
+  display: flex;
+  gap: 4px;
+  padding: 6px 10px;
+  border-top: 1px solid var(--wf-border);
+}
+
+.wf-lib-source__tab {
+  flex: 1;
+  border: 1px solid var(--wf-border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--wf-ink-2);
+  padding: 6px 4px;
+  font-size: 11px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.wf-lib-source__tab:hover {
+  color: var(--wf-ink);
+}
+
+.wf-lib-source__tab.is-active {
+  color: var(--wf-brand);
+  border-color: color-mix(in srgb, var(--wf-brand) 45%, var(--wf-border));
+  background: color-mix(in srgb, var(--wf-brand) 10%, transparent);
+}
+
+/* ---- 底栏（新增；与左栏相互切换；卡片横向 flex-wrap 动态追加排） ---- */
+.wf-bottom-area {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.wf-bottombar {
+  flex: none;
+  display: flex;
+  flex-direction: row;
+  background: var(--wf-layer);
+  border-top: 1px solid var(--wf-border);
+  min-height: 0;
+  overflow: hidden;
+}
+
+.wf-bottombar.is-collapsed {
+  visibility: hidden;
+  pointer-events: none;
+  height: 0;
+}
+
+/* Tag 区：位于底栏【左侧】（竖向排布），但每个 Tag 文字是【横向】的（工作流/角色/数据/其他），不显示图标 */
+.wf-bottombar__tags {
+  flex: none;
+  width: 88px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 2px;
+  padding: 8px 6px;
+  border-right: 1px solid var(--wf-border);
+}
+
+.wf-bottombar__tag {
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--wf-ink-2);
+  padding: 7px 8px;
+  font-size: 11px;
+  font-weight: 650;
+  cursor: pointer;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.wf-bottombar__tag:hover {
+  color: var(--wf-ink);
+  background: color-mix(in srgb, var(--wf-brand) 6%, transparent);
+}
+
+.wf-bottombar__tag.is-active {
+  color: var(--wf-brand);
+  background: color-mix(in srgb, var(--wf-brand) 10%, transparent);
+  border-color: color-mix(in srgb, var(--wf-brand) 45%, var(--wf-border));
+}
+
+.wf-bottombar__scroll {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  scrollbar-width: thin;
+}
+
+.wf-bottombar__section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.wf-bottombar__group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--wf-ink-2);
+}
+
+.wf-bottombar__group-title {
+  flex: none;
+  white-space: nowrap;
+}
+
+.wf-bottombar__cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-content: flex-start;
+}
+
+/* 底栏卡片：只显示名称（图片批注：不再显示描述和其他内容，包括图标） */
+.wf-hcard {
+  max-width: 180px;
+  min-width: 96px;
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--wf-border);
+  border-radius: 8px;
+  background: var(--wf-layer-2);
+  color: var(--wf-ink);
+  font-size: 11px;
+  font-weight: 650;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: grab;
+  touch-action: none;
+  transition: border-color .14s ease, background .14s ease;
+}
+
+.wf-hcard:hover {
+  border-color: color-mix(in srgb, var(--wf-brand) 55%, var(--wf-border-strong));
+}
+
+.wf-hcard.is-active {
+  border-color: color-mix(in srgb, var(--wf-brand) 45%, var(--wf-border));
+  background: color-mix(in srgb, var(--wf-brand) 12%, var(--wf-layer));
+  color: var(--wf-brand);
+}
+
+.wf-hcard__name {
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 底栏上边界拖动线（水平、位于底栏顶部，上下调整大小；图片批注：边界线同样可拖动）。
+   双类选择器覆盖 .wf-splitter 的竖向默认（width:9px/col-resize），确保为横向。 */
+.wf-splitter.wf-splitter--horizontal {
+  position: relative;
+  z-index: 12;
+  flex: none;
+  min-width: 0;
+  width: auto;
+  min-height: 8px;
+  height: 8px;
+  cursor: row-resize;
+  touch-action: none;
+  background: var(--wf-layer-2);
+  outline: 0;
+  border-top: 1px solid var(--wf-border);
+}
+
+.wf-splitter.wf-splitter--horizontal::before {
+  content: "";
+  position: absolute;
+  inset: 3px 0;
+  background: var(--wf-border);
+}
+
+.wf-splitter.wf-splitter--horizontal:hover::before,
+.wf-splitter.wf-splitter--horizontal:focus-visible::before,
+.wf-splitter.wf-splitter--horizontal.is-dragging::before {
+  inset: 2px 0;
+  background: var(--wf-brand);
+}
+
+/* ---- 资源条目（分组 / 条目 / 徽标） ---- */
+.wf-docgroup {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 7px 2px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--wf-ink-2);
+}
+
+.wf-docgroup__add {
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  border: 1px solid var(--wf-border-strong);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--wf-ink-2);
+  font-size: 13px;
+  line-height: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.wf-docgroup__add:hover {
+  border-color: var(--wf-brand);
+  color: var(--wf-brand);
+}
+
+/* 可折叠分栏的标题按钮（历史资产 / 历史经验分栏）：与普通标题同排版，只是整体可点。
+   撑满整行 + 箭头 margin-left:auto：标题贴左、箭头贴右，标题左边缘与不可折叠分栏对齐。 */
+.wf-docgroup__toggle {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-transform: inherit;
+  letter-spacing: inherit;
+  cursor: pointer;
+}
+
+.wf-docgroup__toggle:hover {
+  color: var(--wf-ink);
+}
+
+.wf-docgroup__title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wf-docgroup__caret {
+  /* 箭头定位在分栏标题行右端（用户批注：箭头移右，让文字对齐上面） */
+  margin-left: auto;
+  font-size: 9px;
+  line-height: 1;
+}
+
+/* 折叠箭头由类名切换伪元素内容：DOM 文本只保留分栏标题，读屏与文本断言都不受箭头干扰 */
+.wf-docgroup__caret::before {
+  content: '▾';
+}
+
+.wf-docgroup__toggle.is-collapsed .wf-docgroup__caret::before {
+  content: '▸';
+}
+
+.wf-docgroup__count {
+  min-width: 16px;
+  padding: 0 4px;
+  border-radius: 6px;
+  background: var(--wf-layer-2);
+  color: var(--wf-ink-2);
+  font-size: 9px;
+  text-align: center;
+}
+
+.wf-docitem {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr) auto;
+  gap: 9px;
+  align-items: center;
+  text-align: left;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--wf-ink);
+  padding: 8px;
+  cursor: grab;
+  touch-action: none;
+}
+
+.wf-docitem:hover {
+  background: var(--wf-layer-2);
+  border-color: var(--wf-border);
+}
+
+.wf-docitem.is-active {
+  background: color-mix(in srgb, var(--wf-brand) 10%, var(--wf-layer));
+  border-color: color-mix(in srgb, var(--wf-brand) 45%, var(--wf-border));
+  color: var(--wf-brand);
+}
+
+.wf-docitem.is-pinned {
+  background: color-mix(in srgb, var(--wf-brand) 6%, var(--wf-layer));
+  border-color: color-mix(in srgb, var(--wf-brand) 28%, var(--wf-border));
+}
+
+.wf-docitem__icon {
+  width: 26px;
+  height: 30px;
+  border: 1px solid currentColor;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 800;
+  opacity: .76;
+}
+
+.wf-docitem__texts {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.wf-docitem__title-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.wf-docitem__title-row .wf-docitem__label {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.wf-docitem__title-row .wf-docitem__badge {
+  flex: none;
+  margin-left: 0;
+}
+
+.wf-docitem__label {
+  display: block;
+  font-size: 12px;
+  font-weight: 650;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wf-docitem__path {
+  display: block;
+  font: 9px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: var(--wf-ink-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wf-docitem__badge {
+  justify-self: end;
+  white-space: nowrap;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--wf-ok);
+  border: 1px solid color-mix(in srgb, var(--wf-ok) 40%, var(--wf-border));
+  border-radius: 6px;
+  padding: 2px 7px;
+  background: color-mix(in srgb, var(--wf-ok) 12%, transparent);
+}
+
+/* 工作台全局化：「当前」徽标（当前主会话对应的实例；品牌色以区分普通状态徽标） */
+.wf-docitem__badge.is-current {
+  color: var(--wf-brand);
+  border-color: color-mix(in srgb, var(--wf-brand) 45%, var(--wf-border));
+  background: color-mix(in srgb, var(--wf-brand) 12%, transparent);
+}
+
+/* ---- 拖拽预览浮标 ---- */
+.wf-drag-preview {
+  position: fixed;
+  z-index: 999;
+  pointer-events: none;
+  min-width: 150px;
+  max-width: 230px;
+  padding: 9px 12px;
+  border: 1px solid var(--wf-brand);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--wf-layer) 94%, var(--wf-brand) 6%);
+  color: var(--wf-ink);
+  font-size: 12px;
+  font-weight: 650;
+  box-shadow: 0 14px 34px color-mix(in srgb, var(--wf-ink) 22%, transparent);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---- 可读性：左栏/底栏字号下限（用户反馈侧边栏字体过小） ---- */
+.wf-lib-tab {
+  font-size: 12px;
+}
+
+.wf-lib-search__input {
+  font-size: 12px;
+}
+
+.wf-docgroup {
+  font-size: 11px;
+}
+
+.wf-docitem__label {
+  font-size: 13px;
+}
+
+.wf-docitem__path {
+  font-size: 10px;
+}
+
+.wf-docitem__badge {
+  font-size: 11px;
+}
+`,
+			`
+/* ---- 属性栏容器与控件 ---- */
+.wf-inspector {
+  flex: none;
+  width: auto;
+  height: 100%;
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--wf-layer);
+  overflow: hidden;
+  min-height: 0;
+}
+
+.wf-inspector__scroll {
+  flex: 1 1 0;
+  height: 0;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  scrollbar-width: thin;
+}
+
+.wf-inspector__scroll>* {
+  flex-shrink: 0;
+}
+
+.wf-inspector.is-collapsed {
+  visibility: hidden;
+  pointer-events: none;
+  padding: 0;
+  width: 0 !important;
+}
+
+.wf-dynamic-team-warning {
+  color: var(--wf-warn);
+}
+
+.wf-inspector h3 {
+  margin: 0;
+  font-size: 14px;
+  color: var(--wf-ink);
+}
+
+.wf-inspector label {
+  display: grid;
+  gap: 4px;
+  color: var(--wf-ink-2);
+  font-size: 12px;
+}
+
+.wf-inspector input,
+.wf-inspector select,
+.wf-inspector textarea {
+  width: 100%;
+  border: 1px solid var(--wf-border-strong);
+  border-radius: 7px;
+  background: var(--wf-layer-2);
+  color: var(--wf-ink);
+  padding: 6px 8px;
+  outline: 0;
+}
+
+.wf-inspector input:focus,
+.wf-inspector select:focus,
+.wf-inspector textarea:focus {
+  border-color: var(--wf-brand);
+}
+
+.wf-inspector textarea {
+  min-height: 92px;
+  resize: none;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.wf-inspector__footer {
+  position: relative;
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 14px;
+  border-top: 1px solid var(--wf-border);
+  background: var(--wf-layer);
+}
+
+.wf-inspector__collapse {
+  flex: none;
+  width: 30px;
+  height: 28px;
+  border: 1px solid var(--wf-border-strong);
+  border-radius: 7px;
+  background: transparent;
+  color: var(--wf-ink-2);
+  font-size: 18px;
+  line-height: 1;
+  padding: 0;
+  cursor: pointer;
+  margin-right: auto;
+}
+
+.wf-inspector__collapse:hover {
+  border-color: var(--wf-brand);
+  color: var(--wf-brand);
+  background: color-mix(in srgb, var(--wf-brand) 8%, transparent);
+}
+
+.wf-inspector__footer .wf-btn {
+  font-size: 11px;
+  padding: 5px 11px;
+}
+
+/* ---- 资产版本上拉列表（底部「回滚」按钮展开） ---- */
+.wf-asset-versions__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+}
+
+.wf-asset-versions {
+  position: absolute;
+  z-index: 31;
+  left: 10px;
+  right: 10px;
+  bottom: 100%;
+  margin-bottom: 6px;
+  max-height: 240px;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 9px 10px;
+  border: 1px solid var(--wf-border-strong);
+  border-radius: 9px;
+  background: var(--wf-layer-2);
+  box-shadow: 0 12px 30px color-mix(in srgb, var(--wf-ink) 12%, transparent);
+  scrollbar-width: thin;
+}
+
+.wf-asset-versions__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.wf-asset-versions__title {
+  font-size: 11px;
+  font-weight: 650;
+  color: var(--wf-ink);
+}
+
+.wf-asset-versions__hint {
+  color: var(--wf-ink-2);
+  font-size: 11px;
+}
+
+.wf-asset-versions__list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.wf-asset-versions__item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  text-align: left;
+  border: 1px solid var(--wf-border);
+  border-radius: 7px;
+  background: var(--wf-layer);
+  color: var(--wf-ink);
+  font-size: 11px;
+  padding: 5px 8px;
+  cursor: pointer;
+}
+
+.wf-asset-versions__item:hover {
+  border-color: var(--wf-brand);
+}
+
+.wf-asset-versions__item.is-active {
+  border-color: var(--wf-brand);
+}
+
+.wf-asset-versions__version {
+  flex: none;
+  font-weight: 650;
+  color: var(--wf-brand);
+}
+
+.wf-asset-versions__name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wf-asset-versions__meta {
+  flex: none;
+  color: var(--wf-ink-2);
+}
+
+.wf-asset-versions__badge {
+  flex: none;
+  padding: 0 6px;
+  border-radius: 999px;
+  border: 1px solid var(--wf-brand);
+  color: var(--wf-brand);
+  font-size: 9px;
+}
+
+.wf-inspector .wf-empty {
+  color: var(--wf-ink-2);
+  font-size: 12px;
+}
+
+.wf-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* 字段与表单行布局（属性栏表单共用；此前散落在各表单的内联 style） */
+.wf-form-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* 只读统计清单（经验「长期统计」区）：标签 + 数值两列，无控件外观——
+   与可编辑字段在视觉上区分（编辑区沿用 .wf-field 的输入控件样式）。 */
+.wf-stat-list {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+}
+
+.wf-stat {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.wf-stat__label {
+  color: var(--wf-ink-2);
+  font-size: 11px;
+}
+
+.wf-stat__value {
+  margin: 0;
+  color: var(--wf-ink);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.wf-form-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.wf-form-grid-1 {
+  display: grid;
+  gap: 8px;
+}
+
+.wf-form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.wf-form-grid-wide {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 8px;
+}
+
+.wf-form-preline {
+  white-space: pre-line;
+}
+
+.wf-form-check {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: flex-start;
+}
+
+/* 复选标签不换行：属性栏较窄时避免「动态团队」被挤成两行 */
+.wf-form-check > span {
+  white-space: nowrap;
+}
+
+/* 动态团队分区：把复选行与后续字段的间距拉开，避免与上方按钮/下方字段贴在一起 */
+.wf-form-check--section {
+  margin: 10px 0 3px;
+}
+
+.wf-dynamic-team-fields {
+  gap: 10px;
+}
+
+/* ---- 多行文本域：右下角展开按钮 + 画布区域扩展层 ---- */
+.wf-textarea-wrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* 给右下角按钮留出文字安全区，避免最后一行文字被按钮遮住 */
+.wf-textarea-wrap>textarea {
+  padding-right: 30px;
+}
+
+.wf-textarea__expand {
+  position: absolute;
+  right: 5px;
+  bottom: 5px;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--wf-border-strong);
+  border-radius: 6px;
+  background: var(--wf-layer-2);
+  color: var(--wf-ink-2);
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color .14s ease, color .14s ease;
+}
+
+.wf-textarea__expand:hover {
+  border-color: var(--wf-brand);
+  color: var(--wf-brand);
+}
+
+/* 扩展层挂在画布容器内：左边界随左栏/底栏切换自动变化，右边界止于属性栏；
+   顶部从画布控制栏（52px）之下开始，不遮挡顶部控制栏。 */
+.wf-text-expand {
+  position: absolute;
+  z-index: 20;
+  left: 0;
+  right: 0;
+  top: 52px;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--wf-bg);
+  border-top: 1px solid var(--wf-border);
+}
+
+.wf-text-expand__head {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--wf-border);
+  background: var(--wf-layer);
+}
+
+.wf-text-expand__title {
+  flex: 1;
+  min-width: 0;
+  color: var(--wf-ink);
+  font-size: 12px;
+  font-weight: 650;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wf-text-expand__collapse {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--wf-border-strong);
+  border-radius: 7px;
+  background: var(--wf-layer-2);
+  color: var(--wf-ink-2);
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.wf-text-expand__collapse:hover {
+  border-color: var(--wf-brand);
+  color: var(--wf-brand);
+}
+
+.wf-text-expand__input {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  box-sizing: border-box;
+  resize: none;
+  border: 0;
+  border-radius: 0;
+  background: var(--wf-bg);
+  color: var(--wf-ink);
+  padding: 12px 14px;
+  outline: 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+/* 复选框需覆盖 .wf-inspector input{width:100%}（否则被撑成大方框、不贴边） */
+.wf-inspector .wf-form-check__box {
+  width: auto;
+  flex: 0 0 auto;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+  accent-color: var(--wf-brand);
+}
+
+/* ---- 复选清单 / 提示 / 高级折叠 / 路径展示 ---- */
+.wf-check-list__row {
+  justify-content: space-between;
+}
+
+.wf-btn--xs {
+  font-size: 9px;
+  padding: 2px 6px;
+}
+
+.wf-check-list {
+  max-height: 190px;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px;
+  border: 1px solid var(--wf-border);
+  border-radius: 8px;
+  background: var(--wf-layer-2);
+  scrollbar-width: thin;
+}
+
+.wf-check-list label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--wf-ink);
+  font-size: 11px;
+}
+
+.wf-hint {
+  color: var(--wf-ink-2);
+  font-size: 11px;
+}
+
+.wf-advanced {
+  border: 1px solid var(--wf-border);
+  border-radius: 9px;
+  background: var(--wf-layer-2);
+  padding: 0 9px;
+  margin: 12px 0 0;
+}
+
+.wf-advanced summary {
+  cursor: pointer;
+  padding: 8px 0;
+  color: var(--wf-ink-2);
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.wf-advanced__content {
+  display: grid;
+  gap: 9px;
+  padding: 0 0 10px;
+}
+
+.wf-pathbox {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 9px 10px;
+  border: 1px solid var(--wf-border);
+  border-radius: 9px;
+  background: var(--wf-layer-2);
+}
+
+.wf-pathbox__label {
+  font-size: 10px;
+  color: var(--wf-ink-2);
+}
+
+.wf-pathbox__value {
+  font: 10px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: var(--wf-ink);
+  word-break: break-all;
+}
+
+/* ---- 图标按钮与竖向分隔条 ---- */
+.wf-iconbtn {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+.wf-splitter {
+  position: relative;
+  z-index: 12;
+  flex: none;
+  min-width: 9px;
+  width: 9px;
+  cursor: col-resize;
+  touch-action: none;
+  background: var(--wf-layer);
+  outline: 0;
+}
+
+.wf-splitter::before {
+  content: "";
+  position: absolute;
+  inset: 0 3px;
+  background: var(--wf-border);
+}
+
+.wf-splitter:hover::before,
+.wf-splitter:focus-visible::before,
+.wf-splitter.is-dragging::before {
+  inset: 0 2px;
+  background: var(--wf-brand);
+}
+
+/* ---- 可读性：属性栏字号下限（用户反馈侧边栏字体过小） ---- */
+.wf-inspector {
+  font-size: 13px;
+}
+
+.wf-inspector h3 {
+  font-size: 15px;
+}
+
+.wf-inspector label {
+  font-size: 13px;
+}
+
+.wf-inspector input,
+.wf-inspector select,
+.wf-inspector textarea {
+  font-size: 13px;
+}
+
+.wf-inspector .wf-hint,
+.wf-inspector .wf-pathbox,
+.wf-inspector .wf-pathbox__label,
+.wf-inspector .wf-pathbox__value,
+.wf-inspector small {
+  font-size: 12px;
+}
+
+.wf-inspector .wf-btn {
+  font-size: 12px;
+}
+`,
+			`
+/* ---- 弹层原语（Modal）：仅键盘聚焦时显示焦点环，不改变既有视觉 ---- */
+.wf-modal:focus-visible {
+  outline: 2px solid var(--wf-brand);
+  outline-offset: 2px;
+}
+
+/* ---- 二次确认弹层 ---- */
+.wf-confirm-backdrop {
+  position: absolute;
+  z-index: 40;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: color-mix(in srgb, var(--wf-bg) 72%, transparent);
+  backdrop-filter: blur(4px);
+}
+
+.wf-confirm {
+  width: min(540px, 100%);
+  max-height: calc(100vh - 40px);
+  overflow: auto;
+  padding: 18px;
+  border: 1px solid var(--wf-border-strong);
+  border-radius: 14px;
+  background: var(--wf-layer);
+  box-shadow: 0 20px 60px color-mix(in srgb, var(--wf-ink) 18%, transparent);
+}
+
+.wf-confirm h3 {
+  margin: 0 0 8px;
+  font-size: 15px;
+  color: var(--wf-ink);
+}
+
+.wf-confirm p {
+  margin: 0;
+  color: var(--wf-ink-2);
+  font-size: 12px;
+  line-height: 1.65;
+  white-space: pre-wrap;
+}
+
+.wf-confirm__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+/* ---- 运行历史弹层 ---- */
+.wf-history-backdrop {
+  position: absolute;
+  z-index: 30;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: color-mix(in srgb, var(--wf-bg) 72%, transparent);
+  backdrop-filter: blur(4px);
+}
+
+.wf-history {
+  width: min(760px, 100%);
+  max-height: calc(100vh - 40px);
+  display: flex;
+  flex-direction: column;
+  padding: 18px;
+  border: 1px solid var(--wf-border-strong);
+  border-radius: 14px;
+  background: var(--wf-layer);
+  box-shadow: 0 20px 60px color-mix(in srgb, var(--wf-ink) 18%, transparent);
+}
+
+.wf-history h3 {
+  margin: 0 0 10px;
+  font-size: 15px;
+  color: var(--wf-ink);
+}
+
+.wf-history__list {
+  min-height: 0;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  scrollbar-width: thin;
+}
+
+.wf-history__item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: left;
+  border: 1px solid var(--wf-border);
+  border-radius: 10px;
+  background: var(--wf-layer-2);
+  padding: 9px 11px;
+}
+
+/* 列表项主体（选中动作）与「恢复」同级：主体按钮铺满卡片内容区，按钮样式复位 */
+.wf-history__select {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: left;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.wf-history__item:hover {
+  border-color: var(--wf-brand);
+}
+
+.wf-history__item.is-active {
+  border-color: var(--wf-brand);
+  background: color-mix(in srgb, var(--wf-brand) 8%, var(--wf-layer-2));
+}
+
+.wf-history__title {
+  font-size: 12px;
+  font-weight: 650;
+  color: var(--wf-ink);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.wf-history__chain {
+  font-size: 9px;
+  color: var(--wf-ink-2);
+  border: 1px solid var(--wf-border);
+  border-radius: 999px;
+  padding: 0 6px;
+}
+
+.wf-history__meta {
+  font: 9px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: var(--wf-ink-2);
+}
+
+.wf-history__resume {
+  align-self: flex-end;
+}
+
+.wf-history__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+/* ---- 状态圆点（运行 / 成功 / 失败 / 暂停 / 跳过 …） ---- */
+.wf-status-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  margin-right: 5px;
+  background: var(--wf-ink-2);
+}
+
+.wf-status-dot.is-running {
+  background: var(--wf-ok);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--wf-ok) 18%, transparent);
+}
+
+.wf-status-dot.is-ok {
+  background: var(--wf-ok);
+}
+
+.wf-status-dot.is-fail {
+  background: var(--wf-err);
+}
+
+.wf-status-dot.is-armed {
+  background: var(--wf-warn);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--wf-warn) 16%, transparent);
+}
+
+.wf-status-dot.is-pending {
+  background: var(--wf-ink-2);
+}
+
+.wf-status-dot.is-skipped {
+  background: var(--wf-ink-2);
+  opacity: .6;
+}
+
+.wf-status-dot.is-react-capped {
+  background: var(--wf-context);
+}
+
+.wf-status-dot.is-paused,
+.wf-status-dot.is-interrupted {
+  background: var(--wf-warn);
+}
+
+/* ---- 导入隐藏输入与顶部提示 ---- */
+.wf-import-hidden {
+  display: none;
+}
+
+.wf-toast-host {
+  position: fixed;
+  z-index: 9999;
+  top: 56px;
+  right: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.wf-toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 190px;
+  max-width: 330px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  font-size: 12px;
+  line-height: 1.5;
+  box-shadow: 0 12px 32px color-mix(in srgb, var(--wf-ink) 22%, transparent);
+  animation: wf-toast-in .18s ease;
+}
+
+.wf-toast.is-success {
+  background: color-mix(in srgb, var(--wf-ok) 16%, var(--wf-layer));
+  border: 1px solid color-mix(in srgb, var(--wf-ok) 55%, var(--wf-border-strong));
+  color: var(--wf-ink);
+}
+
+.wf-toast.is-error {
+  background: color-mix(in srgb, var(--wf-err) 14%, var(--wf-layer));
+  border: 1px solid color-mix(in srgb, var(--wf-err) 55%, var(--wf-border-strong));
+  color: var(--wf-ink);
+}
+
+.wf-toast.is-info {
+  background: var(--wf-layer);
+  border: 1px solid var(--wf-border-strong);
+  color: var(--wf-ink);
+}
+
+.wf-toast__dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-top: 5px;
+}
+
+.wf-toast.is-success .wf-toast__dot {
+  background: var(--wf-ok);
+}
+
+.wf-toast.is-error .wf-toast__dot {
+  background: var(--wf-err);
+}
+
+.wf-toast.is-info .wf-toast__dot {
+  background: var(--wf-brand);
+}
+
+@keyframes wf-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+/* ---- 子图画布编辑（直接占用主画布位置） ---- */
+.wf-subgraph-editor {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--wf-bg);
+}
+
+.wf-subgraph-editor__bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--wf-border);
+  background: var(--wf-layer);
+  z-index: 8;
+}
+
+.wf-subgraph-editor__back {
+  border: 1px solid var(--wf-border-strong);
+  border-radius: 7px;
+  background: var(--wf-layer);
+  color: var(--wf-ink);
+  padding: 5px 10px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.wf-subgraph-editor__back:hover {
+  border-color: var(--wf-brand);
+  color: var(--wf-brand);
+}
+
+.wf-subgraph-editor__title {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  min-width: 0;
+}
+
+.wf-subgraph-editor__title span {
+  color: var(--wf-brand);
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.wf-subgraph-editor__title strong {
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wf-subgraph-editor__title small {
+  color: var(--wf-ink-2);
+  font-size: 11px;
+}
+
+.wf-subgraph-editor__add {
+  margin-left: auto;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.wf-subgraph-editor__warning {
+  padding: 6px 12px;
+  color: var(--wf-warn);
+  font-size: 11px;
+  border-bottom: 1px solid var(--wf-border);
+}
+
+.wf-subgraph-editor__body {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+
+.wf-subgraph-editor__canvas {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+}
+
+.wf-subgraph-editor__canvas .wf-canvas-stage {
+  flex: 1;
+  min-height: 0;
+}
+
+.wf-subgraph-editor__inspector-open {
+  position: absolute;
+  z-index: 12;
+  right: 8px;
+  top: 10px;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--wf-border-strong);
+  border-radius: 7px;
+  background: var(--wf-layer);
+  color: var(--wf-ink-2);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.wf-subgraph-editor__inspector-open:hover {
+  border-color: var(--wf-brand);
+  color: var(--wf-brand);
+}
+
+.wf-subgraph-editor__body > .wf-inspector {
+  border-left: 1px solid var(--wf-border);
+}
+`,
+			`
+/* ── 工作台 × 官方右侧 Sidebar 标签页（0.1.5-rc.1 迁移） ─────────────────────
+   工作台内容由插件自持的常驻容器承载（Studio 永不卸载），标签页激活时该容器被搬进下面这个
+   挂载点；未持有容器时（多标签页 body 并存）显示占位提示，避免出现空白面板。
+   官方右侧 Sidebar 的浮动层 z-index 最高 40，工作台内部弹层须大于它。 */
+.wf-tab-mount {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--wf-bg);
+  color: var(--wf-ink);
+}
+
+.wf-tab-mount__placeholder {
+  display: none;
+  flex: 1;
+  min-height: 0;
+  align-items: center;
+  justify-content: center;
+  padding: 0 24px;
+  color: var(--wf-ink-2);
+  font-size: 12px;
+  text-align: center;
+}
+
+.wf-tab-mount[data-wf-mount="empty"] .wf-tab-mount__placeholder {
+  display: flex;
+}
+
+/* 无标签页持有容器时，常驻容器停放在隐藏 holder 内（display:none 不销毁子树，Studio 保持挂载） */
+#visual-workflow-workbench-holder {
+  display: none;
+}
+
+#visual-workflow-workbench-host {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* The DSH DockKit host already owns the push/fullscreen slide and retains it
+   on close. Do not animate or translate its inner pane here: a second motion
+   layer makes the sidebar appear to snap or finish closing before the shell. */
+`,
+			`
+/* ---- 弹层容器与搜索 / 标签筛选 ---- */
+.wf-combo-backdrop {
+  position: absolute;
+  z-index: 35;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: color-mix(in srgb, var(--wf-bg) 72%, transparent);
+  backdrop-filter: blur(4px);
+}
+
+.wf-combo {
+  width: min(1080px, 94%);
+  height: min(92%, 760px);
+  max-height: 92%;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--wf-border-strong);
+  border-radius: 14px;
+  background: var(--wf-layer);
+  box-shadow: 0 20px 60px color-mix(in srgb, var(--wf-ink) 18%, transparent);
+  overflow: hidden;
+}
+
+.wf-combo__search {
+  flex: none;
+  padding: 8px 12px 0;
+}
+
+.wf-combo__search input {
+  width: 100%;
+  border: 1px solid var(--wf-border-strong);
+  border-radius: 8px;
+  background: var(--wf-layer-2);
+  color: var(--wf-ink);
+  padding: 7px 10px;
+  outline: 0;
+}
+
+.wf-combo__search input:focus {
+  border-color: var(--wf-brand);
+}
+
+.wf-combo__tags {
+  flex: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding: 8px 12px 0;
+}
+
+.wf-combo-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border: 1px solid var(--wf-border);
+  border-radius: 999px;
+  background: var(--wf-layer-2);
+  color: var(--wf-ink-2);
+  font-size: 10px;
+  cursor: pointer;
+  transition: border-color .14s ease, background .14s ease, color .14s ease;
+}
+
+.wf-combo-tag:hover {
+  border-color: var(--wf-brand);
+  color: var(--wf-ink);
+}
+
+.wf-combo-tag.is-active {
+  border-color: var(--wf-brand);
+  background: color-mix(in srgb, var(--wf-brand) 12%, var(--wf-layer-2));
+  color: var(--wf-brand);
+}
+
+.wf-combo-tag__bulk {
+  margin-left: auto;
+  border-color: var(--wf-border-strong);
+  background: color-mix(in srgb, var(--wf-brand) 8%, var(--wf-layer-2));
+  color: var(--wf-ink);
+  font-weight: 650;
+}
+
+.wf-combo-tag__bulk:hover {
+  border-color: var(--wf-brand);
+  color: var(--wf-brand);
+}
+
+.wf-combo-tag__bulk:disabled {
+  opacity: .45;
+  cursor: default;
+}
+
+/* ---- 弹层头部 ---- */
+.wf-combo__head {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--wf-border);
+}
+
+.wf-combo__head h3 {
+  margin: 0;
+  font-size: 14px;
+  color: var(--wf-ink);
+  flex: none;
+}
+
+.wf-combo__head .wf-status {
+  margin-left: 0;
+}
+
+.wf-combo__close {
+  margin-left: auto;
+}
+
+/* ---- 目录区（标签页 + 卡片网格） ---- */
+.wf-combo__body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  overflow: hidden;
+}
+
+.wf-combo__catalog {
+  flex: 1.35;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--wf-border);
+  overflow: hidden;
+  position: relative;
+  z-index: 2;
+}
+
+.wf-combo__tabs {
+  flex: none;
+  display: flex;
+  gap: 4px;
+  padding: 8px 10px 0;
+  border-bottom: 1px solid var(--wf-border);
+}
+
+.wf-combo__tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 0;
+  border-radius: 9px 9px 0 0;
+  background: transparent;
+  color: var(--wf-ink-2);
+  padding: 7px 12px;
+  font-size: 11px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.wf-combo__tab:hover {
+  color: var(--wf-ink);
+}
+
+.wf-combo__tab.is-active {
+  color: var(--wf-brand);
+  background: color-mix(in srgb, var(--wf-brand) 10%, transparent);
+  box-shadow: inset 0 -2px 0 var(--wf-brand);
+}
+
+.wf-combo__tab-count {
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--wf-layer-2);
+  font-size: 9px;
+  color: var(--wf-ink-2);
+}
+
+.wf-combo__grid {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(228px, 1fr));
+  gap: 8px;
+  align-content: start;
+  padding: 12px;
+  scrollbar-width: thin;
+}
+
+.wf-combo-card {
+  display: flex;
+  gap: 9px;
+  align-items: flex-start;
+  text-align: left;
+  border: 1px solid var(--wf-border);
+  border-radius: 11px;
+  background: var(--wf-layer-2);
+  padding: 10px 11px;
+  cursor: pointer;
+  transition: border-color .14s ease, background .14s ease;
+  min-height: 96px;
+}
+
+.wf-combo-card:hover {
+  border-color: var(--wf-brand);
+}
+
+.wf-combo-card.is-checked {
+  border-color: var(--wf-brand);
+  background: color-mix(in srgb, var(--wf-brand) 8%, var(--wf-layer-2));
+}
+
+.wf-combo-card.is-disabled {
+  opacity: .55;
+  cursor: default;
+  border-style: dashed;
+}
+
+.wf-combo-card.is-disabled .wf-combo-card__name {
+  color: var(--wf-ink-2);
+}
+
+.wf-combo-card input {
+  flex: none;
+  margin-top: 2px;
+  accent-color: var(--wf-brand);
+}
+
+/* 卡片主区（点击勾选）与右下角操作区：此前为内联 style，现按语义类名表达 */
+.wf-combo-card {
+  position: relative;
+}
+
+.wf-combo-card__main {
+  display: flex;
+  gap: 9px;
+  align-items: flex-start;
+  text-align: left;
+  border: 0;
+  background: transparent;
+  padding: 0 88px 30px 0;
+  flex: 1;
+  cursor: pointer;
+}
+
+.wf-combo-card__main:disabled {
+  cursor: default;
+}
+
+.wf-combo-card__actions {
+  display: flex;
+  gap: 4px;
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+}
+
+.wf-combo__grid-empty {
+  grid-column: 1 / -1;
+  padding: 14px;
+}
+
+.wf-combo-card__body {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.wf-combo-card__name {
+  font-size: 12px;
+  font-weight: 650;
+  color: var(--wf-ink);
+  word-break: break-all;
+}
+
+.wf-combo-card__desc {
+  font-size: 10px;
+  line-height: 1.45;
+  color: var(--wf-ink-2);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word;
+}
+
+.wf-combo-card__badge {
+  display: inline-block;
+  align-self: flex-start;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--wf-layer);
+  border: 1px solid var(--wf-border);
+  font-size: 8px;
+  color: var(--wf-ink-2);
+}
+
+/* ---- 右侧详情栏（条目列表 / 编辑 / 已选清单） ---- */
+.wf-combo__side {
+  flex: 1;
+  min-width: 290px;
+  max-width: 380px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.wf-combo__side-head {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--wf-border);
+}
+
+.wf-combo__side-head h4 {
+  margin: 0;
+  font-size: 12px;
+  color: var(--wf-ink);
+  flex: 1;
+}
+
+.wf-combo__side-list {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 14px;
+  scrollbar-width: thin;
+}
+
+.wf-combo-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-align: left;
+  border: 1px solid var(--wf-border);
+  border-radius: 10px;
+  background: var(--wf-layer-2);
+  padding: 8px 10px;
+  cursor: pointer;
+}
+
+.wf-combo-item:hover {
+  border-color: var(--wf-brand);
+}
+
+.wf-combo-item.is-active {
+  border-color: var(--wf-brand);
+  background: color-mix(in srgb, var(--wf-brand) 8%, var(--wf-layer-2));
+}
+
+.wf-combo-item__label {
+  flex: 1;
+  min-width: 0;
+  font-size: 12px;
+  font-weight: 650;
+  color: var(--wf-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wf-combo-item__meta {
+  font-size: 9px;
+  color: var(--wf-ink-2);
+}
+
+.wf-combo__edit {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 14px;
+  border-top: 1px solid var(--wf-border);
+}
+
+.wf-combo__edit label {
+  display: grid;
+  gap: 4px;
+  color: var(--wf-ink-2);
+  font-size: 11px;
+}
+
+.wf-combo__edit input {
+  border: 1px solid var(--wf-border-strong);
+  border-radius: 7px;
+  background: var(--wf-layer-2);
+  color: var(--wf-ink);
+  padding: 6px 8px;
+  outline: 0;
+}
+
+.wf-combo__edit input:focus {
+  border-color: var(--wf-brand);
+}
+
+.wf-combo__selection {
+  flex: none;
+  max-height: 120px;
+  overflow: auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding: 8px 14px;
+  border-top: 1px solid var(--wf-border);
+  scrollbar-width: thin;
+}
+
+.wf-combo-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--wf-brand) 10%, var(--wf-layer-2));
+  border: 1px solid color-mix(in srgb, var(--wf-brand) 35%, var(--wf-border));
+  font-size: 10px;
+  color: var(--wf-ink);
+}
+
+.wf-combo-chip button {
+  border: 0;
+  background: transparent;
+  color: var(--wf-ink-2);
+  cursor: pointer;
+  font-size: 10px;
+  line-height: 1;
+  padding: 0;
+}
+
+.wf-combo-chip button:hover {
+  color: var(--wf-err);
+}
+
+.wf-combo__side-foot {
+  flex: none;
+  display: flex;
+  gap: 7px;
+  padding: 10px 14px;
+  border-top: 1px solid var(--wf-border);
+}
+
+.wf-combo__side-foot .wf-btn {
+  flex: 1;
+  font-size: 11px;
+  padding: 6px 10px;
+}
+
+/* ---- MCP 表单 ---- */
+.wf-mcp-form {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 14px;
+  border-top: 1px solid var(--wf-border);
+}
+
+.wf-mcp-form label {
+  display: grid;
+  gap: 4px;
+  color: var(--wf-ink-2);
+  font-size: 11px;
+}
+
+.wf-mcp-form input {
+  width: 100%;
+  border: 1px solid var(--wf-border-strong);
+  border-radius: 7px;
+  background: var(--wf-layer-2);
+  color: var(--wf-ink);
+  padding: 6px 8px;
+  outline: 0;
+}
+
+.wf-mcp-form input:focus {
+  border-color: var(--wf-brand);
+}
+
+.wf-mcp-form__row {
+  display: flex;
+  gap: 6px;
+}
+
+.wf-mcp-form__row .wf-btn {
+  flex: 1;
+  font-size: 11px;
+  padding: 6px 10px;
+}
+
+/* MCP 表单内联行 / 堆叠区（此前为内联 style） */
+.wf-mcp-form__inline {
+  display: flex;
+  gap: 8px;
+  padding: 0 14px 12px;
+}
+
+.wf-mcp-form__grow {
+  flex: 1;
+}
+
+.wf-mcp-form__stack {
+  display: grid;
+  gap: 8px;
+  padding: 0 14px 12px;
+}
+
+.wf-mcp-form__note {
+  align-self: center;
+  flex: 1;
+}
+
+.wf-combo__head--sub {
+  border-top: 1px solid var(--wf-border);
+  padding: 8px 14px;
+}
+
+.wf-mcp-import__body {
+  padding: 0 14px 12px;
+  display: grid;
+  gap: 8px;
+}
+
+.wf-mcp-import__text {
+  min-height: 150px;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid var(--wf-border-strong);
+  background: var(--wf-layer-2);
+  color: var(--wf-ink);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+}
+
+/* ---- 弹层变体（对话框 / 提示行） ---- */
+.wf-combo--dialog {
+  max-width: 560px;
+  height: auto;
+  max-height: 82%;
+}
+
+.wf-hint--block {
+  font-size: 10px;
+  line-height: 1.5;
+  color: var(--wf-ink-2);
+}
+
+.wf-combo-hint {
+  flex: none;
+  padding: 8px 14px;
+  border-top: 1px solid var(--wf-border);
+  font-size: 10px;
+  color: var(--wf-ink-2);
+  line-height: 1.5;
+}
+`,
+			`
+/* ---- 服务控制台 ---- */
+.wf-service-console {
+  flex: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--wf-border);
+  background: var(--wf-layer);
+}
+
+.wf-service-console__debug {
+  flex-basis: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border-top: 1px solid var(--wf-border);
+  padding-top: 7px;
+}
+
+.wf-service-console__debug-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wf-service-console__debug-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--wf-ink);
+}
+
+.wf-service-console__input {
+  width: 100%;
+  resize: vertical;
+  border: 1px solid var(--wf-border-strong);
+  border-radius: 7px;
+  background: var(--wf-layer-2);
+  color: var(--wf-ink);
+  padding: 6px 8px;
+  outline: 0;
+  font: inherit;
+  font-size: 12px;
+  min-height: 44px;
+  box-sizing: border-box;
+}
+
+.wf-service-console__input:focus {
+  border-color: var(--wf-brand);
+}
+
+.wf-service-console__debug-actions {
+  display: flex;
+  gap: 7px;
+}
+
+.wf-service-console__debug-actions .wf-btn {
+  font-size: 11px;
+  padding: 4px 10px;
+}
+
+.wf-service-console__output {
+  flex: none;
+  min-height: 56px;
+  max-height: 200px;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 0;
+  padding: 8px;
+  border: 1px solid var(--wf-border);
+  border-radius: 7px;
+  background: var(--wf-layer-2);
+  color: var(--wf-ink);
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.6;
+  box-sizing: border-box;
+}
+`,
+			`
+/* ---- 官方侧边栏入口按钮（sidebar.footer.action 插槽） ----
+   迁移（0.1.5-rc.1）：入口按钮不再由 MutationObserver 注入到官方「设置」按钮上方，而是注册进
+   官方 sidebar.footer.action 插槽。官方 DOM 结构（dsh-client-ui-sidebar 取证）：
+     div.footArea（纵向 column）
+       ├ div.footerActions（flex 横向行，width:100%） ← 本按钮在此
+       └ div.settingsArea
+   折叠态官方给 footerActions 加 justify-content:center（width:auto），故此处保持 width:100%，
+   折叠类 wf-sidebar-entry--rail 改为固定方形图标即可与官方「设置」按钮同级视觉。
+   样式取自官方「设置」按钮（dsh-client-ui-settings-general 的 trigger）：*.wf-sidebar-entry 前缀
+   提高特异性（0,1,1），并显式 appearance:none / border:none / box-shadow:none 重置浏览器默认外观。 */
+button.wf-sidebar-entry {
+  box-sizing: border-box;
+  cursor: pointer;
+  width: 100%;
+  min-width: 0;
+  height: 42px;
+  color: var(--dsw-alias-label-primary);
+  background: 0 0;
+  border: none;
+  border-radius: 12px;
+  box-shadow: none;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 0 10px 0 8px;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 22px;
+  display: flex;
+  overflow: hidden;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+button.wf-sidebar-entry:hover {
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.wf-sidebar-entry__label {
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+button.wf-sidebar-entry--rail {
+  corner-shape: round;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  justify-content: center;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.wf-sidebar-entry--rail .wf-sidebar-entry__label {
+  display: none;
+}
+
+/* 清除聚焦/点击后的发光焦点环（含默认浏览器/主题 focus 圈），保持与设置按钮一致 */
+button.wf-sidebar-entry:focus,
+button.wf-sidebar-entry:focus-visible,
+button.wf-sidebar-entry:active {
+  outline: none;
+  box-shadow: none;
+  -webkit-tap-highlight-color: transparent;
+}
+`,
+			`
+/* 官方右侧 Sidebar 自行管理列几何（grid track / 全屏 / 折叠滑动 / 分栏），插件不再触碰官方
+   frame 网格与对话主列内边距（0.1.5-rc.1 迁移：浮窗与分栏视图模式已整体删除）。 */
+@media (max-width: 1180px) {
+  .wf-status {
+    display: none;
+  }
+
+  .wf-titlebar__note {
+    display: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .wf-toolbar {
+    padding: 7px;
+  }
+
+  .wf-tabs {
+    padding: 0 10px;
+  }
+
+  .wf-titlebar__badge {
+    display: none;
+  }
+
+  .wf-lib-tab {
+    font-size: 10px;
+  }
+
+  .wf-confirm__actions .wf-btn {
+    flex: 1;
+  }
+}
+`,
+			`
+/* ---- 定时任务（新功能本阶段；样式对齐组合管理 wf-combo 体系） ---- */
+.wf-sched__form {
+  flex: 1.25;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--wf-border);
+  overflow: hidden;
+}
+
+.wf-sched__form-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 14px;
+  scrollbar-width: thin;
+}
+
+.wf-sched__form-foot {
+  flex: none;
+  display: flex;
+  gap: 7px;
+  padding: 10px 14px;
+  border-top: 1px solid var(--wf-border);
+}
+
+.wf-sched__form-foot .wf-btn {
+  flex: 1;
+  font-size: 11px;
+  padding: 6px 10px;
+}
+
+.wf-sched-field {
+  display: grid;
+  gap: 4px;
+  color: var(--wf-ink-2);
+  font-size: 11px;
+}
+
+.wf-sched-field__label {
+  font-weight: 600;
+  color: var(--wf-ink);
+}
+
+.wf-sched-field__hint {
+  font-size: 9px;
+  line-height: 1.55;
+  color: var(--wf-ink-2);
+}
+
+.wf-sched-field select,
+.wf-sched-field input {
+  border: 1px solid var(--wf-border-strong);
+  border-radius: 7px;
+  background: var(--wf-layer-2);
+  color: var(--wf-ink);
+  padding: 6px 8px;
+  outline: 0;
+  font: inherit;
+  font-size: 12px;
+}
+
+.wf-sched-field select:focus,
+.wf-sched-field input:focus {
+  border-color: var(--wf-brand);
+}
+
+/* ---- 表单分组与字段控件 ---- */
+.wf-sched-group {
+  display: grid;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--wf-border);
+  border-radius: 11px;
+  background: var(--wf-layer-2);
+}
+
+.wf-sched-group h5 {
+  margin: 0;
+  font-size: 12px;
+  color: var(--wf-ink);
+}
+
+.wf-sched-radios {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.wf-sched-radio {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--wf-ink);
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.wf-sched-radio input {
+  accent-color: var(--wf-brand);
+}
+
+.wf-sched-workspace {
+  margin-top: 6px;
+  font-variant-numeric: tabular-nums;
+}
+
+.wf-sched-dates {
+  display: flex;
+  gap: 7px;
+}
+
+.wf-sched-dates input {
+  flex: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.wf-sched-dates .wf-btn {
+  font-size: 12px;
+  padding: 5px 10px;
+}
+
+.wf-sched-days {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.wf-sched-day {
+  border: 1px solid var(--wf-border);
+  border-radius: 8px;
+  background: var(--wf-layer);
+  color: var(--wf-ink-2);
+  padding: 5px 0;
+  width: 32px;
+  font-size: 11px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+/* 触摸设备的 sticky hover 会让触摸过的按钮持续高亮；悬停反馈只对精细指针设备生效 */
+@media (hover: hover) and (pointer: fine) {
+  .wf-sched-day:hover {
+    border-color: var(--wf-brand);
+    color: var(--wf-ink);
+  }
+}
+
+/* 清除宿主施加的焦点圈：宿主 focus 视觉与 hover 同款，指针离开后不清理会与另一个按钮同时高亮 */
+.wf-sched-day:focus {
+  outline: 0;
+  box-shadow: none;
+}
+
+/* 鼠标点击后的焦点残留复位为基础态；键盘聚焦（:focus-visible）与选中态不在此列 */
+.wf-sched-day:not(.is-active):focus:not(:focus-visible):not(:hover) {
+  border-color: var(--wf-border);
+  color: var(--wf-ink-2);
+  background: var(--wf-layer);
+  box-shadow: none;
+}
+
+/* 键盘导航仍需要可见焦点指示：用外描边与悬停态区分，不改变按钮尺寸 */
+.wf-sched-day:focus-visible {
+  outline: 2px solid var(--wf-brand);
+  outline-offset: 2px;
+}
+
+.wf-sched-day.is-active {
+  border-color: var(--wf-brand);
+  background: color-mix(in srgb, var(--wf-brand) 12%, var(--wf-layer));
+  color: var(--wf-brand);
+}
+
+.wf-sched-days .is-all {
+  width: auto;
+  padding: 5px 10px;
+}
+
+/* ---- 重复区间编辑 ---- */
+.wf-sched-ranges {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.wf-sched-ranges .wf-btn.is-ghost {
+  align-self: flex-start;
+  font-size: 10px;
+  padding: 3px 8px;
+}
+
+.wf-sched-range-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.wf-sched-range-row input {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid var(--wf-border-strong);
+  border-radius: 7px;
+  background: var(--wf-layer);
+  color: var(--wf-ink);
+  padding: 5px 7px;
+  outline: 0;
+  font: inherit;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.wf-sched-range-row input:focus {
+  border-color: var(--wf-brand);
+}
+
+.wf-sched-range-row .wf-btn {
+  padding: 3px 7px;
+  font-size: 11px;
+}
+
+.wf-sched-row2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+/* ---- 任务列表状态 ---- */
+.wf-sched-status-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  font-size: 10px;
+  color: var(--wf-ink-2);
+}
+
+.wf-sched-status-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wf-sched-status-cell.is-error {
+  color: var(--wf-err);
+  white-space: normal;
+  width: 100%;
+}
+
+.wf-sched-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--wf-ink-2);
+  flex: none;
+  display: inline-block;
+}
+
+.wf-sched-dot.is-running {
+  background: var(--wf-ok);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--wf-ok) 16%, transparent);
+}
+
+.wf-sched-dot.is-waiting {
+  background: #e6b23c;
+}
+
+.wf-sched-dot.is-paused {
+  background: var(--wf-ink-2);
+}
+
+.wf-sched-dot.is-error {
+  background: var(--wf-err);
+}
+
+.wf-sched-list-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  font-size: 9px;
+  color: var(--wf-ink-2);
+}
+
+.wf-sched-enabled {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 14px;
+  border-top: 1px solid var(--wf-border);
+  color: var(--wf-ink);
+  font-size: 11px;
+}
+
+.wf-sched-enabled input {
+  accent-color: var(--wf-brand);
+}
+
+/* ---- 双月日历（样式参考用户日历素材） ---- */
+.wf-cal-card {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid var(--wf-border-strong);
+  border-radius: 12px;
+  background: var(--wf-layer);
+  box-shadow: 0 14px 40px color-mix(in srgb, var(--wf-ink) 16%, transparent);
+}
+
+.wf-cal-card__foot {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.wf-cal-card__foot .wf-btn {
+  font-size: 11px;
+  padding: 5px 14px;
+}
+
+.wf-cal {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 8px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--wf-bg) 78%, transparent);
+}
+
+.wf-cal-month {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.wf-cal-month__head {
+  display: grid;
+  grid-template-columns: 26px 1fr 26px;
+  align-items: center;
+  gap: 4px;
+  color: var(--wf-ink);
+}
+
+.wf-cal-month__title {
+  font-size: 13px;
+  font-weight: 650;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.wf-cal-nav {
+  border: 0;
+  background: transparent;
+  color: var(--wf-ink-2);
+  font-size: 15px;
+  line-height: 1;
+  padding: 4px;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.wf-cal-nav:hover {
+  color: var(--wf-ink);
+  background: var(--wf-layer-2);
+}
+
+.wf-cal-nav.is-placeholder {
+  visibility: hidden;
+}
+
+.wf-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.wf-cal-week {
+  font-size: 11px;
+  font-weight: 650;
+  color: var(--wf-ink);
+  text-align: center;
+  padding: 2px 0;
+}
+
+.wf-cal-cell {
+  border: 0;
+  background: transparent;
+  color: var(--wf-ink-2);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  height: 36px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  position: relative;
+  cursor: pointer;
+  padding: 0;
+}
+
+.wf-cal-cell:disabled {
+  cursor: default;
+}
+
+.wf-cal-cell.is-dim {
+  color: var(--wf-ink-3);
+}
+
+.wf-cal-cell:not(:disabled):hover .wf-cal-cell__num {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--wf-brand) 55%, transparent);
+}
+
+.wf-cal-cell__num {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  position: relative;
+  z-index: 1;
+  font-size: 12px;
+}
+
+.wf-cal-cell.is-start .wf-cal-cell__num,
+.wf-cal-cell.is-end .wf-cal-cell__num {
+  background: var(--wf-brand);
+  color: var(--wf-on-brand);
+}
+
+.wf-cal-cell__tag {
+  font-size: 7px;
+  line-height: 1;
+  color: var(--wf-ink-2);
+}
+
+.wf-cal-cell.is-start .wf-cal-cell__tag,
+.wf-cal-cell.is-end .wf-cal-cell__tag {
+  color: var(--wf-brand);
+  font-weight: 650;
+}
+
+.wf-cal-cell.is-today .wf-cal-cell__num {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--wf-ink) 55%, transparent);
+}
+
+/* ---- 自定义时间输入（文本按位 + 双列滑轮，两次点击确认） ---- */
+.wf-time {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+.wf-time__field {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid var(--wf-border-strong);
+  border-radius: 7px;
+  background: var(--wf-layer);
+  color: var(--wf-ink);
+  padding: 5px 7px;
+  outline: 0;
+  font: inherit;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.wf-time__field:focus {
+  border-color: var(--wf-brand);
+}
+
+.wf-time__clock {
+  border: 1px solid var(--wf-border);
+  background: var(--wf-layer);
+  color: var(--wf-ink-2);
+  border-radius: 7px;
+  padding: 5px 7px;
+  cursor: pointer;
+  font-size: 11px;
+}
+
+.wf-time__clock:hover {
+  border-color: var(--wf-brand);
+  color: var(--wf-ink);
+}
+
+.wf-time__picker {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 60;
+  display: flex;
+  gap: 2px;
+  margin-top: 4px;
+  padding: 6px;
+  border: 1px solid var(--wf-border-strong);
+  border-radius: 10px;
+  background: var(--wf-layer);
+  box-shadow: 0 14px 38px color-mix(in srgb, var(--wf-ink) 16%, transparent);
+}
+
+.wf-time__col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 188px;
+  overflow: auto;
+  scrollbar-width: thin;
+  min-width: 46px;
+}
+
+.wf-time__opt {
+  border: 0;
+  background: transparent;
+  color: var(--wf-ink-2);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  padding: 5px 8px;
+  border-radius: 7px;
+  cursor: pointer;
+}
+
+.wf-time__opt:hover {
+  background: var(--wf-layer-2);
+  color: var(--wf-ink);
+}
+
+.wf-time__opt.is-active {
+  background: var(--wf-brand);
+  color: var(--wf-on-brand);
+  font-weight: 650;
+}
+`
+		].map((part) => part.trim()).join("\n\n");
+		// src/client/sidebar/footer-entry.tsx
+		/** 入口按钮注册的插槽 key。 */
+		const WORKBENCH_ENTRY_SLOT = "sidebar.footer.action";
+		let openHandler = null;
+		/**
+		* 设置入口按钮的点击处理。
+		* @param handler - 处理函数；null 表示插件卸载（按钮点击变为无操作）。
+		*/
+		function setWorkbenchOpenHandler(handler) {
+			openHandler = handler;
+		}
+		/**
+		* 构造入口按钮的点击处理：打开（或聚焦）工作台标签页。
+		*
+		* 失败模式（官方取证）：
+		*   - `sidebarRight` 服务缺失（非 Web 组合）→ 静默降级，不做任何事；
+		*   - 无挂载的会话 seat（首页无会话 / 用户停在某个全局面板）→ 官方 `openTab` 会抛
+		*     `sidebarRight: no session surface is mounted`。此时先调 `layout.selectPanel(null)`
+		*     回到会话界面（`RightbarRoot` 仅在此刻挂载 seat 子树），等待官方 mounted 快照和 React 提交后重试。
+		*
+		* @param ctx - 插件 apply 的上下文（`get(name)`）。
+		* @returns 点击处理函数（永不抛错）。
+		*/
+		function createWorkbenchOpener(ctx) {
+			return () => {
+				const sidebarRight = ctx.get?.("sidebarRight");
+				if (typeof sidebarRight?.openTab !== "function") return;
+				try {
+					sidebarRight.openTab(WORKBENCH_TAB_KIND);
+					return;
+				} catch {}
+				try {
+					(ctx.get?.("layout"))?.selectPanel?.(null);
+				} catch {}
+				const open = () => {
+					try {
+						sidebarRight.openTab?.(WORKBENCH_TAB_KIND);
+					} catch {}
+				};
+				const mounted = sidebarRight.mounted;
+				if (typeof mounted?.getSnapshot !== "function" || typeof mounted.subscribe !== "function") {
+					setTimeout(open, 0);
+					return;
+				}
+				const getMountedSession = mounted.getSnapshot.bind(mounted);
+				const subscribeToMountedSession = mounted.subscribe.bind(mounted);
+				let finished = false;
+				let unsubscribe = () => {};
+				let watchdog;
+				const retry = () => {
+					if (finished || getMountedSession() == null) return;
+					finished = true;
+					unsubscribe();
+					if (watchdog !== void 0) clearTimeout(watchdog);
+					let scheduled = false;
+					const invoke = () => {
+						if (!scheduled) {
+							scheduled = true;
+							open();
+						}
+					};
+					if (typeof requestAnimationFrame === "function") {
+						requestAnimationFrame(() => requestAnimationFrame(invoke));
+						watchdog = setTimeout(invoke, 250);
+					} else setTimeout(invoke, 0);
+				};
+				unsubscribe = subscribeToMountedSession(retry);
+				if (finished) unsubscribe();
+				retry();
+				const expire = setTimeout(() => {
+					if (!finished) {
+						finished = true;
+						unsubscribe();
+					}
+				}, 5e3);
+				if (finished) clearTimeout(expire);
+			};
+		}
+		/**
+		* 侧边栏底部「工作流」入口按钮。
+		* 展开态 = 三横线图标 + 文案；折叠态 = 仅图标（与官方「设置」按钮同级视觉）。
+		*/
+		function WorkbenchEntryButton({ wide = true }) {
+			const label = useWorkbenchDict().workflows;
+			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("button", {
+				type: "button",
+				className: wide ? "wf-sidebar-entry" : "wf-sidebar-entry wf-sidebar-entry--rail",
+				"data-wf-entry": "workflow",
+				"aria-label": label,
+				title: label,
+				onClick: () => {
+					openHandler?.();
+				},
+				children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("svg", {
+					viewBox: "0 0 24 24",
+					width: "18",
+					height: "18",
+					"aria-hidden": "true",
+					children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)("path", {
+						fill: "currentColor",
+						d: "M3 5h18v2H3zm0 6h18v2H3zm0 6h12v2H3z"
+					})
+				}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+					className: "wf-sidebar-entry__label",
+					children: label
+				})]
+			});
+		}
+		/**
+		* 把入口按钮注册进官方 `sidebar.footer.action` 插槽。
+		* @param slots - ctx.slots。
+		* @returns 注销函数（由 ctx.effect 拥有）。
+		*/
+		function injectWorkbenchEntry(slots) {
+			if (typeof slots.inject !== "function" || typeof slots.register !== "function") return () => {};
+			const dispose = slots.inject(WORKBENCH_ENTRY_SLOT, () => slots.register({
+				name: WORKBENCH_ENTRY_SLOT,
+				id: "visual-workflow",
+				order: 100,
+				label: () => getWorkbenchDict().workflows
+			}, WorkbenchEntryButton));
+			return typeof dispose === "function" ? dispose : () => {};
+		}
+		// \0dsh-global-css:src/client/entry.css.mjs
+		const css = "";
+		const tagId = "dsh-visual-workflow/entry.css";
+		if (typeof document !== "undefined" && document.querySelector("style[data-plugin-css=" + JSON.stringify(tagId) + "]") === null) {
+			const tag = document.createElement("style");
+			tag.dataset.plugin = "dsh-visual-workflow";
+			tag.dataset.pluginCss = tagId;
+			tag.textContent = css;
+			document.head.appendChild(tag);
+		}
+		// src/client/sidebar/instance-navigation.ts
+		/** Hold requests until the persistent editor mounts and acknowledges them. */
+		function createInstanceNavigation() {
+			let request = null, sequence = 0;
+			const listeners = /* @__PURE__ */ new Set();
+			const emit = () => {
+				for (const listener of listeners) listener();
+			};
+			return {
+				openInstance(target) {
+					request = {
+						...target,
+						sequence: ++sequence
+					};
+					emit();
+				},
+				pending: () => request,
+				acknowledge(value) {
+					if (request?.sequence === value) {
+						request = null;
+						emit();
+					}
+				},
+				subscribe(listener) {
+					listeners.add(listener);
+					return () => {
+						listeners.delete(listener);
+					};
+				}
+			};
+		}
+		// src/client/entry.ts
+		/** i18n 命名空间（注册进官方 locale 服务）。 */
+		const I18N_NS = "visualWorkflow";
+		const inject = ["locale"];
+		/**
+		* 插件 apply 入口。
+		* @param ctx - 官方 client 插件上下文（服务经 ctx.get 运行时解析）。
+		*/
+		function apply(ctx) {
+			ctx.provide?.("visualWorkflowNavigation", createInstanceNavigation());
+			ctx.effect?.(() => {
+				const tag = document.createElement("style");
+				tag.dataset.plugin = "visual-workflow";
+				tag.textContent = styles;
+				document.head.append(tag);
+				return () => {
+					tag.remove();
+				};
+			}, "visual-workflow: styles");
+			const localeService = ctx.get?.("locale");
+			try {
+				localeService?.register?.(I18N_NS, {
+					zh,
+					en
+				});
+			} catch {}
+			setWorkbenchOpenHandler(createWorkbenchOpener(ctx));
+			ctx.effect?.(() => () => setWorkbenchOpenHandler(null), "visual-workflow: entry handler");
+			const registerSlots = (scoped) => {
+				const slots = scoped.get?.("slots");
+				const tabs = scoped.get?.("sidebarRightTabs");
+				if (!slots || !tabs) return;
+				scoped.effect?.(() => registerWorkbenchTabType(tabs), "visual-workflow: workbench tab type");
+				scoped.effect?.(() => injectWorkbenchTabBody(slots), "visual-workflow: workbench tab body");
+				scoped.effect?.(() => injectWorkbenchEntry(slots), "visual-workflow: sidebar entry");
+			};
+			if (typeof ctx.inject === "function") ctx.inject(["slots", "sidebarRightTabs"], registerSlots);
+			else registerSlots(ctx);
+			ctx.effect?.(() => {
+				const holder = document.createElement("div");
+				holder.id = WORKBENCH_HOLDER_ID;
+				const container = document.createElement("div");
+				container.id = WORKBENCH_CONTAINER_ID;
+				holder.append(container);
+				document.body.append(holder);
+				setWorkbenchMountHost({
+					holder,
+					container
+				});
+				const root = (0, react_dom_client.createRoot)(container);
+				const render = () => {
+					const t = text(detectLanguage(ctx.get?.("locale")));
+					setWorkbenchDict(t);
+					root.render(react.default.createElement(WorkbenchHost, {
+						ctx,
+						t
+					}));
+				};
+				render();
+				const unsubscribe = typeof localeService?.subscribe === "function" ? localeService.subscribe(render) : void 0;
+				return () => {
+					unsubscribe?.();
+					setWorkbenchMountHost(null);
+					root.unmount();
+					holder.remove();
+				};
+			}, "visual-workflow: workbench host");
+		}
+		exports.I18N_NS = I18N_NS;
+		exports.apply = apply;
+		exports.currentSessionOf = currentSessionOf;
+		exports.inject = inject;
+		exports.rootSessionIdOf = rootSessionIdOf;
+		return module.exports;
+	}
+});
+
+//# sourceMappingURL=client.js.map

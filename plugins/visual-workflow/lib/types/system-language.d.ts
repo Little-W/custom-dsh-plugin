@@ -1,0 +1,22 @@
+/** 默认语言名（插件默认中文界面；官方未显式选择时按浏览器语言回退，本处保守取中文）。 */
+export declare const DEFAULT_SYSTEM_LANGUAGE = "\u4E2D\u6587";
+/** settings 服务最小结构（经 describe() 读取各命名空间的实时解析值；零官方类型依赖）。 */
+export interface SettingsServiceLike {
+    /** 读取全部 profile 配置表单描述符（同步；每项含 ns 与 value）。 */
+    describe?(options?: unknown): unknown;
+}
+/**
+ * 从 settings 服务读取系统语言名。
+ * 映射：'zh' 前缀 → '中文'；'en' 前缀 → 'English'；其余/缺失 → DEFAULT_SYSTEM_LANGUAGE。
+ * 纯函数：输入 settings 对象不变则输出不变；不读时钟/随机源。
+ */
+export declare function systemLanguageOf(settings: SettingsServiceLike | null | undefined): string;
+/**
+ * 从语言名反推是否中文（供提示词措辞选择）。
+ * 纯函数。
+ */
+export declare function isChineseSystemLanguage(language: string): boolean;
+/** 识别英文 locale id 或已解析的语言名（'en' / 'en-US' / 'English'）。 */
+export declare function isEnglishSystemLanguage(language: string | undefined): boolean;
+/** 把受支持的 Client locale id 解析为语言名；未知值返回 undefined，交回 Host 回退。 */
+export declare function systemLanguageFromLocale(locale: unknown): string | undefined;

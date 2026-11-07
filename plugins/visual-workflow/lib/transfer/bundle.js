@@ -1,0 +1,321 @@
+// src/host/transfer/bundle.ts
+//
+// 导入导出领域（v2 bundle）：工作流导出 = 自包含 bundle（节点数据已深拷贝内联），
+// 组协作 Prompt 与工具组合作为嵌入式资源随包携带；角色模板导出 = 单模板 JSON。
+// 导入冲突按「名称」判定：重名返回 conflict（client 选择 rename / overwrite），
+// 模板/组合重名复用已有（id 重映射），id 冲突换新 id。
+//
+// embedded.groups 语义（架构文档 §6.4 对齐）：Team 信息（id/name/collabPrompt）
+// 已内联在工作流节点（kind=group）中随 bundle 往返，**不作为独立模板库重建**
+// （store 的 TemplateKind 仅 role/task/database 三类，client 左侧栏「其他」Tab 的
+// Team 为静态入口而非模板列表）。故导入仅重建 roles/tasks/databases 与 combos，
+// 返回值 importedTemplates 记录这三类实际导入数量（不含 groups，避免虚报）。
+//
+// 旧包兼容：v2 早期包使用 embedded.files 与 kind='file' 节点；读取时按任务归一化
+// （content 保留，受管文件字段丢弃），导出只写新形状 tasks。
+//
+// 职责边界：本模块只处理导出文件格式、嵌入式资源重建与名称冲突策略，不接触 HTTP
+// 传输层、不决定对外状态码——调用方（API 边界）负责把领域错误码映射为响应契约。
+import { normalizeLegacyNodes } from '../graph/index.js';
+function safeClone(value) {
+    return JSON.parse(JSON.stringify(value ?? null));
+}
+/**
+ * 导出产物中不得携带的连接密钥字段（与 wf-org-catalog 的 SECRET_CONNECTION_KEYS 同一口径；
+ * 该常量属 tools 模块内部实现，transfer 不反向依赖它，故在此独立声明）。
+ */
+const SECRET_CONNECTION_KEYS = ['password'];
+/**
+ * 就地剔除导出副本里 `conn` 上的密钥字段（只删除调用方自己持有的深拷贝节点，不触碰存储文档）。
+ * 按结构定位（仅 `conn` 对象内），不做全局按名删除，避免误伤同名字段。
+ */
+function stripConnectionSecrets(node) {
+    if (Array.isArray(node)) {
+        for (const item of node)
+            stripConnectionSecrets(item);
+        return;
+    }
+    if (typeof node !== 'object' || node === null)
+        return;
+    const record = node;
+    const conn = record.conn;
+    if (typeof conn === 'object' && conn !== null && !Array.isArray(conn)) {
+        for (const key of SECRET_CONNECTION_KEYS)
+            delete conn[key];
+    }
+    for (const item of Object.values(record))
+        stripConnectionSecrets(item);
+}
+/**
+ * 导出专用深拷贝（D07-05）：导出包与单模板是可分享产物，连接口令一律**移除**（非掩码）。
+ * 只作用于导出路径——工作流文档与运行期（wf-db-query/driver.ts）仍从存储读取该字段；
+ * 被剔除的字段导入端不回填，用户需在属性栏重新填写（见 database-form 的不回显口径）。
+ */
+function exportClone(value) {
+    const clone = safeClone(value);
+    stripConnectionSecrets(clone);
+    return clone;
+}
+/** 导入导出错误（携带稳定领域码；序列化/格式/资源缺失三类）。 */
+export class TransferError extends Error {
+    code;
+    constructor(code, message) {
+        super(message);
+        this.code = code;
+        this.name = 'TransferError';
+    }
+}
+/** 从工作流节点提取 Team 模板（协作 Prompt 的独立管理视图）。 */
+function groupsOf(flow) {
+    return (flow.nodes ?? [])
+        .filter((node) => node.kind === 'group')
+        .map((node) => ({
+        id: node.id,
+        name: node.data.label || node.id,
+        collabPrompt: String(node.data.collabPrompt ?? ''),
+    }));
+}
+/**
+ * 旧文件模板 → 任务模板（仅旧包读取兼容）：content 保留，受管字段丢弃。
+ * id/name 必须保留，导入冲突与 id 换新依赖它们。
+ */
+function legacyFileTemplateToTask(template) {
+    return {
+        id: String(template.id ?? ''),
+        name: String(template.name ?? ''),
+        ...(template.content !== undefined ? { content: String(template.content) } : {}),
+        ...(template.createdAt !== undefined ? { createdAt: template.createdAt } : {}),
+        ...(template.updatedAt !== undefined ? { updatedAt: template.updatedAt } : {}),
+    };
+}
+/**
+ * 嵌入模板入库（Bug 16）：角色/任务/数据库模板随 bundle 携带，导入时
+ * 按「名称」判定冲突——重名复用已有（不覆盖），id 冲突换新 id 后创建。
+ * 与工具组合（combos）的导入语义一致（架构文档 §6.4 embedded 逐字段；
+ * embedded.groups 不在此重建，见文件头部注释）。
+ */
+async function importEmbeddedTemplates(store, embedded) {
+    let imported = 0;
+    // 旧包 embedded.files 按任务读取（读取兼容），与新 embedded.tasks 合并后统一入库。
+    const taskEntries = [
+        ...(embedded?.tasks ?? []),
+        ...(embedded?.files ?? []).map(legacyFileTemplateToTask),
+    ];
+    const groups = [
+        { kind: 'role', entries: embedded?.roles ?? [] },
+        { kind: 'task', entries: taskEntries },
+        { kind: 'database', entries: embedded?.databases ?? [] },
+    ];
+    for (const group of groups) {
+        // 不吞读取失败：把「读不到已有模板」当成「没有同名模板」会让重名复用与 id 换新判定失效，
+        // 导入因此覆盖/重复入库；storage 已把「资源本来就是空的」表达为空数组。
+        const existing = await store.listTemplates(group.kind);
+        for (const entry of group.entries) {
+            const t = entry;
+            if (!t?.id || !String(t.name ?? '').trim())
+                continue;
+            if (existing.some((item) => item.name === t.name))
+                continue; // 重名复用已有
+            const idTaken = existing.some((item) => item.id === t.id);
+            if (idTaken) {
+                // id 冲突：换新 id（前缀保持 kind 约定）
+                const prefix = group.kind === 'role' ? 'role-' : 'data-';
+                t.id = prefix + Math.random().toString(36).slice(2, 8);
+            }
+            await store.saveTemplate(group.kind, t);
+            imported += 1;
+            existing.push(t);
+        }
+    }
+    return imported;
+}
+/** 导出工作流/服务为自包含 bundle（格式化 JSON 字符串；模式二走 service 字段）。 */
+export async function exportWorkflowBundle(store, sessionId, flowId) {
+    const flow = await store.getWorkflow(sessionId, flowId);
+    if (!flow) {
+        // 模式二：服务文档（同一入口，按 id 回退服务表）
+        const service = await store.getService(sessionId, flowId);
+        if (!service)
+            throw new TransferError('TRANSFER_NOT_FOUND', `工作流/服务不存在：${flowId}`);
+        const [combos, roles, tasks, databases] = await Promise.all([
+            store.listToolCombos(),
+            store.listTemplates('role'),
+            store.listTemplates('task'),
+            store.listTemplates('database'),
+        ]);
+        const bundle = {
+            format: 'dsh-vw-bundle',
+            version: 2,
+            mode: 'mode2',
+            service: {
+                name: service.name ?? service.id,
+                description: service.description ?? '',
+                nodes: exportClone(service.nodes ?? []),
+                lines: exportClone(service.lines ?? []),
+            },
+            embedded: {
+                roles: exportClone(roles),
+                tasks: exportClone(tasks),
+                databases: exportClone(databases),
+                groups: groupsOf(service),
+                combos: exportClone(combos),
+            },
+        };
+        return JSON.stringify(bundle, null, 2);
+    }
+    // 导出侧读取失败一律上浮：导出包是交付产物，静默丢资源会产出「格式合法但内容缺失」的包，
+    // 用户无从察觉（区分「该资源确实为空」与「读取失败」由 storage 的列表读语义承担）。
+    const [combos, roles, tasks, databases] = await Promise.all([
+        store.listToolCombos(),
+        store.listTemplates('role'),
+        store.listTemplates('task'),
+        store.listTemplates('database'),
+    ]);
+    const bundle = {
+        format: 'dsh-vw-bundle',
+        version: 2,
+        mode: flow.mode,
+        workflow: {
+            name: flow.name ?? flow.id,
+            description: flow.description ?? '',
+            nodes: exportClone(flow.nodes ?? []),
+            lines: exportClone(flow.lines ?? []),
+        },
+        embedded: {
+            roles: exportClone(roles),
+            tasks: exportClone(tasks),
+            databases: exportClone(databases),
+            groups: groupsOf(flow),
+            combos: exportClone(combos),
+        },
+    };
+    return JSON.stringify(bundle, null, 2);
+}
+/**
+ * 导入工作流/服务 bundle（图2 交互改造：**一律导入为工作流模板**，不直接创建实例；
+ * 模板全局共享，跨会话可见，由用户在画布中「创建实例」后运行）。
+ * 冲突按「名称」判定（重名返回 conflict；rename/overwrite 语义与模板库一致），
+ * 嵌入式模板/组合入库逻辑不变（重名复用、id 冲突换新 id）。
+ * @param conflictMode rename | overwrite；缺省且重名时返回 { conflict }。
+ */
+export async function importWorkflowBundle(store, json, options = {}) {
+    let bundle;
+    try {
+        bundle = JSON.parse(String(json ?? ''));
+    }
+    catch {
+        throw new TransferError('TRANSFER_INVALID_JSON', '无效的 JSON 文件');
+    }
+    if (bundle?.format !== 'dsh-vw-bundle') {
+        throw new TransferError('TRANSFER_INVALID_BUNDLE', '不是有效的 Visual Workflow 工作流导出文件');
+    }
+    const mode = bundle.mode === 'mode2' ? 'mode2' : 'mode1';
+    const payload = mode === 'mode2' ? bundle.service : bundle.workflow;
+    if (!payload?.name) {
+        throw new TransferError('TRANSFER_INVALID_BUNDLE', mode === 'mode2' ? '服务导出文件缺少服务信息' : '工作流导出文件缺少工作流信息');
+    }
+    const existing = (await store.listFlowTemplates()).find((item) => item.mode === mode && item.name === payload.name);
+    if (existing && options.conflictMode !== 'rename' && options.conflictMode !== 'overwrite') {
+        return { conflict: true, existingName: existing.name, existingId: existing.id };
+    }
+    let name = payload.name;
+    if (existing && options.conflictMode === 'rename') {
+        const names = (await store.listFlowTemplates()).filter((item) => item.mode === mode).map((item) => item.name);
+        name = uniqueName(name, names);
+    }
+    // overwrite 的原子性：新条目落库成功后再删除旧条目
+    const overwriteTargetId = existing && options.conflictMode === 'overwrite' ? existing.id : undefined;
+    const newId = overwriteTargetId ?? `tpl-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+    // 组合并入：重名复用已有，否则创建（id 冲突换新 id）。
+    // 快照在循环外取一次并随写入推进（listToolCombos 是整文件读——逐个组合重读会 2N 次读盘，
+    // 且循环内基于过期快照判重依赖「前面已写入的组合不在快照里」这一巧合）。
+    const combos = bundle.embedded?.combos ?? [];
+    // 同上：读取失败必须上浮，否则「已有组合」快照恒为空，判重与 id 换新全部失效。
+    const existingCombos = await store.listToolCombos();
+    for (const combo of combos) {
+        if (!combo?.id || !String(combo.name ?? '').trim())
+            continue;
+        if (existingCombos.some((item) => item.name === combo.name))
+            continue; // 重名复用已有
+        const idTaken = existingCombos.some((item) => item.id === combo.id);
+        const final = {
+            id: (idTaken ? `combo-${Math.random().toString(36).slice(2, 8)}` : combo.id),
+            name: combo.name,
+            tools: Array.isArray(combo.tools) ? combo.tools.filter((item) => typeof item === 'string') : [],
+            mcpServers: Array.isArray(combo.mcpServers) ? combo.mcpServers.filter((item) => typeof item === 'string') : [],
+        };
+        await store.saveToolCombo(final);
+        existingCombos.push(final);
+    }
+    // 嵌入式模板入库（Bug 16）：roles/tasks/databases 随 bundle 携带，导入时
+    // 重建模板库（重名复用已有、id 冲突换新 id），保证导入后模板可继续拖拽复用。
+    // embedded.groups 随工作流节点内联保留、不在此重建（见文件头部注释）。
+    const importedCount = await importEmbeddedTemplates(store, bundle.embedded);
+    const now = new Date().toISOString();
+    const template = {
+        id: newId,
+        mode,
+        name,
+        description: String(payload.description ?? ''),
+        revision: 0,
+        nodes: safeClone(normalizeLegacyNodes(payload.nodes ?? [])),
+        lines: safeClone(payload.lines ?? []),
+        createdAt: now,
+        updatedAt: now,
+    };
+    const saved = await store.saveFlowTemplate(template, { force: true });
+    if (existing && options.conflictMode === 'overwrite' && existing.id !== saved.id) {
+        await store.deleteFlowTemplate(existing.id);
+    }
+    return { template: saved, importedTemplates: importedCount };
+}
+/** 导出角色模板为单模板 JSON 字符串。 */
+export async function exportAgentTemplate(store, id) {
+    const template = await store.getTemplate('role', id);
+    if (!template)
+        throw new TransferError('TRANSFER_NOT_FOUND', `角色模板不存在：${id}`);
+    return JSON.stringify({ format: 'dsh-vw-template', version: 2, template: exportClone(template) }, null, 2);
+}
+/** 导入角色模板（重名冲突语义同工作流导入）。 */
+export async function importAgentTemplate(store, json, options = {}) {
+    let payload;
+    try {
+        payload = JSON.parse(String(json ?? ''));
+    }
+    catch {
+        throw new TransferError('TRANSFER_INVALID_JSON', '无效的 JSON 文件');
+    }
+    if (payload?.format !== 'dsh-vw-template' || !payload.template || !payload.template.id) {
+        throw new TransferError('TRANSFER_INVALID_BUNDLE', '不是有效的角色模板导出文件');
+    }
+    const template = payload.template;
+    const existing = (await store.listTemplates('role')).find((item) => item.id !== undefined && item.name === template.name);
+    if (existing && options.conflictMode !== 'rename' && options.conflictMode !== 'overwrite') {
+        return { conflict: true, existingName: existing.name, existingId: existing.id };
+    }
+    let finalId = template.id;
+    let name = template.name;
+    if (existing && options.conflictMode === 'overwrite') {
+        finalId = existing.id;
+    }
+    else if (existing && options.conflictMode === 'rename') {
+        finalId = `${template.id}-${Math.random().toString(36).slice(2, 8)}`;
+        name = uniqueName(template.name, (await store.listTemplates('role')).map((item) => String(item.name ?? '')));
+    }
+    else if ((await store.getTemplate('role', template.id))) {
+        finalId = `${template.id}-${Math.random().toString(36).slice(2, 8)}`;
+    }
+    const saved = await store.saveTemplate('role', { ...safeClone(template), id: finalId, name });
+    return { template: saved };
+}
+function uniqueName(base, existingNames) {
+    const names = new Set(existingNames.map((name) => String(name)));
+    let candidate = String(base);
+    let index = 2;
+    while (names.has(candidate)) {
+        candidate = `${base} (${index})`;
+        index += 1;
+    }
+    return candidate;
+}
+//# sourceMappingURL=bundle.js.map

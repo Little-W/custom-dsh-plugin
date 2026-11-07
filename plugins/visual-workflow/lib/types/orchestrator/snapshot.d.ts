@@ -1,0 +1,84 @@
+import type { WorkflowDocument } from '../shared/graph-model.js';
+import type { NodeRunStatus, RunSnapshot, RunStatus } from '../shared/types.js';
+/** 输出摘要截断上限（字符，架构文档 §6.1 nodes[].outputSummary；需求 §4.7 规则 7）。 */
+export declare const OUTPUT_SUMMARY_LIMIT = 6000;
+/** run 状态中文文案（错误提示/历史面板共用）。 */
+export declare function statusText(status: RunStatus): string;
+/** 文本截断：超限时保留前缀并追加中文截断标记（与旧项目 truncate 同语义）。 */
+export declare function truncateText(text: unknown, limit: number): string;
+/**
+ * 创建全新 run 快照（§6.1 逐字段）：全部节点 pending、attempts 0、无输出。
+ * 断点字段（resumedFromRunId/resumeFromNodeId）由续跑任务（T-027）回填。
+ */
+export declare function createRunSnapshot(input: {
+    /** run 稳定标识。 */
+    runId: string;
+    /** 起始工作流（节点清单来源；节点快照=全量节点）。 */
+    flow: WorkflowDocument;
+    /** 归属会话。 */
+    sessionId: string;
+    /** 运行模式。 */
+    mode: 'mode1' | 'mode2';
+    /** 时钟注入（测试可控；缺省 Date.now）。 */
+    now?: number;
+}): RunSnapshot;
+/** setNodeStatus 的可选参数（全部缺省即纯状态切换）。 */
+export interface SetNodeStatusOptions {
+    /** 覆盖尝试计数（wf_run_node 每次调用递增）。 */
+    attempts?: number;
+    /** 节点完整输出（status='ok'|'react-capped' 时写入：完整输出截断到 outputFullLimit、摘要截断到 6000 字）。 */
+    output?: string;
+    /** 完整输出持久化字节上限（缺省 100KB）。 */
+    outputFullLimit?: number;
+    /** 时钟注入（时间戳字段用）。 */
+    now?: number;
+    /**
+     * 回合终止原因（P2-5）：stop/interrupt/fail/react-capped/completed。
+     * 写入该回合记录（turns[]）与节点级 stopReason，供父代理区分「用户停止」与「异常失败」。
+     */
+    stopReason?: string;
+    /**
+     * 是否记为一次回合收尾（P0-2）：true 时在 nodes[].turns[] 追记一回合
+     * （startedAt=entry.startedAt、endedAt=now、stopReason、outputSummary），并刷新
+     * endedAt 为最近完成时间（不再冻结在首次完成）。
+     */
+    recordTurn?: boolean;
+}
+/**
+ * 该节点状态是否携带**本回合产出**。
+ * 产出回写（setNodeStatus）与下游 ctx 注入（graph-facts）共用同一判定：两处若各写一份
+ * 谓词，一旦口径漂移就会静默形成信息断链（Team 成员产出传不到下游）。
+ * react-capped 是软截停的正常产出（T-022）；armed 是 Team 成员回合结束的待命态
+ * （仍可被唤醒，但本回合结论已产出）；fail/skipped 没有可交接的产出。
+ */
+export declare function hasProducedOutput(status: NodeRunStatus): boolean;
+/**
+ * 更新快照中某节点的运行状态（与旧项目 setNodeStatus 同语义，扩展 armed/回合明细）：
+ *   - running 且无 startedAt → 补开始时间；
+ *   - hasProducedOutput 为真的三种状态（ok/react-capped/armed）均回写完整输出（output）与
+ *     展示摘要（outputSummary）——丢掉产出会让下游 ctx 注入读到空串，静默形成信息断链；
+ *   - fail/skipped 不写产出：本回合没有可交接的产出，失败事实由 stopReason 表达；
+ *   - 终态与 armed 一并刷新 endedAt（最近结束时间）；
+ *   - recordTurn=true 时追记回合明细，endedAt 随最近回合刷新（P0-2，不再冻结）。
+ */
+export declare function setNodeStatus(snapshot: RunSnapshot, nodeId: string, status: NodeRunStatus, options?: SetNodeStatusOptions): void;
+/**
+ * 终态化节点清单（运行收尾/终止时调用）：从未启动的 pending → skipped，
+ * 正在执行的 running → fail（非 ok 不继承，续跑时重试，见文件头语义说明）；
+ * 待命 armed（仍在 Team 内可唤醒）→ 运行收尾即视为可唤醒状态结束，normalize 为 ok
+ * （已产出回合，非失败）。
+ * @param stopReason 终止原因（stop/interrupt/fail/…），写入仍在 running 的节点的回合记录，
+ *                   供父代理区分「用户停止」与「异常失败」，避免误重启（P2-5）。
+ */
+export declare function terminalizeNodes(snapshot: RunSnapshot, now?: number, stopReason?: string): void;
+/** 深拷贝快照（对外只读查询用，防调用方改写内部状态）。 */
+export declare function cloneSnapshot(snapshot: RunSnapshot): RunSnapshot;
+/**
+ * 从官方 subagent/end 的 lastAssistantMessage（ContentBlock[]）提取纯文本。
+ * 只认 { type: 'text', text } 块（官方 §8 #21 取证）；limit 为 0/负值时不截断。
+ *
+ * 调用约定（2026.09 修复后）：节点产出回写路径必须传 **0**（取全量），由
+ * setNodeStatus 按 outputFullLimit（完整产出）与 OUTPUT_SUMMARY_LIMIT（展示摘要）
+ * 两套口径分别截断——若在提取阶段就按摘要口径截断，outputFullLimit 会失效。
+ */
+export declare function lastAssistantText(blocks: unknown, limit: number): string;

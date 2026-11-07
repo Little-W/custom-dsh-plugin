@@ -1,0 +1,273 @@
+// src/host/api/catalog.ts
+//
+// GUI API 组合管理与插件目录端点组（CatalogEndpoints）：工具组合 CRUD、MCP 服务器
+// 配置（托管区读写归 mcp 模块）与插件目录聚合（工具 ∪ MCP ∪ 已装载插件）。
+import { RESERVED_TRANSPORT_TOOL, TEAM_TOOL_NAMES } from '../shared/protocol.js';
+import { agentPresetsServiceOf, releasePresetLease } from '../agent/index.js';
+import { agentTeamsServiceLike } from '../team/index.js';
+import { listMcpServers, upsertMcpServer, removeMcpServer, toggleMcpServer, renderCommandLine } from '../mcp/registry.js';
+import { httpError } from './http.js';
+import { toolCardDescription } from './tool-descriptions.js';
+import { isChinesePresentation, presentationOf, VisualWorkflowApiBase } from './boundary.js';
+export class CatalogEndpoints extends VisualWorkflowApiBase {
+    // ---------- 工具组合 / 插件目录 / MCP ----------
+    async toolCombos() {
+        return this.host.store.listToolCombos();
+    }
+    async toolComboPut(args) {
+        const combo = args?.combo;
+        const id = String(combo?.id ?? '');
+        if (!combo || !id.startsWith('combo-') || !String(combo.name ?? '').trim()) {
+            throw httpError(400, presentationOf(this.host, '组合需要 combo- 前缀 id 与名称', 'A combo needs a combo- prefixed id and a name'));
+        }
+        return this.host.store.saveToolCombo({
+            id: id,
+            name: String(combo.name).trim(),
+            tools: Array.isArray(combo.tools)
+                ? combo.tools.filter((name) => typeof name === 'string' && name && name !== RESERVED_TRANSPORT_TOOL)
+                : [],
+            mcpServers: Array.isArray(combo.mcpServers) ? combo.mcpServers.filter((name) => typeof name === 'string' && name) : [],
+        });
+    }
+    async toolComboDelete(args) {
+        const id = String(args?.id ?? '');
+        if (!id)
+            throw httpError(400, 'requires id');
+        return { deleted: await this.host.store.deleteToolCombo(id) };
+    }
+    /**
+     * 插件目录：工具（全局层 ∪ 存活 agent scope ∪ preset standing scope，含中/英
+     * 描述映射）+ MCP 服务器 + 已装载插件摘要。scope key 必须是 agent 对象本身
+     * （官方 ScopeKey 语义），传错只能看到全局层。
+     */
+    async pluginCatalog(args) {
+        const sessionId = String(args?.sessionId ?? '');
+        const schemas = await this.allToolSchemas(sessionId || undefined);
+        const mcpServers = await listMcpServers().catch(() => []);
+        const items = [];
+        const seen = new Set();
+        for (const schema of schemas) {
+            const entry = schema;
+            const name = String(entry.name ?? entry.title ?? '');
+            if (!name || seen.has(name))
+                continue;
+            seen.add(name);
+            items.push({
+                key: `tool:${name}`,
+                name,
+                description: toolCardDescription(name, String(entry.description ?? ''), isChinesePresentation(this.host)),
+                kind: 'tool',
+                source: name.startsWith('mcp__') ? 'mcp' : 'builtin',
+            });
+        }
+        const loader = this.ctx.get('loader');
+        let loadedPlugins = [];
+        try {
+            if (loader && typeof loader.entries === 'function') {
+                const plugins = [];
+                for (const entry of loader.entries() ?? []) {
+                    const options = entry?.options ?? {};
+                    if (options.group)
+                        continue;
+                    const name = String(options.name ?? '');
+                    if (!name || plugins.includes(name))
+                        continue;
+                    plugins.push(name);
+                }
+                loadedPlugins = plugins;
+            }
+        }
+        catch {
+            loadedPlugins = [];
+        }
+        return {
+            items,
+            loadedPlugins,
+            // 生效态口径与 system-prompt/assemble 瀑布一致（effectiveDisabled 先跨进程刷新再取内存快照）：
+            // 读磁盘用户项会与生效态分叉，把被隐藏的工具显示成「已开启」（界面说谎）。
+            disabledTools: await this.host.toolSwitches?.effectiveDisabled().catch(() => []) ?? [],
+            mcp: mcpServers.map((server) => ({
+                id: server.id,
+                name: server.serverName,
+                serverName: server.serverName,
+                description: this.mcpCardDescription(server),
+                transport: server.transport,
+                disabled: server.disabled === true,
+                // 组合管理「编辑」表单的字段来源：缺失时编辑后启动命令/参数恒为空
+                command: String(server.command ?? ''),
+                args: Array.isArray(server.args) ? server.args : [],
+                commandLine: renderCommandLine(String(server.command ?? ''), (Array.isArray(server.args) ? server.args : [])),
+                env: server.env ?? {},
+                headers: server.headers ?? {},
+                url: String(server.url ?? ''),
+                category: 'mcp',
+            })),
+        };
+    }
+    /** 全部可见工具 schema（全局层 ∪ 存活 root agent ∪ preset standing scope）。 */
+    async allToolSchemas(sessionId) {
+        const tools = this.ctx.get('tools');
+        if (!tools || typeof tools.schemas !== 'function')
+            return [];
+        const out = new Map();
+        const collect = (scope) => {
+            let list = [];
+            try {
+                list = scope === undefined ? (tools.schemas?.() ?? []) : (tools.schemas?.(scope) ?? []);
+            }
+            catch {
+                list = [];
+            }
+            for (const schema of Array.isArray(list) ? list : []) {
+                const name = String(schema?.name ?? schema?.title ?? '');
+                if (name && !out.has(name))
+                    out.set(name, schema);
+            }
+        };
+        collect(undefined);
+        const agents = this.ctx.get('agents');
+        if (agents && typeof agents.get === 'function') {
+            const candidates = new Set();
+            try {
+                for (const root of agents.roots?.() ?? []) {
+                    if (root && String(root?.id ?? ''))
+                        candidates.add(root);
+                }
+            }
+            catch {
+                // roots 不可用
+            }
+            if (sessionId) {
+                try {
+                    const agent = agents.get(sessionId);
+                    if (agent)
+                        candidates.add(agent);
+                }
+                catch {
+                    // 会话 agent 不可用
+                }
+            }
+            for (const agent of candidates)
+                collect(agent);
+        }
+        // preset standing scope：0.1.7-rc.1 起经 acquireScope 取租约（standingKeyFor 已移除），
+        // 读完必须释放——守卫条件与释放协议统一取自 agent 模块公共入口，避免两处漂移。
+        const agentPresets = agentPresetsServiceOf(this.ctx);
+        if (agentPresets) {
+            try {
+                for (const item of (await agentPresets.list()) ?? []) {
+                    const pid = String(item?.id ?? '').trim();
+                    if (!pid)
+                        continue;
+                    try {
+                        const lease = await agentPresets.acquireScope(pid);
+                        try {
+                            const key = lease?.key;
+                            if (key !== undefined)
+                                collect(key);
+                        }
+                        finally {
+                            await releasePresetLease(lease);
+                        }
+                    }
+                    catch {
+                        // 单个 preset 失败跳过
+                    }
+                }
+            }
+            catch {
+                // agentPresets 不可用
+            }
+        }
+        // 剔除官方保留的 Code Mode 传输名 run_code：组合管理可选列表不得展示
+        // （子代理自动携带该工具，且官方 restrict 禁止其进入 allow/deny 名单）。
+        // 注意：不剔除其它工具——str_replace_editor 等官方简单模式专用工具保留展示，
+        // 在描述中标注「简单模式专用，非该模式禁止勾选」，运行时由 resolveAgentTools
+        // 兜底（父代理 scope 视图过滤），避免勾选后官方 restrict 抛 unknown。
+        //
+        // 官方 Agent Team 工具补登记：官方按「Team 成员作用域」注册这 9 个工具，不进入
+        // 全局层与 preset 层，上面的收集可能取不到。它们必须出现在工具列表里——全局开关
+        // 面板据此才能把默认关闭的 spawn_teammate 重新打开，用户也才能看到成员真实可用的
+        // 协作工具。补登记只补缺失项，已收集到的不覆盖。
+        if (agentTeamsServiceLike(this.ctx) !== null) {
+            for (const name of TEAM_TOOL_NAMES) {
+                if (!out.has(name)) {
+                    out.set(name, {
+                        name,
+                        description: 'Official Agent Team tool, provided by the official Team packages; it is granted by team membership rather than by a node tool combo.',
+                    });
+                }
+            }
+        }
+        return [...out.values()].filter((schema) => {
+            const entry = schema;
+            return String(entry.name ?? entry.title ?? '') !== RESERVED_TRANSPORT_TOOL;
+        });
+    }
+    /**
+     * MCP 服务器卡片描述（两种传输的中/英文案）。
+     * 命令行为用户配置数据，两种语言都原样嵌入，不翻译。
+     */
+    mcpCardDescription(server) {
+        if (server.url) {
+            const url = String(server.url);
+            return presentationOf(this.host, `MCP 服务器（streamable-http：${url}）`, `MCP server (streamable-http: ${url})`);
+        }
+        const line = renderCommandLine(String(server.command ?? ''), (Array.isArray(server.args) ? server.args : []));
+        return presentationOf(this.host, `MCP 服务器（stdio：${line}）`, `MCP server (stdio: ${line})`);
+    }
+    /**
+     * MCP 服务器写入边界（新建/更新、删除、启停）。
+     * 错误契约：registry 抛稳定码 WF_MCP_BAD_ARGS（入参非法）与 WF_MCP_NOT_FOUND
+     * （服务器不存在），本层原样透传；HTTP 状态在传输边界统一映射为 400 / 404
+     * （未知码才是 500）——状态映射不在端点内重复实现。
+     */
+    async mcpPut(args) {
+        return upsertMcpServer(args?.server ?? {});
+    }
+    async mcpDelete(args) {
+        const id = String(args?.id ?? '');
+        if (!id)
+            throw httpError(400, 'requires id');
+        return removeMcpServer(id);
+    }
+    async mcpToggle(args) {
+        const id = String(args?.id ?? '');
+        if (!id)
+            throw httpError(400, 'requires id');
+        return toggleMcpServer(id, args?.disabled !== false);
+    }
+    // ---------- 全局工具开关（父代理工具白名单「关闭」侧） ----------
+    /** 设置单个工具开/关状态（全局即时生效；返回更新后的完整关闭清单）。 */
+    async toolSwitchPut(args) {
+        if (!this.host.toolSwitches)
+            throw httpError(501, 'tool switches unavailable');
+        const name = String(args?.name ?? '');
+        if (!name)
+            throw httpError(400, presentationOf(this.host, '工具开关需要 name', 'A tool switch needs name'));
+        if (name === RESERVED_TRANSPORT_TOOL) {
+            throw httpError(400, presentationOf(this.host, `${RESERVED_TRANSPORT_TOOL} 为官方保留传输名，不可关闭`, `${RESERVED_TRANSPORT_TOOL} is the official reserved transport name and cannot be disabled`));
+        }
+        return { disabled: await this.host.toolSwitches.setDisabled(name, args?.disabled !== false) };
+    }
+    /**
+     * 批量设置一组工具开/关状态（组合管理「标签一键开关」：把某标签下全部工具统一关/开）。
+     *   - names 必须非空数组；空白名忽略；官方保留传输名 run_code 不可关闭；
+     *   - 被忽略的保留名**显式回报**在 `skipped`（与单值端点抛 400 的语义对齐：调用方
+     *     始终能知道名单是否被改写，界面不再把「开关失灵」当作生效）；
+     *   - 单次原子落盘 + 刷新内存快照，全局即时生效。
+     * @returns 更新后的完整关闭清单 + 被忽略（保留名）的名单。
+     */
+    async toolSwitchPutMany(args) {
+        if (!this.host.toolSwitches)
+            throw httpError(501, 'tool switches unavailable');
+        const requested = (Array.isArray(args?.names) ? args.names : []).map((name) => String(name ?? '').trim()).filter(Boolean);
+        const names = requested.filter((name) => name !== RESERVED_TRANSPORT_TOOL);
+        const skipped = [...new Set(requested.filter((name) => name === RESERVED_TRANSPORT_TOOL))];
+        if (names.length === 0) {
+            throw httpError(400, presentationOf(this.host, '工具批量开关需要一个以上可设置的工具名', 'A bulk tool switch needs at least one settable tool name'));
+        }
+        return { disabled: await this.host.toolSwitches.setDisabledMany(names, args?.disabled !== false), skipped };
+    }
+}
+//# sourceMappingURL=catalog.js.map

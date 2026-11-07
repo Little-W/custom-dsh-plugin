@@ -1,0 +1,231 @@
+// src/host/api/workflows.ts
+//
+// GUI API 工作流与服务端点组（WorkflowEndpoints）：工作流 CRUD（含画布保存后刷新
+// 编排基线的双向同步）与服务启停/状态（含运行时字段合并的完整 ServiceState 返回）。
+import { resolveWorkspacePath } from '../workspace-path.js';
+import { resolveNewSessionCwd } from '../sessions/session-provider.js';
+import { httpError } from './http.js';
+import { ERR_REVISION_CONFLICT } from '../shared/protocol.js';
+import { presentationOf, VisualWorkflowApiBase } from './boundary.js';
+export class WorkflowEndpoints extends VisualWorkflowApiBase {
+    // ---------- 工作流（工作台全局化：列表跨会话，读写按实例自身会话） ----------
+    /**
+     * 工作流列表（工作台全局化改版）：sessionId 缺省时返回**全部会话**的工作流
+     * 实例（工作台全局面板数据源）；传入时按会话过滤（定时任务检测目标会话
+     * 已有实例用）。
+     */
+    async listWorkflows(args) {
+        const sessionId = args?.sessionId === undefined || args.sessionId === null
+            ? undefined
+            : String(args.sessionId);
+        return this.host.store.listWorkflows(sessionId);
+    }
+    /**
+     * 创建新主会话端点（「开启新会话」一次性动作：从模板创建实例时先新建主会话，
+     * 实例绑定该新会话 id）。
+     *   - workspacePath 传入时校验存在为目录（resolveWorkspacePath）并作为新会话 cwd；
+     *   - workspacePath 缺省时继承创建者会话（sessionId）的 cwd（与定时任务 new-session 一致）；
+     *   - cwd 解析不到时省略（官方会话默认工作区）。
+     */
+    async createSession(args) {
+        const provider = this.host.sessionProvider;
+        if (!provider || typeof provider.createSession !== 'function') {
+            throw httpError(501, presentationOf(this.host, '会话创建能力未装配', 'Session creation is unavailable'), 'WF_AGENT_UNAVAILABLE');
+        }
+        const creatorSessionId = String(args?.sessionId ?? '');
+        // 工作区输入校验在此处完成（HTTP 端点是用户输入的校验责任者）；cwd 决策
+        // （显式路径优先 → 否则继承创建者）归 sessions 模块的唯一实现 resolveNewSessionCwd。
+        const explicit = String(args?.workspacePath ?? '').trim();
+        const checked = explicit ? await this.checkedWorkspacePath(explicit) : undefined;
+        const cwd = await resolveNewSessionCwd({
+            workspacePath: checked,
+            creatorSessionId,
+            sessionCwdOf: this.host.sessionCwdOf,
+        });
+        const sessionId = await provider.createSession({
+            agentPreset: 'standard',
+            ...(cwd ? { cwd } : {}),
+        });
+        return { sessionId };
+    }
+    async getWorkflow(args) {
+        const sessionId = String(args?.sessionId ?? '');
+        const id = String(args?.id ?? '');
+        if (!sessionId || !id)
+            throw httpError(400, 'requires sessionId and id');
+        const flow = await this.host.store.getWorkflow(sessionId, id);
+        if (!flow)
+            throw httpError(404, presentationOf(this.host, `工作流不存在：${id}`, `Workflow not found: ${id}`));
+        return flow;
+    }
+    async putWorkflow(args) {
+        const sessionId = String(args?.sessionId ?? '');
+        const raw = args?.flow;
+        if (!sessionId)
+            throw httpError(400, 'requires sessionId');
+        if (!raw || !String(raw.id ?? '').trim())
+            throw httpError(400, 'requires a flow id');
+        const expected = Number(raw.revision);
+        if (!Number.isFinite(expected))
+            throw httpError(400, 'requires a numeric revision');
+        // 实例文档不保存「开启新会话/工作区」：该配置属模板级持久化字段
+        // （WorkflowTemplate.startNewSession / workspacePath，见 putFlowTemplate），创建实例时
+        // 一次性消费；旧实例数据残留字段在保存时清除（也不再校验旧路径是否存在）。
+        // 前端快照标记（_draft/_clientMeta）与仅服务端字段由 storage 保存路径统一剥除。
+        const flow = { ...raw };
+        delete flow.startNewSession;
+        delete flow.workspacePath;
+        const normalized = { ...flow, sessionId };
+        try {
+            const saved = await this.host.store.saveWorkflow(normalized, sessionId, { expectedRevision: expected });
+            // 双向同步①「画布→编排」：保存成功后更新活跃 run 的编排基线；若编排语义确有变更
+            // 且该 run 正在运行，父代理会收到【编排变更】通知并自行经 wf_org_catalog 召回最新
+            // 骨架。拓扑不注入指令、不给宿主路径——只给工具入口。
+            await this.host.orchestrator.refreshActiveDefinitions(normalized.id, sessionId, saved);
+            return saved;
+        }
+        catch (error) {
+            const code = error?.code ?? '';
+            if (code === ERR_REVISION_CONFLICT)
+                throw httpError(409, String(error.message), code);
+            throw error;
+        }
+    }
+    async deleteWorkflow(args) {
+        const sessionId = String(args?.sessionId ?? '');
+        const id = String(args?.id ?? '');
+        if (!sessionId || !id)
+            throw httpError(400, 'requires sessionId and id');
+        const deleted = await this.host.store.deleteWorkflow(sessionId, id);
+        if (!deleted)
+            throw httpError(404, presentationOf(this.host, `工作流不存在：${id}`, `Workflow not found: ${id}`));
+        return { deleted: true };
+    }
+    // ---------- 服务（模式二；服务管理器装配前返回 501） ----------
+    /**
+     * 服务列表（工作台全局化改版）：sessionId 缺省时返回**全部会话**的服务实例
+     * （工作台全局面板数据源）；传入时按会话过滤（旧单会话面板兼容调用）。
+     */
+    async listServices(args) {
+        const sessionId = args?.sessionId === undefined || args.sessionId === null
+            ? undefined
+            : String(args.sessionId);
+        return this.host.store.listServices(sessionId);
+    }
+    async getService(args) {
+        const sessionId = String(args?.sessionId ?? '');
+        const id = String(args?.id ?? '');
+        if (!sessionId || !id)
+            throw httpError(400, 'requires sessionId and id');
+        const service = await this.host.store.getService(sessionId, id);
+        if (!service)
+            throw httpError(404, presentationOf(this.host, `服务不存在：${id}`, `Service not found: ${id}`));
+        return service;
+    }
+    async putService(args) {
+        const sessionId = String(args?.sessionId ?? '');
+        const raw = args?.service;
+        if (!sessionId)
+            throw httpError(400, 'requires sessionId');
+        if (!raw || !String(raw.id ?? '').trim())
+            throw httpError(400, 'requires a service id');
+        const expected = Number(raw.revision);
+        if (!Number.isFinite(expected))
+            throw httpError(400, 'requires a numeric revision');
+        const serviceId = String(raw.id ?? '').trim();
+        try {
+            // 退役字段剥除（同 putWorkflow）：startNewSession/workspacePath 不再持久化，
+            // 旧服务实例重新保存后「服务级新会话」字段被清除（请求回退 userId 固定会话）。
+            // 浅拷贝后剥除退役字段（前端标记剥除由 storage 保存路径统一负责）。
+            const normalized = { ...raw };
+            delete normalized.startNewSession;
+            delete normalized.workspacePath;
+            const saved = await this.host.store.saveService(normalized, sessionId, { expectedRevision: expected });
+            // 双向同步①「画布→编排」（模式二同理）：保存成功后更新活跃 run 的编排基线。
+            await this.host.orchestrator.refreshActiveDefinitions(serviceId, sessionId, {
+                id: saved.id,
+                sessionId: saved.sessionId,
+                mode: 'mode2',
+                name: saved.name,
+                description: saved.description,
+                nodes: saved.nodes,
+                lines: saved.lines,
+                revision: saved.revision,
+                // 元参数（实例层）：编排基线与编排指令必须与服务文档同口径，
+                // 否则保存后服务实例的 meta 在活跃 run 中「消失」（P0 数据链路一致性）。
+                ...(saved.meta ? { meta: saved.meta } : {}),
+            });
+            return saved;
+        }
+        catch (error) {
+            const code = error?.code ?? '';
+            if (code === ERR_REVISION_CONFLICT)
+                throw httpError(409, String(error.message), code);
+            throw error;
+        }
+    }
+    async deleteService(args) {
+        const sessionId = String(args?.sessionId ?? '');
+        const id = String(args?.id ?? '');
+        if (!sessionId || !id)
+            throw httpError(400, 'requires sessionId and id');
+        const deleted = await this.host.store.deleteService(sessionId, id);
+        if (!deleted)
+            throw httpError(404, presentationOf(this.host, `服务不存在：${id}`, `Service not found: ${id}`));
+        return { deleted: true };
+    }
+    async serviceStart(args) {
+        const sessionId = String(args?.sessionId ?? '');
+        const serviceId = String(args?.serviceId ?? '');
+        if (!sessionId || !serviceId)
+            throw httpError(400, 'requires sessionId and serviceId');
+        return this.withServiceManager('start', sessionId, serviceId);
+    }
+    async serviceStop(args) {
+        const sessionId = String(args?.sessionId ?? '');
+        const serviceId = String(args?.serviceId ?? '');
+        if (!sessionId || !serviceId)
+            throw httpError(400, 'requires sessionId and serviceId');
+        return this.withServiceManager('stop', sessionId, serviceId);
+    }
+    async serviceStatus(args) {
+        const sessionId = String(args?.sessionId ?? '');
+        const serviceId = String(args?.serviceId ?? '');
+        if (!sessionId || !serviceId)
+            throw httpError(400, 'requires sessionId and serviceId');
+        return this.withServiceManager('status', sessionId, serviceId);
+    }
+    async withServiceManager(action, sessionId, serviceId) {
+        // 会话归属校验：服务按 sessionId 分桶，越权会话不得启动/停止/查看他人服务
+        // （不匹配按不存在处理，不泄露 serviceId 是否存在）。
+        const service = await this.host.store.getService(sessionId, serviceId);
+        if (!service)
+            throw httpError(404, presentationOf(this.host, `服务不存在：${serviceId}`, `Service not found: ${serviceId}`));
+        const manager = this.host.serviceManager;
+        if (!manager || typeof manager[action] !== 'function') {
+            throw httpError(501, presentationOf(this.host, '服务管理器尚未启用（模式二服务管理未装配）', 'Service manager is not enabled (mode 2 service management is not assembled)'), 'WF_SERVICE_MANAGER_UNAVAILABLE');
+        }
+        // 合并返回完整服务状态（Bug 22）：manager 结果只含 serviceId/status/port/pid 等
+        // 运行时字段，不能整体替代 ServiceState——否则前端 SERVICE_UPDATED 用残缺对象替换
+        // 列表项（name/nodes/lines/revision/sessionId 全部丢失），或因 id 键不匹配变成
+        // 静默空操作（启动/停止后状态永不刷新）。以完整文档为基、运行时字段覆盖后返回。
+        const result = (await manager[action](serviceId));
+        return {
+            ...service,
+            ...(result.status !== undefined ? { status: result.status } : {}),
+            ...(result.port !== undefined ? { port: result.port } : {}),
+            ...(result.pid !== undefined ? { pid: result.pid } : {}),
+        };
+    }
+    /** 校验可选工作区路径（存在且为目录；空值返回 undefined；异常转 400）。 */
+    async checkedWorkspacePath(value) {
+        try {
+            return await resolveWorkspacePath(value);
+        }
+        catch (error) {
+            const message = error instanceof Error ? error.message : String(error);
+            throw httpError(400, message);
+        }
+    }
+}
+//# sourceMappingURL=workflows.js.map

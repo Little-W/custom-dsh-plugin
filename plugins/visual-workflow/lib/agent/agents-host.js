@@ -1,0 +1,351 @@
+// src/host/agent/agents-host.ts
+//
+// 会话根 Agent（父代理）服务适配：CordisAgentHost 实现编排运行时的 AgentHost 缝
+// （可用性/取根 Agent/followup 注入/回合终态/子代理存活），以及 agents/subagents
+// 服务的惰性解析（运行时守卫，零官方类型依赖）。
+// ---------------------------------------------------------------------------
+// 会话事件流读取
+// ---------------------------------------------------------------------------
+// 事件流访问形态：seq（当前日志长度）/ eventAt(seq) 取单个事件 / events 数组。
+// SessionSeq/SessionLogOffset 为 branded number，运行时仍是普通非负整数。
+// 运行时守卫兼容双版本形态，避免零官方类型依赖被打破。
+/** 会话事件倒序扫描上限（只关心最新若干条；防止极端长日志全量物化）。 */
+const SESSION_EVENT_LOOKBACK = 200;
+/**
+ * 自会话事件流末尾向前扫描，返回首个满足 predicate 的事件（最新优先）。
+ * 兼容 DSH 0.1.2（seq/eventAt）与 0.1.1（events 数组）；读取失败返回 null（降级，
+ * 不抛错——看护/产出读取属辅助路径）。
+ */
+function scanLatestSessionEvent(session, predicate) {
+    if (!session || typeof session !== 'object')
+        return null;
+    const s = session;
+    // 长度：0.1.2 用 seq（当前日志长度）；旧版本回退 events.length。
+    const seq = Number(s.seq);
+    const length = Number.isFinite(seq) && seq >= 0 ? seq : (Array.isArray(s.events) ? s.events.length : 0);
+    const from = Math.max(0, length - SESSION_EVENT_LOOKBACK);
+    for (let index = length - 1; index >= from; index -= 1) {
+        let event;
+        if (typeof s.eventAt === 'function') {
+            try {
+                event = s.eventAt(index);
+            }
+            catch {
+                event = undefined;
+            }
+        }
+        if (event === undefined && Array.isArray(s.events))
+            event = s.events[index];
+        if (event !== null && typeof event === 'object' && predicate(event)) {
+            return event;
+        }
+    }
+    return null;
+}
+export class CordisAgentHost {
+    ctx;
+    constructor(ctx) {
+        this.ctx = ctx;
+    }
+    /** 解析 agents 服务（缺省/不可用时返回 null，调用方给明确错误）。 */
+    agentsService() {
+        const service = this.ctx.get('agents');
+        if (service !== null && typeof service === 'object' && typeof service.get === 'function') {
+            return service;
+        }
+        return null;
+    }
+    available() {
+        return this.agentsService() !== null;
+    }
+    getRootAgent(sessionId) {
+        const service = this.agentsService();
+        if (!service)
+            return null;
+        const raw = service.get(sessionId);
+        if (raw === null || typeof raw !== 'object')
+            return null;
+        return raw;
+    }
+    async ensureRootAgent(sessionId) {
+        const current = this.getRootAgent(sessionId);
+        if (current)
+            return current;
+        const controller = this.ctx.get('sessionController');
+        if (typeof controller?.resolveAgent !== 'function')
+            return null;
+        const resolved = await controller.resolveAgent(sessionId);
+        if (resolved.error)
+            throw new Error(resolved.error.message ?? 'Unable to restore workflow session');
+        return this.getRootAgent(sessionId);
+    }
+    /** 按会话 id 取子代理 agent（wf_send_message 投递缝用；未激活返回 null）。 */
+    getChildAgent(childId) {
+        const service = this.agentsService();
+        if (!service)
+            return null;
+        try {
+            const raw = service.get(childId);
+            if (raw === null || typeof raw !== 'object')
+                return null;
+            return raw;
+        }
+        catch {
+            return null;
+        }
+    }
+    followupRoot(agent, message) {
+        if (typeof agent.followup !== 'function') {
+            throw new Error('当前会话 Agent 未激活；请先在对话区发送一条消息后重试');
+        }
+        agent.followup(message);
+    }
+    async interruptRoot(sessionId) {
+        await this.interruptSessionFamily(sessionId);
+    }
+    /**
+     * 取消会话根及其全部后代，并清空各自 pending inbox。
+     *
+     * 停止工作流时必须处理整棵父子树：官方 Team 成员是 durable child，普通节点子代理
+     * 也可能带嵌套 child；仅取消 root 或仅 interrupt 当前 inflight 会留下可被残留消息
+     * 再次唤醒的 agent。这里按 session.header.parentSession 构建后代集合，逐个 cancel
+     * ({keepInbox:false}) 并等待其 native teardown。
+     */
+    async interruptSessionFamily(sessionId) {
+        const service = this.agentsService();
+        if (!service)
+            return;
+        const list = service.list?.() ?? [];
+        const agents = list;
+        const childrenOf = new Map();
+        for (const agent of agents) {
+            const id = String(agent?.id ?? '');
+            const parent = String(agent?.session?.header?.parentSession ?? '');
+            if (!id || !parent)
+                continue;
+            const rows = childrenOf.get(parent) ?? [];
+            rows.push(id);
+            childrenOf.set(parent, rows);
+        }
+        const family = [];
+        const visited = new Set();
+        const visit = (id) => {
+            if (visited.has(id))
+                return;
+            visited.add(id);
+            const agent = service.get?.(id);
+            if (agent)
+                family.push(agent);
+            for (const child of childrenOf.get(id) ?? [])
+                visit(child);
+        };
+        visit(sessionId);
+        family.reverse();
+        const cancelAll = () => {
+            for (const agent of family) {
+                if (typeof agent.cancel !== 'function') {
+                    if (agent.id === sessionId)
+                        throw new Error('当前父代理不支持取消回合；请检查 DSH Agent 版本');
+                    continue;
+                }
+                agent.cancel({ kind: 'user' }, { keepInbox: false });
+            }
+        };
+        // Cancellation is a broadcast. Waiting for the first child before cancelling its peers or
+        // the root can deadlock on their tools and leaves their model streams live.
+        const root = family.find(agent => agent.id === sessionId);
+        const subagents = this.ctx.get('subagents');
+        // Native settlement notices can wake an ancestor while another descendant is still
+        // settling. Cancel such wakes before their next model step, until the entire join ends.
+        const stopWakes = typeof this.ctx.on === 'function' ? this.ctx.on('agent/status', (payload) => {
+            if (payload.status !== 'running' || !payload.agent || typeof payload.agent !== 'object')
+                return;
+            const agent = payload.agent;
+            let cursor = agent;
+            const seen = new Set();
+            while (cursor) {
+                const id = String(cursor.id ?? '');
+                if (!id || seen.has(id))
+                    return;
+                seen.add(id);
+                if (visited.has(id)) {
+                    if (!family.includes(agent))
+                        family.unshift(agent);
+                    agent.cancel?.({ kind: 'user' }, { keepInbox: false });
+                    return;
+                }
+                const parent = String(cursor.session?.header?.parentSession ?? '');
+                cursor = parent ? service.get(parent) : undefined;
+            }
+        }) : undefined;
+        try {
+            cancelAll();
+            // Only join native settlement after every descendant and its queued inbox is cancelled.
+            try {
+                if (root && typeof subagents?.waitForChildren === 'function')
+                    await subagents.waitForChildren(root);
+            }
+            finally {
+                if (root && typeof subagents?.waitForChildren === 'function')
+                    cancelAll();
+                const settled = await Promise.allSettled(family.map(agent => agent.whenIdle?.()));
+                const failed = settled.find(result => result.status === 'rejected');
+                if (failed?.status === 'rejected')
+                    throw failed.reason;
+            }
+        }
+        finally {
+            stopWakes?.();
+        }
+    }
+    /**
+     * 会话根 Agent 在 afterMs 之后的最新 turn/end（无则 null）。
+     *
+     * dsh-session 的 `TurnEndReasonMap`（merge-extensible）含 7 种 kind：
+     * `completed` / `aborted`（带 cancel cause）/ `blocked` / `error`（结构化 LlmFailure）/
+     * `max-tokens` / `interrupted`（崩溃孤儿回合事后收口）/ `forked`（fork 种子构造收口）。
+     * 本适配的终态翻译口径：
+     *   - `error` → 编排已死（模型/工具/官方内部错误）→ 运行 failed；
+     *   - `blocked` → pre-step 被拒绝，父代理回合停住且不会自行恢复 → 同样按编排已死
+     *     处理（运行 failed）。若不纳入，运行只能等空闲看护（默认 30 分钟）超时收敛；
+     *   - `aborted` → 用户中止（对话区停止按钮）→ 保持运行，等下一次调度（见 watchdog）；
+     *   - `completed` / `max-tokens` / `interrupted` / `forked` / 未知 kind → null（不判终态）：
+     *     completed 是正常回合结束（父代理可能还有后续调度）；max-tokens 只表示本轮输出
+     *     被截断、父代理仍可继续；interrupted/forked 只出现在冷读与 fork 种子，运行中
+     *     看护不应据此判定。未知 kind 一律保守返回 null（官方可扩展，不得因未知而误判）。
+     * 若将来需要把 max-tokens 也纳入终态判定，属编排语义变更：必须同时改
+     * TurnEndInfo 契约、看护分支与测试（适配必须取证可追溯）。
+     */
+    latestTurnEnd(sessionId, afterMs) {
+        const root = this.getRootAgent(sessionId);
+        if (!root)
+            return null;
+        const event = scanLatestSessionEvent(root.session, (candidate) => candidate.type === 'turn/end');
+        if (!event)
+            return null;
+        // 最新回合在运行开始前结束 → 运行发起回合尚未结束，不判终态
+        if ((Number(event.time) || 0) < afterMs)
+            return null;
+        const reason = event.data?.reason;
+        const kind = reason?.kind;
+        if (kind === 'error')
+            return { kind: 'error', error: reason?.error ?? {} };
+        if (kind === 'blocked')
+            return { kind: 'error', error: { message: '父代理回合被拒绝（blocked）：pre-step 未通过，编排无法继续推进', code: 'TURN_BLOCKED' } };
+        if (kind === 'aborted')
+            return { kind: 'aborted' };
+        return null;
+    }
+    /**
+     * 最近一条父代理 assistant/message 文本（afterMs 之后；无则 null）。
+     * 官方 dsh-agent-loop 每步结束追加 assistant/message 事件（{ turn, step, message }，
+     * message.content 为 ContentBlock[]）——取事件流中时间 >= afterMs 的最后一条
+     * assistant/message 的 text 块拼接（执行者模式回写父代理节点输出用）。
+     */
+    latestRootAssistantText(sessionId, afterMs) {
+        const root = this.getRootAgent(sessionId);
+        if (!root)
+            return null;
+        const event = scanLatestSessionEvent(root.session, (candidate) => {
+            if (candidate.type !== 'assistant/message')
+                return false;
+            return (Number(candidate.time) || 0) >= afterMs;
+        });
+        if (!event)
+            return null;
+        const content = event.data?.message?.content;
+        if (Array.isArray(content)) {
+            const joined = content
+                .map((block) => {
+                const value = block;
+                return value && value.type === 'text' ? String(value.text ?? '') : '';
+            })
+                .filter(Boolean)
+                .join('\n')
+                .trim();
+            if (joined)
+                return joined;
+        }
+        return null;
+    }
+    childRunning(childId) {
+        const service = this.agentsService();
+        if (!service)
+            return false;
+        try {
+            const agent = service.get(childId);
+            if (agent === null || typeof agent !== 'object')
+                return false;
+            return agent.status === 'running';
+        }
+        catch {
+            return true; // 查询失败保守视为仍在运行
+        }
+    }
+}
+/**
+ * 按会话取/建服务会话的根 Agent（模式二服务进程装配使用）。
+ * 父代理节点声明的 provider/model 优先；会话已有 Agent 时直接复用（持久化上下文保留）。
+ * 「取/建」的官方 agents 服务守卫与形状收敛归本模块——进程入口只做装配，不承载实现。
+ *
+ * @param options.cwd 根 Agent 工作目录（`string | undefined` **必填属性**：强制每个调用方
+ *   显式给出已解析的值，杜绝「忘了传就静默取进程全局」）。由调用方按服务文档 workspacePath
+ *   经 sessions 的 `resolveNewSessionCwd` 解析后传入；未配置工作区时传 `undefined`，此时
+ *   **省略** `meta.cwd`，与同进程的会话创建路径（`CordisSessionProvider.createSession`）同口径，
+ *   由官方默认工作区决定。本适配函数不得读进程全局 cwd——服务进程由 manager 以
+ *   cwd=dataDir 启动，取进程 cwd 会让交付物写进插件数据目录而不是用户工作区。
+ */
+export async function createOrGetServiceAgent(ctx, store, serviceId, sessionId, options) {
+    const agents = ctx.get('agents');
+    if (!agents || typeof agents.get !== 'function' || typeof agents.create !== 'function') {
+        throw new Error('agents 服务不可用，无法建立服务会话');
+    }
+    const service = await store.getServiceById(serviceId);
+    const parent = service?.nodes?.find((node) => node.kind === 'parent');
+    const data = parent?.data;
+    const provider = typeof data?.provider === 'string' && data.provider ? data.provider : undefined;
+    const model = typeof data?.model === 'string' && data.model ? data.model : undefined;
+    let agent = agents.get(sessionId);
+    if (!agent) {
+        const created = await agents.create({
+            sessionId,
+            // 工作目录：显式解析值才落 meta.cwd；未配置工作区时**省略**该字段（由官方默认工作区
+            // 决定），不回退进程全局 cwd——与 CordisSessionProvider.createSession 同口径。
+            ...(options.cwd ? { meta: { cwd: options.cwd } } : {}),
+            ...(provider && model ? { agentOptions: { provider, model } } : {}),
+        });
+        agent = created?.agent ?? created;
+    }
+    if (agent === null || agent === undefined)
+        throw new Error('服务会话 Agent 建立失败');
+    return { agent, provider, model };
+}
+/** agents 服务惰性解析（节点子代理执行引擎用；与 CordisAgentHost 同一官方服务）。 */
+export function agentsServiceLike(ctx) {
+    const service = ctx.get('agents');
+    if (service !== null && typeof service === 'object' && typeof service.get === 'function') {
+        return service;
+    }
+    return null;
+}
+/** subagents 服务惰性解析（子代理创建/相邻投递/中断/provider 探测使用面）。 */
+export function subagentsServiceLike(ctx) {
+    const service = ctx.get('subagents');
+    if (service !== null && typeof service === 'object'
+        // 创建入口：0.2.1+ 为 startActivation；≤0.2.0 为 startContinuable。任一存在即可
+        // 创建可延续子代理（0.2.1 的公开面已移除 startContinuable，不能只认旧方法）。
+        && (typeof service.startActivation === 'function'
+            || typeof service.startContinuable === 'function')
+        // 相邻投递二选一：sendMessage（当前官方公开 runtime 唯一通道；sender 即 live 父代理，
+        // 来源由服务派生）/ queuePrompt（旧宿主兼容兜底：当前官方公开 runtime 已无该通道，
+        // 仅内部 continuation manager 持有）。
+        // 官方 SubagentRuntime 已无 followup 方法，故不再作为可用性判据；
+        // registerContinuableSetup 亦早已移除，不再判定。
+        && (typeof service.sendMessage === 'function'
+            || typeof service.queuePrompt === 'function')
+        && typeof service.interrupt === 'function') {
+        return service;
+    }
+    return null;
+}
+//# sourceMappingURL=agents-host.js.map

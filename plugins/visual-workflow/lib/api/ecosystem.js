@@ -1,0 +1,25 @@
+// src/host/api/ecosystem.ts
+//
+// GUI API 生态枚举端点组（EcosystemEndpoints）：agent preset 模式 / 可选模型
+// （含思考强度档位）。
+//
+// preset 与模型的官方服务投影归 host 根横切契约（../ecosystem-directory.js）：
+// 同一批官方能力也被自主编排勘察工具消费，两处不得各建一份结构守卫与字段映射。
+import { listAgentPresets, listEcosystemModels } from '../ecosystem-directory.js';
+import { presentationOf, VisualWorkflowApiBase } from './boundary.js';
+export class EcosystemEndpoints extends VisualWorkflowApiBase {
+    // ---------- 生态枚举（presets / models） ----------
+    /** agent preset 模式列表（agentPresets 服务缺失时返回空列表）。 */
+    async presets() {
+        const presets = await listAgentPresets(this.ctx).catch((error) => {
+            const detail = error instanceof Error ? error.message : String(error);
+            throw new Error(presentationOf(this.host, `preset 列表读取失败：${detail}`, `Failed to read the preset list: ${detail}`));
+        });
+        return presets ?? [];
+    }
+    /** 可选模型列表（llm 服务缺失返回空列表；单 provider 失败跳过）。 */
+    async models() {
+        return await listEcosystemModels(this.ctx);
+    }
+}
+//# sourceMappingURL=ecosystem.js.map

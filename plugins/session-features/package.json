@@ -2,7 +2,7 @@
   "name": "@agent-studio/plugin-session-features",
   "version": "0.2.0",
   "type": "module",
-  "description": "保存会话任务清单与计划，支持暂停后继续，并在临时网络中断时自动重试。",
+  "description": "保存会话任务清单与计划，支持无额外提示词的检查点继续；网络重试由 DSH 原生恢复机制处理。",
   "main": "./index.js",
   "exports": {
     ".": "./index.js",
