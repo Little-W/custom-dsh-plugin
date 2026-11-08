@@ -1,5 +1,5 @@
 import sharp from 'sharp'
-import { basename } from 'node:path'
+import path, { basename, win32 } from 'node:path'
 
 export const name = '@agent-studio/plugin-dsh-codex'
 export const inject = ['tools', 'systemPrompt', 'fs', 'workingDirectory', 'attachments', 'llm']
@@ -8,19 +8,21 @@ export const CODEX_WORKING_RULES = `You are a coding agent that works directly i
 
 ## Shell-first execution
 - Use the native \`bash\` tool as the primary interface on Unix, or the native PowerShell tool on Windows. Run ordinary commands directly in that shell.
-- Put independent read-only tool calls in the same model turn so they can run concurrently; do not wait for one inspection before starting another. The host runs eligible tools concurrently and preserves result order.
+- Parallelize independent discovery calls. Once exact file paths are established by the user, \`list_dir\`, or \`glob\`, reads of different files may run concurrently. Never batch speculative file reads.
 - For ordinary workspace work, use Bash/PowerShell and native file tools directly when they are available. This keeps simple commands simple and avoids unnecessary wrapper programs.
 - PTC and \`run_code\` remain available when the selected session mode provides them. Use them when they fit the task; do not change or bypass the user's selected execution mode. When a direct shell tool is available, prefer it for ordinary shell commands.
 - Use \`grep\` for regular expressions. For source-code text containing punctuation such as parentheses, brackets, pipes, or question marks, use a fixed-string search (for example, \`rg -F\`) instead of passing the text as a regular expression.
 - Prefer \`rg\` for content search and \`rg --files\` for file discovery. Use \`apply_patch\` for focused edits; use formatters and generators when appropriate.
-- Batch independent read-only checks into one shell call. Avoid one-line-at-a-time tool calls and empty progress narration. Keep progress updates to one short note per meaningful milestone; do not emit a separate thought bubble for each inspection or command.
+- Avoid one-line-at-a-time tool calls and empty progress narration. Keep progress updates to one short note per meaningful milestone; do not emit a separate thought bubble for each inspection or command.
 - Check command exit status and inspect the relevant result before claiming success. Keep output bounded and narrow searches to the actual project.
 
 ## Grounded file discovery
-- Before reading a supplied path, confirm it exists from the active workspace. Resolve relative paths against the reported working directory; do not silently substitute another machine, mount, or checkout.
-- A missing path is not evidence that its contents exist elsewhere. Report the exact missing path and inspect the current workspace only when it can resolve the task.
-- Treat an empty search result as “no match in this search scope,” never as proof of file contents or project structure. Check the search root, list nearby files, then make at most one purposeful adjustment to the pattern or scope. Do not repeat the same failed query or fabricate results.
-- Distinguish an empty file, an absent file, a permission error, and a search timeout. Preserve the actual tool error in your conclusion.
+- Treat a file path as unverified until it appears exactly in a user-supplied path or a current \`list_dir\`/\`glob\` result. Never derive a sibling filename from naming patterns or from another file's contents.
+- Resolve relative paths against the active session workspace. For a new target, list its parent directory or run a narrow \`glob\` first; then read only the exact returned path. Do not substitute another mount, checkout, or machine.
+- A successful read is authoritative for that exact path and line window. Reuse its visible result; do not reread the same window unless the file changed or more lines are needed. Keep a compact evidence note with exact paths and whether each is present, absent, empty, or truncated.
+- If a read reports \`not found\`, stop that candidate. List the parent once and choose from the returned entries, or make one targeted \`glob\` search. Never retry the same inferred path. After context compaction, rediscover paths whose listing or read evidence is no longer visible.
+- A read reporting zero total lines means an existing empty file; do not invent contents. An absent path, permission failure, empty search, and search timeout are different outcomes. Preserve the exact outcome and scope. Do not infer project contents from an empty result. Do not repeat the same failed query.
+- Keep file listings, search scopes, and read windows narrow and bounded. If a listing is truncated, narrow it before selecting a path.
 
 ## Images and other media
 - Use image content already attached to the conversation directly; do not ask the user to transcribe visible details. For PNG/JPEG/WebP/GIF/SVG files in the workspace, use the native \`read_image\` tool and let the selected model inspect the actual image. For an SVG, \`read_image\` renders a safe PNG preview and returns it as image input.
@@ -35,7 +37,7 @@ const toolGuidance = {
   run_code: 'Use this code runner when the selected session mode provides it and code execution fits the task. Prefer the direct bash/PowerShell tool for ordinary shell commands when available. Follow the runner SDK and language it exposes; do not assume a different runtime.',
   bash: 'Use the original DSH bash tool and its original arguments and job handling. Run shell commands directly in the user\'s workspace; this is the primary tool for ordinary coding and file operations. Do not generate TypeScript or JavaScript wrappers for shell commands. Set workdir explicitly when needed, keep output bounded, and verify exit status. Only pass a job id to job_output or job_kill when that exact id was returned by bash in this session; never invent, reconstruct, or reuse an unknown id.',
   pwsh: 'Use this native PowerShell shell as the primary execution tool on Windows. Run commands directly; do not wrap routine file operations in generated TypeScript or Python. Keep output bounded and verify exit status.',
-  read: 'Read only paths verified to exist in the active workspace. Offsets are 1-based; if an offset falls past end-of-file, retry from the last valid line. For missing paths, preserve the exact error and verify the current root; never infer file contents.',
+  read: 'Read only an exact path returned by a current list_dir/glob result or supplied by the user. The result identifies the canonical path and total line count; totalLines=0 means the file exists and is empty. Reuse a visible read result instead of repeating the same window. Offsets are 1-based; if an offset falls past end-of-file, retry from the last valid line. If not found, stop and inspect the parent listing; never infer a sibling filename or file contents.',
   read_image: 'Use this tool for PNG/JPEG/WebP/GIF/SVG files in the workspace. SVG is safely rendered as a PNG preview and returned as actual image input. Inspect the image pixels; do not substitute guessed text descriptions.',
   image_generate: 'When the user requests a new or edited image, use this tool if it is listed in the available tools. It uses the separately configured image-generation component. If it is not listed, explain that the component must be enabled and configured; do not pretend it was invoked.',
   write: 'Use this native file tool to create or replace a file when appropriate. Verify the destination and keep edits inside the requested workspace; use edit or apply_patch for focused changes.',
@@ -43,12 +45,14 @@ const toolGuidance = {
   glob: 'Search a confirmed workspace root. A zero-result response means no paths matched this pattern in this scope; check the root and adjust the pattern once instead of repeating the same search.',
   grep: 'Search a confirmed workspace root using ripgrep regular-expression syntax. Escape regex metacharacters when searching literal code text; for literal source snippets with punctuation, prefer shell `rg -F`. If a regex is rejected, retry the query as a fixed string once. A zero-result response means no content matched this query in this scope; check the root and adjust the query once instead of repeating the same search.',
   apply_patch: 'Use this tool for focused, reviewable source edits. Verify the target path and patch context first; inspect the resulting diff and run relevant checks.',
-  list_dir: 'List the direct contents of a directory with list_dir. Use this for an initial directory inventory; use glob for recursive file discovery and read for file contents.',
+  list_dir: 'List the direct entries of a confirmed directory in the active session workspace. Use this to verify exact file names before reading; the listing is bounded and reports whether entries were omitted. Use glob for recursive file discovery.',
 }
 
 const GOAL_GUIDANCE = 'Goal creation and human-directed changes belong to the top-level agent. Create, edit, pause, or resume a goal only when the current turn contains a direct user message on that top-level agent. A resumed/automatic continuation or subagent turn must not request those actions; let the goal driver continue its admitted round. During the exact active goal round, complete or blocked may be reported only when their documented completion or repeated-blockage criteria are met. Before any authorized update, call get_goal in the current turn and use its exact goal_id and revision. Do not retry an authority error by guessing or changing goal identifiers.'
 
 const PARALLEL_READ_TOOLS = new Set(['read', 'read_image', 'glob', 'grep', 'list_dir'])
+const DIRECTORY_LIST_LIMIT = 120
+const MISSING_READ_CONTEXT_LIMIT = 20
 
 const SVG_MAX_BYTES = 8 * 1024 * 1024
 const SVG_FORBIDDEN = /<!DOCTYPE|<!ENTITY|<\s*script\b|<\s*foreignObject\b|@import|\son[a-z]+\s*=/i
@@ -64,6 +68,41 @@ function svgUnsafeReason(svg) {
     if (value && !value.startsWith('#')) return 'SVG references external content; remove external links before previewing.'
   }
   return undefined
+}
+
+function pathApiFor(filePath) {
+  return /^[A-Za-z]:[\\/]/.test(filePath) || filePath.startsWith('\\\\') ? win32 : path
+}
+
+async function explainMissingRead(ctx, args, exec, cause) {
+  const fs = ctx.fs
+  if (!fs || typeof args?.file_path !== 'string' || !/(?:not found|does not exist|ENOENT|FS_NOT_FOUND)/i.test(String(cause))) return cause
+
+  try {
+    const cwd = exec.agent === undefined ? undefined : await ctx.workingDirectory.ensure(exec.agent, exec.signal)
+    const target = await fs.resolve(args.file_path, { ...(cwd ? { cwd } : {}), signal: exec.signal })
+    if (await fs.stat(target, exec.signal) !== undefined) return cause
+    const paths = pathApiFor(target.displayPath)
+    const parentPath = paths.dirname(target.displayPath)
+    const parent = await fs.resolve(parentPath, { ...(cwd ? { cwd } : {}), signal: exec.signal })
+    const entries = await fs.listDir(parent, exec.signal)
+    const visible = entries.slice(0, MISSING_READ_CONTEXT_LIMIT)
+    const names = visible.map(entry => `${entry.type === 'directory' ? '[dir] ' : ''}${entry.name}`)
+    const listing = names.length > 0 ? names.join('\n') : '(empty directory)'
+    const more = entries.length > visible.length ? `\n[${entries.length - visible.length} more entries omitted]` : ''
+    return new Error(
+      `The requested file does not exist: "${target.displayPath}". No file content was read. `
+      + `The active workspace parent directory is "${parent.displayPath}"; use only an exact listed path or run one targeted glob search. `
+      + `Do not retry this inferred path. Parent entries (up to ${MISSING_READ_CONTEXT_LIMIT}):\n${listing}${more}\nOriginal read error: ${String(cause)}`,
+      { cause },
+    )
+  } catch (contextError) {
+    if (contextError === cause) return cause
+    return new Error(
+      `The requested file was not found and no content was read. Do not retry this inferred path; list its parent directory or run one targeted glob search. Original read error: ${String(cause)}. File-discovery context was unavailable: ${String(contextError)}`,
+      { cause },
+    )
+  }
 }
 
 function registerSvgCapableReadImage(ctx) {
@@ -170,7 +209,7 @@ function registerListDir(ctx) {
       },
       render: (_args, value) => [{
         type: 'text',
-        text: `${value.path}${value.entries.length ? `\n${value.entries.map(entry => `${entry.type === 'directory' ? '[dir] ' : ''}${entry.name}`).join('\n')}` : '\n(empty directory)'}${value.truncated ? '\n[listing truncated at 500 entries]' : ''}`,
+        text: `${value.path}${value.entries.length ? `\n${value.entries.map(entry => `${entry.type === 'directory' ? '[dir] ' : ''}${entry.name}`).join('\n')}` : '\n(empty directory)'}${value.truncated ? `\n[listing truncated at ${DIRECTORY_LIST_LIMIT} entries]` : ''}`,
       }],
     },
     isConcurrencySafe: () => true,
@@ -178,7 +217,7 @@ function registerListDir(ctx) {
       const cwd = exec.agent === undefined ? undefined : await ctx.workingDirectory.ensure(exec.agent, exec.signal)
       const target = await ctx.fs.resolve(args.path || '.', { ...cwd ? { cwd } : {}, signal: exec.signal })
       const listed = await ctx.fs.listDir(target, exec.signal)
-      const entries = listed.slice(0, 500).map(({ name, type, size }) => ({
+      const entries = listed.slice(0, DIRECTORY_LIST_LIMIT).map(({ name, type, size }) => ({
         name, type, ...(size === undefined ? {} : { size }),
       }))
       return { path: target.displayPath, entries, truncated: listed.length > entries.length }
@@ -254,6 +293,8 @@ export function apply(ctx) {
             return await original.execute(args, exec)
           } catch (error) {
             const message = error instanceof Error ? error.message : String(error)
+            const groundedError = await explainMissingRead(ctx, args, exec, error)
+            if (groundedError !== error) throw groundedError
             const match = message.match(/offset (\d+) is out of range for .+ \((\d+) lines?\)/i)
             if (!match || !args || typeof args !== 'object') throw error
             const requestedOffset = Number(match[1])

@@ -2,7 +2,7 @@
   "name": "@agent-studio/plugin-dsh-codex",
   "version": "0.1.2",
   "type": "module",
-  "description": "采用 Codex 编程提示与 shell 优先流程，支持并行检查、目录浏览、SVG 图片查看和搜索容错。",
+  "description": "Codex 编程提示与 shell 优先流程；先核实路径再读取，支持并行检查、限量目录列表、SVG 查看和搜索容错。",
   "main": "./index.js",
   "exports": {
     ".": "./index.js",

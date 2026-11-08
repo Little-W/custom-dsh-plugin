@@ -9,10 +9,14 @@ test('Codex guidance makes shell primary and prevents repeating empty searches',
   assert.match(CODEX_WORKING_RULES, /native `read_image` tool/)
   assert.match(CODEX_WORKING_RULES, /built-in `image_generate` tool/)
   assert.match(CODEX_WORKING_RULES, /renders a safe PNG preview/)
-  assert.match(CODEX_WORKING_RULES, /independent read-only tool calls in the same model turn/)
+  assert.match(CODEX_WORKING_RULES, /Parallelize independent discovery calls/)
   assert.match(CODEX_WORKING_RULES, /PTC and `run_code` remain available/)
   assert.doesNotMatch(CODEX_WORKING_RULES, /Never use `run_code`|do not submit it to `run_code`/)
   assert.match(CODEX_WORKING_RULES, /one short note per meaningful milestone/)
+  assert.match(CODEX_WORKING_RULES, /Never derive a sibling filename/)
+  assert.match(CODEX_WORKING_RULES, /After context compaction, rediscover paths/)
+  assert.match(CODEX_WORKING_RULES, /zero total lines means an existing empty file/)
+  assert.match(CODEX_WORKING_RULES, /Never batch speculative file reads/)
 })
 
 test('invalid grep regex retries as a literal source search', async () => {
@@ -57,6 +61,56 @@ test('read retries an out-of-range offset at the last existing line', async () =
   const result = await registered.get('read').execute({ file_path: 'build.gradle.kts', offset: 115 }, {})
   assert.deepEqual(offsets, [115, 96])
   assert.equal(result.offset, 96)
+})
+
+test('missing reads return bounded parent-directory evidence and do not retry the guessed path', async () => {
+  let readCalls = 0
+  let listedPath
+  const registered = new Map()
+  apply({
+    tools: {
+      get: name => name === 'read' ? {
+        name: 'read', description: '', parameters: {}, output: { schema: { type: 'object' } },
+        async execute() { readCalls += 1; throw new Error('cannot read "/workspace/app/DshWire.kt": not found') },
+      } : undefined,
+      register: tool => registered.set(tool.name, tool),
+    },
+    fs: {
+      async resolve(filePath) { return { displayPath: filePath } },
+      async stat() { return undefined },
+      async listDir(target) { listedPath = target.displayPath; return [{ name: 'DshApiClient.kt', type: 'file' }, { name: 'DshHttpClient.kt', type: 'file' }] },
+    },
+    workingDirectory: { async ensure() { return '/workspace' } },
+    systemPrompt: { section: () => () => {} },
+    on: () => () => {},
+  })
+
+  await assert.rejects(registered.get('read').execute({ file_path: '/workspace/app/DshWire.kt' }, {
+    agent: {}, signal: new AbortController().signal,
+  }), error => {
+    assert.match(error.message, /No file content was read/)
+    assert.match(error.message, /DshApiClient\.kt/)
+    assert.match(error.message, /Do not retry this inferred path/)
+    return true
+  })
+  assert.equal(readCalls, 1)
+  assert.equal(listedPath, '/workspace/app')
+})
+
+test('a confirmed zero-line file remains an empty file result, not a missing-path diagnosis', async () => {
+  const empty = { path: '/workspace/empty.txt', offset: 1, lines: [], totalLines: 0 }
+  const registered = new Map()
+  apply({
+    tools: {
+      get: name => name === 'read' ? { name: 'read', description: '', parameters: {}, output: {}, async execute() { return empty } } : undefined,
+      register: tool => registered.set(tool.name, tool),
+    },
+    systemPrompt: { section: () => () => {} },
+    on: () => () => {},
+  })
+  const result = await registered.get('read').execute({ file_path: '/workspace/empty.txt' }, { signal: new AbortController().signal })
+  assert.equal(result.totalLines, 0)
+  assert.deepEqual(result.lines, [])
 })
 
 test('native read_image converts safe SVG into an attached PNG for multimodal inspection', async () => {
@@ -134,11 +188,11 @@ test('plugin descriptions reflect implemented features without claiming image ge
     readFile(new URL('./cordis.patch.yml', import.meta.url), 'utf8'),
   ])
   for (const description of [pkg.description, zh.meta.description, en.meta.description]) {
-    assert.match(description, /并行检查|parallel inspections/)
+    assert.match(description, /并行检查|parallel .*inspections/)
     assert.match(description, /搜索容错|resilient search/)
     assert.doesNotMatch(description, /OpenAI.*图片生成|OpenAI image generation/i)
   }
-  assert.match(preset, /description: 采用 Codex 编程提示与 shell 优先流程/)
+  assert.match(preset, /description: Codex 编程提示与 shell 优先流程/)
   assert.doesNotMatch(preset, /OpenAI 图片生成/)
 })
 
@@ -164,7 +218,10 @@ test('preset-scoped tool overrides preserve contracts and replace the single nat
     tools: { get: name => name === 'list_dir' ? undefined : originals.get(name), register: definition => { registered.set(definition.name, definition); return () => {} } },
     fs: {
       async resolve(path, opts) { return { displayPath: `${opts.cwd || '/workspace'}/${path}`, targetKey: path } },
-      async listDir() { return [{ name: 'src', type: 'directory' }, { name: 'index.ts', type: 'file', size: 12 }] },
+      async listDir(target) {
+        if (target.displayPath.endsWith('/large')) return Array.from({ length: 130 }, (_, index) => ({ name: `file-${index}.ts`, type: 'file' }))
+        return [{ name: 'src', type: 'directory' }, { name: 'index.ts', type: 'file', size: 12 }]
+      },
     },
     workingDirectory: { async ensure() { return '/workspace' } },
     systemPrompt: { section: section => {
@@ -232,4 +289,8 @@ test('preset-scoped tool overrides preserve contracts and replace the single nat
     truncated: false,
   })
   assert.equal(registered.get('list_dir').output.render({}, listed)[0].text, '/workspace/src\n[dir] src\nindex.ts')
+  const bounded = await registered.get('list_dir').execute({ path: 'large' }, { agent: {}, signal: new AbortController().signal })
+  assert.equal(bounded.entries.length, 120)
+  assert.equal(bounded.truncated, true)
+  assert.match(registered.get('list_dir').output.render({}, bounded)[0].text, /listing truncated at 120 entries/)
 })

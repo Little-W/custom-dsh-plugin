@@ -1,6 +1,6 @@
 {
   "meta": {
     "title": "Codex Coding Assistant",
-    "description": "A Codex-inspired coding workflow with shell-first work, parallel inspections, directory listing, SVG viewing, and more resilient search."
+    "description": "Codex-inspired shell-first coding with path-verified reads, bounded directory listings, parallel verified inspections, SVG viewing, and resilient search."
   }
 }

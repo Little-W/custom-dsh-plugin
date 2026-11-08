@@ -7,7 +7,7 @@
 ## 当前插件
 
 - `plugins/blue-theme`：DeepSeek 蓝色主题，接入 DSH 官方主题服务。
-- `plugins/dsh-codex`：Codex 风格的 shell 优先工作模式、可靠文件搜索和原生图片阅读。
+- `plugins/dsh-codex`：Codex 风格的 shell 优先工作模式，先核实路径再读取，并提供目录探测、SVG 查看和搜索容错。
 - `plugins/eda-project`：EDA 项目设置和脚本工具箱。
 - `plugins/eda-tools`：EDA MCP 工具与脚本执行服务。
 - `plugins/batch-install`：从一个本地目录批量安装其中的 DSH 插件。

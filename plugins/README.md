@@ -5,7 +5,7 @@
 大多数插件只依赖 DSH 官方服务接口，相关官方包列为 peer dependency。OpenCode 模型提供商还需要 OpenCode 官方模型运行库（`@opencode/*`）和 `effect`，这些是该插件自己的公开运行时依赖。
 
 - `blue-theme`：DeepSeek 蓝色主题，使用 DSH 官方主题令牌服务。
-- `dsh-codex`：Codex 编程提示与 shell 优先流程，支持并行检查、目录浏览、SVG 图片查看和搜索容错。
+- `dsh-codex`：Codex 编程提示与 shell 优先流程，先核实路径再读取，并提供限量目录列表和搜索容错。
 - `batch-install`：扫描本地插件文件夹并一次安装全部有效插件。
 - `eda-project`：EDA 项目设置和脚本工具箱。
 - `eda-tools`：EDA MCP 工具与子进程服务。
