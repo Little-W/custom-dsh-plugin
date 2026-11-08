@@ -28,7 +28,7 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 ));
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-// src/client-eda-project.tsx
+// apps/dsh/src/client-eda-project.tsx
 var client_eda_project_exports = {};
 __export(client_eda_project_exports, {
   apply: () => apply,
@@ -36,16 +36,16 @@ __export(client_eda_project_exports, {
 });
 module.exports = __toCommonJS(client_eda_project_exports);
 
-// src/eda-project/client.tsx
+// apps/dsh/src/eda-project/client.tsx
 var import_react4 = require("react");
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/createLucideIcon.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/createLucideIcon.mjs
 var import_react3 = require("react");
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/toKebabCase.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/toKebabCase.mjs
 var toKebabCase = (string4) => string4?.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/toLucideIconData.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/toLucideIconData.mjs
 function toLucideIconData(iconName, iconNode, aliases = []) {
   if (iconNode == null) {
     throw new Error("[lucide]: iconNode is required when icon name is used");
@@ -58,7 +58,7 @@ function toLucideIconData(iconName, iconNode, aliases = []) {
   };
 }
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/toCamelCase.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/toCamelCase.mjs
 var toCamelCase = (string4) => {
   let out = "";
   let upperNext = false;
@@ -77,21 +77,21 @@ var toCamelCase = (string4) => {
   return out;
 };
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/toPascalCase.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/toPascalCase.mjs
 var toPascalCase = (string4) => {
   const camelCase = toCamelCase(string4);
   return camelCase.charAt(0).toUpperCase() + camelCase.slice(1);
 };
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/Icon.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/Icon.mjs
 var import_react2 = require("react");
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/mergeClasses.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/mergeClasses.mjs
 var mergeClasses = (...classes) => classes.filter((className, index, array2) => {
   return Boolean(className) && className.trim() !== "" && array2.indexOf(className) === index;
 }).join(" ").trim();
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/build/defaultAttributes.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/build/defaultAttributes.mjs
 var defaultAttributes = {
   xmlns: "http://www.w3.org/2000/svg",
   width: 24,
@@ -104,7 +104,7 @@ var defaultAttributes = {
   "stroke-linejoin": "round"
 };
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/build/buildLucideIconNode.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/build/buildLucideIconNode.mjs
 function isDefined(value) {
   return value !== null && value !== void 0;
 }
@@ -157,7 +157,7 @@ function buildLucideIconNode(icon, params = {}) {
   ];
 }
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/build/buildLucideIconForReact.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/build/buildLucideIconForReact.mjs
 function buildLucideIconForReact(icon, params = {}) {
   return buildLucideIconNode(icon, {
     ...params,
@@ -172,7 +172,7 @@ function buildLucideIconForReact(icon, params = {}) {
   });
 }
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/hasA11yProp.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/hasA11yProp.mjs
 var hasA11yProp = (props) => {
   for (const prop in props) {
     if (prop.startsWith("aria-") || prop === "role" || prop === "title") {
@@ -182,12 +182,12 @@ var hasA11yProp = (props) => {
   return false;
 };
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/context.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/context.mjs
 var import_react = require("react");
 var LucideContext = (0, import_react.createContext)({});
 var useLucideContext = () => (0, import_react.useContext)(LucideContext);
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/Icon.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/Icon.mjs
 var Icon = (0, import_react2.forwardRef)(
   ({
     color,
@@ -241,7 +241,7 @@ var Icon = (0, import_react2.forwardRef)(
   }
 );
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/createLucideIcon.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/createLucideIcon.mjs
 function createLucideIcon(iconDataOrName, iconNode = [], aliases = []) {
   const iconData = typeof iconDataOrName === "string" ? toLucideIconData(iconDataOrName, iconNode, aliases) : iconDataOrName;
   const Component = (0, import_react3.forwardRef)(
@@ -258,7 +258,7 @@ function createLucideIcon(iconDataOrName, iconNode = [], aliases = []) {
   return Component;
 }
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/arrow-down.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/arrow-down.mjs
 var __iconData = {
   name: "arrow-down",
   size: 24,
@@ -270,7 +270,7 @@ var __iconData = {
 __iconData.node;
 var ArrowDown = createLucideIcon(__iconData);
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/arrow-up-right.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/arrow-up-right.mjs
 var __iconData2 = {
   name: "arrow-up-right",
   size: 24,
@@ -282,7 +282,7 @@ var __iconData2 = {
 __iconData2.node;
 var ArrowUpRight = createLucideIcon(__iconData2);
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/arrow-up.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/arrow-up.mjs
 var __iconData3 = {
   name: "arrow-up",
   size: 24,
@@ -294,7 +294,7 @@ var __iconData3 = {
 __iconData3.node;
 var ArrowUp = createLucideIcon(__iconData3);
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/check.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/check.mjs
 var __iconData4 = {
   name: "check",
   size: 24,
@@ -303,7 +303,7 @@ var __iconData4 = {
 __iconData4.node;
 var Check = createLucideIcon(__iconData4);
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/code-xml.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/code-xml.mjs
 var __iconData5 = {
   name: "code-xml",
   size: 24,
@@ -317,7 +317,7 @@ var __iconData5 = {
 __iconData5.node;
 var CodeXml = createLucideIcon(__iconData5);
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/copy.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/copy.mjs
 var __iconData6 = {
   name: "copy",
   size: 24,
@@ -329,7 +329,7 @@ var __iconData6 = {
 __iconData6.node;
 var Copy = createLucideIcon(__iconData6);
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/cpu.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/cpu.mjs
 var __iconData7 = {
   name: "cpu",
   size: 24,
@@ -353,7 +353,7 @@ var __iconData7 = {
 __iconData7.node;
 var Cpu = createLucideIcon(__iconData7);
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/download.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/download.mjs
 var __iconData8 = {
   name: "download",
   size: 24,
@@ -366,7 +366,7 @@ var __iconData8 = {
 __iconData8.node;
 var Download = createLucideIcon(__iconData8);
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/external-link.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/external-link.mjs
 var __iconData9 = {
   name: "external-link",
   size: 24,
@@ -379,7 +379,7 @@ var __iconData9 = {
 __iconData9.node;
 var ExternalLink = createLucideIcon(__iconData9);
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/file-code-corner.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/file-code-corner.mjs
 var __iconData10 = {
   name: "file-code-corner",
   size: 24,
@@ -400,7 +400,7 @@ var __iconData10 = {
 __iconData10.node;
 var FileCodeCorner = createLucideIcon(__iconData10);
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/folder-open.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/folder-open.mjs
 var __iconData11 = {
   name: "folder-open",
   size: 24,
@@ -417,7 +417,7 @@ var __iconData11 = {
 __iconData11.node;
 var FolderOpen = createLucideIcon(__iconData11);
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/git-branch.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/git-branch.mjs
 var __iconData12 = {
   name: "git-branch",
   size: 24,
@@ -430,7 +430,7 @@ var __iconData12 = {
 __iconData12.node;
 var GitBranch = createLucideIcon(__iconData12);
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/loader-circle.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/loader-circle.mjs
 var __iconData13 = {
   name: "loader-circle",
   size: 24,
@@ -440,7 +440,7 @@ var __iconData13 = {
 __iconData13.node;
 var LoaderCircle = createLucideIcon(__iconData13);
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/plus.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/plus.mjs
 var __iconData14 = {
   name: "plus",
   size: 24,
@@ -452,7 +452,7 @@ var __iconData14 = {
 __iconData14.node;
 var Plus = createLucideIcon(__iconData14);
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/refresh-cw.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/refresh-cw.mjs
 var __iconData15 = {
   name: "refresh-cw",
   size: 24,
@@ -466,7 +466,7 @@ var __iconData15 = {
 __iconData15.node;
 var RefreshCw = createLucideIcon(__iconData15);
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/save.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/save.mjs
 var __iconData16 = {
   name: "save",
   size: 24,
@@ -485,7 +485,7 @@ var __iconData16 = {
 __iconData16.node;
 var Save = createLucideIcon(__iconData16);
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/settings-2.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/settings-2.mjs
 var __iconData17 = {
   name: "settings-2",
   size: 24,
@@ -499,7 +499,7 @@ var __iconData17 = {
 __iconData17.node;
 var Settings2 = createLucideIcon(__iconData17);
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/target.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/target.mjs
 var __iconData18 = {
   name: "target",
   size: 24,
@@ -512,7 +512,7 @@ var __iconData18 = {
 __iconData18.node;
 var Target = createLucideIcon(__iconData18);
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/timer.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/timer.mjs
 var __iconData19 = {
   name: "timer",
   size: 24,
@@ -525,7 +525,7 @@ var __iconData19 = {
 __iconData19.node;
 var Timer = createLucideIcon(__iconData19);
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/trash.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/trash.mjs
 var __iconData20 = {
   name: "trash",
   size: 24,
@@ -541,7 +541,7 @@ var __iconData20 = {
 __iconData20.node;
 var Trash = createLucideIcon(__iconData20);
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/upload.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/upload.mjs
 var __iconData21 = {
   name: "upload",
   size: 24,
@@ -554,7 +554,7 @@ var __iconData21 = {
 __iconData21.node;
 var Upload = createLucideIcon(__iconData21);
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/x.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/x.mjs
 var __iconData22 = {
   name: "x",
   size: 24,
@@ -566,7 +566,7 @@ var __iconData22 = {
 __iconData22.node;
 var X = createLucideIcon(__iconData22);
 
-// src/plugin-settings.tsx
+// apps/dsh/src/plugin-settings.tsx
 var import_jsx_runtime = require("react/jsx-runtime");
 function PluginSwitch({ label, checked, disabled, onChange }) {
   return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
@@ -634,7 +634,7 @@ div:has(> div > button.eda-sidebar-entry) { display:flex; flex-direction:column;
 @media (prefers-reduced-motion:reduce) { .studio-plugin-switch span { transition:none; } }
 `;
 
-// src/eda-project/client.tsx
+// apps/dsh/src/eda-project/client.tsx
 var import_jsx_runtime2 = require("react/jsx-runtime");
 function EdaProjectSettings({ view, manager, open: open2 }) {
   const [entry, setEntry] = (0, import_react4.useState)();
@@ -690,14 +690,14 @@ function EdaProjectSettings({ view, manager, open: open2 }) {
   ] });
 }
 
-// src/eda-project/sidebar.tsx
-var import_react10 = require("react");
+// apps/dsh/src/eda-project/sidebar.tsx
+var import_react11 = require("react");
 var import_client = require("react-dom/client");
 
-// src/eda-project/workbench.tsx
-var import_react9 = require("react");
+// apps/dsh/src/eda-project/workbench.tsx
+var import_react10 = require("react");
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/external.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/external.js
 var external_exports = {};
 __export(external_exports, {
   $brand: () => $brand,
@@ -960,7 +960,7 @@ __export(external_exports, {
   xor: () => xor
 });
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/index.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/index.js
 var core_exports2 = {};
 __export(core_exports2, {
   $ZodAny: () => $ZodAny,
@@ -1277,7 +1277,7 @@ __export(core_exports2, {
   withParser: () => withParser
 });
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/util.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/util.js
 var util_exports = {};
 __export(util_exports, {
   BIGINT_FORMAT_RANGES: () => BIGINT_FORMAT_RANGES,
@@ -2133,7 +2133,7 @@ function constantCatch(value) {
   return fn;
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/core.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/core.js
 var _a;
 var NEVER = /* @__PURE__ */ Object.freeze({
   status: "aborted"
@@ -2255,7 +2255,7 @@ function config(newConfig) {
   return globalConfig;
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/errors.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/errors.js
 function _getMessage() {
   const internals = this._zod;
   internals.message ?? (internals.message = JSON.stringify(internals.def, jsonStringifyReplacer, 2));
@@ -2447,7 +2447,7 @@ function prettifyError(error62) {
   return lines.join("\n");
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/parse.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/parse.js
 function finalizeParams(callee, params) {
   return { callee: params?.callee ?? callee, Err: params?.Err };
 }
@@ -2607,7 +2607,7 @@ var _safeDecodeAsync = (_Err) => async (schema, value, _ctx) => {
 };
 var safeDecodeAsync = /* @__PURE__ */ _safeDecodeAsync($ZodRealError);
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/regexes.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/regexes.js
 var regexes_exports = {};
 __export(regexes_exports, {
   anyString: () => anyString,
@@ -2779,7 +2779,7 @@ var sha512_hex = /^[0-9a-fA-F]{128}$/;
 var sha512_base64 = /* @__PURE__ */ fixedBase64(86, "==");
 var sha512_base64url = /* @__PURE__ */ fixedBase64url(86);
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/checks.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/checks.js
 var $ZodCheck = /* @__PURE__ */ $constructor("$ZodCheck", (inst, def) => {
   var _a3;
   inst._zod ?? (inst._zod = {});
@@ -3255,7 +3255,7 @@ var $ZodCheckOverwrite = /* @__PURE__ */ $constructor("$ZodCheckOverwrite", (ins
   };
 });
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/doc.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/doc.js
 var Doc = class {
   constructor(args = [], closed = {}) {
     this.content = [];
@@ -3296,14 +3296,14 @@ ${content.join("\n")}
   }
 };
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/versions.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/versions.js
 var version = {
   major: 4,
   minor: 6,
   patch: 7
 };
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/schemas.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/schemas.js
 var $ZodType = /* @__PURE__ */ $constructor("$ZodType", (inst, def) => {
   var _a3;
   inst ?? (inst = {});
@@ -5745,7 +5745,7 @@ function handleRefineResult(result, payload, input2, inst) {
   }
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/memoizer.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/memoizer.js
 var $ZodCyclicError = class extends Error {
   constructor() {
     super(`Cannot parse a reference cycle that closes through a transform`);
@@ -6022,7 +6022,7 @@ function isBackEdge(ctx, value) {
   return backEdges !== void 0 && isRef(value) && backEdges.has(value);
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/index.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/index.js
 var locales_exports = {};
 __export(locales_exports, {
   ar: () => ar_default,
@@ -6090,7 +6090,7 @@ __export(locales_exports, {
   zhTW: () => zh_TW_default
 });
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ar.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ar.js
 var error = () => {
   const Sizable = {
     string: { unit: "\u062D\u0631\u0641", verb: "\u0623\u0646 \u064A\u062D\u0648\u064A" },
@@ -6202,7 +6202,7 @@ function ar_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/az.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/az.js
 var error2 = () => {
   const Sizable = {
     string: { unit: "simvol", verb: "olmal\u0131d\u0131r" },
@@ -6313,7 +6313,7 @@ function az_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/be.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/be.js
 function getBelarusianPlural(count, one, few, many) {
   const absCount = Math.abs(count);
   const lastDigit = absCount % 10;
@@ -6482,7 +6482,7 @@ function be_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/bg.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/bg.js
 var error4 = () => {
   const Sizable = {
     string: { unit: "\u0441\u0438\u043C\u0432\u043E\u043B\u0430", verb: "\u0434\u0430 \u0441\u044A\u0434\u044A\u0440\u0436\u0430" },
@@ -6608,7 +6608,7 @@ function bg_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/bn.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/bn.js
 var error5 = () => {
   const Sizable = {
     string: { unit: "\u0985\u0995\u09CD\u09B7\u09B0", verb: "\u09A5\u09BE\u0995\u09A4\u09C7 \u09B9\u09AC\u09C7" },
@@ -6722,7 +6722,7 @@ function bn_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ca.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ca.js
 var error6 = () => {
   const Sizable = {
     string: { unit: "car\xE0cters", verb: "contenir" },
@@ -6836,7 +6836,7 @@ function ca_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ckb.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ckb.js
 var error7 = () => {
   const Sizable = {
     string: { unit: "\u067E\u06CC\u062A", verb: "\u0628\u06CE\u062A" },
@@ -6969,7 +6969,7 @@ function ckb_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/cs.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/cs.js
 var error8 = () => {
   const Sizable = {
     string: { unit: "znak\u016F", verb: "m\xEDt" },
@@ -7086,7 +7086,7 @@ function cs_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/da.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/da.js
 var error9 = () => {
   const Sizable = {
     string: { unit: "tegn", verb: "havde" },
@@ -7207,7 +7207,7 @@ function da_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/de.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/de.js
 var error10 = () => {
   const Sizable = {
     string: { unit: "Zeichen", verb: "zu haben" },
@@ -7321,7 +7321,7 @@ function de_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/el.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/el.js
 var error11 = () => {
   const Sizable = {
     string: { unit: "\u03C7\u03B1\u03C1\u03B1\u03BA\u03C4\u03AE\u03C1\u03B5\u03C2", verb: "\u03BD\u03B1 \u03AD\u03C7\u03B5\u03B9" },
@@ -7434,7 +7434,7 @@ function el_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/en.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/en.js
 var error12 = () => {
   const Sizable = {
     string: { unit: "characters", verb: "to have" },
@@ -7559,7 +7559,7 @@ function en_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/eo.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/eo.js
 var error13 = () => {
   const Sizable = {
     string: { unit: "karaktrojn", verb: "havi" },
@@ -7674,7 +7674,7 @@ function eo_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/es.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/es.js
 var error14 = () => {
   const Sizable = {
     string: { unit: "caracteres", verb: "tener" },
@@ -7811,7 +7811,7 @@ function es_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/fa.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/fa.js
 var error15 = () => {
   const Sizable = {
     string: { unit: "\u06A9\u0627\u0631\u0627\u06A9\u062A\u0631", verb: "\u062F\u0627\u0634\u062A\u0647 \u0628\u0627\u0634\u062F" },
@@ -7931,7 +7931,7 @@ function fa_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/fi.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/fi.js
 var error16 = () => {
   const Sizable = {
     string: { unit: "merkki\xE4", subject: "merkkijonon" },
@@ -8049,7 +8049,7 @@ function fi_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/fr.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/fr.js
 var error17 = () => {
   const Sizable = {
     string: { unit: "caract\xE8res", verb: "avoir" },
@@ -8179,7 +8179,7 @@ function fr_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/fr-CA.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/fr-CA.js
 var error18 = () => {
   const Sizable = {
     string: { unit: "caract\xE8res", verb: "avoir" },
@@ -8292,7 +8292,7 @@ function fr_CA_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/gu.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/gu.js
 var error19 = () => {
   const Sizable = {
     string: { unit: "\u0A85\u0A95\u0ACD\u0AB7\u0AB0", verb: "\u0AB9\u0ACB\u0AB5\u0ABE \u0A9C\u0ACB\u0A88\u0A8F" },
@@ -8406,7 +8406,7 @@ function gu_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/he.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/he.js
 var error20 = () => {
   const TypeNames = {
     string: { label: "\u05DE\u05D7\u05E8\u05D5\u05D6\u05EA", gender: "f" },
@@ -8608,7 +8608,7 @@ function he_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/hi.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/hi.js
 var error21 = () => {
   const Sizable = {
     string: { unit: "\u0905\u0915\u094D\u0937\u0930", verb: "\u0930\u0916\u0928\u0947 \u0915\u0947 \u0932\u093F\u090F" },
@@ -8720,7 +8720,7 @@ function hi_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/hr.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/hr.js
 var error22 = () => {
   const Sizable = {
     string: { unit: "znakova", verb: "imati" },
@@ -8847,7 +8847,7 @@ function hr_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/hu.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/hu.js
 var error23 = () => {
   const Sizable = {
     string: { unit: "karakter", verb: "legyen" },
@@ -8961,7 +8961,7 @@ function hu_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/hy.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/hy.js
 function getArmenianPlural(count, one, many) {
   return Math.abs(count) === 1 ? one : many;
 }
@@ -9120,7 +9120,7 @@ function hy_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/id.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/id.js
 var error25 = () => {
   const Sizable = {
     string: { unit: "karakter", verb: "memiliki" },
@@ -9232,7 +9232,7 @@ function id_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/is.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/is.js
 var error26 = () => {
   const Sizable = {
     string: { unit: "stafi", verb: "a\xF0 hafa" },
@@ -9347,7 +9347,7 @@ function is_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/it.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/it.js
 var error27 = () => {
   const Sizable = {
     string: { unit: "caratteri", verb: "avere" },
@@ -9461,7 +9461,7 @@ function it_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ja.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ja.js
 var error28 = () => {
   const Sizable = {
     string: { unit: "\u6587\u5B57", verb: "\u3067\u3042\u308B" },
@@ -9574,7 +9574,7 @@ function ja_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ka.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ka.js
 var error29 = () => {
   const Sizable = {
     string: { unit: "\u10E1\u10D8\u10DB\u10D1\u10DD\u10DA\u10DD", verb: "\u10E3\u10DC\u10D3\u10D0 \u10E8\u10D4\u10D8\u10EA\u10D0\u10D5\u10D3\u10D4\u10E1" },
@@ -9692,7 +9692,7 @@ function ka_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/km.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/km.js
 var error30 = () => {
   const Sizable = {
     string: { unit: "\u178F\u17BD\u17A2\u1780\u17D2\u179F\u179A", verb: "\u1782\u17BD\u179A\u1798\u17B6\u1793" },
@@ -9808,12 +9808,12 @@ function km_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/kh.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/kh.js
 function kh_default() {
   return km_default();
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/kn.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/kn.js
 var error31 = () => {
   const Sizable = {
     string: { unit: "\u0C85\u0C95\u0CCD\u0CB7\u0CB0\u0C97\u0CB3\u0CC1", verb: "\u0CB9\u0CCA\u0C82\u0CA6\u0CB2\u0CC1" },
@@ -9929,7 +9929,7 @@ function kn_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ko.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ko.js
 var error32 = () => {
   const Sizable = {
     string: { unit: "\uBB38\uC790", verb: "to have" },
@@ -10046,7 +10046,7 @@ function ko_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/lt.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/lt.js
 var capitalizeFirstCharacter = (text2) => {
   return text2.charAt(0).toUpperCase() + text2.slice(1);
 };
@@ -10254,7 +10254,7 @@ function lt_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/mk.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/mk.js
 var error34 = () => {
   const Sizable = {
     string: { unit: "\u0437\u043D\u0430\u0446\u0438", verb: "\u0434\u0430 \u0438\u043C\u0430\u0430\u0442" },
@@ -10369,7 +10369,7 @@ function mk_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ms.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ms.js
 var error35 = () => {
   const Sizable = {
     string: { unit: "aksara", verb: "mempunyai" },
@@ -10482,7 +10482,7 @@ function ms_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ne.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ne.js
 var error36 = () => {
   const Sizable = {
     string: { unit: "\u0905\u0915\u094D\u0937\u0930", verb: "\u0939\u0941\u0928\u0941\u092A\u0930\u094D\u091B" },
@@ -10594,7 +10594,7 @@ function ne_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/nl.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/nl.js
 var error37 = () => {
   const Sizable = {
     string: { unit: "tekens", verb: "heeft" },
@@ -10710,7 +10710,7 @@ function nl_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/nn.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/nn.js
 var error38 = () => {
   const Sizable = {
     string: { unit: "teikn", verb: "\xE5 ha" },
@@ -10824,7 +10824,7 @@ function nn_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/no.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/no.js
 var error39 = () => {
   const Sizable = {
     string: { unit: "tegn", verb: "\xE5 ha" },
@@ -10938,7 +10938,7 @@ function no_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ota.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ota.js
 var error40 = () => {
   const Sizable = {
     string: { unit: "harf", verb: "olmal\u0131d\u0131r" },
@@ -11053,7 +11053,7 @@ function ota_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ps.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ps.js
 var error41 = () => {
   const Sizable = {
     string: { unit: "\u062A\u0648\u06A9\u064A", verb: "\u0648\u0644\u0631\u064A" },
@@ -11173,7 +11173,7 @@ function ps_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/pl.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/pl.js
 var error42 = () => {
   const Sizable = {
     string: { unit: "znak\xF3w", verb: "mie\u0107" },
@@ -11288,7 +11288,7 @@ function pl_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/pt.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/pt.js
 var error43 = () => {
   const Sizable = {
     string: { unit: "caracteres" },
@@ -11432,7 +11432,7 @@ function pt_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/pt-BR.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/pt-BR.js
 var error44 = () => {
   const Sizable = {
     string: { unit: "caracteres" },
@@ -11577,7 +11577,7 @@ function pt_BR_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ro.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ro.js
 var error45 = () => {
   const Sizable = {
     string: { unit: "caractere", verb: "s\u0103 aib\u0103" },
@@ -11700,7 +11700,7 @@ function ro_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ru.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ru.js
 function getRussianPlural(count, one, few, many) {
   const absCount = Math.abs(count);
   const lastDigit = absCount % 10;
@@ -11869,7 +11869,7 @@ function ru_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/sk.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/sk.js
 var error47 = () => {
   const Sizable = {
     string: { unit: "znakov", verb: "ma\u0165" },
@@ -11986,7 +11986,7 @@ function sk_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/sl.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/sl.js
 var error48 = () => {
   const Sizable = {
     string: { unit: "znakov", verb: "imeti" },
@@ -12101,7 +12101,7 @@ function sl_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/sv.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/sv.js
 var error49 = () => {
   const Sizable = {
     string: { unit: "tecken", verb: "att ha" },
@@ -12217,7 +12217,7 @@ function sv_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ta.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ta.js
 var error50 = () => {
   const Sizable = {
     string: { unit: "\u0B8E\u0BB4\u0BC1\u0BA4\u0BCD\u0BA4\u0BC1\u0B95\u0BCD\u0B95\u0BB3\u0BCD", verb: "\u0B95\u0BCA\u0BA3\u0BCD\u0B9F\u0BBF\u0BB0\u0BC1\u0B95\u0BCD\u0B95 \u0BB5\u0BC7\u0BA3\u0BCD\u0B9F\u0BC1\u0BAE\u0BCD" },
@@ -12333,7 +12333,7 @@ function ta_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/tg.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/tg.js
 var error51 = () => {
   const Sizable = {
     string: { unit: "\u0430\u043B\u043E\u043C\u0430\u0442", verb: "\u0434\u043E\u0448\u0442\u0430 \u0431\u043E\u0448\u0430\u0434" },
@@ -12450,7 +12450,7 @@ function tg_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/th.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/th.js
 var error52 = () => {
   const Sizable = {
     string: { unit: "\u0E15\u0E31\u0E27\u0E2D\u0E31\u0E01\u0E29\u0E23", verb: "\u0E04\u0E27\u0E23\u0E21\u0E35" },
@@ -12566,7 +12566,7 @@ function th_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/tk.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/tk.js
 var error53 = () => {
   const Sizable = {
     string: { unit: "simwol", verb: "bolmaly" },
@@ -12674,7 +12674,7 @@ function tk_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/tr.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/tr.js
 var error54 = () => {
   const Sizable = {
     string: { unit: "karakter", verb: "olmal\u0131" },
@@ -12785,7 +12785,7 @@ function tr_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/uk.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/uk.js
 var error55 = () => {
   const Sizable = {
     string: { unit: "\u0441\u0438\u043C\u0432\u043E\u043B\u0456\u0432", verb: "\u043C\u0430\u0442\u0438\u043C\u0435" },
@@ -12899,12 +12899,12 @@ function uk_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ua.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ua.js
 function ua_default() {
   return uk_default();
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ur.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/ur.js
 var error56 = () => {
   const Sizable = {
     string: { unit: "\u062D\u0631\u0648\u0641", verb: "\u06C1\u0648\u0646\u0627" },
@@ -13020,7 +13020,7 @@ function ur_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/uz.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/uz.js
 var error57 = () => {
   const Sizable = {
     string: { unit: "belgi", verb: "bo\u2018lishi kerak" },
@@ -13134,7 +13134,7 @@ function uz_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/vi.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/vi.js
 var error58 = () => {
   const Sizable = {
     string: { unit: "k\xFD t\u1EF1", verb: "c\xF3" },
@@ -13248,7 +13248,7 @@ function vi_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/zh-CN.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/zh-CN.js
 var error59 = () => {
   const Sizable = {
     string: { unit: "\u5B57\u7B26", verb: "\u5305\u542B" },
@@ -13363,7 +13363,7 @@ function zh_CN_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/zh-TW.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/zh-TW.js
 var error60 = () => {
   const Sizable = {
     string: { unit: "\u5B57\u5143", verb: "\u64C1\u6709" },
@@ -13476,7 +13476,7 @@ function zh_TW_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/yo.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/yo.js
 var error61 = () => {
   const Sizable = {
     string: { unit: "\xE0mi", verb: "n\xED" },
@@ -13589,7 +13589,7 @@ function yo_default() {
   };
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/registries.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/registries.js
 var _a2;
 var $output = /* @__PURE__ */ Symbol("ZodOutput");
 var $input = /* @__PURE__ */ Symbol("ZodInput");
@@ -13639,7 +13639,7 @@ function registry() {
 (_a2 = globalThis).__zod_globalRegistry ?? (_a2.__zod_globalRegistry = registry());
 var globalRegistry = globalThis.__zod_globalRegistry;
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/compile.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/compile.js
 var INVALID = /* @__PURE__ */ Symbol.for("zod.compile.invalid");
 var FALLBACK_FLAG = /* @__PURE__ */ Symbol.for("zod.compile.fallback");
 var ZodCompileAsyncError = class extends Error {
@@ -15249,7 +15249,7 @@ function generateTransformCheck(doc, ctx, schema, accessor) {
   return accessor;
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/api.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/api.js
 function snapshotChecks(def) {
   if (def.checks)
     def.checks = [...def.checks];
@@ -16308,7 +16308,7 @@ function _stringFormat(Class2, format, fnOrRegex, _params = {}) {
   return inst;
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/to-json-schema.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/to-json-schema.js
 function assignProps(target, ...sources) {
   for (const source of sources) {
     for (const key of Reflect.ownKeys(source)) {
@@ -16838,7 +16838,7 @@ var createStandardJSONSchemaMethod = (schema, io, processors = {}) => (params) =
   return finalize(ctx, schema);
 };
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/json-schema-processors.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/json-schema-processors.js
 var narrowMin = (agg, key, value) => {
   if (agg[key] === void 0 || value > agg[key])
     agg[key] = value;
@@ -17586,7 +17586,7 @@ function toJSONSchema(input2, params) {
   return finalize(ctx, input2);
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/json-schema-generator.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/json-schema-generator.js
 var JSONSchemaGenerator = class {
   /** @deprecated Access via ctx instead */
   get metadataRegistry() {
@@ -17664,10 +17664,10 @@ var JSONSchemaGenerator = class {
   }
 };
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/json-schema.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/json-schema.js
 var json_schema_exports = {};
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/schemas.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/schemas.js
 var schemas_exports2 = {};
 __export(schemas_exports2, {
   ZodAny: () => ZodAny,
@@ -17848,7 +17848,7 @@ __export(schemas_exports2, {
   xor: () => xor
 });
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/checks.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/checks.js
 var checks_exports2 = {};
 __export(checks_exports2, {
   endsWith: () => _endsWith,
@@ -17883,7 +17883,7 @@ __export(checks_exports2, {
   uppercase: () => _uppercase
 });
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/errors.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/errors.js
 var _installedErrorProtos = /* @__PURE__ */ new WeakSet([Object.prototype, Error.prototype]);
 function _lazyMethod(proto, key, make) {
   Object.defineProperty(proto, key, {
@@ -17929,7 +17929,7 @@ var ZodRealError = /* @__PURE__ */ $constructor("ZodError", initializer2, void 0
   Parent: Error
 });
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/parse.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/parse.js
 var parse2 = /* @__PURE__ */ _parse(ZodRealError);
 var parseAsync2 = /* @__PURE__ */ _parseAsync(ZodRealError);
 var safeParse2 = /* @__PURE__ */ _safeParse(ZodRealError);
@@ -17943,7 +17943,7 @@ var safeDecode2 = /* @__PURE__ */ _safeDecode(ZodRealError);
 var safeEncodeAsync2 = /* @__PURE__ */ _safeEncodeAsync(ZodRealError);
 var safeDecodeAsync2 = /* @__PURE__ */ _safeDecodeAsync(ZodRealError);
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/schemas.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/schemas.js
 function _ensureDefaultLocale() {
   if (!globalConfig.localeError)
     config(en_default());
@@ -19408,7 +19408,7 @@ function preprocess(fn, schema) {
   });
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/compat.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/compat.js
 var ZodIssueCode = {
   invalid_type: "invalid_type",
   too_big: "too_big",
@@ -19434,7 +19434,7 @@ var ZodFirstPartyTypeKind;
 /* @__PURE__ */ (function(ZodFirstPartyTypeKind2) {
 })(ZodFirstPartyTypeKind || (ZodFirstPartyTypeKind = {}));
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/iso.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/iso.js
 var iso_exports = {};
 __export(iso_exports, {
   ZodISODate: () => ZodISODate,
@@ -19459,7 +19459,7 @@ function duration2(params) {
   return _isoDuration(ZodISODuration, params);
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/from-json-schema.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/from-json-schema.js
 var z = {
   ...schemas_exports2,
   ...checks_exports2,
@@ -20192,7 +20192,7 @@ function fromJSONSchema(schema, params) {
   return convertSchema(normalized, ctx);
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/visit.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/visit.js
 var RESOLVING = /* @__PURE__ */ Symbol("z.visit/resolving");
 function visit(schema, fnOrHandlers) {
   const fn = typeof fnOrHandlers === "function" ? fnOrHandlers : (node2, rewritten) => {
@@ -20347,7 +20347,7 @@ function visit(schema, fnOrHandlers) {
   return run(schema);
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/deep-partial.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/deep-partial.js
 function deepPartial(schema) {
   return visit(schema, {
     object: (s) => s.partial(),
@@ -20359,7 +20359,7 @@ function deepPartial(schema) {
   });
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/in-out.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/in-out.js
 function withChecks(side, checks) {
   if (!checks?.length)
     return side;
@@ -20389,7 +20389,7 @@ function output(schema) {
   });
 }
 
-// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/coerce.js
+// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/coerce.js
 var coerce_exports = {};
 __export(coerce_exports, {
   bigint: () => bigint3,
@@ -20414,7 +20414,7 @@ function date4(params) {
   return _coercedDate(ZodDate, params);
 }
 
-// src/eda-project/toolbox-config.ts
+// apps/dsh/src/eda-project/toolbox-config.ts
 var FLOW_STAGES = ["full", "read_link", "synthesis", "drc_check", "pre_insertion", "scan_insertion", "mbist_insertion", "mbist_simulation"];
 var EXTENSION_STAGES = ["before_analyze", "after_link", "pre", "constraints", "before_compile", "post", "before_synthesis_export", "dft_insertion", "after_test_protocol", "after_pre_drc", "before_scan_insertion", "after_scan_insertion", "dft_verification", "before_scan_export", "mbist_insertion", "tessent_dofile"];
 var ARGUMENT_TARGETS = ["compile", "set_scan_configuration", "create_test_protocol", "report_timing", "preview_dft", "insert_dft"];
@@ -20515,14 +20515,32 @@ var reportSchema = external_exports.object({
   instances: external_exports.boolean().default(true),
   clock_gating: external_exports.boolean().default(true)
 }).strict();
+var mmmcSchema = external_exports.object({
+  library_sets: external_exports.array(external_exports.object({ name: text.min(1), libs: strings }).strict()).max(64).default([]),
+  rc_corners: external_exports.array(external_exports.object({ name: text.min(1), model_type: external_exports.enum(["qx_tech_file", "cap_table"]).default("qx_tech_file"), model_file: text.default("") }).strict()).max(64).default([]),
+  delay_corners: external_exports.array(external_exports.object({ name: text.min(1), library_set: text.min(1), rc_corner: text.min(1) }).strict()).max(64).default([]),
+  constraint_modes: external_exports.array(external_exports.object({ name: text.min(1), sdc_files: strings }).strict()).max(64).default([]),
+  analysis_views: external_exports.array(external_exports.object({ name: text.min(1), constraint_mode: text.min(1), delay_corner: text.min(1) }).strict()).max(128).default([]),
+  setup_views: strings,
+  hold_views: strings
+}).strict().prefault({});
+var floorplanInitSchema = external_exports.object({
+  ui: external_exports.literal("legacy").default("legacy"),
+  site: text.default(""),
+  core_size: external_exports.tuple([positive, positive, nonnegative, nonnegative, nonnegative, nonnegative]).nullable().default(null),
+  pin_assignment_file: text.default("")
+}).strict().prefault({});
 var backendSchema = external_exports.object({
   enabled: external_exports.boolean().default(false),
+  start_mode: external_exports.enum(["from_existing_floorplan", "from_netlist"]).default("from_existing_floorplan"),
   netlist: text.default(""),
   top_cell: text.default(""),
   tech_lef: text.default(""),
   cell_lefs: strings,
   mmmc_file: text.default(""),
+  mmmc_config: mmmcSchema,
   floorplan_def: text.default(""),
+  floorplan_init: floorplanInitSchema,
   scan_def: text.default(""),
   global_connect_file: text.default(""),
   streamout_map: text.default(""),
@@ -20577,7 +20595,7 @@ var toolboxSchema = external_exports.object({
   source_replacements: external_exports.array(override).max(512).default([])
 }).strict();
 
-// src/eda-project/metric-catalog.ts
+// apps/dsh/src/eda-project/metric-catalog.ts
 var METRIC_CATALOG = [
   {
     "id": "test_coverage",
@@ -21197,14 +21215,14 @@ var FAULT_MODELS = [
   }
 ];
 
-// src/eda-project/project-types.ts
+// apps/dsh/src/eda-project/project-types.ts
 var EDA_STAGES = [.../* @__PURE__ */ new Set(["synthesis", "constraints", "dft", "timing", "pnr", "verification", "custom", ...EXTENSION_STAGES])];
 var EDA_KINDS = ["tcl", "sdc", "do", "sh"];
 function newEdaId(prefix) {
   return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
-// src/eda-project/client-api.ts
+// apps/dsh/src/eda-project/client-api.ts
 async function edaRequest(endpoint, data) {
   const response = await fetch(`eda-project/${endpoint}`, { credentials: "same-origin", ...data !== void 0 ? { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(data) } : {} });
   const result = await response.json();
@@ -21227,7 +21245,7 @@ function validateProjectDraft(project) {
   }
 }
 
-// src/eda-project/project-scripts.ts
+// apps/dsh/src/eda-project/project-scripts.ts
 function workflowTaskBrief(project) {
   const enabled = project.targets.filter((target) => target.enabled);
   const scripts = project.scripts.filter((script) => script.enabled).map((script) => `- ${script.name} (${script.stage}/${script.kind})${script.path ? `: ${script.path}` : ""}`);
@@ -21261,7 +21279,7 @@ function workflowTaskBrief(project) {
   ].join("\n");
 }
 
-// src/eda-project/forms.tsx
+// apps/dsh/src/eda-project/forms.tsx
 var import_react5 = __toESM(require("react"), 1);
 var import_jsx_runtime3 = require("react/jsx-runtime");
 function Field({ label, children, full = false }) {
@@ -21331,7 +21349,8 @@ function RowsEditor({ title, rows, fields, create, onChange }) {
   ] });
 }
 
-// src/eda-project/config-pages.tsx
+// apps/dsh/src/eda-project/config-pages.tsx
+var import_react6 = __toESM(require("react"), 1);
 var import_jsx_runtime4 = require("react/jsx-runtime");
 function ProjectDetails({ project: p, change, pickDirectory, page = "basic" }) {
   const pathField = (label, key) => /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Field, { label, full: true, children: /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("span", { className: "eda-path-input", children: [
@@ -21387,25 +21406,75 @@ function InputSettings({ config: c, change }) {
 }
 function BackendSettings({ config: c, change }) {
   const b = c.backend, set2 = (patch) => change({ ...c, backend: { ...b, ...patch } });
+  const [mmmcJson, setMmmcJson] = import_react6.default.useState(JSON.stringify(b.mmmc_config, null, 2));
+  const [mmmcJsonValid, setMmmcJsonValid] = import_react6.default.useState(true);
+  const [coreSizeText, setCoreSizeText] = import_react6.default.useState(b.floorplan_init.core_size?.join(", ") ?? "");
+  const [coreSizeValid, setCoreSizeValid] = import_react6.default.useState(true);
+  import_react6.default.useEffect(() => {
+    setMmmcJson(JSON.stringify(b.mmmc_config, null, 2));
+    setMmmcJsonValid(true);
+  }, [b.mmmc_config]);
+  import_react6.default.useEffect(() => {
+    setCoreSizeText(b.floorplan_init.core_size?.join(", ") ?? "");
+    setCoreSizeValid(true);
+  }, [b.floorplan_init.core_size]);
+  const updateMmmcJson = (value) => {
+    setMmmcJson(value);
+    try {
+      const parsed = JSON.parse(value);
+      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) throw new Error("expected object");
+      set2({ mmmc_config: parsed });
+      setMmmcJsonValid(true);
+    } catch {
+      setMmmcJsonValid(false);
+    }
+  };
+  const updateCoreSize = (value) => {
+    setCoreSizeText(value);
+    const values = value.split(/[\s,]+/).filter(Boolean).map(Number);
+    if (!value.trim()) {
+      set2({ floorplan_init: { ...b.floorplan_init, core_size: null } });
+      setCoreSizeValid(true);
+    } else if (values.length === 6 && values.every(Number.isFinite) && values[0] > 0 && values[1] > 0 && values.slice(2).every((item) => item >= 0)) {
+      set2({ floorplan_init: { ...b.floorplan_init, core_size: values } });
+      setCoreSizeValid(true);
+    } else setCoreSizeValid(false);
+  };
   const power = b.power_grid, setPower = (patch) => set2({ power_grid: { ...power, ...patch } });
   return /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)(import_jsx_runtime4.Fragment, { children: [
     /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { className: "eda-section-heading", children: [
       /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { children: [
         /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("h3", { children: "Innovus \u540E\u7AEF\u5B9E\u73B0" }),
-        /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("p", { children: "\u6309\u9879\u76EE\u5DE5\u827A\u4E0E\u5E93\u914D\u7F6E\u751F\u6210\u5B8C\u6574\u7684\u7269\u7406\u5B9E\u73B0 Tcl \u9636\u6BB5\u3002" })
+        /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("p", { children: "\u9009\u62E9\u660E\u786E\u7684\u5165\u53E3\uFF1B\u751F\u6210\u5668\u53EA\u7EC4\u5408\u5DF2\u767B\u8BB0\u8F93\u5165\uFF0C\u4E0D\u4EE3\u586B PDK \u6216\u7269\u7406\u89C4\u5212\u53C2\u6570\u3002" })
       ] }),
       /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Check2, { label: "\u542F\u7528\u540E\u7AEF\u811A\u672C\u751F\u6210", value: b.enabled, onChange: (enabled) => set2({ enabled }) })
     ] }),
     /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("section", { className: "eda-config-section", children: [
       /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("h3", { children: "\u8BBE\u8BA1\u4E0E\u6280\u672F\u8F93\u5165" }),
       /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { className: "eda-form-grid", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(SelectField, { label: "\u540E\u7AEF\u5165\u53E3", value: b.start_mode, options: [["from_netlist", "\u4ECE\u7EFC\u5408\u7F51\u8868\u5F00\u59CB"], ["from_existing_floorplan", "\u4ECE\u5DF2\u6709 Floorplan DEF \u6062\u590D"]], onChange: (start_mode) => set2({ start_mode }) }),
         /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Field, { label: "\u9876\u5C42\u6A21\u5757", children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("input", { value: b.top_cell, placeholder: c.language === "verilog" ? "top" : "project_top", onChange: (event) => set2({ top_cell: event.target.value }) }) }),
         /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(NumberField, { label: "\u5E76\u884C CPU \u6570", value: b.cpu_count, onChange: (cpu_count) => set2({ cpu_count }) }),
         /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Field, { label: "\u7EFC\u5408\u7F51\u8868\uFF08\u76F8\u5BF9\u6E90\u7801\u76EE\u5F55\uFF09", full: true, children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("input", { value: b.netlist, placeholder: "syn/netlist.v", onChange: (event) => set2({ netlist: event.target.value }) }) }),
         /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Field, { label: "Technology LEF\uFF08\u76F8\u5BF9\u6E90\u7801\u76EE\u5F55\uFF09", full: true, children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("input", { value: b.tech_lef, placeholder: "lib/tech.lef", onChange: (event) => set2({ tech_lef: event.target.value }) }) }),
         /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(LinesField, { label: "\u6807\u51C6\u5355\u5143 / \u5B8F LEF\uFF08\u6BCF\u884C\u4E00\u4E2A\u8DEF\u5F84\uFF09", value: b.cell_lefs, onChange: (cell_lefs) => set2({ cell_lefs }) }),
-        /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Field, { label: "MMMC \u914D\u7F6E Tcl\uFF08\u76F8\u5BF9\u6E90\u7801\u76EE\u5F55\uFF09", children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("input", { value: b.mmmc_file, placeholder: "config/mmmc.tcl", onChange: (event) => set2({ mmmc_file: event.target.value }) }) }),
-        /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Field, { label: "Floorplan DEF\uFF08\u76F8\u5BF9\u6E90\u7801\u76EE\u5F55\uFF09", children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("input", { value: b.floorplan_def, placeholder: "floorplan/top.def", onChange: (event) => set2({ floorplan_def: event.target.value }) }) }),
+        b.start_mode === "from_existing_floorplan" && /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)(import_jsx_runtime4.Fragment, { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Field, { label: "MMMC \u914D\u7F6E Tcl\uFF08\u76F8\u5BF9\u6E90\u7801\u76EE\u5F55\uFF09", children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("input", { value: b.mmmc_file, placeholder: "config/mmmc.tcl", onChange: (event) => set2({ mmmc_file: event.target.value }) }) }),
+          /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Field, { label: "Floorplan DEF\uFF08\u76F8\u5BF9\u6E90\u7801\u76EE\u5F55\uFF09", children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("input", { value: b.floorplan_def, placeholder: "floorplan/top.def", onChange: (event) => set2({ floorplan_def: event.target.value }) }) })
+        ] }),
+        b.start_mode === "from_netlist" && /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)(Field, { label: "MMMC \u8F93\u5165\u8BA1\u5212 JSON", full: true, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("textarea", { className: "eda-code", rows: 12, spellCheck: false, value: mmmcJson, onChange: (event) => updateMmmcJson(event.target.value) }),
+          !mmmcJsonValid && /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("small", { role: "alert", children: "JSON \u683C\u5F0F\u4E0D\u5B8C\u6574\uFF0C\u672A\u4FDD\u5B58\u3002" }),
+          /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("small", { children: "\u5B57\u6BB5\u5305\u542B library_sets/libs\u3001rc_corners/model_type/model_file\u3001delay_corners\u3001constraint_modes/sdc_files\u3001analysis_views\u3001setup_views\u3001hold_views\u3002\u4EC5\u586B\u5199\u771F\u5B9E\u4E14\u7ECF\u9879\u76EE/PDK\u786E\u8BA4\u7684 Liberty\u3001RC\u3001SDC \u4E0E\u89C6\u56FE\u3002" })
+        ] }),
+        b.start_mode === "from_netlist" && /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)(import_jsx_runtime4.Fragment, { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Field, { label: "Legacy LEF Site \u540D\u79F0", children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("input", { value: b.floorplan_init.site, onChange: (event) => set2({ floorplan_init: { ...b.floorplan_init, site: event.target.value } }) }) }),
+          /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Field, { label: "Pin assignment Tcl\uFF08\u53EF\u9009\uFF09", children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("input", { value: b.floorplan_init.pin_assignment_file, onChange: (event) => set2({ floorplan_init: { ...b.floorplan_init, pin_assignment_file: event.target.value } }) }) }),
+          /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)(Field, { label: "Core \u5BBD\u3001\u9AD8\u3001\u5DE6/\u4E0B/\u53F3/\u4E0A margin\uFF08\xB5m\uFF09", full: true, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("input", { value: coreSizeText, placeholder: "\u4EC5\u586B\u7ECF\u8BBE\u8BA1\u786E\u8BA4\u7684\u516D\u4E2A\u6570\u503C", onChange: (event) => updateCoreSize(event.target.value) }),
+            !coreSizeValid && /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("small", { role: "alert", children: "\u9700\u8981 6 \u4E2A\u6570\u503C\uFF1B\u5BBD\u9AD8\u4E3A\u6B63\uFF0Cmargin \u975E\u8D1F\u3002" })
+          ] })
+        ] }),
         /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Field, { label: "\u9884\u7F6E Scan DEF\uFF08\u53EF\u9009\uFF09", children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("input", { value: b.scan_def, onChange: (event) => set2({ scan_def: event.target.value }) }) }),
         /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Field, { label: "\u5168\u5C40\u8FDE\u63A5 Tcl\uFF08\u53EF\u9009\uFF09", children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("input", { value: b.global_connect_file, onChange: (event) => set2({ global_connect_file: event.target.value }) }) }),
         /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Field, { label: "StreamOut map\uFF08GDS \u53EF\u9009\uFF09", children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("input", { value: b.streamout_map, onChange: (event) => set2({ streamout_map: event.target.value }) }) })
@@ -21564,12 +21633,12 @@ function TestSettings({ config: c, change, periodNs, page = "scan" }) {
   ] });
 }
 
-// src/eda-project/project-dialog.tsx
-var import_react6 = require("react");
+// apps/dsh/src/eda-project/project-dialog.tsx
+var import_react7 = require("react");
 var import_jsx_runtime5 = require("react/jsx-runtime");
 function ProjectDialog({ mode, project, busy, submit, close, pickDirectory }) {
-  const ref = (0, import_react6.useRef)(null), [name, setName] = (0, import_react6.useState)(mode === "clone" ? `${project?.name ?? "\u9879\u76EE"} \u526F\u672C` : ""), [root, setRoot] = (0, import_react6.useState)(project?.root ?? ""), [workspace, setWorkspace] = (0, import_react6.useState)(""), [document2, setDocument] = (0, import_react6.useState)(), [error62, setError] = (0, import_react6.useState)("");
-  (0, import_react6.useEffect)(() => {
+  const ref = (0, import_react7.useRef)(null), [name, setName] = (0, import_react7.useState)(mode === "clone" ? `${project?.name ?? "\u9879\u76EE"} \u526F\u672C` : ""), [root, setRoot] = (0, import_react7.useState)(project?.root ?? ""), [workspace, setWorkspace] = (0, import_react7.useState)(""), [document2, setDocument] = (0, import_react7.useState)(), [error62, setError] = (0, import_react7.useState)("");
+  (0, import_react7.useEffect)(() => {
     const element = ref.current;
     element.showModal();
     return () => element.close();
@@ -21621,8 +21690,8 @@ function ProjectDialog({ mode, project, busy, submit, close, pickDirectory }) {
   ] }) });
 }
 
-// src/eda-project/toolbox-panel.tsx
-var import_react7 = require("react");
+// apps/dsh/src/eda-project/toolbox-panel.tsx
+var import_react8 = require("react");
 var import_jsx_runtime6 = require("react/jsx-runtime");
 var labels = { full: "\u5B8C\u6574\u5DF2\u542F\u7528\u6D41\u7A0B", read_link: "RTL \u8BFB\u53D6\u4E0E\u94FE\u63A5", synthesis: "DC \u7EFC\u5408", drc_check: "\u9884\u63D2\u5165 DRC", pre_insertion: "DFT \u63D2\u5165\u9884\u89C8", scan_insertion: "Scan \u63D2\u5165", mbist_insertion: "MBIST \u63D2\u5165", mbist_simulation: "MBIST \u4EFF\u771F", constraints: "\u65F6\u5E8F\u7EA6\u675F", dft: "DFT", timing: "\u9759\u6001\u65F6\u5E8F", pnr: "\u7269\u7406\u5B9E\u73B0", verification: "\u4EFF\u771F\u9A8C\u8BC1", custom: "\u81EA\u5B9A\u4E49" };
 function downloadText(name, content) {
@@ -21634,16 +21703,17 @@ function downloadText(name, content) {
   setTimeout(() => URL.revokeObjectURL(url2), 1e3);
 }
 function ToolboxPanel({ page, project: p, change, save, accept, perform, notify }) {
-  const [selected, setSelected] = (0, import_react7.useState)(p.scripts[0]?.id || ""), [stage, setStage] = (0, import_react7.useState)("constraints");
-  const [parameters, setParameters] = (0, import_react7.useState)([]), [values, setValues] = (0, import_react7.useState)({});
-  const [flowStage, setFlowStage] = (0, import_react7.useState)("full"), [directory, setDirectory] = (0, import_react7.useState)(""), [repair, setRepair] = (0, import_react7.useState)("none");
-  const [bundle, setBundle] = (0, import_react7.useState)(null), [file2, setFile] = (0, import_react7.useState)(""), [preview, setPreview] = (0, import_react7.useState)("");
-  const importRef = (0, import_react7.useRef)(null), script = p.scripts.find((row) => row.id === selected);
-  (0, import_react7.useEffect)(() => {
+  const [selected, setSelected] = (0, import_react8.useState)(p.scripts[0]?.id || ""), [stage, setStage] = (0, import_react8.useState)("constraints");
+  const [parameters, setParameters] = (0, import_react8.useState)([]), [values, setValues] = (0, import_react8.useState)({});
+  const [flowStage, setFlowStage] = (0, import_react8.useState)("full"), [directory, setDirectory] = (0, import_react8.useState)(""), [repair, setRepair] = (0, import_react8.useState)("none");
+  const [backendPhase, setBackendPhase] = (0, import_react8.useState)("preflight");
+  const [bundle, setBundle] = (0, import_react8.useState)(null), [file2, setFile] = (0, import_react8.useState)(""), [preview, setPreview] = (0, import_react8.useState)("");
+  const importRef = (0, import_react8.useRef)(null), script = p.scripts.find((row) => row.id === selected);
+  (0, import_react8.useEffect)(() => {
     setParameters([]);
     setValues({});
   }, [selected]);
-  (0, import_react7.useEffect)(() => {
+  (0, import_react8.useEffect)(() => {
     if (!p.scripts.some((row) => row.id === selected)) setSelected(p.scripts[0]?.id || "");
   }, [p.scripts, selected]);
   const patchScript = (patch) => change({ scripts: p.scripts.map((row) => row.id === selected ? { ...row, ...patch } : row) });
@@ -21666,14 +21736,14 @@ function ToolboxPanel({ page, project: p, change, save, accept, perform, notify 
     setSelected(result.script.id);
     notify("\u5DF2\u6309\u5F53\u524D\u9879\u76EE\u914D\u7F6E\u751F\u6210\u5E76\u4FDD\u5B58\u811A\u672C\u3002");
   });
-  const runGeneration = (backendOnly = false) => perform(async () => {
+  const runGeneration = (backendOnly = false, backendPhase2) => perform(async () => {
     const project = await save();
-    const result = await edaRequest("generate-flow", { projectId: project.id, flowStage, backendOnly, directory: directory || void 0, drcRepairMode: repair });
+    const result = await edaRequest("generate-flow", { projectId: project.id, flowStage, backendOnly, backendPhase: backendPhase2, directory: directory || void 0, drcRepairMode: repair });
     setBundle(result);
-    const initial = result.files.find((row) => row.role === (backendOnly ? "innovus_driver" : "dc_driver")) ?? result.files.find((row) => row.content);
+    const initial = result.files.find((row) => row.destination === "backend/readiness.md") ?? result.files.find((row) => row.role === (backendOnly ? "innovus_driver" : "dc_driver")) ?? result.files.find((row) => row.content);
     setFile(initial?.destination || "");
     setPreview(initial?.content || "");
-    notify(`\u5DF2\u751F\u6210 ${result.files.length} \u4E2A\u771F\u5B9E\u6587\u4EF6\uFF0C\u672A\u542F\u52A8 EDA\u3002`);
+    notify(`\u5DF2\u751F\u6210 ${result.files.length} \u4E2A\u6587\u4EF6\uFF1B\u672A\u542F\u52A8 EDA\u3002`);
   });
   return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_jsx_runtime6.Fragment, { children: page === "manage" ? /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_jsx_runtime6.Fragment, { children: [
     /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: "eda-section-heading", children: [
@@ -21804,13 +21874,14 @@ function ToolboxPanel({ page, project: p, change, save, accept, perform, notify 
   ] }) : page === "backend" ? /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_jsx_runtime6.Fragment, { children: [
     /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(BackendSettings, { config: p.toolbox, change: (toolbox) => change({ toolbox }) }),
     /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Field, { label: "\u540E\u7AEF\u811A\u672C\u751F\u6210\u76EE\u5F55\uFF08\u53EF\u9009\uFF09", full: true, children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("input", { value: directory, placeholder: `${p.workspace}/eda-scripts/${p.id}/backend`, onChange: (event) => setDirectory(event.target.value) }) }),
+    p.toolbox.backend.start_mode === "from_netlist" && /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(SelectField, { label: "from_netlist \u9636\u6BB5", value: backendPhase, options: [["preflight", "\u8F93\u5165\u68C0\u67E5\u5E76\u751F\u6210\u62A5\u544A"], ["inventory", "\u521D\u59CB\u5316\u5E76\u76D8\u70B9\u5B8F\u5B9E\u4F8B"], ["floorplan", "\u751F\u6210\u5019\u9009 Floorplan DEF"]], onChange: (value) => setBackendPhase(value) }),
     /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", { className: "eda-actions", children: /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("button", { type: "button", className: "eda-button is-primary", disabled: !p.toolbox.backend.enabled, onClick: () => {
-      void runGeneration(true);
+      void runGeneration(true, p.toolbox.backend.start_mode === "from_netlist" ? backendPhase : void 0);
     }, children: [
       /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(FileCodeCorner, { size: 15 }),
-      "\u751F\u6210 Innovus \u540E\u7AEF\u811A\u672C"
+      p.toolbox.backend.start_mode === "from_netlist" && backendPhase === "preflight" ? "\u751F\u6210\u540E\u7AEF\u8F93\u5165\u68C0\u67E5\u62A5\u544A" : p.toolbox.backend.start_mode === "from_netlist" && backendPhase === "inventory" ? "\u751F\u6210 init / \u5B8F\u76D8\u70B9\u8BF7\u6C42" : p.toolbox.backend.start_mode === "from_netlist" ? "\u751F\u6210\u5019\u9009 Floorplan \u8BF7\u6C42" : "\u751F\u6210\u5B8C\u6574 Innovus \u540E\u7AEF\u811A\u672C"
     ] }) }),
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("p", { className: "eda-muted", children: "\u751F\u6210\u4E5D\u4E2A\u53EF\u590D\u6838\u7684\u5206\u9636\u6BB5 Tcl\u3001\u8F93\u5165\u5FEB\u7167\u548C Innovus \u6267\u884C\u8BF7\u6C42\uFF1B\u4E0D\u4F1A\u81EA\u52A8\u542F\u52A8\u5DE5\u5177\u3002MMMC \u6587\u4EF6\u4E2D\u7684 Liberty/QRC \u4F9D\u8D56\u6309\u5176\u5F53\u524D\u8DEF\u5F84\u89E3\u6790\uFF0C\u8BF7\u786E\u4FDD\u76EE\u6807 Innovus \u73AF\u5883\u53EF\u8BBF\u95EE\u3002" }),
+    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("p", { className: "eda-muted", children: "from_netlist \u6309 preflight \u2192 inventory \u2192 \u4EBA\u5DE5\u6838\u5BF9\u5B8F/Pin \u4E0E Core \u2192 candidate DEF \u5206\u9636\u6BB5\u8FDB\u884C\uFF1B\u5019\u9009 DEF \u5FC5\u987B\u7531 Innovus \u68C0\u67E5\u5E76\u5728\u65B0\u4F1A\u8BDD\u6062\u590D\u540E\u624D\u80FD\u7528\u4E8E from_existing_floorplan\u3002\u62A5\u544A/\u811A\u672C\u751F\u6210\u4E0D\u4F1A\u81EA\u52A8\u542F\u52A8 Innovus\u3002" }),
     bundle?.flowStage === "backend" && /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("section", { className: "eda-config-section", children: [
       /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("h3", { children: [
         "\u751F\u6210\u7ED3\u679C \xB7 ",
@@ -21896,7 +21967,7 @@ function ToolboxPanel({ page, project: p, change, save, accept, perform, notify 
   ] }) });
 }
 
-// src/eda-project/navigation.ts
+// apps/dsh/src/eda-project/navigation.ts
 var edaSections = [
   { id: "project", label: "\u9879\u76EE\u7BA1\u7406", icon: FolderOpen, description: "\u9879\u76EE\u8D44\u6599\u3001\u76EE\u5F55\u4E0E\u793A\u4F8B\u914D\u7F6E", pages: [{ id: "project", label: "\u57FA\u672C\u4FE1\u606F" }, { id: "paths", label: "\u5DE5\u4F5C\u8DEF\u5F84" }, { id: "documents", label: "\u6587\u6863\u4E0E\u4EFB\u52A1" }, { id: "examples", label: "\u793A\u4F8B\u914D\u7F6E" }] },
   { id: "scripts", label: "\u811A\u672C\u5DE5\u5177\u7BB1", icon: CodeXml, description: "\u8F93\u5165\u3001\u7EFC\u5408\u7B56\u7565\u3001\u7269\u7406\u5B9E\u73B0\u4E0E\u811A\u672C\u751F\u6210", pages: [{ id: "inputs", label: "\u8BBE\u8BA1\u8F93\u5165" }, { id: "libraries", label: "\u5E93\u4E0E\u5DE5\u51B5" }, { id: "compile", label: "\u7EFC\u5408\u7B56\u7565" }, { id: "reports", label: "\u8F93\u51FA\u4E0E\u62A5\u544A" }, { id: "backend", label: "\u7269\u7406\u5B9E\u73B0" }, { id: "scripts", label: "\u811A\u672C\u7BA1\u7406" }, { id: "generate", label: "\u751F\u6210\u9884\u89C8" }] },
@@ -21906,7 +21977,7 @@ var edaSections = [
   { id: "workflow", label: "\u5DE5\u4F5C\u6D41\u534F\u4F5C", icon: GitBranch, description: "\u6A21\u677F\u5B9E\u4F8B\u5316\u4E0E\u9879\u76EE\u76EE\u6807\u6CE8\u5165", pages: [{ id: "workflow", label: "\u6A21\u677F\u4E0E\u521B\u5EFA" }, { id: "instances", label: "\u9879\u76EE\u5B9E\u4F8B" }] }
 ];
 
-// src/eda-project/synthesis-pages.tsx
+// apps/dsh/src/eda-project/synthesis-pages.tsx
 var import_jsx_runtime7 = require("react/jsx-runtime");
 function SynthesisSettings({ project: p, page, change }) {
   const c = p.toolbox, s = c.synthesis, r = c.reports;
@@ -21998,11 +22069,11 @@ function SynthesisSettings({ project: p, page, change }) {
   ] });
 }
 
-// src/eda-project/example-settings.tsx
-var import_react8 = require("react");
+// apps/dsh/src/eda-project/example-settings.tsx
+var import_react9 = require("react");
 var import_jsx_runtime8 = require("react/jsx-runtime");
 function ExampleSettings({ project, accept, perform, persist, notify }) {
-  const [preview, setPreview] = (0, import_react8.useState)("");
+  const [preview, setPreview] = (0, import_react9.useState)("");
   return /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(import_jsx_runtime8.Fragment, { children: [
     /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", { className: "eda-page-heading", children: [
       /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("h3", { children: "\u5F53\u524D\u9879\u76EE\u7684\u793A\u4F8B\u914D\u7F6E" }),
@@ -22054,27 +22125,27 @@ function ExampleSettings({ project, accept, perform, persist, notify }) {
   ] });
 }
 
-// src/eda-project/workbench.tsx
+// apps/dsh/src/eda-project/workbench.tsx
 var import_jsx_runtime9 = require("react/jsx-runtime");
 function EdaProjectWorkbench({ openSession, openInstance, pickDirectory }) {
-  const [projects, setProjects] = (0, import_react9.useState)([]), [projectKey, setProjectKey] = (0, import_react9.useState)("");
-  const [project, setProject] = (0, import_react9.useState)(null), [baseline, setBaseline] = (0, import_react9.useState)("");
-  const [tab, setTab] = (0, import_react9.useState)("project"), [busy, setBusy] = (0, import_react9.useState)(false), [loaded, setLoaded] = (0, import_react9.useState)(false);
-  const [notice, setNotice] = (0, import_react9.useState)(null), [dialog, setDialog] = (0, import_react9.useState)(null);
-  const [templates, setTemplates] = (0, import_react9.useState)([]), [templateError, setTemplateError] = (0, import_react9.useState)("");
-  const [instances, setInstances] = (0, import_react9.useState)([]);
+  const [projects, setProjects] = (0, import_react10.useState)([]), [projectKey, setProjectKey] = (0, import_react10.useState)("");
+  const [project, setProject] = (0, import_react10.useState)(null), [baseline, setBaseline] = (0, import_react10.useState)("");
+  const [tab, setTab] = (0, import_react10.useState)("project"), [busy, setBusy] = (0, import_react10.useState)(false), [loaded, setLoaded] = (0, import_react10.useState)(false);
+  const [notice, setNotice] = (0, import_react10.useState)(null), [dialog, setDialog] = (0, import_react10.useState)(null);
+  const [templates, setTemplates] = (0, import_react10.useState)([]), [templateError, setTemplateError] = (0, import_react10.useState)("");
+  const [instances, setInstances] = (0, import_react10.useState)([]);
   const section = edaSections.find((group) => group.pages.some((page) => page.id === tab));
-  const [lastPages, setLastPages] = (0, import_react9.useState)({});
+  const [lastPages, setLastPages] = (0, import_react10.useState)({});
   const navigate = (id) => {
     setTab(id);
     const group = edaSections.find((group2) => group2.pages.some((page) => page.id === id));
     setLastPages((value) => ({ ...value, [group.id]: id }));
   };
-  const contentRef = (0, import_react9.useRef)(null), loadId = (0, import_react9.useRef)(0);
+  const contentRef = (0, import_react10.useRef)(null), loadId = (0, import_react10.useRef)(0);
   const dirty = !!project && JSON.stringify(project) !== baseline;
-  const brief = (0, import_react9.useMemo)(() => project ? workflowTaskBrief(project) : "", [project]);
+  const brief = (0, import_react10.useMemo)(() => project ? workflowTaskBrief(project) : "", [project]);
   const selectedTemplate = templates.find((row) => row.id === project?.workflow.templateId);
-  (0, import_react9.useEffect)(() => {
+  (0, import_react10.useEffect)(() => {
     if (contentRef.current) contentRef.current.scrollTop = 0;
   }, [tab, projectKey]);
   const loadTemplates = async () => {
@@ -22090,7 +22161,7 @@ function EdaProjectWorkbench({ openSession, openInstance, pickDirectory }) {
     if (projectId === projectKey) setInstances(rows);
     return rows;
   };
-  (0, import_react9.useEffect)(() => {
+  (0, import_react10.useEffect)(() => {
     let active = true;
     void (async () => {
       let rows = await edaRequest("projects");
@@ -22111,7 +22182,7 @@ function EdaProjectWorkbench({ openSession, openInstance, pickDirectory }) {
       active = false;
     };
   }, []);
-  (0, import_react9.useEffect)(() => {
+  (0, import_react10.useEffect)(() => {
     const request = ++loadId.current;
     setProject(null);
     setInstances([]);
@@ -22133,7 +22204,7 @@ function EdaProjectWorkbench({ openSession, openInstance, pickDirectory }) {
       loadId.current++;
     };
   }, [projectKey]);
-  (0, import_react9.useEffect)(() => {
+  (0, import_react10.useEffect)(() => {
     if (!dirty) return;
     const warn = (event) => event.preventDefault();
     window.addEventListener("beforeunload", warn);
@@ -22445,7 +22516,7 @@ function EdaProjectWorkbench({ openSession, openInstance, pickDirectory }) {
   ] });
 }
 
-// src/eda-project/styles.ts
+// apps/dsh/src/eda-project/styles.ts
 var edaWorkbenchStyles = `
 .eda-sidebar-entry{display:flex;align-items:center;gap:10px;width:100%;min-height:36px;padding:8px 12px;border:0;border-radius:var(--dsw-radius-md,8px);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:13px;text-align:left;cursor:pointer}
 .eda-sidebar-entry:hover{background:var(--dsw-alias-interactive-bg-hover,#e9eef6)}
@@ -22611,7 +22682,7 @@ dialog.eda-project-dialog::backdrop{background:#10182766;backdrop-filter:blur(3p
 @media(prefers-reduced-motion:reduce){.eda-spin{animation:none}}
 `;
 
-// src/eda-project/sidebar.tsx
+// apps/dsh/src/eda-project/sidebar.tsx
 var import_jsx_runtime10 = require("react/jsx-runtime");
 var EDA_TAB_ID = "studio-eda-workbench";
 var EDA_TAB_KIND = "eda-project";
@@ -22713,8 +22784,8 @@ function registerEdaWorkbench(ctx, directoryPicker) {
     throw new Error("\u5F53\u524D\u73AF\u5883\u672A\u63D0\u4F9B\u76EE\u5F55\u9009\u62E9\u5668\uFF0C\u8BF7\u586B\u5199\u7EDD\u5BF9\u8DEF\u5F84");
   };
   function Body() {
-    const ref = (0, import_react10.useRef)(null);
-    (0, import_react10.useLayoutEffect)(() => {
+    const ref = (0, import_react11.useRef)(null);
+    (0, import_react11.useLayoutEffect)(() => {
       const element = ref.current;
       hosts.push(element);
       place();
@@ -22751,7 +22822,7 @@ function registerEdaWorkbench(ctx, directoryPicker) {
   };
 }
 
-// src/client-eda-project.tsx
+// apps/dsh/src/client-eda-project.tsx
 var import_jsx_runtime11 = require("react/jsx-runtime");
 var inject = ["remote.pluginManager", "remote.directoryPicker"];
 function apply(ctx) {

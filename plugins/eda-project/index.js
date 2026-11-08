@@ -471,17 +471,17 @@ Schema.prototype.volatile = function volatile() {
 };
 var resolvers = {};
 var checkedVolatile = /* @__PURE__ */ Symbol("checked-volatile-schema");
-function validateVolatileSchema(schema, path7 = [], blocked = false, seen = /* @__PURE__ */ new Map()) {
+function validateVolatileSchema(schema, path8 = [], blocked = false, seen = /* @__PURE__ */ new Map()) {
   const states = seen.get(schema) ?? /* @__PURE__ */ new Set();
   if (states.has(blocked)) return;
   states.add(blocked);
   seen.set(schema, states);
-  if (schema.meta?.volatile && blocked) throw new ValidationError("volatile fields require a fixed object path without an enclosing volatile field", { path: path7 });
+  if (schema.meta?.volatile && blocked) throw new ValidationError("volatile fields require a fixed object path without an enclosing volatile field", { path: path8 });
   const nested = blocked || !!schema.meta?.volatile;
-  if (schema.dict) for (const [key, child] of Object.entries(schema.dict)) validateVolatileSchema(child, [...path7, key], nested, seen);
-  if (schema.sKey) validateVolatileSchema(schema.sKey, [...path7, "<key>"], true, seen);
-  if (schema.inner && (schema.type !== "lazy" || schema.inner[kSchema])) validateVolatileSchema(schema.inner, [...path7, "*"], true, seen);
-  if (schema.list) for (let index = 0; index < schema.list.length; index++) validateVolatileSchema(schema.list[index], [...path7, String(index)], true, seen);
+  if (schema.dict) for (const [key, child] of Object.entries(schema.dict)) validateVolatileSchema(child, [...path8, key], nested, seen);
+  if (schema.sKey) validateVolatileSchema(schema.sKey, [...path8, "<key>"], true, seen);
+  if (schema.inner && (schema.type !== "lazy" || schema.inner[kSchema])) validateVolatileSchema(schema.inner, [...path8, "*"], true, seen);
+  if (schema.list) for (let index = 0; index < schema.list.length; index++) validateVolatileSchema(schema.list[index], [...path8, String(index)], true, seen);
 }
 Schema.extend = function extend(type, resolve2) {
   resolvers[type] = resolve2;
@@ -872,7 +872,9 @@ defineMethod("transform", [
 ], ({ inner }, isInner) => inner.toString(isInner));
 
 // apps/dsh/src/eda-project/plugin.ts
-import path6 from "node:path";
+import path7 from "node:path";
+import { readFileSync, existsSync as existsSync2 } from "node:fs";
+import { fileURLToPath as fileURLToPath2 } from "node:url";
 
 // apps/dsh/src/eda-project/project-store.ts
 import { mkdir as mkdir2, readFile as readFile2, realpath, stat } from "node:fs/promises";
@@ -1836,10 +1838,10 @@ function mergeDefs(...defs) {
 function cloneDef(schema) {
   return mergeDefs(schema._zod.def);
 }
-function getElementAtPath(obj, path7) {
-  if (!path7)
+function getElementAtPath(obj, path8) {
+  if (!path8)
     return obj;
-  return path7.reduce((acc, key) => acc?.[key], obj);
+  return path8.reduce((acc, key) => acc?.[key], obj);
 }
 function promiseAllObject(promisesObj) {
   const keys = Object.keys(promisesObj);
@@ -2179,11 +2181,11 @@ function explicitlyAborted(x, startIndex = 0) {
   }
   return false;
 }
-function prefixIssues(path7, issues) {
+function prefixIssues(path8, issues) {
   return issues.map((iss) => {
     var _a3;
     (_a3 = iss).path ?? (_a3.path = []);
-    iss.path.unshift(path7);
+    iss.path.unshift(path8);
     return iss;
   });
 }
@@ -2645,16 +2647,16 @@ function flattenError(error62, mapper = (issue2) => issue2.message) {
 }
 function formatError(error62, mapper = (issue2) => issue2.message) {
   const fieldErrors = { _errors: [] };
-  const processError = (error63, path7 = []) => {
+  const processError = (error63, path8 = []) => {
     for (const issue2 of error63.issues) {
       if (issue2.code === "invalid_union" && issue2.errors.length) {
-        issue2.errors.map((issues) => processError({ issues }, [...path7, ...issue2.path]));
+        issue2.errors.map((issues) => processError({ issues }, [...path8, ...issue2.path]));
       } else if (issue2.code === "invalid_key") {
-        processError({ issues: issue2.issues }, [...path7, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path8, ...issue2.path]);
       } else if (issue2.code === "invalid_element") {
-        processError({ issues: issue2.issues }, [...path7, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path8, ...issue2.path]);
       } else {
-        const fullpath = [...path7, ...issue2.path];
+        const fullpath = [...path8, ...issue2.path];
         if (fullpath.length === 0) {
           fieldErrors._errors.push(mapper(issue2));
         } else {
@@ -2693,17 +2695,17 @@ function formatError(error62, mapper = (issue2) => issue2.message) {
 }
 function treeifyError(error62, mapper = (issue2) => issue2.message) {
   const result = { errors: [] };
-  const processError = (error63, path7 = []) => {
+  const processError = (error63, path8 = []) => {
     var _a3;
     for (const issue2 of error63.issues) {
       if (issue2.code === "invalid_union" && issue2.errors.length) {
-        issue2.errors.map((issues) => processError({ issues }, [...path7, ...issue2.path]));
+        issue2.errors.map((issues) => processError({ issues }, [...path8, ...issue2.path]));
       } else if (issue2.code === "invalid_key") {
-        processError({ issues: issue2.issues }, [...path7, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path8, ...issue2.path]);
       } else if (issue2.code === "invalid_element") {
-        processError({ issues: issue2.issues }, [...path7, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path8, ...issue2.path]);
       } else {
-        const fullpath = [...path7, ...issue2.path];
+        const fullpath = [...path8, ...issue2.path];
         if (fullpath.length === 0) {
           result.errors.push(mapper(issue2));
           continue;
@@ -2742,8 +2744,8 @@ function treeifyError(error62, mapper = (issue2) => issue2.message) {
 }
 function toDotPath(_path) {
   const segs = [];
-  const path7 = _path.map((seg) => typeof seg === "object" ? seg.key : seg);
-  for (const seg of path7) {
+  const path8 = _path.map((seg) => typeof seg === "object" ? seg.key : seg);
+  for (const seg of path8) {
     if (typeof seg === "number")
       segs.push(`[${seg}]`);
     else if (typeof seg === "symbol")
@@ -9287,12 +9289,12 @@ function hu_default() {
 function getArmenianPlural(count, one, many) {
   return Math.abs(count) === 1 ? one : many;
 }
-function withDefiniteArticle(word) {
-  if (!word)
+function withDefiniteArticle(word2) {
+  if (!word2)
     return "";
   const vowels = ["\u0561", "\u0565", "\u0568", "\u056B", "\u0578", "\u0578\u0582", "\u0585"];
-  const lastChar = word[word.length - 1];
-  return word + (vowels.includes(lastChar) ? "\u0576" : "\u0568");
+  const lastChar = word2[word2.length - 1];
+  return word2 + (vowels.includes(lastChar) ? "\u0576" : "\u0568");
 }
 var error24 = () => {
   const Sizable = {
@@ -19881,13 +19883,13 @@ function resolveRef(ref, ctx) {
   if (!ref.startsWith("#")) {
     throw new Error("External $ref is not supported, only local refs (#/...) are allowed");
   }
-  const path7 = ref.slice(1).split("/").filter(Boolean);
-  if (path7.length === 0) {
+  const path8 = ref.slice(1).split("/").filter(Boolean);
+  if (path8.length === 0) {
     return ctx.rootSchema;
   }
   const defsKey = ctx.version === "draft-2020-12" ? "$defs" : "definitions";
-  if (path7[0] === defsKey) {
-    const key = path7[1] === void 0 ? void 0 : decodeJSONPointerSegment(path7[1]);
+  if (path8[0] === defsKey) {
+    const key = path8[1] === void 0 ? void 0 : decodeJSONPointerSegment(path8[1]);
     if (!key || !ctx.defs[key]) {
       throw new Error(`Reference not found: ${ref}`);
     }
@@ -20954,14 +20956,32 @@ var reportSchema = external_exports.object({
   instances: external_exports.boolean().default(true),
   clock_gating: external_exports.boolean().default(true)
 }).strict();
+var mmmcSchema = external_exports.object({
+  library_sets: external_exports.array(external_exports.object({ name: text.min(1), libs: strings }).strict()).max(64).default([]),
+  rc_corners: external_exports.array(external_exports.object({ name: text.min(1), model_type: external_exports.enum(["qx_tech_file", "cap_table"]).default("qx_tech_file"), model_file: text.default("") }).strict()).max(64).default([]),
+  delay_corners: external_exports.array(external_exports.object({ name: text.min(1), library_set: text.min(1), rc_corner: text.min(1) }).strict()).max(64).default([]),
+  constraint_modes: external_exports.array(external_exports.object({ name: text.min(1), sdc_files: strings }).strict()).max(64).default([]),
+  analysis_views: external_exports.array(external_exports.object({ name: text.min(1), constraint_mode: text.min(1), delay_corner: text.min(1) }).strict()).max(128).default([]),
+  setup_views: strings,
+  hold_views: strings
+}).strict().prefault({});
+var floorplanInitSchema = external_exports.object({
+  ui: external_exports.literal("legacy").default("legacy"),
+  site: text.default(""),
+  core_size: external_exports.tuple([positive, positive, nonnegative, nonnegative, nonnegative, nonnegative]).nullable().default(null),
+  pin_assignment_file: text.default("")
+}).strict().prefault({});
 var backendSchema = external_exports.object({
   enabled: external_exports.boolean().default(false),
+  start_mode: external_exports.enum(["from_existing_floorplan", "from_netlist"]).default("from_existing_floorplan"),
   netlist: text.default(""),
   top_cell: text.default(""),
   tech_lef: text.default(""),
   cell_lefs: strings,
   mmmc_file: text.default(""),
+  mmmc_config: mmmcSchema,
   floorplan_def: text.default(""),
+  floorplan_init: floorplanInitSchema,
   scan_def: text.default(""),
   global_connect_file: text.default(""),
   streamout_map: text.default(""),
@@ -22234,14 +22254,14 @@ function workflowTaskBrief(project) {
 
 // apps/dsh/src/eda-project/service.ts
 import { mkdir as mkdir5, readFile as readFile5, realpath as realpath3 } from "node:fs/promises";
-import path5 from "node:path";
+import path6 from "node:path";
 import { createHash as createHash3 } from "node:crypto";
 
 // apps/dsh/src/eda-project/bundle.ts
 import { createHash as createHash2, randomUUID } from "node:crypto";
 import { createReadStream } from "node:fs";
-import { copyFile, lstat as lstat2, mkdir as mkdir3, readFile as readFile3, readdir, realpath as realpath2, rm as rm2, stat as stat2 } from "node:fs/promises";
-import path2 from "node:path";
+import { copyFile, lstat as lstat2, mkdir as mkdir3, readFile as readFile3, readdir, realpath as realpath2, rm as rm2, stat as stat3 } from "node:fs/promises";
+import path3 from "node:path";
 
 // apps/dsh/src/eda-project/backend-generator.ts
 var join = (...parts) => `[file join $root ${parts.map(tclWord).join(" ")}]`;
@@ -22249,35 +22269,40 @@ var lines = (...rows) => rows.flatMap((row) => row ?? []).filter(Boolean).join("
 function checkpoint(name2, top) {
   return [`restoreDesign ${join("save", `${name2}.enc.dat`)} ${tclWord(top)}`];
 }
-function renderBackend(project, input2) {
+function renderBackend(project, input2, mode = "from_existing_floorplan", phase = "inventory") {
   const c = project.toolbox.backend;
   if (!c.enabled) throw new Error("\u8BF7\u5148\u542F\u7528 Innovus \u540E\u7AEF\u811A\u672C\u751F\u6210");
-  if (!c.top_cell || !input2.netlist || !input2.techLef || !input2.cellLefs.length || !input2.mmmc || !input2.floorplanDef) throw new Error("Innovus \u540E\u7AEF\u751F\u6210\u9700\u8981\u9876\u5C42\u7F51\u8868\u3001Tech LEF\u3001\u6807\u51C6\u5355\u5143 LEF\u3001MMMC \u6587\u4EF6\u548C Floorplan DEF");
-  if (!/^[A-Za-z_][A-Za-z0-9_$]*$/.test(c.top_cell)) throw new Error("Innovus \u9876\u5C42\u6A21\u5757\u540D\u79F0\u65E0\u6548");
-  if (c.power_grid.enabled && (!c.power_grid.vertical_layer || !c.power_grid.horizontal_layer || c.power_grid.vertical_width === null || c.power_grid.horizontal_width === null || c.power_grid.spacing === null || c.power_grid.set_distance === null)) throw new Error("\u542F\u7528 PG Stripe \u540E\u9700\u8981\u586B\u5199\u65B9\u5411\u91D1\u5C5E\u5C42\u3001\u7EBF\u5BBD\u3001\u95F4\u8DDD\u548C\u91CD\u590D\u8DDD\u79BB");
-  const top = c.top_cell, header = (stage) => [`# ${comment(project.name)} \xB7 Innovus ${stage}`, `set root [file dirname [file normalize [info script]]]`, `set saveDir [file join $root save]`, `set reportDir [file join $root reports ${stage}]`, "file mkdir $saveDir $reportDir", `setMultiCpuUsage -localCpu ${c.cpu_count} -cpuAutoAdjust true`];
+  if (!c.top_cell || !input2.netlist) throw new Error("MISSING_NETLIST: \u540E\u7AEF\u6D41\u7A0B\u9700\u8981\u9876\u5C42\u540D\u79F0\u548C\u771F\u5B9E\u7EFC\u5408\u7F51\u8868");
+  if (!input2.techLef) throw new Error("MISSING_TECH_LEF: \u7F3A\u5C11\u771F\u5B9E Tech LEF");
+  if (!input2.cellLefs.length) throw new Error("MISSING_TECH_LEF: \u7F3A\u5C11\u6807\u51C6\u5355\u5143\u6216 Macro LEF");
+  if (!input2.mmmc) throw new Error("MISSING_RCMODEL: \u7F3A\u5C11\u5DF2\u751F\u6210\u7684\u5B8C\u6574 MMMC \u8F93\u5165\uFF1B\u4E0D\u5F97\u7528\u7A7A RC \u6A21\u578B\u66FF\u4EE3");
+  if (mode === "from_existing_floorplan" && !input2.floorplanDef) throw new Error("INVALID_FLOORPLAN: from_existing_floorplan \u9700\u8981\u6709\u6548 Floorplan DEF");
+  if (mode === "from_netlist" && phase === "floorplan" && (!input2.floorplanInit?.site.trim() || !input2.floorplanInit.core_size)) throw new Error("INVALID_FLOORPLAN: \u751F\u6210\u5019\u9009 Floorplan \u524D\u5FC5\u987B\u663E\u5F0F\u63D0\u4F9B\u7ECF LEF \u6838\u5B9E\u7684 Site\u3001Core \u5C3A\u5BF8\u548C margins");
+  if (!/^[A-Za-z_][A-Za-z0-9_$]*$/.test(c.top_cell)) throw new Error("INVALID_NETLIST_TOP: Innovus \u9876\u5C42\u6A21\u5757\u540D\u79F0\u65E0\u6548");
+  if (mode === "from_existing_floorplan" && c.power_grid.enabled && (!c.power_grid.vertical_layer || !c.power_grid.horizontal_layer || c.power_grid.vertical_width === null || c.power_grid.horizontal_width === null || c.power_grid.spacing === null || c.power_grid.set_distance === null)) throw new Error("\u542F\u7528 PG Stripe \u540E\u9700\u8981\u586B\u5199\u65B9\u5411\u91D1\u5C5E\u5C42\u3001\u7EBF\u5BBD\u3001\u95F4\u8DDD\u548C\u91CD\u590D\u8DDD\u79BB");
+  const top = c.top_cell, header = (stage) => [`# ${comment(project.name)} \xB7 Innovus ${stage}`, `set root [file dirname [file normalize [info script]]]`, `set saveDir [file join $root save]`, `set reportDir [file join $root reports ${stage}]`, "set dataDir [file join $root data]", "file mkdir $saveDir $reportDir $dataDir", `setMultiCpuUsage -localCpu ${c.cpu_count} -cpuAutoAdjust true`];
   const result = [];
   const add = (name2, role2, body2) => {
     const content = lines(header(name2), body2);
     parseTcl(content);
     result.push({ destination: `backend/${name2}.tcl`, content, role: role2 });
   };
+  const bundleInput = (file2) => join("..", "input", "backend", file2);
   const globals = [
-    `set init_lef_file ${tclList([input2.techLef, ...input2.cellLefs])}`,
-    `set init_verilog ${tclWord(input2.netlist)}`,
+    `set init_lef_file [list ${[input2.techLef, ...input2.cellLefs].map(bundleInput).join(" ")}]`,
+    `set init_verilog ${bundleInput(input2.netlist)}`,
     `set init_top_cell ${tclWord(top)}`,
-    `set init_mmmc_file ${tclWord(input2.mmmc)}`,
+    `set init_mmmc_file ${bundleInput(input2.mmmc)}`,
     `set init_pwr_net ${tclWord(c.power_net)}`,
     `set init_gnd_net ${tclWord(c.ground_net)}`
   ];
-  if (input2.globalConnect) globals.push(`source ${tclWord(input2.globalConnect)}`);
   result.push({ destination: "backend/innovus_globals.tcl", content: lines([`# Project Innovus initialization for ${comment(project.name)}`, ...globals]), role: "innovus_configuration" });
   const macroInventory = lines([
     `# Read-only inventory of hard macros in ${comment(project.name)}`,
     "set root [file dirname [file normalize [info script]]]",
     "file mkdir [file join $root reports]",
     "source [file join $root innovus_globals.tcl]",
-    `cd [file dirname [file normalize ${tclWord(input2.mmmc)}]]`,
+    `cd [file dirname [file normalize ${bundleInput(input2.mmmc)}]]`,
     "init_design",
     "set report [open [file join $root reports macro_instances.rpt] w]",
     'puts $report "instance	master	size	status	x	y	orientation	connected_nets"',
@@ -22299,36 +22324,61 @@ function renderBackend(project, input2) {
     `# Manual macro and channel constraints for ${comment(project.name)}`,
     "# Coordinates are lower-left placement coordinates in the design database units (usually microns).",
     ...c.macro_placements.flatMap((row) => [
-      `placeInstance ${tclWord(row.instance)} ${row.x} ${row.y} ${row.orientation} -fixed`,
-      ...row.halo_left || row.halo_bottom || row.halo_right || row.halo_top ? [`create_place_halo -insts ${tclWord(row.instance)} -halo_deltas {${row.halo_left} ${row.halo_bottom} ${row.halo_right} ${row.halo_top}} -snap_to_site`] : []
+      `placeInstance ${tclWord(row.instance)} ${row.x} ${row.y} ${row.orientation}`,
+      `setInstancePlacementStatus -name ${tclWord(row.instance)} -status fixed`,
+      ...row.halo_left || row.halo_bottom || row.halo_right || row.halo_top ? [`addHaloToBlock ${row.halo_left} ${row.halo_bottom} ${row.halo_right} ${row.halo_top} ${tclWord(row.instance)}`] : []
     ]),
     ...c.place_blockages.map((row, index) => `createPlaceBlockage -type ${row.kind}${row.name.trim() ? ` -name ${tclWord(row.name.trim())}` : ` -name manual_channel_${index + 1}`} -box {${row.x1} ${row.y1} ${row.x2} ${row.y2}}${row.kind === "partial" ? ` -density ${row.density}` : ""}`),
     "checkFPlan -reportUtil"
   ].join("\n") + "\n";
   parseTcl(manualFloorplan);
   result.push({ destination: "backend/manual_floorplan.tcl", content: manualFloorplan, role: "innovus_manual_floorplan" });
+  if (mode === "from_netlist") {
+    if (phase === "inventory") return result;
+    if (input2.floorplanInit?.ui !== "legacy") throw new Error("UNSUPPORTED_INNOVUS_UI: \u5F53\u524D Floorplan \u521D\u59CB\u5316\u751F\u6210\u5668\u4EC5\u652F\u6301\u5DF2\u786E\u8BA4\u7684 Legacy Innovus Tcl");
+    const coreSize = input2.floorplanInit.core_size;
+    const body2 = [
+      "source [file join $root innovus_globals.tcl]",
+      `cd [file dirname [file normalize ${bundleInput(input2.mmmc)}]]`,
+      "init_design",
+      "checkDesign -netlist",
+      `floorPlan -site ${tclWord(input2.floorplanInit.site)} -s {${coreSize.join(" ")}} -coreMarginsBy die`,
+      "source [file join $root manual_floorplan.tcl]",
+      ...input2.pinAssignmentFile ? [`source ${bundleInput(input2.pinAssignmentFile)}`] : [],
+      "checkFPlan -reportUtil -outFile [file join $reportDir floorplan_check.rpt]",
+      "set coreReport [open [file join $reportDir core_box.rpt] w]",
+      "puts $coreReport [dbGet top.fplan.coreBox]",
+      "close $coreReport",
+      "defOut -floorplan [file join $dataDir floorplan_candidate.def]",
+      "writeFPlanScript -fileName [file join $dataDir floorplan_rebuild.tcl] -legacy",
+      "saveDesign [file join $saveDir floorplan.enc]",
+      "exit"
+    ];
+    add("00_floorplan_from_netlist", "innovus_floorplan_init", body2);
+    return result;
+  }
   add("01_import", "innovus_import", [
     "source [file join $root innovus_globals.tcl]",
-    `cd [file dirname [file normalize ${tclWord(input2.mmmc)}]]`,
+    `cd [file dirname [file normalize ${bundleInput(input2.mmmc)}]]`,
     "init_design",
     "checkDesign -netlist",
     "saveDesign [file join $saveDir init_design.enc]"
   ]);
-  const floorplan = [...checkpoint("init_design", top), `defIn ${tclWord(input2.floorplanDef)}`, "source [file join $root manual_floorplan.tcl]"];
+  const floorplan = [...checkpoint("init_design", top), `defIn ${bundleInput(input2.floorplanDef)}`, "source [file join $root manual_floorplan.tcl]"];
   if (c.endcap_cells.length) floorplan.push("setEndCapMode -reset", `setEndCapMode -leftEdge ${tclWord(c.endcap_cells[0])} -rightEdge ${tclWord(c.endcap_cells[0])} -topEdge ${tclWord(c.endcap_cells[0])} -bottomEdge ${tclWord(c.endcap_cells[0])} -prefix ENDCAP`, "addEndCap");
   if (c.tap_cell) floorplan.push(`set_well_tap_mode -rule 30 -bottom_tap_cell ${tclWord(c.tap_cell)} -top_tap_cell ${tclWord(c.tap_cell)}`, `addWellTap -cell ${tclWord(c.tap_cell)}${c.tap_spacing ? ` -cellInterval ${c.tap_spacing}` : ""} -prefix WELLTAP`);
   floorplan.push("saveDesign [file join $saveDir floorplan.enc]");
   add("02_floorplan", "innovus_floorplan", floorplan);
-  const power = [
-    ...checkpoint("floorplan", top),
-    "clearGlobalNets",
+  const power = [...checkpoint("floorplan", top), "clearGlobalNets"];
+  if (input2.globalConnect) power.push(`source ${bundleInput(input2.globalConnect)}`);
+  power.push(
     `globalNetConnect ${tclWord(c.power_net)} -type pgpin -pin ${tclWord(c.power_net)} -inst *`,
     `globalNetConnect ${tclWord(c.power_net)} -type tiehi -pin ${tclWord(c.power_net)} -inst *`,
     `globalNetConnect ${tclWord(c.power_net)} -type net -net ${tclWord(c.power_net)}`,
     `globalNetConnect ${tclWord(c.ground_net)} -type pgpin -pin ${tclWord(c.ground_net)} -inst *`,
     `globalNetConnect ${tclWord(c.ground_net)} -type tielo -pin ${tclWord(c.ground_net)} -inst *`,
     `globalNetConnect ${tclWord(c.ground_net)} -type net -net ${tclWord(c.ground_net)}`
-  ];
+  );
   if (c.power_grid.enabled) power.push(
     `addStripe -nets ${tclList([c.power_net, c.ground_net])} -layer ${tclWord(c.power_grid.vertical_layer)} -direction vertical -set_to_set_distance ${c.power_grid.set_distance} -spacing ${c.power_grid.spacing} -width ${c.power_grid.vertical_width} -start_from left -start_offset ${c.power_grid.offset} -extend_to design_boundary`,
     `addStripe -nets ${tclList([c.power_net, c.ground_net])} -layer ${tclWord(c.power_grid.horizontal_layer)} -direction horizontal -set_to_set_distance ${c.power_grid.set_distance} -spacing ${c.power_grid.spacing} -width ${c.power_grid.horizontal_width} -start_from bottom -start_offset ${c.power_grid.offset} -extend_to design_boundary`
@@ -22354,7 +22404,7 @@ function renderBackend(project, input2) {
   if (c.cts_target_skew !== null) cts.push(`set_ccopt_property target_skew ${c.cts_target_skew}`);
   if (c.cts_max_transition !== null) cts.push(`set_ccopt_property target_max_trans ${c.cts_max_transition}`);
   if (c.cts_max_capacitance !== null) cts.push(`set_ccopt_property target_max_capacitance ${c.cts_max_capacitance}`);
-  cts.push("create_ccopt_clock_tree_spec -file [file join $root backend clock.spec]", "source [file join $root backend clock.spec]", "ccopt_design -cts", "report_ccopt_skew_groups > [file join $reportDir skew_groups.rpt]", "timeDesign -postCTS -pathReports -drvReports -slackReports -numPaths 50 -outDir $reportDir", "saveDesign [file join $saveDir cts.enc]");
+  cts.push("create_ccopt_clock_tree_spec -file [file join $root clock.spec]", "source [file join $root clock.spec]", "ccopt_design -cts", "report_ccopt_skew_groups > [file join $reportDir skew_groups.rpt]", "timeDesign -postCTS -pathReports -drvReports -slackReports -numPaths 50 -outDir $reportDir", "saveDesign [file join $saveDir cts.enc]");
   add("05_cts", "innovus_cts", cts);
   add("06_cts_opt", "innovus_cts_opt", [...checkpoint("cts", top), "setExtractRCMode -engine preRoute", "setAnalysisMode -analysisType onChipVariation -cppr both", "timeDesign -postCTS -pathReports -drvReports -slackReports -numPaths 50 -outDir $reportDir", "optDesign -postCTS -setup", "optDesign -postCTS -hold", "timeDesign -postCTS -hold -pathReports -slackReports -numPaths 50 -outDir $reportDir", "checkFPlan -reportUtil", "saveDesign [file join $saveDir postCTS.enc]"]);
   const route = [...checkpoint("postCTS", top)];
@@ -22370,12 +22420,143 @@ function renderBackend(project, input2) {
   if (c.output_netlist) finish.push(`saveNetlist [file join $root data ${top}.vg]`);
   if (c.output_gds) {
     if (!input2.streamoutMap) throw new Error("\u542F\u7528 GDS \u5BFC\u51FA\u65F6\u9700\u8981\u914D\u7F6E StreamOut map \u6587\u4EF6");
-    finish.push("setStreamOutMode -version 600", "setStreamOutMode -virtualConnection true", `streamOut [file join $root data ${top}.gds] -mapFile ${tclWord(input2.streamoutMap)} -libName DesignLib -units 1000 -mode ALL`);
+    finish.push("setStreamOutMode -version 600", "setStreamOutMode -virtualConnection true", `streamOut [file join $root data ${top}.gds] -mapFile ${bundleInput(input2.streamoutMap)} -libName DesignLib -units 1000 -mode ALL`);
   }
   finish.push("saveDesign [file join $saveDir chipfinish.enc]");
   add("09_chipfinish", "innovus_finish", finish);
   result.push({ destination: "backend/run_backend.tcl", role: "innovus_driver", content: lines([`# ${comment(project.name)} \xB7 Innovus backend flow`, "set root [file dirname [file normalize [info script]]]", ...["01_import", "02_floorplan", "03_powerplan", "04_place", "05_cts", "06_cts_opt", "07_route", "08_route_opt", "09_chipfinish"].map((name2) => `source [file join $root ${name2}.tcl]`), "exit"]) });
   return result;
+}
+
+// apps/dsh/src/eda-project/mmmc-generator.ts
+var identifier = /^[A-Za-z_][A-Za-z0-9_]*$/;
+function requireName(value, what) {
+  if (!identifier.test(value)) throw new Error(`INVALID_MMMC: ${what} \u540D\u79F0\u65E0\u6548\uFF1A${value}`);
+}
+function unique(rows, what) {
+  const names = /* @__PURE__ */ new Set();
+  for (const row of rows) {
+    requireName(row.name, what);
+    if (names.has(row.name)) throw new Error(`INVALID_MMMC: ${what} \u540D\u79F0\u91CD\u590D\uFF1A${row.name}`);
+    names.add(row.name);
+  }
+}
+function renderMmmc(config2, resolveFile) {
+  if (!config2.rc_corners.length || config2.rc_corners.some((row) => !row.model_file.trim())) throw new Error("MISSING_RCMODEL: \u5FC5\u987B\u63D0\u4F9B\u7ECF\u9879\u76EE/PDK\u786E\u8BA4\u7684 QRC tech file \u6216 capacitance table");
+  if (!config2.library_sets.length || config2.library_sets.some((row) => !row.libs.length)) throw new Error("MISSING_LIBERTY: \u6BCF\u4E2A Library Set \u5FC5\u987B\u5217\u51FA\u81F3\u5C11\u4E00\u4E2A\u771F\u5B9E Liberty \u6587\u4EF6");
+  if (!config2.constraint_modes.length || config2.constraint_modes.some((row) => !row.sdc_files.length)) throw new Error("MISSING_SDC: \u6BCF\u4E2A Constraint Mode \u5FC5\u987B\u5217\u51FA\u81F3\u5C11\u4E00\u4E2A\u771F\u5B9E SDC");
+  if (!config2.delay_corners.length || !config2.analysis_views.length || !config2.setup_views.length || !config2.hold_views.length) throw new Error("NO_ACTIVE_ANALYSIS_VIEW: \u5FC5\u987B\u5B9A\u4E49 Delay Corner\u3001Analysis View \u53CA\u81F3\u5C11\u4E00\u4E2A\u6D3B\u52A8 Setup/Hold View");
+  unique(config2.library_sets, "Library Set");
+  unique(config2.rc_corners, "RC Corner");
+  unique(config2.delay_corners, "Delay Corner");
+  unique(config2.constraint_modes, "Constraint Mode");
+  unique(config2.analysis_views, "Analysis View");
+  const librarySets = new Set(config2.library_sets.map((row) => row.name));
+  const rcCorners = new Set(config2.rc_corners.map((row) => row.name));
+  const constraintModes = new Set(config2.constraint_modes.map((row) => row.name));
+  const delayCorners = new Set(config2.delay_corners.map((row) => row.name));
+  const views = new Set(config2.analysis_views.map((row) => row.name));
+  for (const row of config2.delay_corners) if (!librarySets.has(row.library_set) || !rcCorners.has(row.rc_corner)) throw new Error(`INVALID_MMMC: Delay Corner ${row.name} \u5F15\u7528\u4E86\u672A\u5B9A\u4E49\u7684 Library Set \u6216 RC Corner`);
+  for (const row of config2.analysis_views) if (!constraintModes.has(row.constraint_mode) || !delayCorners.has(row.delay_corner)) throw new Error(`INVALID_MMMC: Analysis View ${row.name} \u5F15\u7528\u4E86\u672A\u5B9A\u4E49\u7684 Constraint Mode \u6216 Delay Corner`);
+  for (const name2 of [...config2.setup_views, ...config2.hold_views]) if (!views.has(name2)) throw new Error(`NO_ACTIVE_ANALYSIS_VIEW: \u6D3B\u52A8\u89C6\u56FE\u672A\u5B9A\u4E49\uFF1A${name2}`);
+  if (new Set(config2.setup_views).size !== config2.setup_views.length || new Set(config2.hold_views).size !== config2.hold_views.length) throw new Error("NO_ACTIVE_ANALYSIS_VIEW: \u6D3B\u52A8 Setup/Hold View \u5217\u8868\u542B\u91CD\u590D\u540D\u79F0");
+  const ref = (file2) => `[file join $mmmcDir ${tclWord(resolveFile(file2))}]`;
+  const out = [
+    "# Generated from explicit project-supplied Liberty, RC and SDC inputs.",
+    "# PDK compatibility, coverage and signoff must be confirmed by Innovus and STA.",
+    "set mmmcDir [file dirname [file normalize [info script]]]"
+  ];
+  for (const row of config2.library_sets) out.push(`create_library_set -name ${tclWord(row.name)} -timing [list ${row.libs.map(ref).join(" ")}]`);
+  for (const row of config2.rc_corners) out.push(`create_rc_corner -name ${tclWord(row.name)} -${row.model_type} ${ref(row.model_file)}`);
+  for (const row of config2.delay_corners) out.push(`create_delay_corner -name ${tclWord(row.name)} -library_set ${tclWord(row.library_set)} -rc_corner ${tclWord(row.rc_corner)}`);
+  for (const row of config2.constraint_modes) out.push(`create_constraint_mode -name ${tclWord(row.name)} -sdc_files [list ${row.sdc_files.map(ref).join(" ")}]`);
+  for (const row of config2.analysis_views) out.push(`create_analysis_view -name ${tclWord(row.name)} -constraint_mode ${tclWord(row.constraint_mode)} -delay_corner ${tclWord(row.delay_corner)}`);
+  out.push(`set_analysis_view -setup [list ${config2.setup_views.map(tclWord).join(" ")}] -hold [list ${config2.hold_views.map(tclWord).join(" ")}]`, "");
+  const content = out.join("\n");
+  parseTcl(content);
+  return content;
+}
+
+// apps/dsh/src/eda-project/backend-readiness.ts
+import { stat as stat2 } from "node:fs/promises";
+import path2 from "node:path";
+async function backendReadiness(project, mode, phase = "preflight") {
+  const b = project.toolbox.backend, issues = [];
+  const add = (severity, code, field, message, file2) => issues.push({ severity, code, field, message, ...file2 ? { path: path2.resolve(project.root, file2) } : {} });
+  const checkFile = async (field, file2, code, label) => {
+    if (!file2.trim()) {
+      add("error", code, field, `${label}\u672A\u914D\u7F6E`);
+      return;
+    }
+    try {
+      const info = await stat2(path2.resolve(project.root, file2));
+      if (!info.isFile() || !info.size) add("error", code, field, `${label}\u4E0D\u5B58\u5728\u3001\u4E3A\u7A7A\u6216\u4E0D\u662F\u666E\u901A\u6587\u4EF6`, file2);
+    } catch {
+      add("error", code, field, `${label}\u4E0D\u53EF\u8BFB\u6216\u4E0D\u5B58\u5728`, file2);
+    }
+  };
+  if (!b.top_cell.trim()) add("error", "MISSING_NETLIST", "backend.top_cell", "\u7F3A\u5C11\u9876\u5C42 cell \u540D\u79F0");
+  await checkFile("backend.netlist", b.netlist, "MISSING_NETLIST", "\u7EFC\u5408\u7F51\u8868");
+  await checkFile("backend.tech_lef", b.tech_lef, "MISSING_TECH_LEF", "Technology LEF");
+  if (!b.cell_lefs.length) add("error", "MISSING_TECH_LEF", "backend.cell_lefs", "\u672A\u767B\u8BB0\u6807\u51C6\u5355\u5143/Macro LEF");
+  for (let i = 0; i < b.cell_lefs.length; i++) await checkFile(`backend.cell_lefs[${i}]`, b.cell_lefs[i], "MISSING_TECH_LEF", "\u6807\u51C6\u5355\u5143/Macro LEF");
+  if (mode === "from_existing_floorplan") {
+    await checkFile("backend.mmmc_file", b.mmmc_file, "MISSING_RCMODEL", "MMMC Tcl\uFF08\u987B\u542B\u7ECF\u786E\u8BA4\u7684 RC/PVT/SDC \u4E0E\u6D3B\u52A8\u89C6\u56FE\uFF09");
+    await checkFile("backend.floorplan_def", b.floorplan_def, "INVALID_FLOORPLAN", "\u73B0\u6709 Floorplan DEF");
+  } else {
+    const m = b.mmmc_config;
+    if (!m.rc_corners.length || m.rc_corners.some((row) => !row.model_file.trim())) add("error", "MISSING_RCMODEL", "backend.mmmc_config.rc_corners", "\u672A\u63D0\u4F9B\u7ECF PDK/\u9879\u76EE\u786E\u8BA4\u7684 RC tech file \u6216 capacitance table");
+    for (let i = 0; i < m.rc_corners.length; i++) if (m.rc_corners[i].model_file.trim()) await checkFile(`backend.mmmc_config.rc_corners[${i}].model_file`, m.rc_corners[i].model_file, "MISSING_RCMODEL", "RC \u6A21\u578B");
+    if (!m.library_sets.length || m.library_sets.some((row) => !row.libs.length)) add("error", "MISSING_LIBERTY", "backend.mmmc_config.library_sets", "\u672A\u63D0\u4F9B Liberty Library Set");
+    for (let i = 0; i < m.library_sets.length; i++) for (let j = 0; j < m.library_sets[i].libs.length; j++) if (m.library_sets[i].libs[j].trim()) await checkFile(`backend.mmmc_config.library_sets[${i}].libs[${j}]`, m.library_sets[i].libs[j], "MISSING_LIBERTY", "Liberty \u6587\u4EF6");
+    if (!m.constraint_modes.length || m.constraint_modes.some((row) => !row.sdc_files.length)) add("error", "MISSING_SDC", "backend.mmmc_config.constraint_modes", "\u672A\u63D0\u4F9B\u529F\u80FD/\u6D4B\u8BD5 Constraint Mode \u7684\u6709\u6548 SDC");
+    for (let i = 0; i < m.constraint_modes.length; i++) for (let j = 0; j < m.constraint_modes[i].sdc_files.length; j++) if (m.constraint_modes[i].sdc_files[j].trim()) await checkFile(`backend.mmmc_config.constraint_modes[${i}].sdc_files[${j}]`, m.constraint_modes[i].sdc_files[j], "MISSING_SDC", "SDC \u6587\u4EF6");
+    if (b.mmmc_file.trim()) add("error", "MMMC_SOURCE_AMBIGUOUS", "backend.mmmc_file", "from_netlist \u4ECE mmmc_config \u751F\u6210 MMMC\uFF1B\u8BF7\u6E05\u9664\u65E7 MMMC \u6587\u4EF6\u5B57\u6BB5");
+    if (!m.delay_corners.length || !m.analysis_views.length || !m.setup_views.length || !m.hold_views.length) add("error", "NO_ACTIVE_ANALYSIS_VIEW", "backend.mmmc_config.analysis_views", "Delay Corner\u3001Setup/Hold Analysis View \u53CA\u6D3B\u52A8\u89C6\u56FE\u5217\u8868\u5FC5\u987B\u5B8C\u6574");
+    if (b.mmmc_file.trim()) add("error", "MMMC_SOURCE_AMBIGUOUS", "backend.mmmc_file", "from_netlist \u4ECE mmmc_config \u751F\u6210 MMMC\uFF1B\u8BF7\u6E05\u9664\u65E7 MMMC \u6587\u4EF6\u5B57\u6BB5");
+    if (phase === "floorplan") {
+      if (b.floorplan_init.ui !== "legacy" || !b.floorplan_init.site.trim() || !b.floorplan_init.core_size) add("error", "INVALID_FLOORPLAN", "backend.floorplan_init", "\u9700\u63D0\u4F9B\u7ECF LEF \u6838\u5B9E\u7684 Legacy Site\u3001Core \u5BBD\u9AD8\u4E0E\u56DB\u4FA7 margins");
+      if (!b.macro_placements.length) add("warning", "MACRO_PLACEMENT_REVIEW", "backend.macro_placements", "\u672A\u767B\u8BB0\u5B8F\u6446\u653E\uFF1B\u5148\u6838\u5BF9 inventory \u62A5\u544A\u53CA\u5168\u90E8 hard macro \u7684\u5750\u6807/\u671D\u5411/Halo");
+      if (!b.floorplan_init.pin_assignment_file.trim()) add("warning", "PIN_PLACEMENT_REVIEW", "backend.floorplan_init.pin_assignment_file", "\u672A\u767B\u8BB0 pin \u89C4\u5212 Tcl\uFF1BDEF \u53EA\u80FD\u89C6\u4E3A\u5019\u9009\uFF0C\u9700\u4EBA\u5DE5\u786E\u8BA4 IO/pin \u8BA1\u5212");
+      else await checkFile("backend.floorplan_init.pin_assignment_file", b.floorplan_init.pin_assignment_file, "INVALID_FLOORPLAN", "Pin assignment Tcl");
+    }
+    if (project.toolbox.modules.scan) add("warning", "SCAN_MODE_COVERAGE_REVIEW", "toolbox.modules.scan", "Scan \u5DF2\u542F\u7528\uFF1B\u9700\u663E\u5F0F\u786E\u8BA4 Shift/Capture SDC \u4E0E\u6D3B\u52A8\u5206\u6790\u89C6\u56FE\u8986\u76D6\uFF0C\u4E0D\u4ECE\u7AEF\u53E3\u540D\u79F0\u63A8\u65AD");
+  }
+  if (!b.global_connect_file.trim()) add("warning", "PG_MAPPING_REVIEW", "backend.global_connect_file", "\u672A\u767B\u8BB0\u9879\u76EE\u7EA7 PG pin/net \u6620\u5C04 Tcl\uFF1BSRAM \u4E13\u7528\u7535\u6E90 pin \u4E0D\u5E94\u5047\u8BBE\u7B49\u540C VDD/VSS");
+  if (mode === "from_netlist" && phase !== "floorplan") add("warning", "MACRO_INVENTORY_REQUIRED", "backend.start_mode", "\u5148\u6267\u884C init_design \u5E76\u68C0\u67E5 macro_instances.rpt\uFF1B\u4E0D\u8981\u5728 inventory \u524D\u731C\u5B8F\u5B9E\u4F8B\u8DEF\u5F84/\u5750\u6807");
+  return {
+    projectId: project.id,
+    projectName: project.name,
+    topCell: b.top_cell,
+    backendMode: mode,
+    requestedPhase: phase,
+    status: issues.some((row) => row.severity === "error") ? "blocked" : "inputs_present_pending_eda_validation",
+    generatedAt: (/* @__PURE__ */ new Date()).toISOString(),
+    issues,
+    verificationBoundary: "\u6587\u4EF6\u5B58\u5728\u6027\u548C\u914D\u7F6E\u5B8C\u6574\u5EA6\u68C0\u67E5\u4E0D\u8BC1\u660E PDK/RC/PVT/Liberty/LEF \u4E00\u81F4\u6027\u3001Innovus Tcl \u7248\u672C\u517C\u5BB9\u3001init_design \u6210\u529F\u3001Floorplan \u5408\u6CD5\u3001DEF \u53EF\u6062\u590D\u3001STA/DRC/LVS/PG \u6216\u7B7E\u6838\u3002\u771F\u5B9E\u517C\u5BB9\u6027\u987B\u7531\u76EE\u6807 Innovus/STA \u65E5\u5FD7\u548C\u62A5\u544A\u786E\u8BA4\u3002"
+  };
+}
+function renderBackendReadinessMarkdown(report) {
+  const rows = report.issues.length ? report.issues.map((row) => `| ${row.severity} | ${row.code} | ${row.field} | ${row.message}${row.path ? ` (${row.path})` : ""} |`) : ["| warning | NONE | \u2014 | \u5F53\u524D\u5DF2\u767B\u8BB0\u5FC5\u9700\u9879\u5747\u6709\u914D\u7F6E\uFF1B\u4ECD\u9700 EDA \u5DE5\u5177\u9A8C\u8BC1\u517C\u5BB9\u6027 |"];
+  return [
+    `# Innovus backend readiness \xB7 ${report.projectName}`,
+    "",
+    `- Project: ${report.projectId}`,
+    `- Top: ${report.topCell || "(missing)"}`,
+    `- Start mode: ${report.backendMode}`,
+    `- Requested phase: ${report.requestedPhase}`,
+    `- Status: ${report.status}`,
+    `- Generated: ${report.generatedAt}`,
+    "",
+    "| Severity | Code | Field | Finding |",
+    "|---|---|---|---|",
+    ...rows,
+    "",
+    "## Verification boundary",
+    "",
+    report.verificationBoundary,
+    ""
+  ].join("\n");
 }
 
 // apps/dsh/src/eda-project/bundle.ts
@@ -22385,15 +22566,15 @@ async function fileHash(file2) {
   return hash2.digest("hex");
 }
 function safeRelative(file2) {
-  if (!file2 || path2.isAbsolute(file2) || file2.includes("\\") || file2.split("/").some((part) => !part || part === ".." || part === ".")) throw new Error(`\u65E0\u6548\u7684\u76F8\u5BF9\u6587\u4EF6\u8DEF\u5F84\uFF1A${file2}`);
+  if (!file2 || path3.isAbsolute(file2) || file2.includes("\\") || file2.split("/").some((part) => !part || part === ".." || part === ".")) throw new Error(`\u65E0\u6548\u7684\u76F8\u5BF9\u6587\u4EF6\u8DEF\u5F84\uFF1A${file2}`);
   return file2;
 }
 function inside(root, file2) {
-  const rel = path2.relative(root, file2);
-  return rel === "" || !path2.isAbsolute(rel) && rel !== ".." && !rel.startsWith(`..${path2.sep}`);
+  const rel = path3.relative(root, file2);
+  return rel === "" || !path3.isAbsolute(rel) && rel !== ".." && !rel.startsWith(`..${path3.sep}`);
 }
 async function readScript(file2) {
-  const info = await stat2(file2);
+  const info = await stat3(file2);
   if (!info.isFile() || info.size > 4 * 1024 * 1024) throw new Error(`\u811A\u672C\u4E0D\u662F\u666E\u901A\u6587\u4EF6\u6216\u8D85\u8FC7 4 MiB\uFF1A${file2}`);
   return readFile3(file2, "utf8");
 }
@@ -22402,7 +22583,7 @@ function fileTokens(text2) {
   return result.map((token) => token.startsWith('"') || token.startsWith("'") ? token.slice(1, -1).replace(/\\(["\\])/g, "$1") : token);
 }
 async function resolveInputs(project) {
-  const c = project.toolbox, sources = c.source_files.map((file2) => path2.resolve(project.rtlRoot, file2)), includes = c.include_directories.map((file2) => path2.resolve(project.rtlRoot, file2)), defines = [...c.defines];
+  const c = project.toolbox, sources = c.source_files.map((file2) => path3.resolve(project.rtlRoot, file2)), includes = c.include_directories.map((file2) => path3.resolve(project.rtlRoot, file2)), defines = [...c.defines];
   const active = /* @__PURE__ */ new Set();
   const parse3 = async (file2, base) => {
     const resolved = await realpath2(file2);
@@ -22414,16 +22595,16 @@ async function resolveInputs(project) {
       if (token === "-f" || token === "-F") {
         const next = tokens[++i];
         if (!next) throw new Error(`filelist ${token} \u7F3A\u5C11\u8DEF\u5F84`);
-        const nested = path2.resolve(base, next);
-        await parse3(nested, token === "-F" ? path2.dirname(nested) : base);
-      } else if (token.startsWith("+incdir+")) includes.push(...token.slice(8).split("+").filter(Boolean).map((file3) => path2.resolve(base, file3)));
+        const nested = path3.resolve(base, next);
+        await parse3(nested, token === "-F" ? path3.dirname(nested) : base);
+      } else if (token.startsWith("+incdir+")) includes.push(...token.slice(8).split("+").filter(Boolean).map((file3) => path3.resolve(base, file3)));
       else if (token.startsWith("+define+")) defines.push(...token.slice(8).split("+").filter(Boolean));
       else if (token.startsWith("-") || token.startsWith("+")) throw new Error(`\u4E0D\u652F\u6301\u7684 filelist \u9009\u9879 ${token}\uFF0C\u8BF7\u8F6C\u6362\u4E3A\u9879\u76EE\u8F93\u5165\u914D\u7F6E\uFF0C\u4E0D\u80FD\u9759\u9ED8\u5FFD\u7565`);
-      else sources.push(path2.resolve(base, token));
+      else sources.push(path3.resolve(base, token));
     }
     active.delete(resolved);
   };
-  if (c.filelist) await parse3(path2.resolve(project.rtlRoot, c.filelist), project.rtlRoot);
+  if (c.filelist) await parse3(path3.resolve(project.rtlRoot, c.filelist), project.rtlRoot);
   if (!sources.length) throw new Error("\u672A\u914D\u7F6E RTL \u6E90\u6587\u4EF6\u6216\u6709\u6548 filelist");
   return { sources: [...new Set(sources)], includes: [...new Set(includes)], defines: [...new Set(defines)] };
 }
@@ -22433,22 +22614,22 @@ async function generateBundle(project, options = {}) {
   const c = project.toolbox, stage = options.backendOnly ? "backend" : options.flowStage ?? "full";
   if (!options.backendOnly && !FLOW_STAGES.includes(stage)) throw new Error("\u65E0\u6548\u7684\u751F\u6210\u9636\u6BB5");
   if (project.archived) throw new Error("\u9879\u76EE\u5DF2\u5F52\u6863\uFF0C\u8BF7\u5148\u6062\u590D\u9879\u76EE");
-  const base = path2.resolve(options.workingDirectory || project.workspace), directory = path2.resolve(options.directory || path2.join(base, "eda-scripts", project.id, stage === "backend" ? "backend" : "flow"));
+  const base = path3.resolve(options.workingDirectory || project.workspace), directory = path3.resolve(options.directory || path3.join(base, "eda-scripts", project.id, stage === "backend" ? "backend" : "flow"));
   await mkdir3(base, { recursive: true });
   const canonicalBase = await realpath2(base), workspace = await realpath2(project.workspace);
   if (!inside(canonicalBase, directory) && !inside(workspace, directory) || [canonicalBase, workspace, project.root, project.rtlRoot].includes(directory)) throw new Error("\u751F\u6210\u76EE\u5F55\u987B\u4F4D\u4E8E\u4F1A\u8BDD\u6216\u9879\u76EE\u5DE5\u4F5C\u76EE\u5F55\u7684\u5B50\u76EE\u5F55\u5185\uFF0C\u4E0D\u80FD\u8986\u76D6\u6E90\u7801\u6839\u76EE\u5F55");
   await mkdir3(directory, { recursive: true });
   const output2 = await realpath2(directory);
   if (!inside(canonicalBase, output2) && !inside(workspace, output2)) throw new Error("\u751F\u6210\u76EE\u5F55\u7684\u7B26\u53F7\u94FE\u63A5\u8D8A\u8FC7\u4E86\u9879\u76EE\u5DE5\u4F5C\u76EE\u5F55");
-  return withFileLock(path2.join(output2, ".generation"), async () => {
+  return withFileLock(path3.join(output2, ".generation"), async () => {
     options.signal?.throwIfAborted();
     try {
-      const previous = JSON.parse(await readFile3(path2.join(output2, "manifest.json"), "utf8"));
+      const previous = JSON.parse(await readFile3(path3.join(output2, "manifest.json"), "utf8"));
       if (previous.projectId !== project.id) throw new Error("\u751F\u6210\u76EE\u5F55\u5DF2\u5C5E\u4E8E\u53E6\u4E00\u4E2A\u9879\u76EE");
     } catch (error62) {
       if (error62.code !== "ENOENT") throw error62;
     }
-    const id = randomUUID(), temp = path2.join(output2, `.pending-${id}`);
+    const id = randomUUID(), temp = path3.join(output2, `.pending-${id}`);
     await mkdir3(temp);
     const files = [], occupied = /* @__PURE__ */ new Set(), sourceMap = /* @__PURE__ */ new Map();
     const put = async (destination, content, role2, source) => {
@@ -22456,46 +22637,102 @@ async function generateBundle(project, options = {}) {
       safeRelative(destination);
       if (occupied.has(destination)) throw new Error(`\u751F\u6210\u6587\u4EF6\u51B2\u7A81\uFF1A${destination}`);
       occupied.add(destination);
-      const target = path2.join(temp, destination);
+      const target = path3.join(temp, destination);
       await writeFileAtomic(target, content, { mode: 384 });
-      files.push({ destination, file: path2.join(output2, destination), size: Buffer.byteLength(content), sha256: createHash2("sha256").update(content).digest("hex"), role: role2, ...source ? { source } : {}, ...role2 !== "rtl" && Buffer.byteLength(content) < 512 * 1024 ? { content } : {} });
+      files.push({ destination, file: path3.join(output2, destination), size: Buffer.byteLength(content), sha256: createHash2("sha256").update(content).digest("hex"), role: role2, ...source ? { source } : {}, ...role2 !== "rtl" && Buffer.byteLength(content) < 512 * 1024 ? { content } : {} });
     };
     const freeze = async (source, destination, role2, expectedHash) => {
       options.signal?.throwIfAborted();
       safeRelative(destination);
       if (occupied.has(destination)) throw new Error(`\u8F93\u5165\u5FEB\u7167\u8DEF\u5F84\u51B2\u7A81\uFF1A${destination}`);
       occupied.add(destination);
-      const info = await stat2(source);
+      const info = await stat3(source);
       if (!info.isFile() || !info.size) throw new Error(`\u8F93\u5165\u4E0D\u5B58\u5728\u3001\u4E3A\u7A7A\u6216\u4E0D\u662F\u6587\u4EF6\uFF1A${source}`);
       if (inside(output2, await realpath2(source)) && !expectedHash) throw new Error("\u751F\u6210\u76EE\u5F55\u4E2D\u7684\u8F93\u5165\u5FC5\u987B\u901A\u8FC7\u54C8\u5E0C\u6821\u9A8C\u7684\u8986\u76D6\u8BB0\u5F55\u663E\u5F0F\u9009\u62E9");
-      const target = path2.join(temp, destination);
-      await mkdir3(path2.dirname(target), { recursive: true });
+      const target = path3.join(temp, destination);
+      await mkdir3(path3.dirname(target), { recursive: true });
       await copyFile(source, target);
       const hash2 = await fileHash(target);
       if (expectedHash && hash2 !== expectedHash.toLowerCase()) throw new Error(`\u8F93\u5165\u54C8\u5E0C\u4E0D\u5339\u914D\uFF1A${source}`);
-      files.push({ destination, file: path2.join(output2, destination), source, size: info.size, sha256: hash2, role: role2 });
+      files.push({ destination, file: path3.join(output2, destination), source, size: info.size, sha256: hash2, role: role2 });
       return destination;
+    };
+    const commit = async (bundle) => {
+      for (const file2 of files) {
+        const target = path3.join(output2, file2.destination), parent = path3.dirname(target);
+        await mkdir3(parent, { recursive: true });
+        if (!inside(output2, await realpath2(parent))) throw new Error("\u751F\u6210\u76EE\u6807\u5B58\u5728\u8D8A\u754C\u7B26\u53F7\u94FE\u63A5");
+        await writeFileAtomic(target, await readFile3(path3.join(temp, file2.destination)), { mode: 384 });
+      }
+      await writeFileAtomic(path3.join(output2, "manifest.json"), JSON.stringify({ ...bundle, files: files.map(({ content, ...row }) => row) }, null, 2), { mode: 384 });
+      return bundle;
     };
     try {
       if (options.backendOnly) {
-        const b = c.backend;
-        const configured = [b.netlist, b.tech_lef, ...b.cell_lefs, b.mmmc_file, b.floorplan_def, b.scan_def, b.global_connect_file, b.streamout_map].filter(Boolean);
+        const b = c.backend, mode = options.backendMode ?? b.start_mode, phase = options.backendPhase ?? "inventory";
+        if (phase === "preflight") {
+          const readiness = await backendReadiness(project, mode, "preflight");
+          await put("backend/readiness.json", JSON.stringify(readiness, null, 2), "backend_readiness");
+          await put("backend/readiness.md", renderBackendReadinessMarkdown(readiness), "backend_readiness");
+          await put("project.json", JSON.stringify(project, null, 2), "project_configuration");
+          const bundle3 = { schemaVersion: 1, projectId: project.id, projectRevision: project.revision, generationId: id, flowStage: "backend", flowDirectory: output2, generatedAt: (/* @__PURE__ */ new Date()).toISOString(), executed: false, priorOutputsPreserved: true, files, runRequests: [], sourceSummary: { backendMode: mode, backendPhase: "preflight", readiness, unsupportedEvidence: readiness.verificationBoundary } };
+          return await commit(bundle3);
+        }
+        if (mode === "from_existing_floorplan" && options.backendPhase) throw new Error("BACKEND_PHASE_INVALID: backendPhase \u4EC5\u7528\u4E8E from_netlist \u6216 preflight");
+        if (mode === "from_netlist" && b.mmmc_file.trim()) throw new Error("MMMC_SOURCE_AMBIGUOUS: from_netlist \u7531 mmmc_config \u751F\u6210 MMMC\uFF1B\u8BF7\u6E05\u9664 mmmc_file \u6216\u9009\u62E9 from_existing_floorplan");
+        const libertyFiles = b.mmmc_config.library_sets.flatMap((row) => row.libs);
+        const rcFiles = b.mmmc_config.rc_corners.map((row) => row.model_file).filter(Boolean);
+        const sdcFiles = b.mmmc_config.constraint_modes.flatMap((row) => row.sdc_files);
+        const mmmcInputs = [...libertyFiles, ...rcFiles, ...sdcFiles];
+        const configured = mode === "from_netlist" ? [b.netlist, b.tech_lef, ...b.cell_lefs, ...mmmcInputs, ...phase === "floorplan" ? [b.floorplan_init.pin_assignment_file] : []].filter(Boolean) : [b.netlist, b.tech_lef, ...b.cell_lefs, b.mmmc_file, b.floorplan_def, b.scan_def, b.global_connect_file, b.streamout_map].filter(Boolean);
         const resolvedInputs = {};
         for (const file2 of [...new Set(configured)]) {
-          const source = path2.resolve(project.root, file2), relative = path2.relative(project.root, source);
-          if (relative.startsWith("..") || path2.isAbsolute(relative)) throw new Error(`\u540E\u7AEF\u8F93\u5165\u5FC5\u987B\u4F4D\u4E8E\u9879\u76EE\u6E90\u7801\u76EE\u5F55\u4E2D\uFF1A${file2}`);
-          const destination = `input/backend/${files.length}-${path2.basename(file2)}`;
-          await freeze(source, destination, "innovus_input");
-          resolvedInputs[file2] = source;
+          const source = path3.resolve(project.root, file2);
+          const destination = `input/backend/${files.length}-${path3.basename(file2)}`;
+          try {
+            await freeze(source, destination, "innovus_input");
+          } catch (error62) {
+            const code = rcFiles.includes(file2) ? "MISSING_RCMODEL" : libertyFiles.includes(file2) ? "MISSING_LIBERTY" : sdcFiles.includes(file2) ? "MISSING_SDC" : file2 === b.tech_lef ? "MISSING_TECH_LEF" : file2 === b.netlist ? "MISSING_NETLIST" : "MISSING_BACKEND_INPUT";
+            throw new Error(`${code}: ${String(error62)}`);
+          }
+          resolvedInputs[file2] = path3.posix.basename(destination);
         }
         const get = (file2) => file2 ? resolvedInputs[file2] : "";
-        const generated2 = renderBackend(project, { netlist: get(b.netlist), techLef: get(b.tech_lef), cellLefs: b.cell_lefs.map(get), mmmc: get(b.mmmc_file), floorplanDef: get(b.floorplan_def), scanDef: get(b.scan_def) || void 0, globalConnect: get(b.global_connect_file) || void 0, streamoutMap: get(b.streamout_map) || void 0 });
+        let mmmc = get(b.mmmc_file);
+        if (mode === "from_netlist") {
+          const content = renderMmmc(b.mmmc_config, get);
+          await put("input/backend/generated_mmmc.tcl", content, "innovus_mmmc");
+          mmmc = "generated_mmmc.tcl";
+        }
+        const generated2 = renderBackend(project, {
+          netlist: get(b.netlist),
+          techLef: get(b.tech_lef),
+          cellLefs: b.cell_lefs.map(get),
+          mmmc,
+          floorplanDef: mode === "from_existing_floorplan" ? get(b.floorplan_def) : "",
+          scanDef: get(b.scan_def) || void 0,
+          globalConnect: get(b.global_connect_file) || void 0,
+          streamoutMap: get(b.streamout_map) || void 0,
+          pinAssignmentFile: get(b.floorplan_init.pin_assignment_file) || void 0,
+          floorplanInit: b.floorplan_init
+        }, mode, phase);
         for (const row of generated2) await put(row.destination, row.content, row.role);
         await put("project.json", JSON.stringify(project, null, 2), "project_configuration");
-        const expected2 = ["flow/backend/reports/09_chipfinish/*"];
-        if (b.output_def) expected2.push(`flow/backend/data/${b.top_cell}.def`);
-        if (b.output_netlist) expected2.push(`flow/backend/data/${b.top_cell}.vg`);
-        if (b.output_gds) expected2.push(`flow/backend/data/${b.top_cell}.gds`);
+        let runRequests;
+        if (mode === "from_netlist" && phase === "inventory") {
+          runRequests = [{ tool: "innovus", bundleDirectory: output2, args: ["-files", "flow/backend/inspect_macro_instances.tcl"], expectedArtifacts: ["flow/backend/reports/macro_instances.rpt"] }];
+        } else if (mode === "from_netlist") {
+          runRequests = [{ tool: "innovus", bundleDirectory: output2, args: ["-files", "flow/backend/00_floorplan_from_netlist.tcl"], expectedArtifacts: ["flow/backend/data/floorplan_candidate.def", "flow/backend/data/floorplan_rebuild.tcl", "flow/backend/reports/00_floorplan_from_netlist/floorplan_check.rpt", "flow/backend/reports/00_floorplan_from_netlist/core_box.rpt"] }];
+        } else {
+          const expected2 = ["flow/backend/reports/09_chipfinish/*"];
+          if (b.output_def) expected2.push(`flow/backend/data/${b.top_cell}.def`);
+          if (b.output_netlist) expected2.push(`flow/backend/data/${b.top_cell}.vg`);
+          if (b.output_gds) expected2.push(`flow/backend/data/${b.top_cell}.gds`);
+          runRequests = [
+            { tool: "innovus", bundleDirectory: output2, args: ["-files", "flow/backend/inspect_macro_instances.tcl"], expectedArtifacts: ["flow/backend/reports/macro_instances.rpt"] },
+            { tool: "innovus", bundleDirectory: output2, args: ["-files", "flow/backend/run_backend.tcl"], expectedArtifacts: expected2.filter((item) => !item.endsWith("/*")) }
+          ];
+        }
         const bundle2 = {
           schemaVersion: 1,
           projectId: project.id,
@@ -22507,38 +22744,28 @@ async function generateBundle(project, options = {}) {
           executed: false,
           priorOutputsPreserved: true,
           files,
-          runRequests: [
-            { tool: "innovus", bundleDirectory: output2, args: ["-files", "flow/backend/inspect_macro_instances.tcl"], expectedArtifacts: ["flow/backend/reports/macro_instances.rpt"] },
-            { tool: "innovus", bundleDirectory: output2, args: ["-files", "flow/backend/run_backend.tcl"], expectedArtifacts: expected2.filter((item) => !item.endsWith("/*")) }
-          ],
-          sourceSummary: { backend: b, manualFloorplan: { macroPlacements: b.macro_placements.length, placeBlockages: b.place_blockages.length }, inputFiles: files.filter((file2) => file2.role === "innovus_input").map(({ destination, sha256, size, source }) => ({ destination, sha256, size, source })), unsupportedEvidence: "Generation does not verify Innovus version/license, process signoff rules, placement legality, DRC/LVS, timing, power, IR drop or signoff completeness." }
+          runRequests,
+          sourceSummary: { backend: b, backendMode: mode, backendPhase: mode === "from_netlist" ? phase : void 0, manualFloorplan: { macroPlacements: b.macro_placements.length, placeBlockages: b.place_blockages.length }, inputFiles: files.filter((file2) => file2.role === "innovus_input" || file2.role === "innovus_mmmc").map(({ destination, sha256, size, source, role: role2 }) => ({ destination, sha256, size, source, role: role2 })), unsupportedEvidence: "Generation does not prove PDK compatibility, Innovus legality, complete macro/Pin planning, DEF recovery, DRC/LVS, timing, power, IR drop or signoff. The from_netlist DEF is named candidate and must be reviewed before a separate from_existing_floorplan flow." }
         };
-        for (const file2 of files) {
-          const target = path2.join(output2, file2.destination), parent = path2.dirname(target);
-          await mkdir3(parent, { recursive: true });
-          if (!inside(output2, await realpath2(parent))) throw new Error("\u751F\u6210\u76EE\u6807\u5B58\u5728\u8D8A\u754C\u7B26\u53F7\u94FE\u63A5");
-          await writeFileAtomic(target, await readFile3(path2.join(temp, file2.destination)), { mode: 384 });
-        }
-        await writeFileAtomic(path2.join(output2, "manifest.json"), JSON.stringify({ ...bundle2, files: files.map(({ content, ...row }) => row) }, null, 2), { mode: 384 });
-        return bundle2;
+        return await commit(bundle2);
       }
       const resolved = await resolveInputs(project);
       c.defines = resolved.defines;
-      const sourceDestination = (source) => inside(project.rtlRoot, source) ? `rtl/${path2.relative(project.rtlRoot, source).split(path2.sep).join("/")}` : `rtl/external/${createHash2("sha256").update(path2.dirname(source)).digest("hex").slice(0, 12)}/${path2.basename(source)}`;
+      const sourceDestination = (source) => inside(project.rtlRoot, source) ? `rtl/${path3.relative(project.rtlRoot, source).split(path3.sep).join("/")}` : `rtl/external/${createHash2("sha256").update(path3.dirname(source)).digest("hex").slice(0, 12)}/${path3.basename(source)}`;
       const sourceOverrides = new Map(c.source_replacements.map((row) => [safeRelative(row.destination), row]));
       const stageSource = async (source) => {
         const canonical = await realpath2(source);
         if (sourceMap.has(canonical)) return sourceMap.get(canonical);
-        const destination = sourceDestination(path2.resolve(source)), selected = sourceOverrides.get(destination.replace(/^rtl\//, "")) ?? sourceOverrides.get(destination);
+        const destination = sourceDestination(path3.resolve(source)), selected = sourceOverrides.get(destination.replace(/^rtl\//, "")) ?? sourceOverrides.get(destination);
         sourceMap.set(canonical, destination);
-        await freeze(selected ? path2.resolve(project.root, selected.source) : canonical, destination, "rtl", selected?.sha256);
-        const content = await readScript(path2.join(temp, destination));
+        await freeze(selected ? path3.resolve(project.root, selected.source) : canonical, destination, "rtl", selected?.sha256);
+        const content = await readScript(path3.join(temp, destination));
         for (const match of content.matchAll(/^\s*`include\s+"([^"]+)"/gm)) {
           let found = "";
-          for (const root of [path2.dirname(canonical), ...resolved.includes, project.rtlRoot]) {
-            const candidate = path2.resolve(root, match[1]);
+          for (const root of [path3.dirname(canonical), ...resolved.includes, project.rtlRoot]) {
+            const candidate = path3.resolve(root, match[1]);
             try {
-              if ((await stat2(candidate)).isFile()) {
+              if ((await stat3(candidate)).isFile()) {
                 found = candidate;
                 break;
               }
@@ -22553,32 +22780,32 @@ async function generateBundle(project, options = {}) {
       const sources = [];
       for (const file2 of resolved.sources) sources.push(await stageSource(file2));
       for (const replacement of sourceOverrides.keys()) if (!files.some((file2) => file2.destination === replacement || file2.destination === `rtl/${replacement}`)) throw new Error(`source_replacements \u672A\u5339\u914D\u4EFB\u4F55\u8F93\u5165\uFF1A${replacement}`);
-      const includes = /* @__PURE__ */ new Set(["rtl", ...files.filter((file2) => file2.role === "rtl").map((file2) => path2.posix.dirname(file2.destination))]);
+      const includes = /* @__PURE__ */ new Set(["rtl", ...files.filter((file2) => file2.role === "rtl").map((file2) => path3.posix.dirname(file2.destination))]);
       for (const root of resolved.includes) {
-        if (!(await stat2(root)).isDirectory()) throw new Error(`include \u8DEF\u5F84\u4E0D\u662F\u76EE\u5F55\uFF1A${root}`);
+        if (!(await stat3(root)).isDirectory()) throw new Error(`include \u8DEF\u5F84\u4E0D\u662F\u76EE\u5F55\uFF1A${root}`);
         const walk = async (directory2) => {
           for (const entry of await readdir(directory2, { withFileTypes: true })) {
             if (entry.isSymbolicLink()) throw new Error(`include \u76EE\u5F55\u5185\u4E0D\u5141\u8BB8\u7B26\u53F7\u94FE\u63A5\uFF1A${entry.name}`);
             if (files.length > 4096) throw new Error("\u8F93\u5165\u5FEB\u7167\u8D85\u8FC7 4096 \u4E2A\u6587\u4EF6\uFF0C\u8BF7\u6536\u7A84 include \u76EE\u5F55");
-            const file2 = path2.join(directory2, entry.name);
+            const file2 = path3.join(directory2, entry.name);
             if (entry.isDirectory()) {
               if (![".git", "node_modules", "work", "eda-jobs", "eda-scripts"].includes(entry.name)) await walk(file2);
             } else if (/\.(svh|vh|h|inc|mem|hex|dat)$/i.test(entry.name)) await stageSource(file2);
           }
         };
         await walk(root);
-        includes.add(path2.posix.dirname(sourceDestination(path2.join(root, "__include_anchor__"))));
+        includes.add(path3.posix.dirname(sourceDestination(path3.join(root, "__include_anchor__"))));
       }
       if (!project.targetLibraries.length) throw new Error("\u672A\u914D\u7F6E DC \u76EE\u6807 DB \u5E93");
       const libraries = [], linkLibraries = [];
-      for (const [values, outputValues, role2] of [[project.targetLibraries, libraries, "target_library"], [c.link_libraries, linkLibraries, "link_library"]]) for (const file2 of values) outputValues.push(await freeze(path2.resolve(project.root, file2), `input/libraries/${files.length}-${path2.basename(file2)}`, role2));
+      for (const [values, outputValues, role2] of [[project.targetLibraries, libraries, "target_library"], [c.link_libraries, linkLibraries, "link_library"]]) for (const file2 of values) outputValues.push(await freeze(path3.resolve(project.root, file2), `input/libraries/${files.length}-${path3.basename(file2)}`, role2));
       let constraint = "input/constraints.sdc";
       const timingScript = project.scripts.find((script) => script.enabled && script.generatedRole === "timing_constraints");
       const constraintOverride = c.tcl_overrides.find((row) => row.destination === constraint);
-      if (constraintOverride) await freeze(path2.resolve(project.root, constraintOverride.source), constraint, "constraints", constraintOverride.sha256);
-      else if (c.constraint_file) await freeze(path2.resolve(project.root, c.constraint_file), constraint, "constraints");
+      if (constraintOverride) await freeze(path3.resolve(project.root, constraintOverride.source), constraint, "constraints", constraintOverride.sha256);
+      else if (c.constraint_file) await freeze(path3.resolve(project.root, c.constraint_file), constraint, "constraints");
       else if (timingScript) {
-        const saved = timingScript.sourceMode === "file" && timingScript.path ? await readScript(path2.resolve(project.root, timingScript.path)) : timingScript.content;
+        const saved = timingScript.sourceMode === "file" && timingScript.path ? await readScript(path3.resolve(project.root, timingScript.path)) : timingScript.content;
         const customized = !timingScript.generatedHash || createHash2("sha256").update(saved).digest("hex") !== timingScript.generatedHash;
         await put(constraint, customized ? saved : timingSdc(project), "constraints");
       } else await put(constraint, timingSdc(project), "constraints");
@@ -22588,12 +22815,12 @@ async function generateBundle(project, options = {}) {
         const destination = `extensions/${script.sortOrder}-${script.id}.${script.kind}`;
         if (script.sourceMode === "file") {
           if (!script.path) throw new Error(`\u6587\u4EF6\u811A\u672C\u7F3A\u5C11\u8DEF\u5F84\uFF1A${script.name}`);
-          await freeze(path2.resolve(project.root, script.path), destination, "extension");
+          await freeze(path3.resolve(project.root, script.path), destination, "extension");
         } else await put(destination, script.content, "extension");
         (extensions[script.stage] ??= []).push(destination);
       }
       const inputs = { sources, libraries, linkLibraries, includes: [...includes], constraint, extensions, atpgModels: [] };
-      const adapter = async (file2, name2) => file2 ? freeze(path2.resolve(project.root, file2), `adapters/${name2}${path2.extname(file2) || ".tcl"}`, "adapter") : void 0;
+      const adapter = async (file2, name2) => file2 ? freeze(path3.resolve(project.root, file2), `adapters/${name2}${path3.extname(file2) || ".tcl"}`, "adapter") : void 0;
       if (c.modules.mbist && (stage === "full" || stage.startsWith("mbist_"))) inputs.mbistInsertion = await adapter(c.mbist.insertion_script, "mbist_insert");
       if (stage === "mbist_simulation") {
         inputs.mbistSimulation = await adapter(c.mbist.simulation_script, "mbist_sim");
@@ -22602,7 +22829,7 @@ async function generateBundle(project, options = {}) {
       const generated = [{ destination: "agent_dc.tcl", kind: "tcl", content: renderDc(project, inputs, stage, options.drcRepairMode), role: "dc_driver" }];
       if (stage === "full" && c.modules.atpg) {
         inputs.atpgScript = await adapter(c.atpg.script, "atpg");
-        for (const model of c.atpg.cell_models) inputs.atpgModels.push(await freeze(path2.resolve(project.root, model), `input/atpg/${inputs.atpgModels.length}-${path2.basename(model)}`, "atpg_model"));
+        for (const model of c.atpg.cell_models) inputs.atpgModels.push(await freeze(path3.resolve(project.root, model), `input/atpg/${inputs.atpgModels.length}-${path3.basename(model)}`, "atpg_model"));
         generated.push({ destination: "agent_atpg.tcl", kind: "tcl", content: renderAtpg(project, inputs), role: "atpg_driver" });
       }
       const hasOutputs = !["read_link", "drc_check", "pre_insertion"].includes(stage);
@@ -22625,7 +22852,7 @@ exec sh ${shellWord(snapshot2 || "")}
       const overrides = new Map(c.tcl_overrides.map((row) => [safeRelative(row.destination), row]));
       for (const row of generated) {
         const override2 = overrides.get(row.destination);
-        if (override2) await freeze(path2.resolve(project.root, override2.source), row.destination, row.role, override2.sha256);
+        if (override2) await freeze(path3.resolve(project.root, override2.source), row.destination, row.role, override2.sha256);
         else {
           if (row.kind === "tcl") parseTcl(row.content);
           await put(row.destination, row.kind === "tcl" ? `cd [file dirname [file normalize [info script]]]
@@ -22656,13 +22883,13 @@ ${row.content}` : row.content, row.role);
         sourceSummary: { rtlFiles: sources, libraries, script_generation: c.generation, modules: c.modules, drc_repair_mode: options.drcRepairMode ?? "none", unsupportedEvidence: "Generation does not verify tool versions, licenses, DRC, timing, area, power or coverage." }
       };
       for (const file2 of files) {
-        const target = path2.join(output2, file2.destination);
-        const parent = path2.dirname(target);
+        const target = path3.join(output2, file2.destination);
+        const parent = path3.dirname(target);
         await mkdir3(parent, { recursive: true });
         if (!inside(output2, await realpath2(parent))) throw new Error("\u751F\u6210\u76EE\u6807\u5B58\u5728\u8D8A\u754C\u7B26\u53F7\u94FE\u63A5");
-        await writeFileAtomic(target, await readFile3(path2.join(temp, file2.destination)), { mode: 384 });
+        await writeFileAtomic(target, await readFile3(path3.join(temp, file2.destination)), { mode: 384 });
       }
-      await writeFileAtomic(path2.join(output2, "manifest.json"), JSON.stringify({ ...bundle, files: files.map(({ content, ...row }) => row) }, null, 2), { mode: 384 });
+      await writeFileAtomic(path3.join(output2, "manifest.json"), JSON.stringify({ ...bundle, files: files.map(({ content, ...row }) => row) }, null, 2), { mode: 384 });
       return bundle;
     } finally {
       await rm2(temp, { recursive: true, force: true });
@@ -22671,16 +22898,16 @@ ${row.content}` : row.content, row.role);
 }
 
 // apps/dsh/src/eda-project/project-import.ts
-import path3 from "node:path";
+import path4 from "node:path";
 function importProjectDocument(document, baseDirectory) {
   const rows = Array.isArray(document?.projects) ? document.projects : [document?.project ?? document];
   if (!rows.length || rows.length > 256) throw new Error("\u5BFC\u5165\u6587\u4EF6\u5FC5\u987B\u5305\u542B 1\u2013256 \u4E2A\u9879\u76EE");
   return rows.map((row) => {
     if (!row || typeof row !== "object" || !row.name) throw new Error("\u9879\u76EE JSON \u7F3A\u5C11 name");
-    const root = path3.resolve(baseDirectory, String(row.root || row.workspace || "."));
-    if (row.toolbox && row.design) return { project: normalizeProject({ ...row, root, rtlRoot: path3.resolve(root, row.rtlRoot || "."), workspace: path3.resolve(baseDirectory, row.workspace) }), warnings: [] };
+    const root = path4.resolve(baseDirectory, String(row.root || row.workspace || "."));
+    if (row.toolbox && row.design) return { project: normalizeProject({ ...row, root, rtlRoot: path4.resolve(root, row.rtlRoot || "."), workspace: path4.resolve(baseDirectory, row.workspace) }), warnings: [] };
     const metadata = row.metadata ?? {}, exec = metadata.dft_execution ?? row.dftExecution ?? {}, modules = metadata.flow_modules ?? row.flowModules ?? {};
-    const workspace = exec.workspace_path ? path3.resolve(baseDirectory, exec.workspace_path, `${row.id || "project"}${exec.workspace_suffix ? `_${exec.workspace_suffix}` : ""}`) : path3.join(root, "work", row.id || newEdaId("import"));
+    const workspace = exec.workspace_path ? path4.resolve(baseDirectory, exec.workspace_path, `${row.id || "project"}${exec.workspace_suffix ? `_${exec.workspace_suffix}` : ""}`) : path4.join(root, "work", row.id || newEdaId("import"));
     const project = defaultEdaProject(workspace), c = defaultToolbox(), warnings = [];
     const known = (values, defaults, label) => {
       const result = { ...defaults };
@@ -22707,7 +22934,7 @@ function importProjectDocument(document, baseDirectory) {
     for (const key of ["tcl_overrides", "source_replacements"]) c[key] = (exec[key] || []).map((item) => ({ source: item.source || item.file, destination: item.destination, sha256: item.sha256 }));
     const scripts = (exec.script_toolbox?.scripts || []).map((script, i) => ({ id: script.script_id || newEdaId("eda-script"), name: script.name, stage: script.stage, kind: script.kind || "tcl", path: script.path || void 0, content: script.content || "", enabled: script.enabled !== false, sortOrder: script.sort_order ?? i, sourceMode: script.path && !script.content ? "file" : "inline", usage: "extension", generatedRole: script.generated_role, generatedHash: script.generated_content_sha256, createdAt: script.created_at || project.createdAt, updatedAt: script.updated_at || project.updatedAt }));
     const targets = (metadata.metric_targets || exec.metric_targets || []).map((target) => ({ id: target.id || newEdaId("target"), metric: target.metric, operator: target.operator || ">=", threshold: target.threshold, unit: target.unit || METRIC_CATALOG.find((row2) => row2.id === target.metric)?.unit || "", enabled: target.enabled !== false, faultModel: target.fault_model || "", qualifier: target.qualifier || "" }));
-    return { project: normalizeProject({ ...project, id: row.id || project.id, name: row.name, root, rtlRoot: path3.resolve(root, row.rtl_root || row.rtlRoot || "."), description: row.description || "", kind: row.kind || "digital-ic", goal: row.goal || "", notes: row.notes || "", relatedDocuments: row.related_documents || row.relatedDocuments || [], technology: row.library_profile || row.libraryProfile || "", design: { top: row.top || "top", clock: exec.clock || exec.clock_port || "clk", periodNs: exec.clock_period_ns || 10 }, targetLibraries: [row.library_file || row.libraryFile, ...exec.target_libraries || []].filter(Boolean), toolbox: c, scripts, targets: targets.length ? targets : project.targets, legacy: structuredClone(row) }), warnings };
+    return { project: normalizeProject({ ...project, id: row.id || project.id, name: row.name, root, rtlRoot: path4.resolve(root, row.rtl_root || row.rtlRoot || "."), description: row.description || "", kind: row.kind || "digital-ic", goal: row.goal || "", notes: row.notes || "", relatedDocuments: row.related_documents || row.relatedDocuments || [], technology: row.library_profile || row.libraryProfile || "", design: { top: row.top || "top", clock: exec.clock || exec.clock_port || "clk", periodNs: exec.clock_period_ns || 10 }, targetLibraries: [row.library_file || row.libraryFile, ...exec.target_libraries || []].filter(Boolean), toolbox: c, scripts, targets: targets.length ? targets : project.targets, legacy: structuredClone(row) }), warnings };
   });
 }
 
@@ -22727,10 +22954,10 @@ function withProjectGoal(template, goal) {
 }
 
 // apps/dsh/src/eda-project/examples.ts
-import path4 from "node:path";
+import path5 from "node:path";
 import { fileURLToPath } from "node:url";
 import { existsSync } from "node:fs";
-import { mkdir as mkdir4, readFile as readFile4, readdir as readdir2, stat as stat3 } from "node:fs/promises";
+import { mkdir as mkdir4, readFile as readFile4, readdir as readdir2, stat as stat4 } from "node:fs/promises";
 
 // apps/dsh/src/eda-project/example-profile.ts
 function matrixSynthesisProfile(directory) {
@@ -22781,48 +23008,48 @@ function matrixSynthesisProfile(directory) {
 var MATRIX_EXAMPLE = "matrix_processor_synthesis";
 async function installMatrixExample(project, assets = [new URL("../examples/matrix_processor/", import.meta.url), new URL("../../examples/matrix_processor/", import.meta.url)].map((url2) => fileURLToPath(url2)).find(existsSync)) {
   if (!assets) throw new Error("\u5185\u7F6E\u7EFC\u5408\u793A\u4F8B\u6587\u4EF6\u7F3A\u5931\uFF0C\u8BF7\u68C0\u67E5\u9879\u76EE\u5B89\u88C5");
-  const directory = path4.join(project.workspace, "examples", MATRIX_EXAMPLE);
+  const directory = path5.join(project.workspace, "examples", MATRIX_EXAMPLE);
   await mkdir4(directory, { recursive: true });
-  return withFileLock(path4.join(directory, ".install"), async () => {
+  return withFileLock(path5.join(directory, ".install"), async () => {
     const put = async (name2, content) => {
-      const file2 = path4.join(directory, name2);
-      await mkdir4(path4.dirname(file2), { recursive: true });
+      const file2 = path5.join(directory, name2);
+      await mkdir4(path5.dirname(file2), { recursive: true });
       try {
         if (!Buffer.from(await readFile4(file2)).equals(Buffer.from(content))) throw new Error(`\u793A\u4F8B\u6587\u4EF6\u5DF2\u6709\u4FEE\u6539\uFF0C\u5DF2\u4FDD\u7559\uFF1A${file2}`);
       } catch (error62) {
         if (error62.code !== "ENOENT") throw error62;
         await writeFileAtomic(file2, content, { mode: 384 });
       }
-      return { path: name2, sha256: await fileHash(file2), size: (await stat3(file2)).size };
+      return { path: name2, sha256: await fileHash(file2), size: (await stat4(file2)).size };
     };
     const files = [];
     const copy = async (relative) => {
-      for (const item of await readdir2(path4.join(assets, relative), { withFileTypes: true })) {
-        const name2 = path4.posix.join(relative, item.name);
+      for (const item of await readdir2(path5.join(assets, relative), { withFileTypes: true })) {
+        const name2 = path5.posix.join(relative, item.name);
         if (item.isDirectory()) await copy(name2);
-        else if (item.isFile()) files.push(await put(name2, await readFile4(path4.join(assets, name2))));
+        else if (item.isFile()) files.push(await put(name2, await readFile4(path5.join(assets, name2))));
       }
     };
     await copy("reference");
     await copy("lib");
-    files.push(await put("source_manifest.json", await readFile4(path4.join(assets, "source_manifest.json"))));
-    files.push(await put("smoke/smoke_top.sv", await readFile4(path4.join(assets, "smoke_top.sv"))));
+    files.push(await put("source_manifest.json", await readFile4(path5.join(assets, "source_manifest.json"))));
+    files.push(await put("smoke/smoke_top.sv", await readFile4(path5.join(assets, "smoke_top.sv"))));
     files.push(await put("smoke/files.f", "smoke/smoke_top.sv\n"));
     const readme = "# Matrix Processor synthesis configuration example\n\nreference/syn contains byte-for-byte copies of the provided Makefile, Tcl and SDC. The original RTL and filelist are absent. smoke/smoke_top.sv is an explicitly marked arithmetic register used only to validate generated scripts, never competition functionality.\n\nThe structured configuration reproduces CLK/vsi_clk, 3.33 ns, 0.1 ns setup/hold uncertainty, input max 1.665 ns excluding clock/reset, output max 0.333 ns, reset false path, gscl45nm typical, top wire-load, compile medium/low/none, uniquify, path groups, SVF, DDC/netlist/SDC and detailed reports.\n\nLoad project_config.json as an independent example project. Replace the smoke input and re-review reset exceptions before using a real design. Generated files use English names. No EDA job runs when installing this example.\n";
     files.push(await put("README.md", readme));
-    const configFile = path4.join(directory, "project_config.json");
+    const configFile = path5.join(directory, "project_config.json");
     let profile;
     try {
       profile = JSON.parse(await readFile4(configFile, "utf8")).project;
     } catch (error62) {
       if (error62.code !== "ENOENT") throw error62;
       profile = matrixSynthesisProfile(directory);
-      profile.workspace = path4.join(directory, "work");
+      profile.workspace = path5.join(directory, "work");
       await mkdir4(profile.workspace, { recursive: true });
       await put("project_config.json", JSON.stringify({ format: "agent-studio-eda-project", version: 1, project: profile }, null, 2));
     }
-    files.push({ path: "project_config.json", sha256: await fileHash(configFile), size: (await stat3(configFile)).size });
-    const manifestFile = path4.join(directory, "example_manifest.json");
+    files.push({ path: "project_config.json", sha256: await fileHash(configFile), size: (await stat4(configFile)).size });
+    const manifestFile = path5.join(directory, "example_manifest.json");
     await writeFileAtomic(manifestFile, JSON.stringify({ example: MATRIX_EXAMPLE, ownerProjectId: project.id, referenceSource: "/media/6/Projects/langgraph_dev/test_proj/matrix_processor/syn", smokeDesignOnly: true, files }, null, 2), { mode: 384 });
     return { id: MATRIX_EXAMPLE, name: "Matrix Processor \xB7 \u7EFC\u5408\u811A\u672C\u793A\u4F8B", directory, configFile, manifestFile, notes: ["\u539F\u59CB\u811A\u672C\u548C SDC \u6309\u5B57\u8282\u590D\u5236\uFF0C\u5305\u542B\u6765\u6E90\u54C8\u5E0C\u3002", "\u539F\u8D44\u6599\u7F3A\u5C11 RTL/filelist\uFF1B\u6F14\u793A RTL \u4EC5\u7528\u4E8E\u811A\u672C\u9A8C\u8BC1\u3002", "\u914D\u7F6E\u72EC\u7ACB\u4FDD\u5B58\uFF0C\u4E0D\u8986\u76D6\u5F53\u524D\u9879\u76EE\u3002"] };
   });
@@ -23005,7 +23232,7 @@ var EdaProjectService = class {
   }
   async generate(args, exec = {}) {
     const project = await this.project(args, exec);
-    return generateBundle(project, { flowStage: args.flowStage, backendOnly: args.backendOnly === true, directory: args.directory, workingDirectory: await this.directory(project, exec), drcRepairMode: args.drcRepairMode, signal: exec.signal });
+    return generateBundle(project, { flowStage: args.flowStage, backendOnly: args.backendOnly === true, backendMode: args.backendMode, backendPhase: args.backendPhase, directory: args.directory, workingDirectory: await this.directory(project, exec), drcRepairMode: args.drcRepairMode, signal: exec.signal });
   }
   async backendLayout(action, args, exec = {}) {
     const project = await this.project(args, exec);
@@ -23014,7 +23241,7 @@ var EdaProjectService = class {
       topCell: project.toolbox.backend.top_cell,
       macroPlacements: project.toolbox.backend.macro_placements,
       placeBlockages: project.toolbox.backend.place_blockages,
-      guidance: "First generate the backend bundle and run its innovus_macro_inventory request. Use the exact full instance paths from macro_instances.rpt. Coordinates are lower-left microns; orientation must match macro pins and bus routing. Keep hard blockages only for truly reserved areas; soft/partial blockages are guidance. Review floorplan, check placement legality and connectivity after applying changes."
+      guidance: "For from_netlist, generate backendPhase=inventory and inspect macro_instances.rpt before configuring placements; then configure verified Legacy core Site/size and approved macro/pin planning for the candidate Floorplan. For from_existing_floorplan, run the inventory request from its generated bundle first. Use exact full instance paths from the report. Candidate DEF is not validated until Innovus checks and a clean recovery test pass."
     };
     if (action === "update") {
       const saved = await this.store.update(project.id, (row) => {
@@ -23031,7 +23258,7 @@ var EdaProjectService = class {
     const read = async () => {
       const script = project.scripts.find((row) => row.id === args.scriptId);
       if (!script) throw new Error(`EDA_SCRIPT_NOT_FOUND: ${args.scriptId}`);
-      const content = script.sourceMode === "file" && script.path ? await readScript(path5.resolve(project.root, script.path)) : script.content;
+      const content = script.sourceMode === "file" && script.path ? await readScript(path6.resolve(project.root, script.path)) : script.content;
       return { ...script, content, parameters: script.kind === "sh" ? [] : extractParameters(content) };
     };
     if (action === "list") return { projectId: key, scripts: project.scripts.map(({ content, ...script }) => ({ ...script, contentBytes: Buffer.byteLength(content) })) };
@@ -23066,15 +23293,15 @@ var EdaProjectService = class {
     }
     if (action === "generated_edit") {
       const directory = await realpath3(String(args.directory)), destination = safeRelative(String(args.destination));
-      const manifest = JSON.parse(await readFile5(path5.join(directory, "manifest.json"), "utf8"));
+      const manifest = JSON.parse(await readFile5(path6.join(directory, "manifest.json"), "utf8"));
       if (manifest.projectId !== project.id || !manifest.files.some((row) => row.destination === destination && ["dc_driver", "timing_driver", "atpg_driver", "constraints"].includes(row.role))) throw new Error("\u53EA\u80FD\u4FEE\u6539\u672C\u9879\u76EE\u751F\u6210\u6E05\u5355\u4E2D\u7684\u9A71\u52A8\u6216\u7EA6\u675F\u811A\u672C");
-      const file2 = path5.join(directory, destination);
+      const file2 = path6.join(directory, destination);
       if (await fileHash(file2) !== args.expectedHash) throw new Error("\u751F\u6210\u6587\u4EF6\u5DF2\u53D8\u5316\uFF0C\u8BF7\u91CD\u65B0\u8BFB\u53D6");
       if (typeof args.content !== "string" || Buffer.byteLength(args.content) > 4 * 1024 * 1024) throw new Error("\u811A\u672C\u5185\u5BB9\u65E0\u6548\u6216\u8FC7\u5927");
       const actual = await realpath3(file2);
       if (actual !== file2) throw new Error("\u751F\u6210\u6587\u4EF6\u4E0D\u5141\u8BB8\u901A\u8FC7\u7B26\u53F7\u94FE\u63A5\u7F16\u8F91");
       const hash2 = createHash3("sha256").update(args.content).digest("hex");
-      const source = path5.join(project.workspace, "eda-overrides", project.id, destination);
+      const source = path6.join(project.workspace, "eda-overrides", project.id, destination);
       await writeFileAtomic(source, args.content, { mode: 384 });
       const saved = await this.store.update(project.id, (row) => {
         row.toolbox.tcl_overrides = [...row.toolbox.tcl_overrides.filter((item) => item.destination !== destination), { source, destination, sha256: hash2 }];
@@ -23082,11 +23309,11 @@ var EdaProjectService = class {
       return { project: saved, source, destination, sha256: hash2 };
     }
     if (action === "file_read" || action === "file_save") {
-      const file2 = path5.resolve(project.root, String(args.path || ""));
+      const file2 = path6.resolve(project.root, String(args.path || ""));
       if (!/\.(tcl|sdc|do|sh)$/i.test(file2)) throw new Error("\u4EC5\u652F\u6301 Tcl / SDC / DO / Shell \u6587\u4EF6");
       const content = await readScript(file2);
       if (action === "file_read") return { path: file2, content, parameters: /\.sh$/i.test(file2) ? [] : extractParameters(content), sha256: createHash3("sha256").update(content).digest("hex") };
-      if (!project.scripts.some((script) => script.path && path5.resolve(project.root, script.path) === file2)) throw new Error("\u5199\u5165\u524D\u8BF7\u5148\u5C06\u6B64\u6587\u4EF6\u767B\u8BB0\u4E3A\u9879\u76EE\u811A\u672C");
+      if (!project.scripts.some((script) => script.path && path6.resolve(project.root, script.path) === file2)) throw new Error("\u5199\u5165\u524D\u8BF7\u5148\u5C06\u6B64\u6587\u4EF6\u767B\u8BB0\u4E3A\u9879\u76EE\u811A\u672C");
       if (args.expectedHash !== createHash3("sha256").update(content).digest("hex")) throw new Error("\u6587\u4EF6\u5DF2\u53D8\u66F4\uFF0C\u8BF7\u91CD\u65B0\u8BFB\u53D6");
       if (typeof args.content !== "string" || Buffer.byteLength(args.content) > 4 * 1024 * 1024) throw new Error("\u811A\u672C\u5185\u5BB9\u65E0\u6548\u6216\u8D85\u8FC7 4 MiB");
       await writeFileAtomic(file2, args.content, { mode: 384 });
@@ -23097,52 +23324,226 @@ var EdaProjectService = class {
       const files = ordered.map((script, i) => ({ script, destination: `extensions/${i}-${script.id}.${script.kind}` }));
       for (const { script, destination } of files) {
         if (script.kind === "sh") continue;
-        blocks.push(`# ${script.name.replace(/[\r\n]/g, " ")}`, action === "export" || script.sourceMode === "file" && script.path ? `source ${tclWord(action === "export" ? destination : path5.resolve(project.root, script.path))}` : script.content);
+        blocks.push(`# ${script.name.replace(/[\r\n]/g, " ")}`, action === "export" || script.sourceMode === "file" && script.path ? `source ${tclWord(action === "export" ? destination : path6.resolve(project.root, script.path))}` : script.content);
       }
       if (action === "wrapper") return { content: blocks.join("\n") + "\n", enabledCount: ordered.length, completeFlow: false };
-      const base = await this.directory(project, exec), directory = path5.resolve(args.directory || path5.join(base, "eda-scripts", project.id, "extensions-export"));
-      const relative = path5.relative(base, directory);
-      if (!relative || relative.startsWith("..") || path5.isAbsolute(relative)) throw new Error("\u5BFC\u51FA\u76EE\u5F55\u987B\u4F4D\u4E8E\u5F53\u524D\u5DE5\u4F5C\u76EE\u5F55\u7684\u5B50\u76EE\u5F55");
+      const base = await this.directory(project, exec), directory = path6.resolve(args.directory || path6.join(base, "eda-scripts", project.id, "extensions-export"));
+      const relative = path6.relative(base, directory);
+      if (!relative || relative.startsWith("..") || path6.isAbsolute(relative)) throw new Error("\u5BFC\u51FA\u76EE\u5F55\u987B\u4F4D\u4E8E\u5F53\u524D\u5DE5\u4F5C\u76EE\u5F55\u7684\u5B50\u76EE\u5F55");
       const written = [];
       for (const { script, destination } of files) {
-        const content = script.sourceMode === "file" && script.path ? await readScript(path5.resolve(project.root, script.path)) : script.content;
-        const file2 = path5.join(directory, safeRelative(destination));
+        const content = script.sourceMode === "file" && script.path ? await readScript(path6.resolve(project.root, script.path)) : script.content;
+        const file2 = path6.join(directory, safeRelative(destination));
         await writeFileAtomic(file2, content, { mode: 384 });
         written.push({ file: file2, sha256: createHash3("sha256").update(content).digest("hex") });
       }
-      await writeFileAtomic(path5.join(directory, "extensions.tcl"), blocks.join("\n") + "\n", { mode: 384 });
+      await writeFileAtomic(path6.join(directory, "extensions.tcl"), blocks.join("\n") + "\n", { mode: 384 });
       return { directory, written, completeFlow: false };
     }
     throw new Error(`\u672A\u77E5\u811A\u672C\u64CD\u4F5C\uFF1A${action}`);
   }
 };
 
+// apps/dsh/src/eda-project/floorplan-assist.ts
+var NAME = /^[A-Za-z0-9_./:\[\]-]+$/;
+var ORIENTS = /* @__PURE__ */ new Set(["R0", "R180", "MX", "MY"]);
+var finite = (values) => values.every(Number.isFinite);
+var rect = (m) => [m.x, m.y, m.x + m.width, m.y + m.height];
+var haloRect = (m) => {
+  const r = rect(m), [l, b, right, t] = m.halo;
+  return [r[0] - l, r[1] - b, r[2] + right, r[3] + t];
+};
+var overlaps = (a, b) => Math.min(a[2], b[2]) - Math.max(a[0], b[0]) > 1e-9 && Math.min(a[3], b[3]) - Math.max(a[1], b[1]) > 1e-9;
+function analyzeFloorplan(plan) {
+  const errors = [], warnings = [], info = [];
+  if (!plan || plan.units !== "um") errors.push('units must be explicitly "um"');
+  if (!Array.isArray(plan?.core) || plan.core.length !== 4 || !finite(plan.core) || plan.core[0] >= plan.core[2] || plan.core[1] >= plan.core[3]) errors.push("core must be finite [lx,ly,ux,uy] with positive area");
+  if (!Array.isArray(plan?.macros) || plan.macros.length < 1 || plan.macros.length > 64) errors.push("macros must contain 1..64 entries");
+  if (errors.length) return { valid: false, errors, warnings, info, weightedCenterL1: null };
+  const names = /* @__PURE__ */ new Set();
+  for (const [i, m] of plan.macros.entries()) {
+    if (!m || typeof m.name !== "string" || !NAME.test(m.name) || /[{};$`\\\s]/.test(m.name)) {
+      errors.push(`macro[${i}] has unsafe or invalid instance name`);
+      continue;
+    }
+    if (names.has(m.name)) errors.push(`duplicate macro instance: ${m.name}`);
+    names.add(m.name);
+    if (!ORIENTS.has(m.orient)) errors.push(`${m.name}: unsupported orientation ${m.orient}`);
+    if (!finite([m.x, m.y, m.width, m.height]) || m.width <= 0 || m.height <= 0) {
+      errors.push(`${m.name}: coordinates/dimensions must be finite and dimensions positive`);
+      continue;
+    }
+    if (!Array.isArray(m.halo) || m.halo.length !== 4 || !finite(m.halo) || m.halo.some((x) => x < 0)) errors.push(`${m.name}: halo must be [left,bottom,right,top] nonnegative microns`);
+    const r = rect(m), c = plan.core;
+    if (r[0] < c[0] || r[1] < c[1] || r[2] > c[2] || r[3] > c[3]) errors.push(`${m.name}: macro rectangle is outside core`);
+    if (Array.isArray(m.halo) && m.halo.length === 4 && finite(m.halo) && m.halo.every((x) => x >= 0)) {
+      const h = haloRect(m);
+      if (h[0] < c[0] || h[1] < c[1] || h[2] > c[2] || h[3] > c[3]) warnings.push(`${m.name}: placement halo extends outside core`);
+    }
+  }
+  for (let i = 0; i < plan.macros.length; i++) for (let j = i + 1; j < plan.macros.length; j++) {
+    const a = plan.macros[i], b = plan.macros[j];
+    if (overlaps(rect(a), rect(b))) errors.push(`macro overlap: ${a.name} and ${b.name}`);
+    if (Array.isArray(a.halo) && a.halo.length === 4 && Array.isArray(b.halo) && b.halo.length === 4 && overlaps(haloRect(a), haloRect(b))) warnings.push(`halo overlap: ${a.name} and ${b.name}`);
+    const ar = rect(a), br = rect(b), dx = Math.max(0, Math.max(ar[0] - br[2], br[0] - ar[2])), dy = Math.max(0, Math.max(ar[1] - br[3], br[1] - ar[3]));
+    if (plan.min_channel !== void 0 && dx + dy < plan.min_channel && !overlaps(ar, br)) warnings.push(`channel proxy below min_channel: ${a.name} / ${b.name}`);
+  }
+  for (const [i, k] of (plan.keepouts ?? []).entries()) {
+    if (!k || typeof k.name !== "string" || !Array.isArray(k.box) || k.box.length !== 4 || !finite(k.box) || k.box[0] >= k.box[2] || k.box[1] >= k.box[3]) {
+      errors.push(`keepout[${i}] is invalid`);
+      continue;
+    }
+    for (const m of plan.macros) if (overlaps(rect(m), k.box)) errors.push(`${m.name}: macro overlaps keepout ${k.name}`);
+  }
+  const points = /* @__PURE__ */ new Map();
+  for (const m of plan.macros) points.set(m.name, [m.x + m.width / 2, m.y + m.height / 2]);
+  for (const [i, a] of (plan.anchors ?? []).entries()) {
+    if (!a || typeof a.name !== "string" || !NAME.test(a.name) || !finite([a.x, a.y]) || points.has(a.name)) errors.push(`anchor[${i}] is invalid or duplicates a macro/anchor name`);
+    else points.set(a.name, [a.x, a.y]);
+  }
+  let weightedCenterL1 = 0;
+  for (const [i, edge] of (plan.connections ?? []).entries()) {
+    const a = points.get(edge?.from), b = points.get(edge?.to), weight = edge?.weight ?? 1;
+    if (!a || !b || !Number.isFinite(weight) || weight <= 0) {
+      errors.push(`connection[${i}] has unknown endpoint or nonpositive/nonfinite weight`);
+      continue;
+    }
+    weightedCenterL1 += weight * (Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]));
+  }
+  if (plan.min_channel !== void 0 && (!Number.isFinite(plan.min_channel) || plan.min_channel < 0)) errors.push("min_channel must be a nonnegative finite number");
+  info.push("weightedCenterL1 is a geometry-only proxy from declared center/anchor points, not HPWL or Innovus QoR");
+  info.push("dimensions, orientation, core, anchors, connectivity and constraints are caller-supplied; tool does not read LEF/DEF");
+  info.push("does not check pin access, routing capacity, PG/IR, MMMC timing, site/grid snapping, DRC/LVS, or signoff");
+  return { valid: errors.length === 0, errors, warnings, info, weightedCenterL1: errors.length ? null : Number(weightedCenterL1.toFixed(4)) };
+}
+function proxy(plan) {
+  const points = /* @__PURE__ */ new Map();
+  for (const m of plan.macros) points.set(m.name, [m.x + m.width / 2, m.y + m.height / 2]);
+  for (const a of plan.anchors ?? []) points.set(a.name, [a.x, a.y]);
+  return (plan.connections ?? []).reduce((sum, e) => {
+    const a = points.get(e.from), b = points.get(e.to);
+    return sum + (e.weight ?? 1) * (Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]));
+  }, 0);
+}
+function rng(seed) {
+  let state = seed >>> 0;
+  return () => {
+    state = 1664525 * state + 1013904223 >>> 0;
+    return state / 4294967296;
+  };
+}
+function optimizeFloorplan(plan, iterations, seed, gridUm, maxStepUm) {
+  const baseline = analyzeFloorplan(plan);
+  if (!baseline.valid) throw new Error(`baseline has hard geometry errors: ${baseline.errors.join("; ")}`);
+  if (!Number.isInteger(iterations) || iterations < 1 || iterations > 2e3) throw new Error("iterations must be an integer from 1 to 2000");
+  if (!Number.isInteger(seed) || seed < 0 || seed > 2147483647) throw new Error("seed must be an integer from 0 to 2147483647");
+  if (!Number.isFinite(gridUm) || gridUm <= 0 || !Number.isFinite(maxStepUm) || maxStepUm < gridUm || maxStepUm > 1e3) throw new Error("gridUm must be positive and maxStepUm must be between gridUm and 1000 um");
+  const movable = plan.macros.filter((m) => !m.locked).map((m) => m.name);
+  if (!movable.length) throw new Error("all macros are locked; no candidate moves are permitted");
+  const random = rng(seed), baselineScore = proxy(plan), baselineWarningCount = baseline.warnings.length;
+  let best = structuredClone(plan), bestScore = baselineScore, accepted = 0;
+  const c = plan.core, steps = Math.max(1, Math.floor(maxStepUm / gridUm));
+  for (let i = 0; i < iterations; i++) {
+    const candidate = structuredClone(best), m = candidate.macros.find((row) => row.name === movable[Math.floor(random() * movable.length)]);
+    const key = random() < 0.5 ? "x" : "y", sign = random() < 0.5 ? -1 : 1;
+    const delta = (1 + Math.floor(random() * steps)) * gridUm * sign;
+    m[key] = Number((m[key] + delta).toFixed(6));
+    const report = analyzeFloorplan(candidate);
+    if (!report.valid || report.warnings.length > baselineWarningCount) continue;
+    const score = proxy(candidate);
+    if (score < bestScore - 1e-9) {
+      best = candidate;
+      bestScore = score;
+      accepted++;
+    }
+  }
+  const final = analyzeFloorplan(best);
+  return { plan: best, report: { algorithm: "bounded deterministic local coordinate search", seed, iterations, gridUm, maxStepUm, baselineProxy: Number(baselineScore.toFixed(4)), candidateProxy: Number(bestScore.toFixed(4)), acceptedImprovements: accepted, baselineWarnings: baselineWarningCount, candidateWarnings: final.warnings.length, proxyDelta: Number((bestScore - baselineScore).toFixed(4)), disclaimer: "Proxy-only candidate search. Improvement applies only to declared weighted-center Manhattan distance; it is not measured Innovus QoR or signoff." } };
+}
+function word(value) {
+  return `{${value}}`;
+}
+function emitMacroTcl(plan, ui) {
+  const mode = ui === "legacy" ? "Legacy" : "Stylus Common UI";
+  const lines2 = [`# PROPOSAL ONLY - ${mode}`, "# Geometry checks are preliminary and are not Innovus legality/signoff.", "# Review macro names, dimensions, orientation, pin access, PG, and tool-version syntax before use."];
+  for (const m of plan.macros) {
+    if (ui === "legacy") {
+      lines2.push(`placeInstance ${word(m.name)} ${m.x} ${m.y} ${m.orient}`, `setInstancePlacementStatus -name ${word(m.name)} -status fixed`);
+      if (m.halo.some((x) => x > 0)) lines2.push(`addHaloToBlock ${m.halo.join(" ")} ${word(m.name)}`);
+    } else {
+      lines2.push(`place_inst ${word(m.name)} {${m.x} ${m.y}} ${m.orient} -fixed`);
+      if (m.halo.some((x) => x > 0)) lines2.push(`create_place_halo -insts ${word(m.name)} -halo_deltas {${m.halo.join(" ")}}`);
+    }
+  }
+  lines2.push(ui === "legacy" ? "checkFPlan -reportUtil" : "check_floorplan -report_density", "");
+  return lines2.join("\n");
+}
+
 // apps/dsh/src/eda-project/project-tools.ts
-var identity = { projectId: { type: "string", description: "Project identity returned by eda_project_get/manage. Omit to inherit the session/parent project binding." }, workspace: { type: "string", description: "Explicit absolute project workspace, for unbound standalone sessions." } };
+var identity = { projectId: { type: "string", description: "Project ID from eda_project_list. If supplied, selects this project; otherwise inherit the current session/parent binding." }, workspace: { type: "string", description: "Absolute workspace path for an unbound standalone session. Ignored when projectId is supplied." } };
+function losslessJson(value, ancestors = /* @__PURE__ */ new WeakSet()) {
+  if (value === null || typeof value === "string" || typeof value === "boolean") return value;
+  if (typeof value === "number") return Number.isFinite(value) ? value : null;
+  if (typeof value === "bigint") return value.toString();
+  if (typeof value === "undefined" || typeof value === "function" || typeof value === "symbol") return void 0;
+  if (value instanceof Date) return Number.isFinite(value.getTime()) ? value.toISOString() : null;
+  if (value instanceof Error) return { name: value.name, message: value.message };
+  if (typeof value !== "object") return String(value);
+  if (ancestors.has(value)) throw new Error("EDA tool result contains a circular reference and cannot be serialized");
+  ancestors.add(value);
+  try {
+    if (Array.isArray(value)) return value.map((item) => losslessJson(item, ancestors) ?? null);
+    const output2 = {};
+    for (const [key, item] of Object.entries(value)) {
+      const safe = losslessJson(item, ancestors);
+      if (safe !== void 0) output2[key] = safe;
+    }
+    return output2;
+  } finally {
+    ancestors.delete(value);
+  }
+}
 function registerEdaProjectTools(ctx, store, service = new EdaProjectService(ctx, store)) {
   const tools = ctx.get("tools");
   const register = (name2, description, properties, required2, readonly2, execute) => {
     const tool = { name: name2, description, parameters: { type: "object", properties: { ...identity, ...properties }, ...required2.length ? { required: required2 } : {}, additionalProperties: false }, output: { schema: { type: "object", additionalProperties: true }, render: (_args, result) => [{ type: "text", text: JSON.stringify(result) }] }, isConcurrencySafe: () => readonly2, async execute(args, exec) {
       const result = await execute(args ?? {}, exec);
-      return Array.isArray(result) ? { items: result } : result;
+      return losslessJson(Array.isArray(result) ? { items: result } : result);
     } };
     ctx.effect(() => tools.register(tool), `eda-project: ${name2}`);
   };
-  register("eda_project_get", "Read the bound EDA project: source/RTL/workspace paths, project information, libraries, timing/DFT/protocol settings, targets, scripts and goals. Project identity is inherited by subagents; output directories never choose another project. Read before generating scripts. Returns the complete configuration and revision.", {}, [], true, async (args, exec) => {
+  register("eda_project_get", "Read the current session-bound EDA project, or select one with projectId. Returns the full configuration, revision, task brief, and supported flow-stage catalogs. Use eda_project_list to discover IDs; use eda_project_bind to attach a project to this session.", {}, [], true, async (args, exec) => {
     const project = await service.project(args, exec);
     return { project, workflowBrief: workflowTaskBrief(project), metricCatalog: METRIC_CATALOG, faultModels: FAULT_MODELS, flowStages: FLOW_STAGES, extensionStages: EXTENSION_STAGES, argumentTargets: ARGUMENT_TARGETS };
   });
-  register("eda_project_manage", "Manage isolated project configurations. list/read/export are read-only; create requires name/root (existing absolute source directory), workspace is optional. update accepts a deep patch plus expectedRevision; arrays replace. clone makes an independent configuration/workspace. import accepts an exported EDA project or original dft_agent_studio projects.json and baseDirectory for relative paths. archive/delete retain all source/output files. bind attaches the current session or a specified session to a project; children inherit it.", { action: { type: "string", enum: ["list", "read", "create", "update", "clone", "archive", "delete", "import", "export", "bind", "instances", "example_install", "example_read", "example_create"] }, exampleId: { type: "string" }, name: { type: "string" }, root: { type: "string" }, rtlRoot: { type: "string" }, description: { type: "string" }, workspacePath: { type: "string" }, patch: { type: "object", additionalProperties: true }, expectedRevision: { type: "integer" }, archived: { type: "boolean" }, document: { type: "object", additionalProperties: true }, baseDirectory: { type: "string" }, sessionId: { type: "string" } }, ["action"], false, (args, exec) => service.manage(args.action, args.action === "create" ? { ...args, workspace: args.workspacePath ?? args.workspace } : args, exec));
-  register("eda_project_generate_flow", "Generate configured EDA scripts and immutable input snapshots without starting EDA. Standard flow stages: read_link, synthesis, drc_check, pre_insertion, scan_insertion, mbist_insertion, mbist_simulation, full. Set backendOnly=true to generate the generic Cadence Innovus backend flow based on the project Innovus configuration: import, floorplan, powerplan, place, CTS, CTS optimization, route, route optimization, chip finish. It requires registered netlist, Tech LEF, cell LEFs, MMMC Tcl and floorplan DEF; optional PG stripe, scan DEF, cell lists and DEF/netlist/GDS exports are project-configurable. Returns files, hashes, manifest, flowDirectory and exact runRequests, including Innovus arguments. Generation does not start EDA or prove signoff; no process/library assumptions or tool substitution.", { flowStage: { type: "string", enum: FLOW_STAGES }, backendOnly: { type: "boolean", description: "Generate the configured Innovus physical backend flow instead of the DC/DFT flow." }, directory: { type: "string" }, drcRepairMode: { type: "string", enum: ["none", "clock_only", "clock_reset_set", "reset_set"] } }, [], false, async (args, exec) => {
+  register("eda_project_list", "Discover EDA projects using a compact summary (id, name, paths, revision, archive state, and binding count). Use the returned id with eda_project_get or eda_project_bind.", {}, [], true, async () => Promise.all((await store.list()).map(async (project) => ({ projectId: project.id, name: project.name, root: project.root, rtlRoot: project.rtlRoot, workspace: project.workspace, revision: project.revision, archived: project.archived, boundSessionCount: (await store.boundSessions(project.id)).length }))));
+  register("eda_project_bind", "Bind a project to the current Agent session so project tools inherit it. First obtain projectId from eda_project_list. Pass sessionId only when intentionally binding another known session; child sessions inherit the project context.", { projectId: { type: "string", minLength: 1 }, sessionId: { type: "string", description: "Optional target session ID; omit to bind the current Agent session." } }, ["projectId"], false, (args, exec) => service.manage("bind", args, exec));
+  register("eda_project_manage", "Manage project records. Prefer eda_project_list for compact discovery and eda_project_bind for binding. list/read/export are read-only; create requires name/root; update needs patch and expectedRevision. clone/import/archive/delete preserve source/output files (delete removes only the project record). bind attaches the current or specified session; child agents inherit the parent binding.", { action: { type: "string", enum: ["list", "read", "create", "update", "clone", "archive", "delete", "import", "export", "bind", "instances", "example_install", "example_read", "example_create"], description: "Choose one operation. Prefer eda_project_list for compact discovery and eda_project_bind for current-session binding." }, exampleId: { type: "string", description: "Required by example_read/example_create; obtain it from the project configuration." }, name: { type: "string", description: "Required by create; used as the clone name when provided." }, root: { type: "string", description: "Required by create; absolute existing source directory." }, rtlRoot: { type: "string" }, description: { type: "string" }, workspacePath: { type: "string", description: "Optional absolute project workspace." }, patch: { type: "object", additionalProperties: true, description: "Deep patch for update; arrays replace existing arrays." }, expectedRevision: { type: "integer", description: "Revision read from the latest project record; update rejects stale revisions." }, archived: { type: "boolean", description: "For archive: false restores; omitted or true archives." }, document: { type: "object", additionalProperties: true, description: "Project document for import." }, baseDirectory: { type: "string", description: "Absolute base path for resolving relative paths in imported documents." }, sessionId: { type: "string", description: "For bind, optional target session ID; omit to bind the current Agent session." } }, ["action"], false, (args, exec) => service.manage(args.action, args.action === "create" ? { ...args, workspace: args.workspacePath ?? args.workspace } : args, exec));
+  register("eda_project_generate_flow", "Generate EDA scripts and hash-recorded input snapshots without executing EDA. For Innovus set backendOnly=true. backendPhase=preflight writes a presence/configuration report; inspect it before running. backendMode=from_netlist generates explicit MMMC from user-provided Liberty/RC/SDC corners, then inventory or a Legacy candidate floorplan. backendMode=from_existing_floorplan requires registered MMMC Tcl and Floorplan DEF for the full PNR flow. Generation does not prove PDK compatibility, DEF legality, STA, DRC/LVS or signoff; run only the returned Innovus request when inputs and UI are verified.", { flowStage: { type: "string", enum: FLOW_STAGES }, backendOnly: { type: "boolean", description: "Generate the configured Innovus backend instead of the DC/DFT flow." }, backendMode: { type: "string", enum: ["from_netlist", "from_existing_floorplan"], description: "Optional per-call override; otherwise use the project backend start_mode." }, backendPhase: { type: "string", enum: ["preflight", "inventory", "floorplan"], description: "preflight writes readiness files; for from_netlist, inventory initializes and reports macros, while floorplan needs verified geometry and exports only a candidate DEF." }, directory: { type: "string" }, drcRepairMode: { type: "string", enum: ["none", "clock_only", "clock_reset_set", "reset_set"] } }, [], false, async (args, exec) => {
     const bundle = await service.generate(args, exec);
     return { ...bundle, files: bundle.files.map(({ content, ...file2 }) => file2) };
   });
-  register("eda_project_backend_layout", "Assist with human-reviewed Innovus macro floorplanning. read returns the current project macro coordinates/blockages and the safe workflow. First use eda_project_generate_flow with backendOnly=true, then execute the runRequest whose args include inspect_macro_instances.tcl through mcp__eda__run and read reports/macro_instances.rpt. Use update to save full instance paths, lower-left micron coordinates, orientation, per-side halo and hard/soft/partial placement blockages. generate returns a new backend bundle containing manual_floorplan.tcl sourced after Floorplan DEF import. Never invent macro names or coordinates; placement commands are not legality proof, so inspect Innovus checks and reports before continuing.", {
+  register("eda_project_backend_layout", "Assist with human-reviewed Innovus macro floorplanning. For from_netlist, generate backendPhase=inventory first and read macro_instances.rpt; update complete macro placements/blockages only from that report and approved design constraints. A generated floorplan DEF is a candidate, not proof of legality; inspect Innovus checks and perform a clean recovery test before using from_existing_floorplan.", {
     action: { type: "string", enum: ["read", "update", "generate"] },
     macroPlacements: { type: "array", items: { type: "object", additionalProperties: true }, description: "Replace the complete manual macro placement list: instance, x, y, orientation, optional halo_left/bottom/right/top." },
     placeBlockages: { type: "array", items: { type: "object", additionalProperties: true }, description: "Replace the complete blockage list: name, kind hard|soft|partial, x1,y1,x2,y2,density." },
     directory: { type: "string" }
   }, ["action"], false, (args, exec) => service.backendLayout(args.action, args, exec));
+  const numericVector = (count) => ({ type: "array", items: { type: "number" }, minItems: count, maxItems: count });
+  const macroSchema = { type: "object", additionalProperties: false, properties: { name: { type: "string", description: "Full Innovus instance path; copy exactly from the inventory report." }, x: { type: "number" }, y: { type: "number" }, width: { type: "number", description: "Caller-supplied LEF/DEF-derived width in um." }, height: { type: "number", description: "Caller-supplied LEF/DEF-derived height in um." }, orient: { type: "string", enum: ["R0", "R180", "MX", "MY"] }, halo: numericVector(4), locked: { type: "boolean" } }, required: ["name", "x", "y", "width", "height", "orient", "halo"] };
+  const planSchema = { type: "object", additionalProperties: false, properties: { units: { type: "string", enum: ["um"] }, core: numericVector(4), min_channel: { type: "number", description: "Optional geometry-only channel threshold in um; source must be supplied by the user." }, macros: { type: "array", minItems: 1, maxItems: 64, items: macroSchema }, anchors: { type: "array", maxItems: 128, items: { type: "object", additionalProperties: false, properties: { name: { type: "string" }, x: { type: "number" }, y: { type: "number" } }, required: ["name", "x", "y"] } }, keepouts: { type: "array", maxItems: 128, items: { type: "object", additionalProperties: false, properties: { name: { type: "string" }, box: numericVector(4) }, required: ["name", "box"] } }, connections: { type: "array", maxItems: 512, items: { type: "object", additionalProperties: false, properties: { from: { type: "string" }, to: { type: "string" }, weight: { type: "number", description: "Explicit proxy weight from user-provided connectivity/criticality data; never inferred by this tool." } }, required: ["from", "to"] } } }, required: ["units", "core", "macros"] };
+  register("eda_project_floorplan_assist", "Read-only Innovus macro candidate assistant. Supply core, full macro paths, LEF/DEF-derived dimensions, orientations and units from trusted project reports. Checks rectangle overlap/core/keepout, halo and channel proxies; optional bounded search moves only unlocked macros and emits a Legacy or Stylus TCL preview. Does not read/write the project, infer PDK rules, execute Innovus, or prove pin access, routing, timing, PG, DRC/LVS or signoff. Review every candidate; use eda_project_backend_layout only after human approval.", { operation: { type: "string", enum: ["check", "optimize"], description: "check validates only; optimize performs bounded deterministic local search starting from a valid baseline." }, plan: planSchema, ui: { type: "string", enum: ["legacy", "stylus"], description: "Tcl dialect must match the explicitly verified Innovus UI/release." }, iterations: { type: "integer", minimum: 1, maximum: 2e3, description: "Optimize only; default 400, maximum 2000." }, seed: { type: "integer", minimum: 0, maximum: 2147483647, description: "Optimize only; deterministic nonnegative seed, default 7." }, gridUm: { type: "number", exclusiveMinimum: 0, description: "Optimize only; caller-selected search step in um, default 5." }, maxStepUm: { type: "number", minimum: 0, maximum: 1e3, description: "Optimize only; maximum per move in um, at least gridUm, default 50." }, includeTclPreview: { type: "boolean", description: "Include a non-executable preview string (default true); this tool never writes or runs it." } }, ["operation", "plan", "ui"], true, async (args) => {
+    let plan = args.plan;
+    let report = analyzeFloorplan(plan);
+    let searchReport = void 0;
+    if (args.operation === "optimize") {
+      const result = optimizeFloorplan(plan, args.iterations ?? 400, args.seed ?? 7, args.gridUm ?? 5, args.maxStepUm ?? 50);
+      plan = result.plan;
+      report = analyzeFloorplan(plan);
+      searchReport = result.report;
+    } else if (args.operation !== "check") throw new Error("operation must be check or optimize");
+    return { status: report.valid ? "candidate_geometry_valid" : "candidate_rejected", plan, report, searchReport, tclPreview: report.valid && args.includeTclPreview !== false ? emitMacroTcl(plan, args.ui) : null, execution: "not-run", interpretation: "Geometric precheck only; an output candidate is not Innovus legality, QoR, routing, STA, PG, DRC/LVS or signoff evidence." };
+  });
   const scriptFields = { scriptId: { type: "string" }, name: { type: "string" }, stage: { type: "string", enum: EDA_STAGES }, kind: { type: "string", enum: EDA_KINDS }, path: { type: "string" }, content: { type: "string" }, enabled: { type: "boolean" }, sourceMode: { type: "string", enum: ["inline", "file"] }, usage: { type: "string", enum: ["extension", "driver"] } };
   register("eda_project_script_list", "List the bound project scripts with IDs, stages, formats, order, enabled state, source mode and content sizes.", {}, [], true, (args, exec) => service.script("list", args, exec));
   register("eda_project_script_read", "Read one project script and extracted Tcl/SDC parameters. File-mode scripts are read from the registered project path.", { scriptId: { type: "string" } }, ["scriptId"], true, (args, exec) => service.script("read", args, exec));
@@ -23245,20 +23646,35 @@ function registerEdaProjectRoutes(ctx, server, store, service = new EdaProjectSe
 
 // apps/dsh/src/eda-project/plugin.ts
 var name = "EDA Project Toolbox";
-var inject = ["tools", "webServer"];
+var inject = ["tools", "webServer", "skills"];
 var Config = Schema.object({
-  dataDir: Schema.string().default(path6.resolve(process.env.STUDIO_DATA_DIR || ".data/dsh")).description("EDA \u9879\u76EE\u8BBE\u7F6E\u4E0E\u811A\u672C\u5DE5\u5177\u7BB1\u7684\u6301\u4E45\u5316\u76EE\u5F55")
+  dataDir: Schema.string().default(path7.resolve(process.env.DSH_HOME || path7.join(process.env.HOME || process.cwd(), ".dsh"), "eda-project")).description("EDA \u9879\u76EE\u8BBE\u7F6E\u4E0E\u811A\u672C\u5DE5\u5177\u7BB1\u7684\u6301\u4E45\u5316\u76EE\u5F55")
 });
 function apply(ctx, config2) {
+  registerInnovusFloorplanSkill(ctx);
   const store = new EdaProjectStore(config2.dataDir);
   const service = new EdaProjectService(ctx, store);
   registerEdaProjectTools(ctx, store, service);
   const server = ctx.get("webServer");
   registerEdaProjectRoutes(ctx, server, store, service);
 }
+var innovusSkillName = "innovus-floorplan-assist";
+var innovusSkillDescription = "\u4F7F\u7528\u9879\u76EE\u4E2D\u7684\u771F\u5B9E\u5B8F\u5355\u5143\u3001LEF\u3001DEF \u548C\u7EA6\u675F\uFF0C\u68C0\u67E5\u5E76\u63D0\u51FA\u6709\u8FB9\u754C\u7684 Innovus \u5B8F\u5E03\u5C40\u5019\u9009\u65B9\u6848\u3002";
+function registerInnovusFloorplanSkill(ctx) {
+  const packaged = fileURLToPath2(new URL(`./skills/${innovusSkillName}/SKILL.md`, import.meta.url));
+  const source = fileURLToPath2(new URL(`../../../../plugins/eda-project/skills/${innovusSkillName}/SKILL.md`, import.meta.url));
+  const locator = existsSync2(packaged) ? packaged : source;
+  const directory = path7.dirname(locator).split(path7.sep).join("/");
+  const raw = readFileSync(locator, "utf8");
+  const frontmatter = /^---\r?\n[\s\S]*?\r?\n---(?:\r?\n|$)/u.exec(raw);
+  if (!frontmatter) throw new Error(`EDA skill ${innovusSkillName} \u7F3A\u5C11 YAML frontmatter`);
+  const skills = ctx.get("skills");
+  ctx.effect(() => skills.register({ name: innovusSkillName, description: innovusSkillDescription, content: raw.slice(frontmatter[0].length).trim(), path: locator, source: "bundled", resourceBase: { kind: "directory", path: directory } }), "EDA Innovus floorplan skill");
+}
 export {
   Config,
   apply,
   inject,
-  name
+  name,
+  registerInnovusFloorplanSkill
 };

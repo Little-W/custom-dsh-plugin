@@ -1,3 +1,5 @@
 - insert:
     - id: studio-eda-mcp
       name: '@agent-studio/plugin-eda-tools'
+      config:
+        jobsDir: !!js dshHomePath('eda-jobs')

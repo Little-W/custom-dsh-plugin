@@ -1,0 +1,29 @@
+{
+  "name": "@agent-studio/plugin-dsh-codex",
+  "version": "0.1.2",
+  "type": "module",
+  "description": "采用 Codex 编程提示与 shell 优先流程，支持并行检查、目录浏览、SVG 图片查看和搜索容错。",
+  "main": "./index.js",
+  "exports": {
+    ".": "./index.js",
+    "./package.json": "./package.json",
+    "./locale/*.json": "./locale/*.json"
+  },
+  "files": [
+    "index.js",
+    "cordis.patch.yml",
+    "README.md",
+    "locale/*.json"
+  ],
+  "engines": {
+    "dsh": ">=0.2.2-alpha.0 <0.3.0"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "dependencies": {
+    "sharp": "0.35.5"
+  }
+}

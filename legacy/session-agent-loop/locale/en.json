@@ -1,6 +1,0 @@
-{
-  "meta": {
-    "title": "Session lifecycle",
-    "description": "Preserves official DSH agent-loop behavior and adds safe session disposal handles."
-  }
-}

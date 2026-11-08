@@ -1,6 +1,6 @@
 {
   "meta": {
     "title": "Session Features",
-    "description": "Save conversation task plans and resume from checkpoints without adding a prompt; DSH handles same-step network retries natively."
+    "description": "Preserve task plans and child-agent progress, resume interrupted sessions, and combine repeated thought updates into one status."
   }
 }

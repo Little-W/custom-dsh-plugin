@@ -1,8 +1,8 @@
 {
   "name": "@agent-studio/plugin-session-features",
-  "version": "0.2.0",
+  "version": "0.2.10",
   "type": "module",
-  "description": "保存会话任务清单与计划，支持无额外提示词的检查点继续；网络重试由 DSH 原生恢复机制处理。",
+  "description": "保存任务清单并恢复会话，合并重复的思考状态，支持撤回编辑和重新发送消息。",
   "main": "./index.js",
   "exports": {
     ".": "./index.js",

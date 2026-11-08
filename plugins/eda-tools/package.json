@@ -1,8 +1,8 @@
 {
   "name": "@agent-studio/plugin-eda-tools",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
-  "description": "让智能体调用已配置的仿真、综合和其他 EDA 工具。",
+  "description": "让智能体调用已配置的 EDA 工具，并附带可实例化的通用 UVM 验证框架与使用指南。",
   "main": "./index.js",
   "exports": {
     ".": "./index.js",
@@ -16,6 +16,7 @@
     "client.js",
     "eda-mcp.js",
     "cordis.patch.yml",
+    "skills/**",
     "icon.svg",
     "locale/*.json",
     "README.md"

@@ -1,4 +1,6 @@
-// src/data-storage-plugin.ts
+import { createRequire as __createRequire } from 'node:module'; const require = __createRequire(import.meta.url);
+
+// apps/dsh/src/data-storage-plugin.ts
 import { createWriteStream, existsSync } from "node:fs";
 import { cp, lstat, mkdir, mkdtemp, readFile, readdir, realpath, rename, rm, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -9,6 +11,7 @@ import { fileURLToPath } from "node:url";
 var STATE_FILE = ".agent-studio-data-location.json";
 var LEFTOVERS = ".agent-studio-data-leftovers";
 var BOOTSTRAP_ENTRIES = /* @__PURE__ */ new Set(["profiles", "bin", ".env", "studio-runtime.patch.yml", STATE_FILE, LEFTOVERS]);
+var PLUGIN_DATA_ROOTS = ["opencode", "eda-project", "eda-jobs"];
 var MAX_RESTORE_BYTES = 8 * 1024 * 1024 * 1024;
 function dshHome() {
   return path.resolve(process.env.DSH_HOME || path.join(process.env.HOME || process.cwd(), ".dsh"));
@@ -151,9 +154,36 @@ async function activate(state) {
     } else if (state.mode === "switch") await switchEntry(state.home, state.target, name2, migrationId);
     else await linkEntry(state.home, state.target, name2, migrationId);
   }
-  const active = { ...state, phase: "active", restartPending: true, updatedAt: (/* @__PURE__ */ new Date()).toISOString() };
+  const active = await ensurePluginDataRoots({ ...state, phase: "active", restartPending: true, updatedAt: (/* @__PURE__ */ new Date()).toISOString() });
   await saveState(state.home, active);
   return active;
+}
+async function ensurePluginDataRoots(state) {
+  const entries = new Set(state.entries);
+  const migrationId = state.updatedAt.replace(/[:.]/g, "-");
+  for (const name2 of PLUGIN_DATA_ROOTS) {
+    const source = path.join(state.home, name2);
+    const destination = path.join(state.target, name2);
+    await mkdir(destination, { recursive: true });
+    if (!await sameLink(source, destination)) {
+      let sourceExists = true;
+      try {
+        await lstat(source);
+      } catch (error) {
+        if (error.code === "ENOENT") sourceExists = false;
+        else throw error;
+      }
+      if (sourceExists) {
+        await mergeMissingTree(source, destination);
+        await switchEntry(state.home, state.target, name2, migrationId);
+      } else {
+        await mkdir(path.dirname(source), { recursive: true });
+        await linkToTarget(source, destination);
+      }
+    }
+    entries.add(name2);
+  }
+  return { ...state, entries: [...entries].sort() };
 }
 async function setStorageLocation(home, requested) {
   const target = await assertSeparateDirectory(home, requested);
@@ -274,7 +304,10 @@ function apply(ctx) {
   const home = dshHome();
   const startup = readState(home).then(async (state) => {
     if (state?.phase === "prepared") await activate(state);
-    else if (state?.phase === "active" && state.restartPending) await saveState(home, { ...state, restartPending: false, updatedAt: (/* @__PURE__ */ new Date()).toISOString() });
+    else if (state?.phase === "active") {
+      const reconciled = await ensurePluginDataRoots(state);
+      await saveState(home, { ...reconciled, restartPending: state.restartPending ? false : state.restartPending, updatedAt: (/* @__PURE__ */ new Date()).toISOString() });
+    }
   });
   const handler = async (req, res) => {
     if (!isTrusted(req)) return reply(res, { message: "\u8DE8\u7AD9\u8BF7\u6C42\u5DF2\u62D2\u7EDD" }, 403);

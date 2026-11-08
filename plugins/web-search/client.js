@@ -18,7 +18,7 @@ var __copyProps = (to, from, except, desc) => {
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-// src/client-web-search.tsx
+// apps/dsh/src/client-web-search.tsx
 var client_web_search_exports = {};
 __export(client_web_search_exports, {
   apply: () => apply,
@@ -26,7 +26,7 @@ __export(client_web_search_exports, {
 });
 module.exports = __toCommonJS(client_web_search_exports);
 
-// src/plugin-settings.tsx
+// apps/dsh/src/plugin-settings.tsx
 var import_jsx_runtime = require("react/jsx-runtime");
 function PluginSwitch({ label, checked, disabled, onChange }) {
   return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
@@ -94,7 +94,7 @@ div:has(> div > button.eda-sidebar-entry) { display:flex; flex-direction:column;
 @media (prefers-reduced-motion:reduce) { .studio-plugin-switch span { transition:none; } }
 `;
 
-// src/search-native-settings.tsx
+// apps/dsh/src/search-native-settings.tsx
 var import_react = require("react");
 var import_jsx_runtime2 = require("react/jsx-runtime");
 var emptySearchForm = { getSnapshot: () => emptySnapshot, subscribe: () => () => {
@@ -217,16 +217,16 @@ function NativeSearchConnection({ provider, options }) {
   ] });
 }
 
-// src/search-settings.tsx
+// apps/dsh/src/search-settings.tsx
 var import_react5 = require("react");
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/createLucideIcon.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/createLucideIcon.mjs
 var import_react4 = require("react");
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/toKebabCase.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/toKebabCase.mjs
 var toKebabCase = (string) => string?.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/toLucideIconData.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/toLucideIconData.mjs
 function toLucideIconData(iconName, iconNode, aliases = []) {
   if (iconNode == null) {
     throw new Error("[lucide]: iconNode is required when icon name is used");
@@ -239,7 +239,7 @@ function toLucideIconData(iconName, iconNode, aliases = []) {
   };
 }
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/toCamelCase.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/toCamelCase.mjs
 var toCamelCase = (string) => {
   let out = "";
   let upperNext = false;
@@ -258,21 +258,21 @@ var toCamelCase = (string) => {
   return out;
 };
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/toPascalCase.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/toPascalCase.mjs
 var toPascalCase = (string) => {
   const camelCase = toCamelCase(string);
   return camelCase.charAt(0).toUpperCase() + camelCase.slice(1);
 };
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/Icon.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/Icon.mjs
 var import_react3 = require("react");
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/mergeClasses.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/mergeClasses.mjs
 var mergeClasses = (...classes) => classes.filter((className, index, array) => {
   return Boolean(className) && className.trim() !== "" && array.indexOf(className) === index;
 }).join(" ").trim();
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/build/defaultAttributes.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/build/defaultAttributes.mjs
 var defaultAttributes = {
   xmlns: "http://www.w3.org/2000/svg",
   width: 24,
@@ -285,7 +285,7 @@ var defaultAttributes = {
   "stroke-linejoin": "round"
 };
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/build/buildLucideIconNode.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/build/buildLucideIconNode.mjs
 function isDefined(value) {
   return value !== null && value !== void 0;
 }
@@ -338,7 +338,7 @@ function buildLucideIconNode(icon, params = {}) {
   ];
 }
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/build/buildLucideIconForReact.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/build/buildLucideIconForReact.mjs
 function buildLucideIconForReact(icon, params = {}) {
   return buildLucideIconNode(icon, {
     ...params,
@@ -353,7 +353,7 @@ function buildLucideIconForReact(icon, params = {}) {
   });
 }
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/hasA11yProp.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/hasA11yProp.mjs
 var hasA11yProp = (props) => {
   for (const prop in props) {
     if (prop.startsWith("aria-") || prop === "role" || prop === "title") {
@@ -363,12 +363,12 @@ var hasA11yProp = (props) => {
   return false;
 };
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/context.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/context.mjs
 var import_react2 = require("react");
 var LucideContext = (0, import_react2.createContext)({});
 var useLucideContext = () => (0, import_react2.useContext)(LucideContext);
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/Icon.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/Icon.mjs
 var Icon = (0, import_react3.forwardRef)(
   ({
     color,
@@ -422,7 +422,7 @@ var Icon = (0, import_react3.forwardRef)(
   }
 );
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/createLucideIcon.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/createLucideIcon.mjs
 function createLucideIcon(iconDataOrName, iconNode = [], aliases = []) {
   const iconData = typeof iconDataOrName === "string" ? toLucideIconData(iconDataOrName, iconNode, aliases) : iconDataOrName;
   const Component = (0, import_react4.forwardRef)(
@@ -439,7 +439,7 @@ function createLucideIcon(iconDataOrName, iconNode = [], aliases = []) {
   return Component;
 }
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/save.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/save.mjs
 var __iconData = {
   name: "save",
   size: 24,
@@ -458,7 +458,7 @@ var __iconData = {
 __iconData.node;
 var Save = createLucideIcon(__iconData);
 
-// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/search.mjs
+// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/search.mjs
 var __iconData2 = {
   name: "search",
   size: 24,
@@ -470,22 +470,41 @@ var __iconData2 = {
 __iconData2.node;
 var Search = createLucideIcon(__iconData2);
 
-// src/directory-api.ts
+// apps/dsh/src/directory-api.ts
 async function studioRequest(endpoint, data, signal) {
   const response = await fetch(`studio/${endpoint}`, { signal, credentials: "same-origin", ...data ? { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(data) } : {} });
-  const result = await response.json();
-  if (!response.ok) throw new Error(result.message ?? `HTTP ${response.status}`);
+  const body = await response.text();
+  let result;
+  if (body.trim()) {
+    try {
+      result = JSON.parse(body);
+    } catch {
+      if (response.ok && !(endpoint === "restart" && response.status === 202)) {
+        throw new Error("\u670D\u52A1\u5668\u8FD4\u56DE\u4E86\u65E0\u6CD5\u8BC6\u522B\u7684\u54CD\u5E94\u3002");
+      }
+    }
+  }
+  if (!response.ok) {
+    const message = typeof result === "object" && result !== null && "message" in result && typeof result.message === "string" ? result.message : `HTTP ${response.status}`;
+    throw new Error(message);
+  }
+  if (result === void 0 && endpoint === "restart" && response.status === 202) {
+    return { restarting: true, message: "DSH \u670D\u52A1\u6B63\u5728\u91CD\u542F\uFF0C\u9875\u9762\u5C06\u77ED\u6682\u65AD\u5F00\u3002" };
+  }
+  if (result === void 0) throw new Error("\u670D\u52A1\u5668\u672A\u8FD4\u56DE\u786E\u8BA4\u4FE1\u606F\u3002");
   return result;
 }
 
-// src/search-settings.tsx
+// apps/dsh/src/search-settings.tsx
 var import_jsx_runtime3 = require("react/jsx-runtime");
 var defaults = { provider: "auto", mode: "fallback", searxngURL: "", maxResults: 8, timeoutSeconds: 15, cacheSeconds: 300, language: "auto" };
 function SearchPluginSettings({ view, form, manager, native }) {
   const [draft, setDraft] = (0, import_react5.useState)(defaults), [dirty, setDirty] = (0, import_react5.useState)(false), [saving, setSaving] = (0, import_react5.useState)(false), [message, setMessage] = (0, import_react5.useState)("");
   const [query, setQuery] = (0, import_react5.useState)(""), [searching, setSearching] = (0, import_react5.useState)(false), [result, setResult] = (0, import_react5.useState)(), [searchError, setSearchError] = (0, import_react5.useState)("");
   const [entry, setEntry] = (0, import_react5.useState)();
-  const isNative = draft.provider === "deepseek-official" || draft.provider === "deepseek-search-api";
+  const [openCodeConfigured, setOpenCodeConfigured] = (0, import_react5.useState)(false);
+  const isOpenAI = draft.provider === "openai-web-search";
+  const isNative = isOpenAI || draft.provider === "deepseek-official" || draft.provider === "deepseek-search-api";
   const webState = useSearchForm(native?.web ?? emptySearchForm);
   const mounted = (0, import_react5.useRef)(true), revision = (0, import_react5.useRef)(void 0), request = (0, import_react5.useRef)(void 0);
   (0, import_react5.useEffect)(() => {
@@ -498,16 +517,29 @@ function SearchPluginSettings({ view, form, manager, native }) {
   (0, import_react5.useEffect)(() => {
     if (!dirty && form?.state.value) {
       const provider = webState.value?.searchProvider;
-      setDraft({ ...defaults, ...form.state.value, ...provider === "deepseek-official" || provider === "deepseek-search-api" ? { provider } : {} });
+      setDraft({ ...defaults, ...form.state.value, ...provider === "deepseek-official" || provider === "deepseek-search-api" ? { provider } : provider === "opencode-openai-web-search" ? { provider: "openai-web-search" } : {} });
       revision.current = form.state.revision;
     }
   }, [form?.state.value, form?.state.revision, dirty, webState.value]);
   (0, import_react5.useEffect)(() => {
     if (view !== "page") return;
     let current = true;
-    void manager.listPlugins().then((response) => {
+    void manager.listPlugins().then(async (response) => {
       if (!response.ok) throw new Error("\u65E0\u6CD5\u8BFB\u53D6\u63D2\u4EF6\u72B6\u6001");
-      if (current) setEntry(response.value?.find((item) => item.patchId === "studio-web-search" || item.moduleName === "@agent-studio/plugin-web-search"));
+      if (!current) return;
+      setEntry(response.value?.find((item) => item.patchId === "studio-web-search" || item.moduleName === "@agent-studio/plugin-web-search"));
+      const opencodeActive = response.value?.some((item) => (item.patchId === "studio-opencode" || item.moduleName === "@agent-studio/plugin-opencode-provider") && item.enabled && item.fiberPhase === "active") ?? false;
+      setOpenCodeConfigured(false);
+      if (opencodeActive) {
+        try {
+          const status = await fetch("/api/v1/models/opencode/status", { credentials: "same-origin", cache: "no-store" });
+          if (!status.ok) throw new Error(`HTTP ${status.status}`);
+          const data = await status.json();
+          if (current) setOpenCodeConfigured(data.configured === true);
+        } catch (error) {
+          if (current) setMessage(`\u65E0\u6CD5\u68C0\u67E5 OpenCode \u641C\u7D22\u6388\u6743\uFF1A${String(error)}`);
+        }
+      }
     }).catch((error) => {
       if (current) setMessage(String(error));
     });
@@ -535,7 +567,7 @@ function SearchPluginSettings({ view, form, manager, native }) {
     setSaving(true);
     setMessage("");
     try {
-      const selected = isNative ? draft.provider : "studio-search";
+      const selected = isOpenAI ? "opencode-openai-web-search" : isNative ? draft.provider : "studio-search";
       if (entry.enabled && native && !await native.web.mutate([{ op: "set", path: ["searchProvider"], value: "studio-search" }])) throw new Error("\u65E0\u6CD5\u5173\u95ED\u5F53\u524D\u641C\u7D22\u6765\u6E90");
       const response = await manager.setPluginEnabled(entry.entryId, !entry.enabled);
       if (!response.ok) {
@@ -573,7 +605,7 @@ function SearchPluginSettings({ view, form, manager, native }) {
       const ok = await form.mutate(Object.entries(draft).map(([key, value]) => ({ op: "set", path: [key], value })), revision.current);
       if (!ok) throw new Error("\u641C\u7D22\u914D\u7F6E\u4FDD\u5B58\u5931\u8D25\u6216\u5DF2\u53D1\u751F\u53D8\u5316");
       if (native) {
-        const selected = draft.provider === "deepseek-official" || draft.provider === "deepseek-search-api" ? draft.provider : "studio-search";
+        const selected = isOpenAI ? "opencode-openai-web-search" : draft.provider === "deepseek-official" || draft.provider === "deepseek-search-api" ? draft.provider : "studio-search";
         const accepted = await native.web.mutate([{ op: "set", path: ["searchProvider"], value: selected }], webState.revision);
         if (!accepted) throw new Error("\u63D0\u4F9B\u5546\u5207\u6362\u5931\u8D25\uFF0C\u8BF7\u91CD\u65B0\u6253\u5F00\u540E\u68C0\u67E5");
       }
@@ -615,7 +647,7 @@ function SearchPluginSettings({ view, form, manager, native }) {
         void toggle();
       } })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("p", { children: isNative ? "Agent \u548C\u5DE5\u4F5C\u6D41\u5171\u7528\u6B64\u63D0\u4F9B\u5546\uFF0C\u6CBF\u7528\u539F\u751F API \u8FDE\u63A5\u4E0E\u51ED\u636E\u8BBE\u7F6E\u3002" : "Agent \u548C\u5DE5\u4F5C\u6D41\u5171\u7528\u4EE5\u4E0B\u8BBE\u7F6E\u3002\u81EA\u52A8\u9009\u62E9\u9ED8\u8BA4\u4F7F\u7528 Bing\uFF1B\u5FEB\u901F\u6A21\u5F0F\u53EA\u8BF7\u6C42\u9996\u4E2A\u6765\u6E90\uFF1B\u81EA\u52A8\u5207\u6362\u5728\u5931\u8D25\u6216\u65E0\u7ED3\u679C\u65F6\u5C1D\u8BD5\u5907\u7528\u6765\u6E90\uFF1B\u591A\u6E90\u805A\u5408\u5E76\u884C\u641C\u7D22\u5E76\u53BB\u91CD\u3002" }),
+    /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("p", { children: isOpenAI ? "\u4F7F\u7528 OpenCode \u4E2D\u5DF2\u8FDE\u63A5\u7684 ChatGPT \u8D26\u53F7 OAuth\uFF0C\u901A\u8FC7 OpenAI \u7684 web_search \u641C\u7D22\uFF1B\u9700\u8981\u542F\u7528\u5E76\u52A0\u8F7D OpenCode \u6A21\u578B\u63D0\u4F9B\u5546\u63D2\u4EF6\u3002" : isNative ? "Agent \u548C\u5DE5\u4F5C\u6D41\u5171\u7528\u6B64\u63D0\u4F9B\u5546\uFF0C\u6CBF\u7528\u539F\u751F API \u8FDE\u63A5\u4E0E\u51ED\u636E\u8BBE\u7F6E\u3002" : "Agent \u548C\u5DE5\u4F5C\u6D41\u5171\u7528\u4EE5\u4E0B\u8BBE\u7F6E\u3002\u81EA\u52A8\u9009\u62E9\u9ED8\u8BA4\u4F7F\u7528 Bing\uFF1B\u5FEB\u901F\u6A21\u5F0F\u53EA\u8BF7\u6C42\u9996\u4E2A\u6765\u6E90\uFF1B\u81EA\u52A8\u5207\u6362\u5728\u5931\u8D25\u6216\u65E0\u7ED3\u679C\u65F6\u5C1D\u8BD5\u5907\u7528\u6765\u6E90\uFF1B\u591A\u6E90\u805A\u5408\u5E76\u884C\u641C\u7D22\u5E76\u53BB\u91CD\u3002" }),
     /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { className: "studio-plugin-settings__fields", children: [
       /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("label", { children: [
         "\u641C\u7D22\u63D0\u4F9B\u5546",
@@ -627,7 +659,11 @@ function SearchPluginSettings({ view, form, manager, native }) {
           /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("option", { value: "exa", children: "Exa" }),
           /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("option", { value: "tavily", children: "Tavily" }),
           /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("option", { value: "deepseek-official", children: "DeepSeek \u539F\u751F\u8054\u7F51\u641C\u7D22" }),
-          /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("option", { value: "deepseek-search-api", children: "DeepSeek Search API" })
+          /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("option", { value: "deepseek-search-api", children: "DeepSeek Search API" }),
+          openCodeConfigured || isOpenAI ? /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("option", { value: "openai-web-search", disabled: !openCodeConfigured, children: [
+            "OpenAI web_search\uFF08ChatGPT OAuth\uFF09",
+            !openCodeConfigured ? "\uFF08\u9700\u914D\u7F6E OpenCode OAuth\uFF09" : ""
+          ] }) : null
         ] })
       ] }),
       !isNative && /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_jsx_runtime3.Fragment, { children: [
@@ -682,7 +718,7 @@ function SearchPluginSettings({ view, form, manager, native }) {
           clearSearch();
           setQuery(event.target.value);
         } }),
-        /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("button", { className: "studio-plugin-settings__save", disabled: saving || searching || dirty || !entry?.enabled || !query.trim(), type: "submit", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("button", { className: "studio-plugin-settings__save", disabled: saving || searching || dirty || !entry?.enabled || isOpenAI && !openCodeConfigured || !query.trim(), type: "submit", children: [
           /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Search, { size: 16, strokeWidth: 1.5, "aria-hidden": "true" }),
           searching ? "\u641C\u7D22\u4E2D\u2026" : "\u6D4B\u8BD5\u641C\u7D22"
         ] })
@@ -722,7 +758,7 @@ var searchSettingsStyles = `
 .studio-search-settings [role=alert] { color:var(--dsw-alias-state-error-primary); }
 `;
 
-// src/client-web-search.tsx
+// apps/dsh/src/client-web-search.tsx
 var import_jsx_runtime4 = require("react/jsx-runtime");
 var inject = ["remote.pluginManager", "remote.credentials", "configForms"];
 function apply(ctx) {

@@ -16,4 +16,6 @@
     - id: studio-opencode
       name: '@agent-studio/plugin-opencode-provider'
       config:
-        dataDir: !!js process.env.STUDIO_DATA_DIR
+        # All provider databases, model catalogs and preferences live with the
+        # active DSH data home, so switching DSH_HOME moves them together.
+        dataDir: !!js dshHomePath()

@@ -13,6 +13,8 @@
   },
   "files": [
     "index.js",
+    "floorplan-assist.js",
+    "skills/**",
     "client.js",
     "cordis.patch.yml",
     "icon.svg",

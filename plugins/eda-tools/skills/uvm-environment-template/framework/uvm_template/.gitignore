@@ -1,0 +1,7 @@
+simv
+simv.*
+csrc/
+logs/
+*.log
+ucli.key
+.vcs/

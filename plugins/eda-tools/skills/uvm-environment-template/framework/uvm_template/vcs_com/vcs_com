@@ -1,0 +1,27 @@
+[VCS_RTL_ELAB]
+-full64
+-sverilog
+-timescale=1ns/1ps
+-lca
+-debug_access+all
+-top __DUT_TOP__
+-Mupdate
+-pcmakeprof
+-partcomp
+-fastpartcomp=j4
+-l vcs_rtl_elab.log
+-CFLAGS -DVCS +plusarg_save
+
+[VCS_TEST_ELAB]
+-full64
+-sverilog
+-timescale=1ns/1ps
+-lca
+-debug_access+all
+-top __TB_TOP__
+-Mupdate
+-pcmakeprof
+-partcomp ${VCS_HOME}/etc/uvm-1.2/dpi/uvm_dpi.cc
+-fastpartcomp=j4
+-l vcs_test_elab.log
+-CFLAGS -DVCS +plusarg_save

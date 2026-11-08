@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Codex 编程助手",
+    "description": "采用 Codex 编程提示与 shell 优先流程，支持并行检查、目录浏览、SVG 图片查看和搜索容错。"
+  }
+}

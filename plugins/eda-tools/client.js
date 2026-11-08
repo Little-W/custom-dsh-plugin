@@ -18,7 +18,7 @@ var __copyProps = (to, from, except, desc) => {
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-// src/client-eda-tools.tsx
+// apps/dsh/src/client-eda-tools.tsx
 var client_eda_tools_exports = {};
 __export(client_eda_tools_exports, {
   apply: () => apply,
@@ -26,7 +26,7 @@ __export(client_eda_tools_exports, {
 });
 module.exports = __toCommonJS(client_eda_tools_exports);
 
-// src/plugin-settings.tsx
+// apps/dsh/src/plugin-settings.tsx
 var import_jsx_runtime = require("react/jsx-runtime");
 function PluginSwitch({ label, checked, disabled, onChange }) {
   return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
@@ -94,7 +94,7 @@ div:has(> div > button.eda-sidebar-entry) { display:flex; flex-direction:column;
 @media (prefers-reduced-motion:reduce) { .studio-plugin-switch span { transition:none; } }
 `;
 
-// src/eda-settings.tsx
+// apps/dsh/src/eda-settings.tsx
 var import_react = require("react");
 var import_jsx_runtime2 = require("react/jsx-runtime");
 var fields = [["jobsDir", "\u4F5C\u4E1A\u7D22\u5F15 / \u5907\u7528\u76EE\u5F55"]];
@@ -225,7 +225,7 @@ function EdaToolsSettings({ view, form, manager }) {
   ] });
 }
 
-// src/client-eda-tools.tsx
+// apps/dsh/src/client-eda-tools.tsx
 var import_jsx_runtime3 = require("react/jsx-runtime");
 var inject = ["remote.pluginManager"];
 function apply(ctx) {

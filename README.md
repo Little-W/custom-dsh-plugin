@@ -7,17 +7,16 @@
 ## 当前插件
 
 - `plugins/blue-theme`：DeepSeek 蓝色主题，接入 DSH 官方主题服务。
+- `plugins/dsh-codex`：Codex 风格的 shell 优先工作模式、可靠文件搜索和原生图片阅读。
 - `plugins/eda-project`：EDA 项目设置和脚本工具箱。
 - `plugins/eda-tools`：EDA MCP 工具与脚本执行服务。
 - `plugins/batch-install`：从一个本地目录批量安装其中的 DSH 插件。
 - `plugins/data-storage`：选择 DSH 数据目录，迁移数据，打包备份并恢复。
 - `plugins/opencode-provider`：OpenCode 模型目录、提供商设置和模型调用。
 - `plugins/visual-workflow`：可视化工作流设计、运行与断点续跑。
-- `plugins/session-features`：会话暂停、继续与临时网络中断自动重试。
+- `plugins/session-features`：保存任务清单与子智能体进度，支持从检查点继续暂停或中断的会话。
 - `plugins/session-workspace-settings`：工作区目录和会话管理。
 - `plugins/web-search`：可配置的网页搜索。
-
-旧版会话插件保存在 `legacy/`，仅用于迁移参考，不应与新版“会话功能增加”同时启用。
 
 仓库根目录提供 OpenCode 插件的 DSH 包入口，可直接通过 DSH 的插件安装界面添加本仓库。命令行安装时使用 `dsh plugin --profile <配置名> add -w git+ssh://git@github.com/Little-W/custom-dsh-plugin.git`。其他插件从 `plugins/<插件目录>` 单独安装，避免把无关功能一起启用。所有包都保留各自的 DSH manifest、界面资源和运行时依赖。
 

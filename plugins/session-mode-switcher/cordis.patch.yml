@@ -1,0 +1,3 @@
+- insert:
+    - id: studio-session-mode-switcher
+      name: '@agent-studio/plugin-session-mode-switcher'

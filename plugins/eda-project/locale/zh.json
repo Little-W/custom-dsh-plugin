@@ -1,6 +1,6 @@
 {
   "meta": {
     "title": "EDA 项目与脚本工具箱",
-    "description": "按项目管理芯片设计参数、工艺库和工作目录，并生成综合与后端脚本。"
+    "description": "按项目管理 EDA 输入，基于显式审核的数据分阶段生成 Innovus MMMC 与候选 Floorplan 流程。"
   }
 }

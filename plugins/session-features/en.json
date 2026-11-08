@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Session Features",
+    "description": "Preserve task plans and child-agent progress, resume interrupted sessions, and combine repeated thought updates into one status."
+  }
+}

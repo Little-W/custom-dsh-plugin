@@ -18,7 +18,7 @@ var __copyProps = (to, from, except, desc) => {
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-// src/client-blue-theme.ts
+// apps/dsh/src/client-blue-theme.ts
 var client_blue_theme_exports = {};
 __export(client_blue_theme_exports, {
   apply: () => apply,
@@ -26,7 +26,7 @@ __export(client_blue_theme_exports, {
 });
 module.exports = __toCommonJS(client_blue_theme_exports);
 
-// src/theme.ts
+// apps/dsh/src/theme.ts
 var studioTheme = {
   "--dsw-alias-brand-primary": { light: "#4176e6", dark: "#7aaaff" },
   "--dsw-alias-state-business-primary": { light: "#4176e6", dark: "#7aaaff" },
@@ -40,7 +40,7 @@ var studioTheme = {
   "--dsw-alias-label-primary-inverse": { light: "#ffffff", dark: "#111827" }
 };
 
-// src/client-blue-theme.ts
+// apps/dsh/src/client-blue-theme.ts
 var inject = ["theme"];
 function apply(ctx) {
   const teamLayoutStyles = `

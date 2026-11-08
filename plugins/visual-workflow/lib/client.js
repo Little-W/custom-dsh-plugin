@@ -7356,6 +7356,8 @@ window.__ModuleLoader__.load({
 			anchor.remove();
 			setTimeout(() => URL.revokeObjectURL(url), 1e3);
 		}
+		/** 多个工作流模板打包格式；包内每项沿用原有的 v2 工作流 bundle。 */
+		const WORKFLOW_TEMPLATE_PACKAGE_FORMAT = "dsh-vw-workflow-template-package";
 		/** 判定 JSON 文本是否为角色模板导出。 */
 		function isRoleTemplateBundle(json) {
 			try {
@@ -7364,6 +7366,36 @@ window.__ModuleLoader__.load({
 			} catch {
 				return false;
 			}
+		}
+		/** 将多个现有模板 bundle 装入单个可分享 JSON 包。 */
+		function createWorkflowTemplatePackage(bundles) {
+			if (bundles.length === 0) throw new Error("至少选择一个工作流模板");
+			const templates = bundles.map((json) => {
+				const parsed = JSON.parse(json);
+				if (parsed?.format !== "dsh-vw-bundle" || parsed.version !== 2 || !parsed.workflow && !parsed.service) throw new Error("工作流模板导出内容无效");
+				return parsed;
+			});
+			return JSON.stringify({
+				format: WORKFLOW_TEMPLATE_PACKAGE_FORMAT,
+				version: 1,
+				templates
+			}, null, 2);
+		}
+		/** 读取批量模板包；返回的每一项仍是后端现有导入接口可识别的 v2 bundle。 */
+		function workflowTemplatePackageItems(json) {
+			let parsed;
+			try {
+				parsed = JSON.parse(json);
+			} catch {
+				return null;
+			}
+			if (parsed.format !== "dsh-vw-workflow-template-package") return null;
+			if (parsed.version !== 1 || !Array.isArray(parsed.templates) || parsed.templates.length === 0) throw new Error("工作流模板包格式无效或不包含模板");
+			return parsed.templates.map((item) => {
+				const bundle = item;
+				if (!bundle || bundle.format !== "dsh-vw-bundle" || bundle.version !== 2 || !bundle.workflow && !bundle.service) throw new Error("工作流模板包中包含无效内容");
+				return JSON.stringify(bundle);
+			});
 		}
 		// src/client/sidebar/host-paths.ts
 		/** preload 注入的全局键（与官方 desktop 客户端一致）。 */
@@ -7456,10 +7488,43 @@ window.__ModuleLoader__.load({
 					t.toastExported,
 					toastError
 				]),
+				exportFlowTemplates: (0, react.useCallback)(async (ids) => {
+					const uniqueIds = [...new Set(ids.filter((id) => id.trim() !== ""))];
+					if (!uniqueIds.length) {
+						notify("error", t.exportEmpty);
+						return;
+					}
+					try {
+						download(createWorkflowTemplatePackage((await Promise.all(uniqueIds.map((id) => remote.call(EP_EXPORT_FLOW_TEMPLATE, { id })))).map((result) => String(result?.json ?? ""))), `workflow-templates-${uniqueIds.length}.json`);
+						notify("success", t.toastTemplatesExported.replace("{count}", String(uniqueIds.length)));
+					} catch (error) {
+						toastError(error);
+					}
+				}, [
+					notify,
+					remote,
+					t.exportEmpty,
+					t.toastTemplatesExported,
+					toastError
+				]),
 				handleImportFile: (0, react.useCallback)(async (file) => {
 					if (!file) return;
 					try {
 						const json = await readFileAsText(file);
+						const packagedTemplates = workflowTemplatePackageItems(json);
+						if (packagedTemplates) {
+							let imported = 0;
+							for (const templateJson of packagedTemplates) {
+								if ((await remote.call("importWorkflow", { json: templateJson }))?.conflict) await remote.call(EP_IMPORT_WORKFLOW, {
+									json: templateJson,
+									conflictMode: "rename"
+								});
+								imported += 1;
+							}
+							await flowTemplates.loadFlowTemplates();
+							notify("success", t.toastImportedCount.replace("{count}", String(imported)));
+							return;
+						}
 						if (isRoleTemplateBundle(json)) {
 							const result = await remote.call(EP_IMPORT_AGENT_TEMPLATE, { json });
 							if (result?.conflict) {
@@ -13261,6 +13326,8 @@ window.__ModuleLoader__.load({
 				ASSET_HISTORY_SECTIONS.role,
 				ASSET_HISTORY_SECTIONS.experience
 			]);
+			const [batchExportActive, setBatchExportActive] = (0, react.useState)(false);
+			const [selectedTemplateIds, setSelectedTemplateIds] = (0, react.useState)([]);
 			const toggleSection = (key) => {
 				setCollapsedSections((previous) => previous.includes(key) ? previous.filter((item) => item !== key) : [...previous, key]);
 			};
@@ -13291,6 +13358,11 @@ window.__ModuleLoader__.load({
 				...section,
 				cards: []
 			}).filter((section) => section.cards.length || basicKinds(section.key).some((kind) => t.nodeKinds[kind].toLowerCase().includes(query)) || section.key === "roles" && (t.nodeReference.toLowerCase().includes(query) || props.canvasNodes?.some((node) => (node.kind === "agent" || node.kind === "parent") && String(node.data.label || node.id).toLowerCase().includes(query)))) : model.sections;
+			const selectedTemplateIdSet = new Set(selectedTemplateIds);
+			const selectedTemplateIdsInMode = selectedTemplateIds.filter((id) => props.flowTemplates.some((template) => template.id === id));
+			const toggleTemplateSelection = (id) => {
+				setSelectedTemplateIds((previous) => previous.includes(id) ? previous.filter((item) => item !== id) : [...previous, id]);
+			};
 			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("aside", {
 				className: `wf-docrail${open ? "" : " is-collapsed"}`,
 				style: { width: open ? width : void 0 },
@@ -13341,34 +13413,77 @@ window.__ModuleLoader__.load({
 							}) : null,
 							sections.map((section) => /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", { children: [
 								/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
-									className: "wf-docgroup",
-									children: [section.collapsible ? /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("button", {
-										type: "button",
-										className: `wf-docgroup__toggle${section.collapsed ? " is-collapsed" : ""}`,
-										"aria-expanded": section.collapsed !== true,
-										title: section.collapsed ? t.libSectionExpand : t.libSectionCollapse,
-										onClick: () => toggleSection(section.key),
-										children: [
-											/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
-												className: "wf-docgroup__title",
-												children: section.title
-											}),
-											section.collapsed === true && section.cards.length > 0 ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
-												className: "wf-docgroup__count",
-												children: section.cards.length
-											}) : null,
-											/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
-												className: "wf-docgroup__caret",
-												"aria-hidden": "true"
-											})
-										]
-									}) : /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", { children: section.title }), section.plus ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
-										type: "button",
-										className: "wf-docgroup__add",
-										title: t.newTemplate,
-										onClick: () => onCreateNew(libTab, section.plusKind),
-										children: "＋"
-									}) : null]
+									className: `wf-docgroup${section.key === "flowTemplates" && batchExportActive ? " wf-docgroup--batch" : ""}`,
+									children: [
+										section.collapsible ? /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("button", {
+											type: "button",
+											className: `wf-docgroup__toggle${section.collapsed ? " is-collapsed" : ""}`,
+											"aria-expanded": section.collapsed !== true,
+											title: section.collapsed ? t.libSectionExpand : t.libSectionCollapse,
+											onClick: () => toggleSection(section.key),
+											children: [
+												/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+													className: "wf-docgroup__title",
+													children: section.title
+												}),
+												section.collapsed === true && section.cards.length > 0 ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+													className: "wf-docgroup__count",
+													children: section.cards.length
+												}) : null,
+												/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+													className: "wf-docgroup__caret",
+													"aria-hidden": "true"
+												})
+											]
+										}) : /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", { children: section.title }),
+										section.key === "flowTemplates" && librarySource === "template" && !batchExportActive ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+											type: "button",
+											className: "wf-template-batch__action",
+											onClick: () => {
+												setSelectedTemplateIds([]);
+												setBatchExportActive(true);
+											},
+											children: t.batchExportTemplates
+										}) : null,
+										section.key === "flowTemplates" && librarySource === "template" && batchExportActive ? /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+											className: "wf-template-batch__actions",
+											children: [
+												/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+													type: "button",
+													className: "wf-template-batch__action",
+													onClick: () => setSelectedTemplateIds(section.cards.map((item) => item.id)),
+													children: t.selectAllTemplates
+												}),
+												/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+													type: "button",
+													className: "wf-template-batch__action is-primary",
+													disabled: !selectedTemplateIdsInMode.length,
+													onClick: () => {
+														props.onExportFlowTemplates?.(selectedTemplateIdsInMode);
+														setBatchExportActive(false);
+														setSelectedTemplateIds([]);
+													},
+													children: t.exportSelectedTemplates.replace("{count}", String(selectedTemplateIdsInMode.length))
+												}),
+												/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+													type: "button",
+													className: "wf-template-batch__action",
+													onClick: () => {
+														setBatchExportActive(false);
+														setSelectedTemplateIds([]);
+													},
+													children: t.cancelTemplateSelection
+												})
+											]
+										}) : null,
+										section.plus ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+											type: "button",
+											className: "wf-docgroup__add",
+											title: t.newTemplate,
+											onClick: () => onCreateNew(libTab, section.plusKind),
+											children: "＋"
+										}) : null
+									]
 								}),
 								props.onPlaceBasicNode && librarySource === "template" && section.collapsed !== true ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)(NodePalette, {
 									copy: t,
@@ -13388,9 +13503,17 @@ window.__ModuleLoader__.load({
 									const statusText = statusLabelOf(t, item.runStatus);
 									return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("button", {
 										type: "button",
-										className: `wf-docitem${item.pinned ? " is-pinned" : ""}${item.active ? " is-active" : ""}`,
-										onPointerDown: (event) => onBeginDrag(event, item.payload),
+										role: section.key === "flowTemplates" && batchExportActive ? "checkbox" : void 0,
+										"aria-checked": section.key === "flowTemplates" && batchExportActive ? selectedTemplateIdSet.has(item.id) : void 0,
+										className: `wf-docitem${item.pinned ? " is-pinned" : ""}${item.active ? " is-active" : ""}${section.key === "flowTemplates" && selectedTemplateIdSet.has(item.id) ? " is-export-selected" : ""}`,
+										onClick: section.key === "flowTemplates" && batchExportActive ? () => toggleTemplateSelection(item.id) : void 0,
+										onPointerDown: section.key === "flowTemplates" && batchExportActive ? void 0 : (event) => onBeginDrag(event, item.payload),
 										children: [
+											section.key === "flowTemplates" && batchExportActive ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+												className: "wf-docitem__select-check",
+												"aria-hidden": "true",
+												children: selectedTemplateIdSet.has(item.id) ? "✓" : ""
+											}) : null,
 											/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
 												className: "wf-docitem__icon",
 												children: item.icon
@@ -17896,6 +18019,7 @@ window.__ModuleLoader__.load({
 				modeName,
 				onSelectWorkflow: doc.selectWorkflow,
 				onSelectFlowTemplate: doc.selectFlowTemplate,
+				onExportFlowTemplates: transfer.exportFlowTemplates,
 				onSelectFlowAsset: selectFlowAsset,
 				onOpenRoleAsset: (id) => {
 					assets.openRoleAsset(id);
@@ -17929,7 +18053,8 @@ window.__ModuleLoader__.load({
 				selectFlowAsset,
 				setLibrarySource,
 				stageKinds,
-				state
+				state,
+				transfer.exportFlowTemplates
 			]);
 			return /* @__PURE__ */ (0, react_jsx_runtime.jsx)(StudioLayout, {
 				t,
@@ -18407,6 +18532,10 @@ window.__ModuleLoader__.load({
 			unsavedCancel: "取消",
 			importWorkflow: "导入",
 			exportWorkflow: "导出",
+			batchExportTemplates: "多选导出",
+			selectAllTemplates: "全选",
+			exportSelectedTemplates: "打包导出 ({count})",
+			cancelTemplateSelection: "取消",
 			exportFileName: "visual-workflow",
 			exportEmpty: "当前没有可导出的内容（请先选择工作流或角色模板）",
 			importConflictTitle: "导入冲突",
@@ -18415,7 +18544,9 @@ window.__ModuleLoader__.load({
 			importRename: "改名导入",
 			importCancel: "取消",
 			toastImported: "导入成功",
+			toastImportedCount: "已导入 {count} 个工作流模板",
 			toastExported: "已导出",
+			toastTemplatesExported: "已打包导出 {count} 个工作流模板",
 			needStartAndEnd: "请先添加启动和结束节点",
 			needParentForService: "模式二必须存在父代理节点",
 			toastRunning: "运行已开始",
@@ -19052,6 +19183,10 @@ window.__ModuleLoader__.load({
 			unsavedCancel: "Cancel",
 			importWorkflow: "Import",
 			exportWorkflow: "Export",
+			batchExportTemplates: "Select templates",
+			selectAllTemplates: "Select all",
+			exportSelectedTemplates: "Export package ({count})",
+			cancelTemplateSelection: "Cancel",
 			exportFileName: "visual-workflow",
 			exportEmpty: "Nothing to export (select a workflow or agent template first)",
 			importConflictTitle: "Import conflict",
@@ -19060,7 +19195,9 @@ window.__ModuleLoader__.load({
 			importRename: "Import as copy",
 			importCancel: "Cancel",
 			toastImported: "Imported",
+			toastImportedCount: "Imported {count} workflow templates",
 			toastExported: "Exported",
+			toastTemplatesExported: "Exported {count} workflow templates as a package",
 			needStartAndEnd: "Add start and end nodes first",
 			needParentForService: "Mode 2 requires a parent agent node",
 			toastRunning: "Run started",
@@ -20935,6 +21072,51 @@ g.is-locked .wf-graph__edge-hit {
   color: var(--wf-brand);
 }
 
+.wf-template-batch__actions {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: auto;
+}
+
+.wf-docgroup--batch {
+  flex-wrap: wrap;
+}
+
+.wf-docgroup--batch .wf-template-batch__actions {
+  width: 100%;
+  justify-content: flex-end;
+  margin: 2px 0 0;
+}
+
+.wf-template-batch__action {
+  border: 1px solid var(--wf-border);
+  border-radius: 5px;
+  background: var(--wf-layer);
+  color: var(--wf-ink-2);
+  padding: 3px 5px;
+  font-size: 9px;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.wf-template-batch__action:hover:not(:disabled) {
+  border-color: var(--wf-brand);
+  color: var(--wf-brand);
+}
+
+.wf-template-batch__action.is-primary {
+  border-color: color-mix(in srgb, var(--wf-brand) 36%, var(--wf-border));
+  color: var(--wf-brand);
+}
+
+.wf-template-batch__action:disabled {
+  opacity: .48;
+  cursor: default;
+}
+
 /* 可折叠分栏的标题按钮（历史资产 / 历史经验分栏）：与普通标题同排版，只是整体可点。
    撑满整行 + 箭头 margin-left:auto：标题贴左、箭头贴右，标题左边缘与不可折叠分栏对齐。 */
 .wf-docgroup__toggle {
@@ -21032,6 +21214,25 @@ g.is-locked .wf-graph__edge-hit {
   font-size: 9px;
   font-weight: 800;
   opacity: .76;
+}
+
+.wf-docitem__select-check {
+  width: 15px;
+  height: 15px;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--wf-border-strong);
+  border-radius: 4px;
+  color: #fff;
+  font-size: 10px;
+  line-height: 1;
+}
+
+.wf-docitem.is-export-selected .wf-docitem__select-check {
+  border-color: var(--wf-brand);
+  background: var(--wf-brand);
 }
 
 .wf-docitem__texts {

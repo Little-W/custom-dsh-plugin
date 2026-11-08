@@ -1,6 +1,6 @@
 {
   "meta": {
     "title": "EDA 工具",
-    "description": "让智能体调用已配置的 EDA 程序执行仿真、综合等任务并查看结果。"
+    "description": "调用已配置的 EDA 工具，并使用随插件安装的通用 UVM 验证框架。"
   }
 }

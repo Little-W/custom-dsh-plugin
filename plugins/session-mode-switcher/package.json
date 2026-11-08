@@ -1,0 +1,37 @@
+{
+  "name": "@agent-studio/plugin-session-mode-switcher",
+  "version": "0.1.1",
+  "type": "module",
+  "description": "在设置中准确查找并选择所有可切换的会话，保留记录并更换后续使用的智能体模式。",
+  "main": "./index.js",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./package.json": "./package.json",
+    "./locale/*.json": "./locale/*.json"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "client.tsx",
+    "cordis.patch.yml",
+    "package.json",
+    "README.md",
+    "locale/*.json"
+  ],
+  "engines": {
+    "dsh": ">=0.2.2-rc.1 <0.3.0"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-sidebar-right"
+      ]
+    }
+  }
+}

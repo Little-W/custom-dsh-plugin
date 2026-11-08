@@ -1,0 +1,8 @@
+{
+  "name": "generic-uvm-environment",
+  "version": "1.0.0",
+  "source": "legacy I2C testbench (protocol-neutral extraction)",
+  "description": "DUT/protocol-agnostic UVM environment scaffold; no i2c/VIP-specific content",
+  "placeholders": ["__PREFIX__", "__DUT_TOP__", "__TB_TOP__", "__CLOCK__", "__RESET__", "__CLOCK_PERIOD_NS__"],
+  "entry": "scripts/instantiate.py"
+}

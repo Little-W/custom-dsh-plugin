@@ -1,6 +1,6 @@
 {
   "meta": {
     "title": "OpenCode model provider",
-    "description": "Connect OpenCode models and choose from the models available in the workbench."
+    "description": "Connect and manage AI models from OpenCode. Claude models are also available through the workbench's built-in compatible service."
   }
 }

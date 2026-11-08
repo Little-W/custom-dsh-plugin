@@ -1,6 +1,6 @@
 {
   "meta": {
     "title": "EDA projects and script toolbox",
-    "description": "Provides project-scoped EDA configuration and agent-callable script generation."
+    "description": "Manages project-scoped EDA inputs and generates staged Innovus MMMC and candidate floorplan flows from explicit, reviewed data."
   }
 }

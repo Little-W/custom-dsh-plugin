@@ -3262,8 +3262,8 @@ var require_utils = __commonJS({
       }
       return ind;
     }
-    function removeDotSegments(path3) {
-      let input2 = path3;
+    function removeDotSegments(path4) {
+      let input2 = path4;
       const output2 = [];
       let nextSlash = -1;
       let len = 0;
@@ -3337,11 +3337,11 @@ var require_utils = __commonJS({
       }
       return output2.join("");
     }
-    function removeDotSegmentsRelative(path3) {
-      if (path3 === "" || path3[0] === "/") {
-        return removeDotSegments(path3);
+    function removeDotSegmentsRelative(path4) {
+      if (path4 === "" || path4[0] === "/") {
+        return removeDotSegments(path4);
       }
-      const segments = path3.split("/");
+      const segments = path4.split("/");
       const last = segments.length - 1;
       const output2 = [];
       let trailingDirectory = false;
@@ -3704,8 +3704,8 @@ var require_schemes = __commonJS({
       }
       if (wsComponent.resourceName) {
         const queryIndex = wsComponent.resourceName.indexOf("?");
-        const path3 = queryIndex === -1 ? wsComponent.resourceName : wsComponent.resourceName.slice(0, queryIndex);
-        wsComponent.path = path3 && path3 !== "/" ? path3 : void 0;
+        const path4 = queryIndex === -1 ? wsComponent.resourceName : wsComponent.resourceName.slice(0, queryIndex);
+        wsComponent.path = path4 && path4 !== "/" ? path4 : void 0;
         wsComponent.query = queryIndex === -1 ? void 0 : wsComponent.resourceName.slice(queryIndex + 1);
         wsComponent.resourceName = void 0;
       }
@@ -8075,10 +8075,10 @@ function mergeDefs(...defs) {
 function cloneDef(schema) {
   return mergeDefs(schema._zod.def);
 }
-function getElementAtPath(obj, path3) {
-  if (!path3)
+function getElementAtPath(obj, path4) {
+  if (!path4)
     return obj;
-  return path3.reduce((acc, key) => acc?.[key], obj);
+  return path4.reduce((acc, key) => acc?.[key], obj);
 }
 function promiseAllObject(promisesObj) {
   const keys = Object.keys(promisesObj);
@@ -8418,11 +8418,11 @@ function explicitlyAborted(x, startIndex = 0) {
   }
   return false;
 }
-function prefixIssues(path3, issues) {
+function prefixIssues(path4, issues) {
   return issues.map((iss) => {
     var _a3;
     (_a3 = iss).path ?? (_a3.path = []);
-    iss.path.unshift(path3);
+    iss.path.unshift(path4);
     return iss;
   });
 }
@@ -8884,16 +8884,16 @@ function flattenError(error62, mapper = (issue2) => issue2.message) {
 }
 function formatError(error62, mapper = (issue2) => issue2.message) {
   const fieldErrors = { _errors: [] };
-  const processError = (error63, path3 = []) => {
+  const processError = (error63, path4 = []) => {
     for (const issue2 of error63.issues) {
       if (issue2.code === "invalid_union" && issue2.errors.length) {
-        issue2.errors.map((issues) => processError({ issues }, [...path3, ...issue2.path]));
+        issue2.errors.map((issues) => processError({ issues }, [...path4, ...issue2.path]));
       } else if (issue2.code === "invalid_key") {
-        processError({ issues: issue2.issues }, [...path3, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path4, ...issue2.path]);
       } else if (issue2.code === "invalid_element") {
-        processError({ issues: issue2.issues }, [...path3, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path4, ...issue2.path]);
       } else {
-        const fullpath = [...path3, ...issue2.path];
+        const fullpath = [...path4, ...issue2.path];
         if (fullpath.length === 0) {
           fieldErrors._errors.push(mapper(issue2));
         } else {
@@ -8932,17 +8932,17 @@ function formatError(error62, mapper = (issue2) => issue2.message) {
 }
 function treeifyError(error62, mapper = (issue2) => issue2.message) {
   const result = { errors: [] };
-  const processError = (error63, path3 = []) => {
+  const processError = (error63, path4 = []) => {
     var _a3;
     for (const issue2 of error63.issues) {
       if (issue2.code === "invalid_union" && issue2.errors.length) {
-        issue2.errors.map((issues) => processError({ issues }, [...path3, ...issue2.path]));
+        issue2.errors.map((issues) => processError({ issues }, [...path4, ...issue2.path]));
       } else if (issue2.code === "invalid_key") {
-        processError({ issues: issue2.issues }, [...path3, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path4, ...issue2.path]);
       } else if (issue2.code === "invalid_element") {
-        processError({ issues: issue2.issues }, [...path3, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path4, ...issue2.path]);
       } else {
-        const fullpath = [...path3, ...issue2.path];
+        const fullpath = [...path4, ...issue2.path];
         if (fullpath.length === 0) {
           result.errors.push(mapper(issue2));
           continue;
@@ -8981,8 +8981,8 @@ function treeifyError(error62, mapper = (issue2) => issue2.message) {
 }
 function toDotPath(_path) {
   const segs = [];
-  const path3 = _path.map((seg) => typeof seg === "object" ? seg.key : seg);
-  for (const seg of path3) {
+  const path4 = _path.map((seg) => typeof seg === "object" ? seg.key : seg);
+  for (const seg of path4) {
     if (typeof seg === "number")
       segs.push(`[${seg}]`);
     else if (typeof seg === "symbol")
@@ -26120,13 +26120,13 @@ function resolveRef(ref, ctx) {
   if (!ref.startsWith("#")) {
     throw new Error("External $ref is not supported, only local refs (#/...) are allowed");
   }
-  const path3 = ref.slice(1).split("/").filter(Boolean);
-  if (path3.length === 0) {
+  const path4 = ref.slice(1).split("/").filter(Boolean);
+  if (path4.length === 0) {
     return ctx.rootSchema;
   }
   const defsKey = ctx.version === "draft-2020-12" ? "$defs" : "definitions";
-  if (path3[0] === defsKey) {
-    const key = path3[1] === void 0 ? void 0 : decodeJSONPointerSegment(path3[1]);
+  if (path4[0] === defsKey) {
+    const key = path4[1] === void 0 ? void 0 : decodeJSONPointerSegment(path4[1]);
     if (!key || !ctx.defs[key]) {
       throw new Error(`Reference not found: ${ref}`);
     }
@@ -30357,8 +30357,8 @@ var Server = class extends Protocol {
 // apps/dsh/src/eda/jobs.ts
 import { spawn } from "node:child_process";
 import { constants, createReadStream as createReadStream2, createWriteStream } from "node:fs";
-import { access, copyFile as copyFile2, mkdir as mkdir3, open as open2, readFile as readFile3, realpath as realpath2, rename as rename2, stat as stat2, writeFile as writeFile2 } from "node:fs/promises";
-import path2 from "node:path";
+import { access, copyFile as copyFile2, mkdir as mkdir3, open as open2, readFile as readFile3, realpath as realpath2, rename as rename2, stat as stat3, writeFile as writeFile2 } from "node:fs/promises";
+import path3 from "node:path";
 import { createHash as createHash3, randomUUID as randomUUID2 } from "node:crypto";
 import { createInterface } from "node:readline";
 
@@ -30431,8 +30431,8 @@ function synthesisScript(input2) {
 // apps/dsh/src/eda-project/bundle.ts
 import { createHash as createHash2, randomUUID } from "node:crypto";
 import { createReadStream } from "node:fs";
-import { copyFile, lstat as lstat2, mkdir as mkdir2, readFile as readFile2, readdir, realpath, rm as rm2, stat } from "node:fs/promises";
-import path from "node:path";
+import { copyFile, lstat as lstat2, mkdir as mkdir2, readFile as readFile2, readdir, realpath, rm as rm2, stat as stat2 } from "node:fs/promises";
+import path2 from "node:path";
 
 // node_modules/.pnpm/@deepseek-ai+dsh-atomic-write@0.2.2-rc.1_@deepseek-ai+cordis@4.1.0/node_modules/@deepseek-ai/dsh-atomic-write/lib/index.js
 import { createHash, randomBytes } from "node:crypto";
@@ -30581,14 +30581,32 @@ var reportSchema = external_exports.object({
   instances: external_exports.boolean().default(true),
   clock_gating: external_exports.boolean().default(true)
 }).strict();
+var mmmcSchema = external_exports.object({
+  library_sets: external_exports.array(external_exports.object({ name: text.min(1), libs: strings }).strict()).max(64).default([]),
+  rc_corners: external_exports.array(external_exports.object({ name: text.min(1), model_type: external_exports.enum(["qx_tech_file", "cap_table"]).default("qx_tech_file"), model_file: text.default("") }).strict()).max(64).default([]),
+  delay_corners: external_exports.array(external_exports.object({ name: text.min(1), library_set: text.min(1), rc_corner: text.min(1) }).strict()).max(64).default([]),
+  constraint_modes: external_exports.array(external_exports.object({ name: text.min(1), sdc_files: strings }).strict()).max(64).default([]),
+  analysis_views: external_exports.array(external_exports.object({ name: text.min(1), constraint_mode: text.min(1), delay_corner: text.min(1) }).strict()).max(128).default([]),
+  setup_views: strings,
+  hold_views: strings
+}).strict().prefault({});
+var floorplanInitSchema = external_exports.object({
+  ui: external_exports.literal("legacy").default("legacy"),
+  site: text.default(""),
+  core_size: external_exports.tuple([positive, positive, nonnegative, nonnegative, nonnegative, nonnegative]).nullable().default(null),
+  pin_assignment_file: text.default("")
+}).strict().prefault({});
 var backendSchema = external_exports.object({
   enabled: external_exports.boolean().default(false),
+  start_mode: external_exports.enum(["from_existing_floorplan", "from_netlist"]).default("from_existing_floorplan"),
   netlist: text.default(""),
   top_cell: text.default(""),
   tech_lef: text.default(""),
   cell_lefs: strings,
   mmmc_file: text.default(""),
+  mmmc_config: mmmcSchema,
   floorplan_def: text.default(""),
+  floorplan_init: floorplanInitSchema,
   scan_def: text.default(""),
   global_connect_file: text.default(""),
   streamout_map: text.default(""),
@@ -30643,6 +30661,10 @@ var toolboxSchema = external_exports.object({
   source_replacements: external_exports.array(override).max(512).default([])
 }).strict();
 
+// apps/dsh/src/eda-project/backend-readiness.ts
+import { stat } from "node:fs/promises";
+import path from "node:path";
+
 // apps/dsh/src/eda-project/bundle.ts
 async function fileHash(file2) {
   const hash2 = createHash2("sha256");
@@ -30650,40 +30672,40 @@ async function fileHash(file2) {
   return hash2.digest("hex");
 }
 function safeRelative(file2) {
-  if (!file2 || path.isAbsolute(file2) || file2.includes("\\") || file2.split("/").some((part) => !part || part === ".." || part === ".")) throw new Error(`\u65E0\u6548\u7684\u76F8\u5BF9\u6587\u4EF6\u8DEF\u5F84\uFF1A${file2}`);
+  if (!file2 || path2.isAbsolute(file2) || file2.includes("\\") || file2.split("/").some((part) => !part || part === ".." || part === ".")) throw new Error(`\u65E0\u6548\u7684\u76F8\u5BF9\u6587\u4EF6\u8DEF\u5F84\uFF1A${file2}`);
   return file2;
 }
 function inside(root, file2) {
-  const rel = path.relative(root, file2);
-  return rel === "" || !path.isAbsolute(rel) && rel !== ".." && !rel.startsWith(`..${path.sep}`);
+  const rel = path2.relative(root, file2);
+  return rel === "" || !path2.isAbsolute(rel) && rel !== ".." && !rel.startsWith(`..${path2.sep}`);
 }
 async function snapshotBundle(source, target, signal, tool) {
-  const directory = await realpath(source), manifest = JSON.parse(await readFile2(path.join(directory, "manifest.json"), "utf8"));
+  const directory = await realpath(source), manifest = JSON.parse(await readFile2(path2.join(directory, "manifest.json"), "utf8"));
   if (manifest.schemaVersion !== 1 || !Array.isArray(manifest.files) || manifest.files.length > 4096) throw new Error("EDA_BUNDLE_INVALID: manifest \u683C\u5F0F\u65E0\u6548");
   await mkdir2(target, { recursive: true });
   for (const file2 of manifest.files) {
     signal?.throwIfAborted();
-    const relative2 = safeRelative(file2.destination), sourceFile = path.join(directory, relative2), targetFile = path.join(target, relative2);
+    const relative2 = safeRelative(file2.destination), sourceFile = path2.join(directory, relative2), targetFile = path2.join(target, relative2);
     if ((await lstat2(sourceFile)).isSymbolicLink() || !inside(directory, await realpath(sourceFile))) throw new Error("EDA_BUNDLE_INVALID: \u8F93\u5165\u7B26\u53F7\u94FE\u63A5\u8D8A\u754C");
-    await mkdir2(path.dirname(targetFile), { recursive: true });
+    await mkdir2(path2.dirname(targetFile), { recursive: true });
     await copyFile(sourceFile, targetFile);
     if (await fileHash(targetFile) !== file2.sha256) throw new Error(`EDA_BUNDLE_STALE: ${relative2} \u5DF2\u53D8\u66F4\uFF0C\u8BF7\u91CD\u65B0\u751F\u6210\u6216\u767B\u8BB0\u8986\u76D6`);
   }
   if (tool === "pt" || tool === "sta") {
-    const job = JSON.parse(await readFile2(path.join(directory, "..", "job.json"), "utf8").catch(() => '{"status":"missing"}'));
-    const inputs = JSON.parse(await readFile2(path.join(directory, "..", "inputs.json"), "utf8").catch(() => "{}"));
+    const job = JSON.parse(await readFile2(path2.join(directory, "..", "job.json"), "utf8").catch(() => '{"status":"missing"}'));
+    const inputs = JSON.parse(await readFile2(path2.join(directory, "..", "inputs.json"), "utf8").catch(() => "{}"));
     if (job.status !== "completed" || job.tool !== "dc" || inputs.generationId !== manifest.generationId) throw new Error("EDA_BUNDLE_STAGE_REQUIRED: \u65F6\u5E8F\u5206\u6790\u987B\u4F7F\u7528\u672C\u6B21\u5DF2\u5B8C\u6210 DC \u4F5C\u4E1A\u7684 flow \u76EE\u5F55");
     const modules = manifest.sourceSummary.modules;
     const outputs = modules?.scan && ["full", "scan_insertion"].includes(manifest.flowStage) ? "mapped_scan" : "synthesis";
     for (const relative2 of [`${outputs}/netlist.v`, `${outputs}/constraints.sdc`]) {
-      const input2 = path.join(directory, relative2), output2 = path.join(target, relative2);
+      const input2 = path2.join(directory, relative2), output2 = path2.join(target, relative2);
       if ((await lstat2(input2)).isSymbolicLink() || !inside(directory, await realpath(input2))) throw new Error("EDA_BUNDLE_INVALID: \u524D\u7F6E\u9636\u6BB5\u8F93\u51FA\u8D8A\u754C");
-      await mkdir2(path.dirname(output2), { recursive: true });
+      await mkdir2(path2.dirname(output2), { recursive: true });
       await copyFile(input2, output2);
-      manifest.files.push({ destination: relative2, file: output2, source: input2, size: (await stat(output2)).size, sha256: await fileHash(output2), role: "prior_stage_output" });
+      manifest.files.push({ destination: relative2, file: output2, source: input2, size: (await stat2(output2)).size, sha256: await fileHash(output2), role: "prior_stage_output" });
     }
   }
-  await writeFileAtomic(path.join(target, "manifest.json"), JSON.stringify(manifest, null, 2), { mode: 384 });
+  await writeFileAtomic(path2.join(target, "manifest.json"), JSON.stringify(manifest, null, 2), { mode: 384 });
   return manifest;
 }
 
@@ -30701,11 +30723,11 @@ var EdaJobs = class {
   async executable(tool) {
     if (this.config.enabled?.[tool] === false) throw new Error(`EDA_TOOL_DISABLED: ${tool} is disabled in EDA MCP Tool settings`);
     const command = this.config.commands[tool] || DEFAULT_COMMANDS[tool];
-    const candidates = path2.isAbsolute(command) ? [command] : command.includes(path2.sep) ? [] : (process.env.PATH || "").split(path2.delimiter).map((directory) => path2.join(directory, command));
+    const candidates = path3.isAbsolute(command) ? [command] : command.includes(path3.sep) ? [] : (process.env.PATH || "").split(path3.delimiter).map((directory) => path3.join(directory, command));
     for (const candidate of candidates) {
       try {
         await access(candidate, constants.X_OK);
-        if ((await stat2(candidate)).isFile()) return path2.resolve(candidate);
+        if ((await stat3(candidate)).isFile()) return path3.resolve(candidate);
       } catch {
       }
     }
@@ -30720,7 +30742,7 @@ var EdaJobs = class {
         return { tool, enabled: true, available: false, error: String(error62) };
       }
     }));
-    return { tools, jobsDir: path2.resolve(this.config.jobsDir), maxConcurrent: this.config.maxConcurrent, activeJobs: this.active.size, activeJobIds: [...this.active.keys()], licenseChecked: false, synthesisTool: "Synopsys Design Compiler", substitutesAllowed: false };
+    return { tools, jobsDir: path3.resolve(this.config.jobsDir), maxConcurrent: this.config.maxConcurrent, activeJobs: this.active.size, activeJobIds: [...this.active.keys()], licenseChecked: false, synthesisTool: "Synopsys Design Compiler", substitutesAllowed: false };
   }
   async run(raw, signal) {
     const input2 = runSchema.parse(raw);
@@ -30729,16 +30751,16 @@ var EdaJobs = class {
   async synthesize(raw, signal) {
     const input2 = synthesisSchema.parse(raw);
     for (const file2 of [...input2.sources, ...input2.targetLibraries, ...input2.linkLibraries, ...input2.sdc ? [input2.sdc] : []]) {
-      if (!(await stat2(file2)).isFile()) throw new Error(`EDA_INPUT_INVALID: not a file: ${file2}`);
+      if (!(await stat3(file2)).isFile()) throw new Error(`EDA_INPUT_INVALID: not a file: ${file2}`);
       await access(file2, constants.R_OK);
     }
-    for (const directory of input2.includeDirectories) if (!(await stat2(directory)).isDirectory()) throw new Error(`EDA_INPUT_INVALID: not a directory: ${directory}`);
+    for (const directory of input2.includeDirectories) if (!(await stat3(directory)).isDirectory()) throw new Error(`EDA_INPUT_INVALID: not a directory: ${directory}`);
     return this.submit("dc", ["-f", "synthesis.tcl"], input2.timeoutSeconds, DC_ARTIFACTS, input2, signal, input2.workingDirectory, input2.ownerSessionId);
   }
   async save(job) {
-    const temporary = path2.join(job.directory, `.${randomUUID2()}.json`);
+    const temporary = path3.join(job.directory, `.${randomUUID2()}.json`);
     await writeFile2(temporary, JSON.stringify(job, null, 2), { mode: 384, flag: "wx" });
-    await rename2(temporary, path2.join(job.directory, "job.json"));
+    await rename2(temporary, path3.join(job.directory, "job.json"));
   }
   async submit(tool, args, timeout, expectedArtifacts, synthesis, signal, workingDirectory, ownerSessionId, bundleDirectory) {
     signal?.throwIfAborted();
@@ -30747,35 +30769,35 @@ var EdaJobs = class {
     this.submitting++;
     try {
       const executable = await this.executable(tool), id = randomUUID2();
-      const outputRoot = workingDirectory ? path2.join(await realpath2(workingDirectory), "eda-jobs") : this.config.jobsDir;
-      const directory = path2.resolve(outputRoot, id);
+      const outputRoot = workingDirectory ? path3.join(await realpath2(workingDirectory), "eda-jobs") : this.config.jobsDir;
+      const directory = path3.resolve(outputRoot, id);
       await mkdir3(this.config.jobsDir, { recursive: true });
       await mkdir3(outputRoot, { recursive: true });
       await mkdir3(directory, { mode: 448 });
-      if (workingDirectory) await writeFile2(path2.join(this.config.jobsDir, `${id}.location.json`), JSON.stringify({ directory }), { mode: 384, flag: "wx" });
+      if (workingDirectory) await writeFile2(path3.join(this.config.jobsDir, `${id}.location.json`), JSON.stringify({ directory }), { mode: 384, flag: "wx" });
       if (bundleDirectory) {
-        const bundle = await snapshotBundle(bundleDirectory, path2.join(directory, "flow"), signal, tool);
+        const bundle = await snapshotBundle(bundleDirectory, path3.join(directory, "flow"), signal, tool);
         if (!expectedArtifacts.length) expectedArtifacts = bundle.runRequests.find((request) => request.tool === tool)?.expectedArtifacts ?? [];
-        await writeFile2(path2.join(directory, "inputs.json"), JSON.stringify({ bundleDirectory, generationId: bundle.generationId, projectId: bundle.projectId, projectRevision: bundle.projectRevision, files: bundle.files.map(({ content, ...file2 }) => file2) }, null, 2), { flag: "wx" });
+        await writeFile2(path3.join(directory, "inputs.json"), JSON.stringify({ bundleDirectory, generationId: bundle.generationId, projectId: bundle.projectId, projectRevision: bundle.projectRevision, files: bundle.files.map(({ content, ...file2 }) => file2) }, null, 2), { flag: "wx" });
       }
       if (synthesis) {
         const files = [];
         const freeze = async (source) => {
-          const target = path2.join(directory, "inputs", `${files.length}-${path2.basename(source)}`);
+          const target = path3.join(directory, "inputs", `${files.length}-${path3.basename(source)}`);
           await copyFile2(source, target, constants.COPYFILE_FICLONE);
           const hash2 = createHash3("sha256");
           for await (const chunk of createReadStream2(target)) hash2.update(chunk);
-          files.push({ source, snapshot: target, size: (await stat2(target)).size, sha256: hash2.digest("hex") });
+          files.push({ source, snapshot: target, size: (await stat3(target)).size, sha256: hash2.digest("hex") });
           return target;
         };
-        await mkdir3(path2.join(directory, "inputs"));
+        await mkdir3(path3.join(directory, "inputs"));
         const frozen = { ...synthesis, sources: [], targetLibraries: [], linkLibraries: [] };
         for (const file2 of synthesis.sources) frozen.sources.push(await freeze(file2));
         for (const file2 of synthesis.targetLibraries) frozen.targetLibraries.push(await freeze(file2));
         for (const file2 of synthesis.linkLibraries) frozen.linkLibraries.push(await freeze(file2));
         if (synthesis.sdc) frozen.sdc = await freeze(synthesis.sdc);
-        await writeFile2(path2.join(directory, "synthesis.tcl"), synthesisScript(frozen), { flag: "wx" });
-        await writeFile2(path2.join(directory, "inputs.json"), JSON.stringify({ requested: synthesis, frozen, files, unsnapshottedIncludeDirectories: synthesis.includeDirectories }, null, 2), { flag: "wx" });
+        await writeFile2(path3.join(directory, "synthesis.tcl"), synthesisScript(frozen), { flag: "wx" });
+        await writeFile2(path3.join(directory, "inputs.json"), JSON.stringify({ requested: synthesis, frozen, files, unsnapshottedIncludeDirectories: synthesis.includeDirectories }, null, 2), { flag: "wx" });
       }
       const job = { id, tool, executable, args, directory, status: "running", ownerPid: process.pid, ownerToken: this.ownerToken, createdAt: (/* @__PURE__ */ new Date()).toISOString(), expectedArtifacts, artifacts: [], acceptance: { checked: false, passed: false, issues: [] } };
       if (ownerSessionId) job.ownerSessionId = ownerSessionId;
@@ -30786,7 +30808,7 @@ var EdaJobs = class {
         await this.save(job);
         return job;
       }
-      const stdout = createWriteStream(path2.join(directory, "stdout.log"), { flags: "wx" }), stderr = createWriteStream(path2.join(directory, "stderr.log"), { flags: "wx" });
+      const stdout = createWriteStream(path3.join(directory, "stdout.log"), { flags: "wx" }), stderr = createWriteStream(path3.join(directory, "stderr.log"), { flags: "wx" });
       const child = spawn(executable, args, { cwd: directory, shell: false, detached: process.platform !== "win32", stdio: ["ignore", "pipe", "pipe"], env: process.env });
       child.stdout.pipe(stdout);
       child.stderr.pipe(stderr);
@@ -30864,7 +30886,7 @@ var EdaJobs = class {
     job.acceptance.checked = job.expectedArtifacts.length > 0;
     for (const file2 of job.expectedArtifacts) {
       try {
-        const location = await this.outputPath(job, file2), info = await stat2(location);
+        const location = await this.outputPath(job, file2), info = await stat3(location);
         if (!info.isFile() || !info.size) throw new Error("empty output");
         const hash2 = createHash3("sha256");
         for await (const chunk of createReadStream2(location)) hash2.update(chunk);
@@ -30875,11 +30897,11 @@ var EdaJobs = class {
     }
     if (dc) {
       for (const file2 of ["stdout.log", "stderr.log"]) {
-        const lines = createInterface({ input: createReadStream2(path2.join(job.directory, file2)), crlfDelay: Infinity });
+        const lines = createInterface({ input: createReadStream2(path3.join(job.directory, file2)), crlfDelay: Infinity });
         let count = 0;
         for await (const line of lines) if (/^\s*(?:Error:|Fatal:|.*\*\*\s*ERROR)/i.test(line) && count++ < 20) job.acceptance.issues.push(line.slice(0, 2e3));
       }
-      const timing = await readFile3(path2.join(job.directory, bundle ? "flow/reports/synthesis_timing.rpt" : "reports/timing.rpt"), "utf8").catch(() => "");
+      const timing = await readFile3(path3.join(job.directory, bundle ? "flow/reports/synthesis_timing.rpt" : "reports/timing.rpt"), "utf8").catch(() => "");
       const slacks = [...timing.matchAll(/slack\s*\((?:MET|VIOLATED)\)\s*(-?[\d.]+)/gi)].map((match) => Number(match[1])).filter(Number.isFinite);
       if (slacks.length) {
         job.acceptance.timingSlack = Math.min(...slacks);
@@ -30892,14 +30914,14 @@ var EdaJobs = class {
   }
   async job(id) {
     if (!/^[0-9a-f-]{36}$/i.test(id)) throw new Error("EDA_BAD_JOB_ID");
-    let directory = path2.resolve(this.config.jobsDir, id);
+    let directory = path3.resolve(this.config.jobsDir, id);
     try {
-      directory = JSON.parse(await readFile3(path2.join(this.config.jobsDir, `${id}.location.json`), "utf8")).directory;
+      directory = JSON.parse(await readFile3(path3.join(this.config.jobsDir, `${id}.location.json`), "utf8")).directory;
     } catch (error62) {
       if (error62.code !== "ENOENT") throw error62;
     }
-    if (!path2.isAbsolute(directory) || path2.basename(directory) !== id) throw new Error("EDA_INVALID_JOB_LOCATION");
-    const job = JSON.parse(await readFile3(path2.join(directory, "job.json"), "utf8"));
+    if (!path3.isAbsolute(directory) || path3.basename(directory) !== id) throw new Error("EDA_INVALID_JOB_LOCATION");
+    const job = JSON.parse(await readFile3(path3.join(directory, "job.json"), "utf8"));
     if (job.id !== id) throw new Error("EDA_INVALID_JOB_LOCATION");
     job.directory = directory;
     if (job.status === "running" && !this.active.has(id)) {
@@ -30916,8 +30938,8 @@ var EdaJobs = class {
     return job;
   }
   async outputPath(job, file2) {
-    const target = await realpath2(path2.resolve(job.directory, file2)), root = await realpath2(job.directory), relative2 = path2.relative(root, target);
-    if (!relative2 || relative2 === ".." || relative2.startsWith(`..${path2.sep}`) || path2.isAbsolute(relative2)) throw new Error("EDA_PATH_OUTSIDE_JOB");
+    const target = await realpath2(path3.resolve(job.directory, file2)), root = await realpath2(job.directory), relative2 = path3.relative(root, target);
+    if (!relative2 || relative2 === ".." || relative2.startsWith(`..${path3.sep}`) || path3.isAbsolute(relative2)) throw new Error("EDA_PATH_OUTSIDE_JOB");
     return target;
   }
   async read(id, file2, offset, limit) {

@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Session Mode Switcher",
+    "description": "Choose a session and force-switch its agent mode while paused."
+  }
+}
