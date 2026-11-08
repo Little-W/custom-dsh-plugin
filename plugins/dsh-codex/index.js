@@ -10,9 +10,12 @@ export const CODEX_WORKING_RULES = `You are a coding agent that works directly i
 - Use the native \`bash\` tool as the primary interface on Unix, or the native PowerShell tool on Windows. Run ordinary commands directly in that shell.
 - Parallelize independent discovery calls. Once exact file paths are established by the user, \`list_dir\`, or \`glob\`, reads of different files may run concurrently. Never batch speculative file reads.
 - For ordinary workspace work, use Bash/PowerShell and native file tools directly when they are available. This keeps simple commands simple and avoids unnecessary wrapper programs.
+- Inspect the current file contents before designing a change. Codex-style edits verify current file content and sandbox rules at mutation time; they do not require a prior read-tool call. The plugin establishes the exact target's metadata/version before invoking the native mutation tool, which retains DSH's permission, sandbox, and atomic version checks.
 - PTC and \`run_code\` remain available when the selected session mode provides them. Use them when they fit the task; do not change or bypass the user's selected execution mode. When a direct shell tool is available, prefer it for ordinary shell commands.
 - Use \`grep\` for regular expressions. For source-code text containing punctuation such as parentheses, brackets, pipes, or question marks, use a fixed-string search (for example, \`rg -F\`) instead of passing the text as a regular expression.
 - Prefer \`rg\` for content search and \`rg --files\` for file discovery. Use \`apply_patch\` for focused edits; use formatters and generators when appropriate.
+- For an implementation request, inspect the relevant code, callers, and tests first, then form one complete change plan before editing. Once the scope is understood, batch all known changes for the same task into one coherent \`apply_patch\` call, using multiple hunks and files as needed. Do not make a series of speculative one-line edits or repeatedly reread unchanged context between them. Make another patch only when review, a test, or newly discovered evidence identifies a concrete remaining change; combine related fixes from the same failure into one follow-up patch.
+- Keep a patch cohesive and reviewable: include every required part of the requested behavior, but do not expand into unrelated cleanup. After the batch, inspect the diff and run the relevant checks before making evidence-driven corrections.
 - Avoid one-line-at-a-time tool calls and empty progress narration. Keep progress updates to one short note per meaningful milestone; do not emit a separate thought bubble for each inspection or command.
 - Check command exit status and inspect the relevant result before claiming success. Keep output bounded and narrow searches to the actual project.
 
@@ -40,17 +43,18 @@ const toolGuidance = {
   read: 'Read only an exact path returned by a current list_dir/glob result or supplied by the user. The result identifies the canonical path and total line count; totalLines=0 means the file exists and is empty. Reuse a visible read result instead of repeating the same window. Offsets are 1-based; if an offset falls past end-of-file, retry from the last valid line. If not found, stop and inspect the parent listing; never infer a sibling filename or file contents.',
   read_image: 'Use this tool for PNG/JPEG/WebP/GIF/SVG files in the workspace. SVG is safely rendered as a PNG preview and returned as actual image input. Inspect the image pixels; do not substitute guessed text descriptions.',
   image_generate: 'When the user requests a new or edited image, use this tool if it is listed in the available tools. It uses the separately configured image-generation component. If it is not listed, explain that the component must be enabled and configured; do not pretend it was invoked.',
-  write: 'Use this native file tool to create or replace a file when appropriate. Verify the destination and keep edits inside the requested workspace; use edit or apply_patch for focused changes.',
-  edit: 'Use this native file tool for a focused change to an existing file. Read the relevant content first, make the smallest unambiguous edit, then inspect the resulting diff.',
+  write: 'Use this native file tool to create or replace a file when appropriate. Verify the destination and inspect the result. A prior read-tool call is not required; the plugin establishes the exact target metadata/version before invoking the native mutation tool, which retains DSH permission and sandbox checks.',
+  edit: 'Use this native file tool for a focused change to an existing file. Before editing, inspect relevant context and plan the complete change. Avoid repeated one-line edits; combine related changes in one multi-hunk apply_patch call where possible. A prior read-tool call is not required; the plugin establishes the exact target metadata/version before invoking the native mutation tool, which retains DSH permission, sandbox, and atomic version checks. Inspect the diff and run relevant checks.',
   glob: 'Search a confirmed workspace root. A zero-result response means no paths matched this pattern in this scope; check the root and adjust the pattern once instead of repeating the same search.',
   grep: 'Search a confirmed workspace root using ripgrep regular-expression syntax. Escape regex metacharacters when searching literal code text; for literal source snippets with punctuation, prefer shell `rg -F`. If a regex is rejected, retry the query as a fixed string once. A zero-result response means no content matched this query in this scope; check the root and adjust the query once instead of repeating the same search.',
-  apply_patch: 'Use this tool for focused, reviewable source edits. Verify the target path and patch context first; inspect the resulting diff and run relevant checks.',
+  apply_patch: 'Use this tool for focused, reviewable source edits. Its patch format supports multiple hunks and files in one call: after inspecting the relevant code, callers, and tests, combine all known changes for the task into one coherent patch instead of a sequence of tiny edits. Codex parses and verifies patches against current filesystem content and sandbox rules without requiring a prior read-tool call. The plugin establishes metadata/version observations for exact update/delete targets before invoking the native patch tool; DSH then performs its normal content matching, permission approval, sandbox enforcement, and atomic mutation. Inspect the resulting diff and run relevant checks.',
   list_dir: 'List the direct entries of a confirmed directory in the active session workspace. Use this to verify exact file names before reading; the listing is bounded and reports whether entries were omitted. Use glob for recursive file discovery.',
 }
 
 const GOAL_GUIDANCE = 'Goal creation and human-directed changes belong to the top-level agent. Create, edit, pause, or resume a goal only when the current turn contains a direct user message on that top-level agent. A resumed/automatic continuation or subagent turn must not request those actions; let the goal driver continue its admitted round. During the exact active goal round, complete or blocked may be reported only when their documented completion or repeated-blockage criteria are met. Before any authorized update, call get_goal in the current turn and use its exact goal_id and revision. Do not retry an authority error by guessing or changing goal identifiers.'
 
 const PARALLEL_READ_TOOLS = new Set(['read', 'read_image', 'glob', 'grep', 'list_dir'])
+const MUTATING_TOOLS = new Set(['edit', 'write', 'apply_patch'])
 const DIRECTORY_LIST_LIMIT = 120
 const MISSING_READ_CONTEXT_LIMIT = 20
 
@@ -72,6 +76,35 @@ function svgUnsafeReason(svg) {
 
 function pathApiFor(filePath) {
   return /^[A-Za-z]:[\\/]/.test(filePath) || filePath.startsWith('\\\\') ? win32 : path
+}
+
+function mutationTargetPaths(toolName, args) {
+  if (typeof args?.file_path === 'string' && args.file_path.trim()) return [args.file_path]
+  if (toolName !== 'apply_patch') return []
+  const patch = typeof args === 'string'
+    ? args
+    : args !== null && typeof args === 'object'
+      ? Object.values(args).find(value => typeof value === 'string' && value.includes('*** Begin Patch'))
+      : undefined
+  if (typeof patch !== 'string') return []
+  const paths = new Set()
+  for (const match of patch.matchAll(/^\*\*\* (?:Update|Delete) File:\s*(.+?)\s*$/gm)) {
+    if (match[1]) paths.add(match[1])
+  }
+  return [...paths]
+}
+
+async function seedMutationObservations(ctx, toolName, args, exec) {
+  const targets = mutationTargetPaths(toolName, args)
+  if (!ctx.fs || targets.length === 0) return
+  const cwd = exec.agent === undefined ? undefined : await ctx.workingDirectory.ensure(exec.agent, exec.signal)
+  for (const filePath of targets) {
+    const target = await ctx.fs.resolve(filePath, { ...(cwd ? { cwd } : {}), signal: exec.signal })
+    const info = await ctx.fs.stat(target, exec.signal)
+    ctx.emit('fs/observed', target, info === undefined
+      ? { kind: 'absent' }
+      : { kind: 'present', version: info.version }, exec)
+  }
 }
 
 async function explainMissingRead(ctx, args, exec, cause) {
@@ -230,7 +263,6 @@ function registerListDir(ctx) {
 export function apply(ctx) {
   const tools = ctx.tools
   const prompt = ctx.systemPrompt
-
   registerListDir(ctx)
   registerSvgCapableReadImage(ctx)
 
@@ -250,6 +282,10 @@ export function apply(ctx) {
       if (section.name === 'tool:bash') {
         replaced = true
         return { ...section, text: toolGuidance.bash }
+      }
+      if (section.name === 'tool:edit' || section.name === 'tool:write' || section.name === 'tool:apply_patch') {
+        replaced = true
+        return { ...section, text: toolGuidance[section.name.slice('tool:'.length)] }
       }
       return section
     })
@@ -309,6 +345,15 @@ export function apply(ctx) {
         ...original,
         description: guidance,
         ...(PARALLEL_READ_TOOLS.has(name) ? { isConcurrencySafe: () => true } : {}),
+        ...(MUTATING_TOOLS.has(name) ? {
+          async execute(args, exec) {
+            // Establish the exact target's current CAS basis from metadata, not
+            // a read-tool call. Then invoke the original tool once so escalation
+            // approval and sandbox enforcement keep their native semantics.
+            await seedMutationObservations(ctx, name, args, exec)
+            return original.execute(args, exec)
+          },
+        } : {}),
       })
     }
   }

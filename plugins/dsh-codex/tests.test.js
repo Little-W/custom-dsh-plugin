@@ -17,6 +17,12 @@ test('Codex guidance makes shell primary and prevents repeating empty searches',
   assert.match(CODEX_WORKING_RULES, /After context compaction, rediscover paths/)
   assert.match(CODEX_WORKING_RULES, /zero total lines means an existing empty file/)
   assert.match(CODEX_WORKING_RULES, /Never batch speculative file reads/)
+  assert.match(CODEX_WORKING_RULES, /form one complete change plan before editing/)
+  assert.match(CODEX_WORKING_RULES, /one coherent `apply_patch` call/)
+  assert.match(CODEX_WORKING_RULES, /Do not make a series of speculative one-line edits/)
+  assert.match(CODEX_WORKING_RULES, /inspect the diff and run the relevant checks/)
+  assert.match(CODEX_WORKING_RULES, /do not require a prior read-tool call/)
+  assert.match(CODEX_WORKING_RULES, /metadata\/version/)
 })
 
 test('invalid grep regex retries as a literal source search', async () => {
@@ -39,6 +45,104 @@ test('invalid grep regex retries as a literal source search', async () => {
   const result = await registered.get('grep').execute({ pattern: 'if (selectedTab != CHAT)' }, {})
   assert.equal(calls, 2)
   assert.equal(result.pattern, 'if \\(selectedTab != CHAT\\)')
+})
+
+test('edit refreshes DSH observation from metadata without calling the read tool', async () => {
+  const registered = new Map()
+  const reads = []
+  const editCalls = []
+  let observed = false
+  const metadata = []
+  const exec = { agent: { session: {} }, callId: 'call-1', signal: new AbortController().signal }
+  const read = {
+    name: 'read', description: '', parameters: {}, output: {},
+    async execute(args, actualExec) {
+      reads.push(args.file_path)
+      return { path: args.file_path }
+    },
+  }
+  const edit = {
+    name: 'edit', description: '', parameters: {}, output: {},
+    async execute(args, actualExec) {
+      editCalls.push(args.file_path)
+      assert.equal(actualExec, exec)
+      assert.equal(args.sandbox_permissions, 'workspace-write')
+      if (!observed) throw Object.assign(new Error('file has not been read'), { code: 'FS_NOT_OBSERVED' })
+      return { changed: args.file_path }
+    },
+  }
+  apply({
+    tools: { get: name => name === 'edit' ? edit : name === 'read' ? read : undefined, register: tool => registered.set(tool.name, tool) },
+    systemPrompt: { section: () => () => {} },
+    on: () => () => {},
+    fs: {
+      async resolve(filePath, opts) { metadata.push(['resolve', filePath, opts]); return { displayPath: filePath } },
+      async stat(target) { metadata.push(['stat', target.displayPath]); return { type: 'file', version: 'v1' } },
+    },
+    workingDirectory: { async ensure(agent) { assert.equal(agent, exec.agent); return '/workspace' } },
+    emit(event, target, observation, actor) {
+      assert.equal(event, 'fs/observed')
+      assert.equal(target.displayPath, '/workspace/file.kt')
+      assert.deepEqual(observation, { kind: 'present', version: 'v1' })
+      assert.equal(actor, exec)
+      observed = true
+    },
+  })
+  const result = await registered.get('edit').execute({ file_path: '/workspace/file.kt', old_string: 'old', new_string: 'new', sandbox_permissions: 'workspace-write' }, exec)
+  assert.deepEqual(result, { changed: '/workspace/file.kt' })
+  assert.deepEqual(reads, [])
+  assert.deepEqual(metadata.map(call => call.slice(0, 2)), [['resolve', '/workspace/file.kt'], ['stat', '/workspace/file.kt']])
+  assert.deepEqual(editCalls, ['/workspace/file.kt'])
+})
+
+test('apply_patch seeds update/delete metadata once and preserves native execution', async () => {
+  const registered = new Map()
+  const reads = []
+  const observed = []
+  let patchCalls = 0
+  const patchText = [
+    '*** Begin Patch',
+    '*** Update File: /workspace/first.kt',
+    '@@',
+    '-before',
+    '+after',
+    '*** Delete File: /workspace/old.kt',
+    '*** Add File: /workspace/new.kt',
+    '+new content',
+    '*** End Patch',
+  ].join('\n')
+  const read = {
+    name: 'read', description: '', parameters: {}, output: {},
+    async execute(args) { reads.push(args.file_path); return { path: args.file_path } },
+  }
+  const applyPatch = {
+    name: 'apply_patch', description: '', parameters: {}, output: {},
+    async execute(args, exec) {
+      patchCalls += 1
+      assert.equal(exec.signal, undefined)
+      assert.equal(observed.length, 2)
+      assert.equal(args.patch, patchText)
+      return { applied: true }
+    },
+  }
+  apply({
+    tools: { get: name => name === 'apply_patch' ? applyPatch : name === 'read' ? read : undefined, register: tool => registered.set(tool.name, tool) },
+    systemPrompt: { section: () => () => {} },
+    on: () => () => {},
+    fs: {
+      async resolve(filePath) { return { displayPath: filePath } },
+      async stat(target) { return { type: 'file', version: `v:${target.displayPath}` } },
+    },
+    emit(event, target, observation) { observed.push([event, target.displayPath, observation]) },
+  })
+  const result = await registered.get('apply_patch').execute({ patch: patchText }, {})
+  assert.deepEqual(result, { applied: true })
+  assert.deepEqual(reads, [])
+  assert.deepEqual(observed, [
+    ['fs/observed', '/workspace/first.kt', { kind: 'present', version: 'v:/workspace/first.kt' }],
+    ['fs/observed', '/workspace/old.kt', { kind: 'present', version: 'v:/workspace/old.kt' }],
+  ])
+  assert.equal(patchCalls, 1)
 })
 
 test('read retries an out-of-range offset at the last existing line', async () => {
@@ -250,7 +354,7 @@ test('preset-scoped tool overrides preserve contracts and replace the single nat
       assert.deepEqual(replacement.parameters, original.parameters)
       continue
     }
-    if (name !== 'grep' && name !== 'read') assert.equal(replacement.execute, original.execute)
+    if (name !== 'grep' && name !== 'read' && !['edit', 'write', 'apply_patch'].includes(name)) assert.equal(replacement.execute, original.execute)
     assert.deepEqual(replacement.parameters, original.parameters)
     assert.notEqual(replacement.description, original.description)
   }
@@ -274,12 +378,24 @@ test('preset-scoped tool overrides preserve contracts and replace the single nat
   assert.match(sections.get('studio:dsh-codex:identity').text, /^You are Codex/)
   assert.ok(!sections.has('studio:dsh-codex:tool:bash'), 'Bash guidance replaces its native prompt section at assembly time, not by adding a duplicate')
 
-  const originalAssembly = { sections: [{ name: 'tool:bash', text: 'native Bash guidance' }, { name: 'tool:goal', text: 'native goal guidance' }, { name: 'other', text: 'keep this' }] }
+  const originalAssembly = { sections: [
+    { name: 'tool:bash', text: 'native Bash guidance' },
+    { name: 'tool:goal', text: 'native goal guidance' },
+    { name: 'tool:edit', text: 'read before editing' },
+    { name: 'tool:write', text: 'read before overwriting' },
+    { name: 'tool:apply_patch', text: 'read before patching' },
+    { name: 'other', text: 'keep this' },
+  ] }
   const assembled = await assemblePrompt(originalAssembly, {}, async () => originalAssembly)
   assert.equal(assembled.sections.filter(section => section.name === 'tool:bash').length, 1)
   assert.match(assembled.sections.find(section => section.name === 'tool:bash').text, /original DSH bash tool/)
   assert.match(assembled.sections.find(section => section.name === 'tool:goal').text, /top-level agent/)
   assert.match(assembled.sections.find(section => section.name === 'tool:goal').text, /exact active goal round/)
+  for (const name of ['tool:edit', 'tool:write', 'tool:apply_patch']) {
+    const text = assembled.sections.find(section => section.name === name).text
+    assert.doesNotMatch(text, /read (?:a file|an existing file) before/i)
+    assert.match(text, /(?:prior read-tool call is not required|without requiring a prior read-tool call)/i)
+  }
   assert.equal(assembled.sections.find(section => section.name === 'other').text, 'keep this')
 
   const listed = await registered.get('list_dir').execute({ path: 'src' }, { agent: {}, signal: new AbortController().signal })
