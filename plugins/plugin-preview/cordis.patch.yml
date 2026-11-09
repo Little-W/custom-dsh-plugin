@@ -1,0 +1,3 @@
+- insert:
+    - id: studio-plugin-preview
+      name: '@agent-studio/plugin-plugin-preview'

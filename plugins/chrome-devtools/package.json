@@ -1,0 +1,26 @@
+{
+  "name": "@agent-studio/plugin-chrome-devtools",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "通过 Chrome DevTools MCP 控制隔离的 Chromium 浏览器，检查页面、调试交互并采集性能数据。",
+  "main": "./index.js",
+  "exports": {
+    ".": "./index.js",
+    "./package.json": "./package.json",
+    "./locale/*.json": "./locale/*.json"
+  },
+  "files": [
+    "index.js",
+    "cordis.patch.yml",
+    "README.md",
+    "locale/*.json"
+  ],
+  "engines": {
+    "dsh": ">=0.2.2-alpha.0 <0.3.0"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  }
+}

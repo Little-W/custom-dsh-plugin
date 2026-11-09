@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Chrome DevTools",
+    "description": "Inspect and operate an isolated Chromium browser through Chrome DevTools MCP."
+  }
+}

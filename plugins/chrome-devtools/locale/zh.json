@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Chrome 开发者工具",
+    "description": "使用 Chrome DevTools MCP 检查和操作隔离的 Chromium 浏览器。"
+  }
+}

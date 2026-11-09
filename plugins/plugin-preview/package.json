@@ -1,0 +1,24 @@
+{
+  "name": "@agent-studio/plugin-plugin-preview",
+  "version": "0.3.0",
+  "type": "module",
+  "description": "在独立 DSH 中预览插件；明确的手机/桌面模式自动配置 Chrome UA、触控、DPR 并核验真实状态，展示浏览器画面，另有布局视口与 UI 风格设计 skill。",
+  "main": "./index.js",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./package.json": "./package.json",
+    "./locale/*.json": "./locale/*.json"
+  },
+  "files": ["index.js", "runtime.js", "preview-lifecycle.js", "devices.js", "device-preview.js", "browser-preview.js", "browser-invoker.js", "bundled-skill.js", "client.js", "skills/**", "cordis.patch.yml", "README.md", "locale/*.json"],
+  "engines": { "dsh": ">=0.2.2-alpha.0 <0.3.0" },
+  "dsh": {
+    "bundle": { "patch": "./cordis.patch.yml" },
+    "client": { "platform": "web", "inject": ["@deepseek-ai/dsh-client-locale", "@deepseek-ai/dsh-client-ui-sidebar-right"] }
+  },
+  "peerDependencies": {
+    "@deepseek-ai/dsh-tools": "*",
+    "@deepseek-ai/dsh-sandbox": "*"
+  },
+  "scripts": { "test": "node --test runtime.test.js devices.test.js browser-preview.test.js integration.test.js" }
+}

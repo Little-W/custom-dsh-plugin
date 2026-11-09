@@ -1,0 +1,19 @@
+- insert:
+    - id: studio-chrome-devtools-mcp
+      name: '@deepseek-ai/dsh-mcp-client'
+      config:
+        transport: stdio
+        serverName: chrome-devtools
+        command: npx
+        args:
+          - -y
+          - chrome-devtools-mcp@latest
+          - --headless
+          - --isolated
+          - --executablePath=/usr/bin/chromium
+          - --viewport=1440x900
+          - --no-performance-crux
+        cwd: ''
+        env: {}
+        toolCallTimeoutMs: 120000
+        failOnStartupError: false
