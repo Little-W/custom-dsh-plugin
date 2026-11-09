@@ -21300,6 +21300,12 @@ function LinesField({ label, value, onChange }) {
 function SelectField({ label, value, options, onChange }) {
   return /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Field, { label, children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("select", { value, onChange: (event) => onChange(event.target.value), children: options.map((option) => typeof option === "string" ? /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("option", { children: option }, option) : /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("option", { value: option[0], children: option[1] }, option[0])) }) });
 }
+function PagePicker({ label, value, options, onChange, className = "" }) {
+  return /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("label", { className: `eda-mobile-picker${className ? ` ${className}` : ""}`, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { children: label }),
+    /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("select", { "aria-label": label, value, onChange: (event) => onChange(event.target.value), children: options.map((option) => /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("option", { value: option.id, disabled: option.disabled, children: option.label }, option.id)) })
+  ] });
+}
 function Check2({ label, value, onChange }) {
   return /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("label", { className: "eda-check", children: [
     /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("input", { type: "checkbox", checked: value, onChange: (event) => onChange(event.target.checked) }),
@@ -21404,31 +21410,14 @@ function InputSettings({ config: c, change }) {
     /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("p", { className: "eda-muted", children: "RTL/filelist/include \u7684\u76F8\u5BF9\u8DEF\u5F84\u4EE5 RTL \u6839\u76EE\u5F55\u89E3\u6790\uFF1B\u5E93\u3001SDC \u548C\u9002\u914D\u811A\u672C\u4EE5\u6E90\u7801\u9879\u76EE\u8DEF\u5F84\u89E3\u6790\u3002\u652F\u6301\u5D4C\u5957 -f/-F\u3001+incdir+ \u548C +define+\uFF1B\u4E0D\u652F\u6301\u7684\u9009\u9879\u4F1A\u660E\u786E\u62A5\u9519\u3002" })
   ] });
 }
-function BackendSettings({ config: c, change }) {
+function BackendSettings({ config: c, change, page = "inputs" }) {
   const b = c.backend, set2 = (patch) => change({ ...c, backend: { ...b, ...patch } });
-  const [mmmcJson, setMmmcJson] = import_react6.default.useState(JSON.stringify(b.mmmc_config, null, 2));
-  const [mmmcJsonValid, setMmmcJsonValid] = import_react6.default.useState(true);
   const [coreSizeText, setCoreSizeText] = import_react6.default.useState(b.floorplan_init.core_size?.join(", ") ?? "");
   const [coreSizeValid, setCoreSizeValid] = import_react6.default.useState(true);
-  import_react6.default.useEffect(() => {
-    setMmmcJson(JSON.stringify(b.mmmc_config, null, 2));
-    setMmmcJsonValid(true);
-  }, [b.mmmc_config]);
   import_react6.default.useEffect(() => {
     setCoreSizeText(b.floorplan_init.core_size?.join(", ") ?? "");
     setCoreSizeValid(true);
   }, [b.floorplan_init.core_size]);
-  const updateMmmcJson = (value) => {
-    setMmmcJson(value);
-    try {
-      const parsed = JSON.parse(value);
-      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) throw new Error("expected object");
-      set2({ mmmc_config: parsed });
-      setMmmcJsonValid(true);
-    } catch {
-      setMmmcJsonValid(false);
-    }
-  };
   const updateCoreSize = (value) => {
     setCoreSizeText(value);
     const values = value.split(/[\s,]+/).filter(Boolean).map(Number);
@@ -21442,14 +21431,7 @@ function BackendSettings({ config: c, change }) {
   };
   const power = b.power_grid, setPower = (patch) => set2({ power_grid: { ...power, ...patch } });
   return /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)(import_jsx_runtime4.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { className: "eda-section-heading", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { children: [
-        /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("h3", { children: "Innovus \u540E\u7AEF\u5B9E\u73B0" }),
-        /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("p", { children: "\u9009\u62E9\u660E\u786E\u7684\u5165\u53E3\uFF1B\u751F\u6210\u5668\u53EA\u7EC4\u5408\u5DF2\u767B\u8BB0\u8F93\u5165\uFF0C\u4E0D\u4EE3\u586B PDK \u6216\u7269\u7406\u89C4\u5212\u53C2\u6570\u3002" })
-      ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Check2, { label: "\u542F\u7528\u540E\u7AEF\u811A\u672C\u751F\u6210", value: b.enabled, onChange: (enabled) => set2({ enabled }) })
-    ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("section", { className: "eda-config-section", children: [
+    page === "inputs" && /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("section", { className: "eda-config-section", children: [
       /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("h3", { children: "\u8BBE\u8BA1\u4E0E\u6280\u672F\u8F93\u5165" }),
       /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { className: "eda-form-grid", children: [
         /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(SelectField, { label: "\u540E\u7AEF\u5165\u53E3", value: b.start_mode, options: [["from_netlist", "\u4ECE\u7EFC\u5408\u7F51\u8868\u5F00\u59CB"], ["from_existing_floorplan", "\u4ECE\u5DF2\u6709 Floorplan DEF \u6062\u590D"]], onChange: (start_mode) => set2({ start_mode }) }),
@@ -21462,30 +21444,16 @@ function BackendSettings({ config: c, change }) {
           /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Field, { label: "MMMC \u914D\u7F6E Tcl\uFF08\u76F8\u5BF9\u6E90\u7801\u76EE\u5F55\uFF09", children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("input", { value: b.mmmc_file, placeholder: "config/mmmc.tcl", onChange: (event) => set2({ mmmc_file: event.target.value }) }) }),
           /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Field, { label: "Floorplan DEF\uFF08\u76F8\u5BF9\u6E90\u7801\u76EE\u5F55\uFF09", children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("input", { value: b.floorplan_def, placeholder: "floorplan/top.def", onChange: (event) => set2({ floorplan_def: event.target.value }) }) })
         ] }),
-        b.start_mode === "from_netlist" && /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)(Field, { label: "MMMC \u8F93\u5165\u8BA1\u5212 JSON", full: true, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("textarea", { className: "eda-code", rows: 12, spellCheck: false, value: mmmcJson, onChange: (event) => updateMmmcJson(event.target.value) }),
-          !mmmcJsonValid && /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("small", { role: "alert", children: "JSON \u683C\u5F0F\u4E0D\u5B8C\u6574\uFF0C\u672A\u4FDD\u5B58\u3002" }),
-          /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("small", { children: "\u5B57\u6BB5\u5305\u542B library_sets/libs\u3001rc_corners/model_type/model_file\u3001delay_corners\u3001constraint_modes/sdc_files\u3001analysis_views\u3001setup_views\u3001hold_views\u3002\u4EC5\u586B\u5199\u771F\u5B9E\u4E14\u7ECF\u9879\u76EE/PDK\u786E\u8BA4\u7684 Liberty\u3001RC\u3001SDC \u4E0E\u89C6\u56FE\u3002" })
-        ] }),
-        b.start_mode === "from_netlist" && /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)(import_jsx_runtime4.Fragment, { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Field, { label: "Legacy LEF Site \u540D\u79F0", children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("input", { value: b.floorplan_init.site, onChange: (event) => set2({ floorplan_init: { ...b.floorplan_init, site: event.target.value } }) }) }),
-          /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Field, { label: "Pin assignment Tcl\uFF08\u53EF\u9009\uFF09", children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("input", { value: b.floorplan_init.pin_assignment_file, onChange: (event) => set2({ floorplan_init: { ...b.floorplan_init, pin_assignment_file: event.target.value } }) }) }),
-          /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)(Field, { label: "Core \u5BBD\u3001\u9AD8\u3001\u5DE6/\u4E0B/\u53F3/\u4E0A margin\uFF08\xB5m\uFF09", full: true, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("input", { value: coreSizeText, placeholder: "\u4EC5\u586B\u7ECF\u8BBE\u8BA1\u786E\u8BA4\u7684\u516D\u4E2A\u6570\u503C", onChange: (event) => updateCoreSize(event.target.value) }),
-            !coreSizeValid && /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("small", { role: "alert", children: "\u9700\u8981 6 \u4E2A\u6570\u503C\uFF1B\u5BBD\u9AD8\u4E3A\u6B63\uFF0Cmargin \u975E\u8D1F\u3002" })
-          ] })
-        ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Field, { label: "\u9884\u7F6E Scan DEF\uFF08\u53EF\u9009\uFF09", children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("input", { value: b.scan_def, onChange: (event) => set2({ scan_def: event.target.value }) }) }),
-        /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Field, { label: "\u5168\u5C40\u8FDE\u63A5 Tcl\uFF08\u53EF\u9009\uFF09", children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("input", { value: b.global_connect_file, onChange: (event) => set2({ global_connect_file: event.target.value }) }) }),
-        /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Field, { label: "StreamOut map\uFF08GDS \u53EF\u9009\uFF09", children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("input", { value: b.streamout_map, onChange: (event) => set2({ streamout_map: event.target.value }) }) })
+        /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Field, { label: "\u9884\u7F6E Scan DEF\uFF08\u53EF\u9009\uFF09", children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("input", { value: b.scan_def, onChange: (event) => set2({ scan_def: event.target.value }) }) })
       ] })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("section", { className: "eda-config-section", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("h3", { children: "Floorplan\u3001\u4F9B\u7535\u4E0E\u5E03\u7EBF" }),
+    page === "power" && /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("section", { className: "eda-config-section", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("h3", { children: "\u4F9B\u7535\u4E0E\u5E03\u7EBF" }),
       /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { className: "eda-form-grid", children: [
         /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Field, { label: "\u7535\u6E90\u7F51\u7EDC", children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("input", { value: b.power_net, onChange: (event) => set2({ power_net: event.target.value }) }) }),
         /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Field, { label: "\u5730\u7F51\u7EDC", children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("input", { value: b.ground_net, onChange: (event) => set2({ ground_net: event.target.value }) }) }),
         /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(NumberField, { label: "Placement \u6700\u5927\u5BC6\u5EA6", value: b.placement_density, onChange: (placement_density) => set2({ placement_density }) }),
+        /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Field, { label: "\u5168\u5C40\u8FDE\u63A5 Tcl\uFF08\u53EF\u9009\uFF09", full: true, children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("input", { value: b.global_connect_file, onChange: (event) => set2({ global_connect_file: event.target.value }) }) }),
         /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Field, { label: "\u5E95\u5C42\u91D1\u5C5E\uFF08\u53EF\u9009\uFF09", children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("input", { value: b.bottom_routing_layer, placeholder: "\u7531\u5DE5\u827A\u5B9A\u4E49", onChange: (event) => set2({ bottom_routing_layer: event.target.value }) }) }),
         /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Field, { label: "\u9876\u5C42\u91D1\u5C5E\uFF08\u53EF\u9009\uFF09", children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("input", { value: b.top_routing_layer, placeholder: "\u7531\u5DE5\u827A\u5B9A\u4E49", onChange: (event) => set2({ top_routing_layer: event.target.value }) }) }),
         /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Check2, { label: "\u751F\u6210 PG Stripe", value: power.enabled, onChange: (enabled) => setPower({ enabled }) }),
@@ -21500,9 +21468,23 @@ function BackendSettings({ config: c, change }) {
         ] })
       ] })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(RowsEditor, { title: "\u5B8F\u5757\u624B\u52A8\u6446\u653E", rows: b.macro_placements, fields: [{ key: "instance", label: "\u7EFC\u5408\u7F51\u8868\u4E2D\u7684\u5B8C\u6574\u5B9E\u4F8B\u8DEF\u5F84" }, { key: "x", label: "\u5DE6\u4E0B\u89D2 X\uFF08\xB5m\uFF09", type: "number" }, { key: "y", label: "\u5DE6\u4E0B\u89D2 Y\uFF08\xB5m\uFF09", type: "number" }, { key: "orientation", label: "\u65B9\u5411", options: ["R0", "R90", "R180", "R270", "MX", "MY", "MXR90", "MYR90"] }, ...["halo_left", "halo_bottom", "halo_right", "halo_top"].map((key, i) => ({ key, label: ["Halo \u5DE6", "Halo \u4E0B", "Halo \u53F3", "Halo \u4E0A"][i], type: "number" }))], create: () => ({ instance: "", x: 0, y: 0, orientation: "R0", halo_left: 0, halo_bottom: 0, halo_right: 0, halo_top: 0 }), onChange: (macro_placements) => set2({ macro_placements }) }),
-    /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(RowsEditor, { title: "\u901A\u9053\u4E0E\u7981\u653E\u533A", rows: b.place_blockages, fields: [{ key: "name", label: "\u533A\u57DF\u540D\u79F0" }, { key: "kind", label: "\u7EA6\u675F\u7C7B\u578B", options: ["hard", "soft", "partial"] }, { key: "x1", label: "\u5DE6\u4E0B X\uFF08\xB5m\uFF09", type: "number" }, { key: "y1", label: "\u5DE6\u4E0B Y\uFF08\xB5m\uFF09", type: "number" }, { key: "x2", label: "\u53F3\u4E0A X\uFF08\xB5m\uFF09", type: "number" }, { key: "y2", label: "\u53F3\u4E0A Y\uFF08\xB5m\uFF09", type: "number" }, { key: "density", label: "Partial \u5BC6\u5EA6\uFF08%\uFF09", type: "number" }], create: () => ({ name: "", kind: "hard", x1: 0, y1: 0, x2: 1, y2: 1, density: 50 }), onChange: (place_blockages) => set2({ place_blockages }) }),
-    /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("section", { className: "eda-config-section", children: [
+    page === "floorplan" && /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)(import_jsx_runtime4.Fragment, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("section", { className: "eda-config-section", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("h3", { children: "Floorplan \u521D\u59CB\u5316\u4E0E Pin \u89C4\u5212" }),
+        /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", { className: "eda-form-grid", children: b.start_mode === "from_netlist" ? /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)(import_jsx_runtime4.Fragment, { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Field, { label: "Legacy LEF Site \u540D\u79F0", children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("input", { value: b.floorplan_init.site, onChange: (event) => set2({ floorplan_init: { ...b.floorplan_init, site: event.target.value } }) }) }),
+          /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Field, { label: "Pin assignment Tcl\uFF08\u53EF\u9009\uFF09", children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("input", { value: b.floorplan_init.pin_assignment_file, onChange: (event) => set2({ floorplan_init: { ...b.floorplan_init, pin_assignment_file: event.target.value } }) }) }),
+          /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Field, { label: "Core \u5BBD\u3001\u9AD8\u3001\u5DE6/\u4E0B/\u53F3/\u4E0A margin\uFF08\xB5m\uFF09", full: true, children: /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("input", { value: coreSizeText, placeholder: "\u4EC5\u586B\u7ECF\u8BBE\u8BA1\u786E\u8BA4\u7684\u516D\u4E2A\u6570\u503C", onChange: (event) => updateCoreSize(event.target.value) }),
+            !coreSizeValid && /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("small", { role: "alert", children: "\u9700\u8981 6 \u4E2A\u6570\u503C\uFF1B\u5BBD\u9AD8\u4E3A\u6B63\uFF0Cmargin \u975E\u8D1F\u3002" })
+          ] }) })
+        ] }) : /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("p", { className: "eda-muted", children: "\u5DF2\u6709 Floorplan DEF \u63D0\u4F9B\u521D\u59CB core/site\uFF1B\u5982\u9700\u4FEE\u6539\uFF0C\u8BF7\u5148\u786E\u8BA4\u8BBE\u8BA1\u65B9\u7EA6\u675F\u5E76\u4EE5\u76EE\u6807 Innovus \u68C0\u67E5\u7ED3\u679C\u4E3A\u51C6\u3002" }) })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(RowsEditor, { title: "\u5B8F\u5757\u624B\u52A8\u6446\u653E", rows: b.macro_placements, fields: [{ key: "instance", label: "\u7EFC\u5408\u7F51\u8868\u4E2D\u7684\u5B8C\u6574\u5B9E\u4F8B\u8DEF\u5F84" }, { key: "x", label: "\u5DE6\u4E0B\u89D2 X\uFF08\xB5m\uFF09", type: "number" }, { key: "y", label: "\u5DE6\u4E0B\u89D2 Y\uFF08\xB5m\uFF09", type: "number" }, { key: "orientation", label: "\u65B9\u5411", options: ["R0", "R90", "R180", "R270", "MX", "MY", "MXR90", "MYR90"] }, ...["halo_left", "halo_bottom", "halo_right", "halo_top"].map((key, i) => ({ key, label: ["Halo \u5DE6", "Halo \u4E0B", "Halo \u53F3", "Halo \u4E0A"][i], type: "number" }))], create: () => ({ instance: "", x: 0, y: 0, orientation: "R0", halo_left: 0, halo_bottom: 0, halo_right: 0, halo_top: 0 }), onChange: (macro_placements) => set2({ macro_placements }) }),
+      /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(RowsEditor, { title: "\u901A\u9053\u4E0E\u7981\u653E\u533A", rows: b.place_blockages, fields: [{ key: "name", label: "\u533A\u57DF\u540D\u79F0" }, { key: "kind", label: "\u7EA6\u675F\u7C7B\u578B", options: ["hard", "soft", "partial"] }, { key: "x1", label: "\u5DE6\u4E0B X\uFF08\xB5m\uFF09", type: "number" }, { key: "y1", label: "\u5DE6\u4E0B Y\uFF08\xB5m\uFF09", type: "number" }, { key: "x2", label: "\u53F3\u4E0A X\uFF08\xB5m\uFF09", type: "number" }, { key: "y2", label: "\u53F3\u4E0A Y\uFF08\xB5m\uFF09", type: "number" }, { key: "density", label: "Partial \u5BC6\u5EA6\uFF08%\uFF09", type: "number" }], create: () => ({ name: "", kind: "hard", x1: 0, y1: 0, x2: 1, y2: 1, density: 50 }), onChange: (place_blockages) => set2({ place_blockages }) }),
+      /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("p", { className: "eda-muted", children: "\u5B9E\u4F8B\u8DEF\u5F84\u4E0E\u5750\u6807\u5FC5\u987B\u6765\u81EA\u5B9E\u9645\u7F51\u8868\u3001LEF\u3001DEF \u6216\u7ECF\u6279\u51C6\u7684\u7EA6\u675F\uFF1B\u5019\u9009\u6446\u653E\u4ECD\u987B\u7531\u76EE\u6807 Innovus \u68C0\u67E5\uFF0C\u4E0D\u4EE3\u8868\u5408\u6CD5\u6027\u6216\u7B7E\u6838\u3002" })
+    ] }),
+    page === "cells" && /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("section", { className: "eda-config-section", children: [
       /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("h3", { children: "\u5355\u5143\u4E0E CTS \u89C4\u5219" }),
       /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { className: "eda-form-grid", children: [
         /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(LinesField, { label: "Endcap \u5355\u5143\uFF08\u6BCF\u884C\u4E00\u4E2A\uFF09", value: b.endcap_cells, onChange: (endcap_cells) => set2({ endcap_cells }) }),
@@ -21522,16 +21504,48 @@ function BackendSettings({ config: c, change }) {
         /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(LinesField, { label: "Decap \u5355\u5143\uFF08\u6309\u4F18\u5148\u7EA7\uFF0C\u6BCF\u884C\u4E00\u4E2A\uFF09", value: b.decap_cells, onChange: (decap_cells) => set2({ decap_cells }) })
       ] })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("section", { className: "eda-config-section", children: [
+    page === "outputs" && /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("section", { className: "eda-config-section", children: [
       /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("h3", { children: "\u4EA4\u4ED8\u6587\u4EF6" }),
       /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { className: "eda-form-grid", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Field, { label: "StreamOut map\uFF08GDS \u53EF\u9009\uFF09", full: true, children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("input", { value: b.streamout_map, onChange: (event) => set2({ streamout_map: event.target.value }) }) }),
         /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Check2, { label: "\u5BFC\u51FA DEF", value: b.output_def, onChange: (output_def) => set2({ output_def }) }),
         /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Check2, { label: "\u5BFC\u51FA\u95E8\u7EA7\u7F51\u8868", value: b.output_netlist, onChange: (output_netlist) => set2({ output_netlist }) }),
         /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Check2, { label: "\u5BFC\u51FA GDS", value: b.output_gds, onChange: (output_gds) => set2({ output_gds }) })
       ] })
+    ] })
+  ] });
+}
+function MmmcSettings({ config: c, change }) {
+  const b = c.backend, m = b.mmmc_config, set2 = (patch) => change({ ...c, backend: { ...b, mmmc_config: { ...m, ...patch } } });
+  const names = (rows) => rows.map((row) => row.name.trim()).filter(Boolean);
+  const viewOptions = names(m.analysis_views).map((id) => ({ id, label: "\u5DF2\u5B9A\u4E49 Analysis View" }));
+  const [tab, setTab] = import_react6.default.useState("libraries");
+  return /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)(import_jsx_runtime4.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { className: "eda-page-heading", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("h3", { children: "MMMC \u914D\u7F6E\u4E0E Tcl \u751F\u6210" }),
+      /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("p", { children: "\u6309\u9879\u76EE\u8F93\u5165\u914D\u7F6E Liberty Set\u3001RC Corner\u3001SDC Mode\u3001Delay Corner \u4E0E\u6D3B\u52A8 Analysis View\uFF1B\u4E0D\u63A8\u65AD PVT\u3001RC \u6216\u573A\u666F\u3002" })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("p", { className: "eda-muted", children: "\u5B8F\u5757\u5750\u6807\u6309 Innovus \u6570\u636E\u5E93\u5750\u6807\uFF08\u901A\u5E38\u4E3A \xB5m\uFF09\u8F93\u5165\uFF0C\u811A\u672C\u4F1A\u5C06\u5B9E\u4F8B\u8BBE\u4E3A fixed \u5E76\u6DFB\u52A0\u53EF\u9009 Halo\uFF1B\u901A\u9053\u533A\u53EF\u8BBE Hard\u3001Soft \u6216 Partial blockage\u3002\u6240\u6709\u5750\u6807\u3001\u5B9E\u4F8B\u540D\u548C\u65B9\u5411\u6700\u7EC8\u90FD\u987B\u4EE5\u76EE\u6807\u8BBE\u8BA1\u548C\u5DE5\u827A\u6570\u636E\u5E93\u68C0\u67E5\u3002\u751F\u6210\u6D41\u7A0B\u540C\u65F6\u5305\u542B\u53EA\u8BFB\u7684\u5B8F\u5757\u5B9E\u4F8B\u6E05\u5355\u811A\u672C\uFF0CAgent \u53EF\u5148\u7528\u5B83\u8BFB\u53D6\u5B8C\u6574\u5B9E\u4F8B\u8DEF\u5F84\u518D\u7ED9\u51FA\u6446\u653E\u65B9\u6848\u3002" }),
-    /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("p", { className: "eda-muted", children: "\u811A\u672C\u6309 01_import \u2192 02_floorplan \u2192 03_powerplan \u2192 04_place \u2192 05_cts \u2192 06_cts_opt \u2192 07_route \u2192 08_route_opt \u2192 09_chipfinish \u751F\u6210\u3002MMMC Tcl \u4E2D\u5F15\u7528\u7684 Liberty/QRC \u6587\u4EF6\u9700\u4FDD\u6301\u5728\u5176\u539F\u59CB\u8DEF\u5F84\u53EF\u8BBF\u95EE\uFF1B\u5DE5\u5177\u7248\u672C\u5DEE\u5F02\u4ECD\u9700\u5728\u76EE\u6807 Innovus \u73AF\u5883\u505A\u5DE5\u7A0B\u786E\u8BA4\u3002" })
+    /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("nav", { className: "eda-subtabs", role: "tablist", "aria-label": "MMMC \u914D\u7F6E\u5206\u533A", children: [["libraries", "\u5E93\u4E0E RC"], ["corners", "Delay Corner \u4E0E SDC"], ["views", "Analysis Views"]].map(([id, label]) => /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("button", { type: "button", role: "tab", "aria-selected": tab === id, className: tab === id ? "is-selected" : "", onClick: () => setTab(id), children: label }, id)) }),
+    /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(PagePicker, { className: "eda-mobile-subtab-picker", label: "MMMC \u914D\u7F6E\u9875\u9762", value: tab, options: [{ id: "libraries", label: "\u5E93\u4E0E RC" }, { id: "corners", label: "Delay Corner \u4E0E SDC" }, { id: "views", label: "Analysis Views" }], onChange: (value) => setTab(value) }),
+    tab === "libraries" && /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)(import_jsx_runtime4.Fragment, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(RowsEditor, { title: "Library Set", rows: m.library_sets, fields: [{ key: "name", label: "Library Set \u540D\u79F0" }, { key: "libs", label: "\u771F\u5B9E Liberty \u6587\u4EF6\u8DEF\u5F84\uFF08\u6BCF\u884C\u4E00\u4E2A\uFF09", type: "lines" }], create: () => ({ name: "", libs: [] }), onChange: (library_sets) => set2({ library_sets }) }),
+      /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(RowsEditor, { title: "RC Corner", rows: m.rc_corners, fields: [{ key: "name", label: "RC Corner \u540D\u79F0" }, { key: "model_type", label: "RC \u6A21\u578B\u7C7B\u578B", options: ["qx_tech_file", "cap_table"] }, { key: "model_file", label: "\u7ECF PDK \u6838\u5B9E\u7684 RC tech file / capacitance table \u8DEF\u5F84" }], create: () => ({ name: "", model_type: "qx_tech_file", model_file: "" }), onChange: (rc_corners) => set2({ rc_corners }) })
+    ] }),
+    tab === "corners" && /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)(import_jsx_runtime4.Fragment, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(RowsEditor, { title: "Delay Corner", rows: m.delay_corners, fields: [{ key: "name", label: "Delay Corner \u540D\u79F0" }, { key: "library_set", label: "Library Set", options: names(m.library_sets) }, { key: "rc_corner", label: "RC Corner", options: names(m.rc_corners) }], create: () => ({ name: "", library_set: names(m.library_sets)[0] ?? "", rc_corner: names(m.rc_corners)[0] ?? "" }), onChange: (delay_corners) => set2({ delay_corners }) }),
+      /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(RowsEditor, { title: "Constraint Mode", rows: m.constraint_modes, fields: [{ key: "name", label: "Mode \u540D\u79F0" }, { key: "sdc_files", label: "\u771F\u5B9E SDC \u8DEF\u5F84\uFF08\u6BCF\u884C\u4E00\u4E2A\uFF09", type: "lines" }], create: () => ({ name: "", sdc_files: [] }), onChange: (constraint_modes) => set2({ constraint_modes }) })
+    ] }),
+    tab === "views" && /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)(import_jsx_runtime4.Fragment, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(RowsEditor, { title: "Analysis View", rows: m.analysis_views, fields: [{ key: "name", label: "View \u540D\u79F0" }, { key: "constraint_mode", label: "Constraint Mode", options: names(m.constraint_modes) }, { key: "delay_corner", label: "Delay Corner", options: names(m.delay_corners) }], create: () => ({ name: "", constraint_mode: names(m.constraint_modes)[0] ?? "", delay_corner: names(m.delay_corners)[0] ?? "" }), onChange: (analysis_views) => set2({ analysis_views }) }),
+      /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("section", { className: "eda-config-section", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("h3", { children: "\u6D3B\u52A8 Setup / Hold Views" }),
+        /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { className: "eda-form-grid", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(TagPicker, { label: "Setup views", value: m.setup_views, options: viewOptions, single: false, onChange: (setup_views) => set2({ setup_views }) }),
+          /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(TagPicker, { label: "Hold views", value: m.hold_views, options: viewOptions, single: false, onChange: (hold_views) => set2({ hold_views }) })
+        ] })
+      ] })
+    ] }),
+    /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("p", { className: "eda-muted", children: "\u6240\u6709\u6587\u4EF6\u8DEF\u5F84\u4EE5\u9879\u76EE\u6E90\u7801\u6839\u76EE\u5F55\u89E3\u6790\u3002\u751F\u6210\u4EC5\u6821\u9A8C\u914D\u7F6E\u5F15\u7528\u5E76\u51BB\u7ED3\u8F93\u5165\u5FEB\u7167\uFF1B\u4E0D\u9A8C\u8BC1\u5E93/\u5DE5\u827A\u89D2\u517C\u5BB9\u6027\uFF0C\u4E5F\u4E0D\u8868\u793A STA\u3001DRC/LVS \u6216\u7B7E\u6838\u901A\u8FC7\u3002\u8BF7\u5148\u786E\u8BA4 SDC \u4E2D\u7684\u65F6\u949F\u3001I/O\u3001\u4F8B\u5916\u4E0E\u6D4B\u8BD5\u6A21\u5F0F\u573A\u666F\u3002" })
   ] });
 }
 function TimingSettings({ config: c, change, page = "clocks" }) {
@@ -21707,6 +21721,9 @@ function ToolboxPanel({ page, project: p, change, save, accept, perform, notify 
   const [parameters, setParameters] = (0, import_react8.useState)([]), [values, setValues] = (0, import_react8.useState)({});
   const [flowStage, setFlowStage] = (0, import_react8.useState)("full"), [directory, setDirectory] = (0, import_react8.useState)(""), [repair, setRepair] = (0, import_react8.useState)("none");
   const [backendPhase, setBackendPhase] = (0, import_react8.useState)("preflight");
+  const [backendPage, setBackendPage] = (0, import_react8.useState)("inputs");
+  const [managePage, setManagePage] = (0, import_react8.useState)("scripts");
+  const [generationPage, setGenerationPage] = (0, import_react8.useState)("config");
   const [bundle, setBundle] = (0, import_react8.useState)(null), [file2, setFile] = (0, import_react8.useState)(""), [preview, setPreview] = (0, import_react8.useState)("");
   const importRef = (0, import_react8.useRef)(null), script = p.scripts.find((row) => row.id === selected);
   (0, import_react8.useEffect)(() => {
@@ -21736,233 +21753,312 @@ function ToolboxPanel({ page, project: p, change, save, accept, perform, notify 
     setSelected(result.script.id);
     notify("\u5DF2\u6309\u5F53\u524D\u9879\u76EE\u914D\u7F6E\u751F\u6210\u5E76\u4FDD\u5B58\u811A\u672C\u3002");
   });
-  const runGeneration = (backendOnly = false, backendPhase2) => perform(async () => {
+  const runGeneration = (backendOnly = false, backendPhase2, backendMode) => perform(async () => {
     const project = await save();
-    const result = await edaRequest("generate-flow", { projectId: project.id, flowStage, backendOnly, backendPhase: backendPhase2, directory: directory || void 0, drcRepairMode: repair });
+    const result = await edaRequest("generate-flow", { projectId: project.id, flowStage, backendOnly, backendMode, backendPhase: backendPhase2, directory: directory || void 0, drcRepairMode: repair });
     setBundle(result);
-    const initial = result.files.find((row) => row.destination === "backend/readiness.md") ?? result.files.find((row) => row.role === (backendOnly ? "innovus_driver" : "dc_driver")) ?? result.files.find((row) => row.content);
+    if (!backendOnly) setGenerationPage("result");
+    const initial = result.files.find((row) => row.destination === "backend/readiness.md") ?? result.files.find((row) => row.destination === "backend/generated_mmmc.tcl") ?? result.files.find((row) => row.role === (backendOnly ? "innovus_driver" : "dc_driver")) ?? result.files.find((row) => row.content);
     setFile(initial?.destination || "");
     setPreview(initial?.content || "");
     notify(`\u5DF2\u751F\u6210 ${result.files.length} \u4E2A\u6587\u4EF6\uFF1B\u672A\u542F\u52A8 EDA\u3002`);
   });
   return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_jsx_runtime6.Fragment, { children: page === "manage" ? /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_jsx_runtime6.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: "eda-section-heading", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("h3", { children: "\u9879\u76EE\u811A\u672C" }),
-      /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: "eda-actions", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("button", { type: "button", className: "eda-icon-button", "aria-label": "\u5BFC\u5165\u811A\u672C", onClick: () => importRef.current?.click(), children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Upload, { size: 16 }) }),
-        /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("button", { type: "button", className: "eda-button", onClick: () => add(), children: [
-          /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Plus, { size: 14 }),
-          "\u65B0\u5EFA"
-        ] })
-      ] })
+    /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("nav", { className: "eda-subtabs", role: "tablist", "aria-label": "\u811A\u672C\u7BA1\u7406\u5206\u533A", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("button", { type: "button", role: "tab", "aria-selected": managePage === "scripts", className: managePage === "scripts" ? "is-selected" : "", onClick: () => setManagePage("scripts"), children: "\u811A\u672C\u5217\u8868\u4E0E\u7F16\u8F91" }),
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("button", { type: "button", role: "tab", "aria-selected": managePage === "utilities", className: managePage === "utilities" ? "is-selected" : "", onClick: () => setManagePage("utilities"), children: "\u751F\u6210\u3001\u540C\u6B65\u4E0E\u5BFC\u51FA" })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("input", { hidden: true, type: "file", ref: importRef, accept: ".tcl,.sdc,.do,.sh", onChange: (event) => {
-      const file3 = event.target.files?.[0];
-      if (file3) void perform(async () => {
-        if (file3.size > 4 * 1024 * 1024) throw new Error("\u811A\u672C\u4E0D\u80FD\u8D85\u8FC7 4 MiB");
-        const kind = file3.name.split(".").at(-1);
-        if (!EDA_KINDS.includes(kind)) throw new Error("\u8BF7\u9009\u62E9 Tcl / SDC / DO / Shell \u811A\u672C");
-        add(await file3.text(), file3.name, kind);
-      });
-      event.target.value = "";
-    } }),
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: "eda-generate", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("select", { "aria-label": "\u751F\u6210\u811A\u672C\u9636\u6BB5", value: stage, onChange: (event) => setStage(event.target.value), children: ["constraints", "synthesis", "dft", "timing", "pnr", "verification"].map((value) => /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("option", { value, children: labels[value] }, value)) }),
-      /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("button", { type: "button", className: "eda-button", onClick: () => {
-        void generate();
-      }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(FileCodeCorner, { size: 15 }),
-        "\u751F\u6210\u9ED8\u8BA4\u811A\u672C"
-      ] })
-    ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: "eda-actions eda-wrap", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("button", { type: "button", className: "eda-button", onClick: () => {
-        void perform(async () => {
-          await save();
-          const result = await request("sync_timing");
-          accept(result.project);
-          setSelected(result.script.id);
-          notify(result.status === "customized_preserved" ? result.message : "\u5DF2\u4ECE\u65F6\u5E8F\u8868\u5355\u540C\u6B65 SDC\u3002");
-        });
-      }, children: "\u4ECE\u65F6\u5E8F\u8868\u5355\u540C\u6B65 SDC" }),
-      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("button", { type: "button", className: "eda-button", onClick: () => {
-        void perform(async () => {
-          await save();
-          const result = await request("export");
-          notify(`\u5DF2\u5BFC\u51FA\u6709\u5E8F\u811A\u672C\u6269\u5C55\uFF1A${result.directory}`);
-        });
-      }, children: "\u5BFC\u51FA\u811A\u672C\u6269\u5C55" })
-    ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("p", { className: "eda-muted", children: "\u5B8C\u6574\u9A71\u52A8\u8BF7\u4F7F\u7528\u201C\u751F\u6210\u5B8C\u6574 EDA \u811A\u672C\u201D\u3002\u6269\u5C55\u6309\u542F\u7528\u72B6\u6001\u548C\u987A\u5E8F\u63D2\u5165\u6240\u9009\u9636\u6BB5\u3002" }),
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: "eda-script-layout", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: "eda-script-list", role: "list", "aria-label": "\u9879\u76EE\u811A\u672C", children: [
-        p.scripts.map((row) => /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", { role: "listitem", children: /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("button", { type: "button", className: `eda-script-item${selected === row.id ? " is-selected" : ""}`, "aria-pressed": selected === row.id, onClick: () => setSelected(row.id), children: [
-          /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(FileCodeCorner, { size: 16 }),
-          /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("span", { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("strong", { children: row.name }),
-            /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("small", { children: [
-              labels[row.stage] || row.stage,
-              " \xB7 ",
-              row.kind.toUpperCase(),
-              !row.enabled && " \xB7 \u5DF2\u7981\u7528"
-            ] })
+    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(PagePicker, { className: "eda-mobile-subtab-picker", label: "\u811A\u672C\u7BA1\u7406\u9875\u9762", value: managePage, options: [{ id: "scripts", label: "\u811A\u672C\u5217\u8868\u4E0E\u7F16\u8F91" }, { id: "utilities", label: "\u751F\u6210\u3001\u540C\u6B65\u4E0E\u5BFC\u51FA" }], onChange: (value) => setManagePage(value) }),
+    managePage === "utilities" ? /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_jsx_runtime6.Fragment, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("section", { className: "eda-config-section", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("h3", { children: "\u9ED8\u8BA4\u811A\u672C\u751F\u6210" }),
+        /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: "eda-generate", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("select", { "aria-label": "\u751F\u6210\u811A\u672C\u9636\u6BB5", value: stage, onChange: (event) => setStage(event.target.value), children: ["constraints", "synthesis", "dft", "timing", "pnr", "verification"].map((value) => /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("option", { value, children: labels[value] }, value)) }),
+          /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("button", { type: "button", className: "eda-button is-primary", onClick: () => {
+            void generate();
+          }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(FileCodeCorner, { size: 15 }),
+            "\u751F\u6210\u9ED8\u8BA4\u811A\u672C"
           ] })
-        ] }) }, row.id)),
-        !p.scripts.length && /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Empty, { children: "\u6682\u65E0\u811A\u672C\u3002\u65B0\u5EFA\u3001\u5BFC\u5165\u6216\u4ECE\u8868\u5355\u751F\u6210\u3002" })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("p", { className: "eda-muted", children: "\u751F\u6210\u5355\u9636\u6BB5\u811A\u672C\u9884\u89C8\u5E76\u4FDD\u5B58\u5230\u9879\u76EE\u5DE5\u5177\u7BB1\uFF1B\u5B8C\u6574\u53EF\u8FD0\u884C\u9A71\u52A8\u8BF7\u4F7F\u7528\u201C\u751F\u6210\u9884\u89C8\u201D\u3002" })
       ] }),
-      script && /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("article", { className: "eda-script-editor", "aria-label": "\u811A\u672C\u7F16\u8F91\u5668", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: "eda-form-grid", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Field, { label: "\u811A\u672C\u540D\u79F0", full: true, children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("input", { value: script.name, onChange: (event) => patchScript({ name: event.target.value }) }) }),
-          /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(SelectField, { label: "\u9636\u6BB5", value: script.stage, options: EDA_STAGES.map((stage2) => [stage2, labels[stage2] || stage2]), onChange: (stage2) => patchScript({ stage: stage2 }) }),
-          /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(SelectField, { label: "\u683C\u5F0F", value: script.kind, options: EDA_KINDS, onChange: (kind) => patchScript({ kind }) }),
-          /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(SelectField, { label: "\u811A\u672C\u7528\u9014", value: script.usage || "extension", options: [["extension", "\u9636\u6BB5\u6269\u5C55"], ["driver", "\u72EC\u7ACB\u9A71\u52A8"]], onChange: (usage) => patchScript({ usage }) }),
-          /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(SelectField, { label: "\u5185\u5BB9\u6765\u6E90", value: script.sourceMode || "inline", options: [["inline", "\u9879\u76EE\u5185\u8054\u5185\u5BB9"], ["file", "\u8BFB\u53D6\u767B\u8BB0\u6587\u4EF6"]], onChange: (sourceMode) => patchScript({ sourceMode }) }),
-          /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Field, { label: "\u5173\u8054\u811A\u672C\u8DEF\u5F84\uFF08\u53EF\u9009\uFF09", full: true, children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("input", { value: script.path || "", onChange: (event) => patchScript({ path: event.target.value }) }) })
-        ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: "eda-script-toolbar", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Check2, { label: "\u542F\u7528", value: script.enabled, onChange: (enabled) => patchScript({ enabled }) }),
-          /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: "eda-actions", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("button", { type: "button", className: "eda-icon-button", "aria-label": "\u811A\u672C\u4E0A\u79FB", disabled: p.scripts[0]?.id === script.id, onClick: () => move(-1), children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(ArrowUp, { size: 15 }) }),
-            /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("button", { type: "button", className: "eda-icon-button", "aria-label": "\u811A\u672C\u4E0B\u79FB", disabled: p.scripts.at(-1)?.id === script.id, onClick: () => move(1), children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(ArrowDown, { size: 15 }) }),
-            /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("button", { type: "button", className: "eda-icon-button", "aria-label": "\u4E0B\u8F7D\u811A\u672C", onClick: () => downloadText(script.name, script.content), children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Download, { size: 15 }) }),
-            /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("button", { type: "button", className: "eda-icon-button is-danger", "aria-label": "\u5220\u9664\u5F53\u524D\u811A\u672C", onClick: () => change({ scripts: p.scripts.filter((row) => row.id !== selected).map((row, i) => ({ ...row, sortOrder: i })) }), children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Trash, { size: 15 }) })
-          ] })
-        ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Field, { label: "\u811A\u672C\u5185\u5BB9", full: true, children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("textarea", { className: "eda-code", spellCheck: false, rows: 14, value: script.content, onChange: (event) => patchScript({ content: event.target.value }) }) }),
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("section", { className: "eda-config-section", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("h3", { children: "\u65F6\u5E8F\u540C\u6B65\u4E0E\u6269\u5C55\u5BFC\u51FA" }),
         /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: "eda-actions eda-wrap", children: [
           /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("button", { type: "button", className: "eda-button", onClick: () => {
             void perform(async () => {
-              const result = await request("extract", { content: script.content });
-              setParameters(result.parameters);
-              setValues(Object.fromEntries(result.parameters.map((row) => [row.name, row.value])));
-              notify(`\u5DF2\u63D0\u53D6 ${result.parameters.length} \u4E2A\u53EF\u7F16\u8F91\u53C2\u6570\u3002`);
+              await save();
+              const result = await request("sync_timing");
+              accept(result.project);
+              setSelected(result.script.id);
+              notify(result.status === "customized_preserved" ? result.message : "\u5DF2\u4ECE\u65F6\u5E8F\u8868\u5355\u540C\u6B65 SDC\u3002");
             });
-          }, children: "\u63D0\u53D6\u53EF\u7F16\u8F91\u53C2\u6570" }),
-          script.path && /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_jsx_runtime6.Fragment, { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("button", { type: "button", className: "eda-button", onClick: () => {
-              void perform(async () => {
-                const result = await request("file_read", { path: script.path });
-                patchScript({ content: result.content });
-                notify("\u5DF2\u8BFB\u53D6\u767B\u8BB0\u6587\u4EF6\u5185\u5BB9\uFF0C\u5C1A\u672A\u4FDD\u5B58\u9879\u76EE\u3002");
-              });
-            }, children: "\u8BFB\u53D6\u6587\u4EF6\u5185\u5BB9" }),
-            /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("button", { type: "button", className: "eda-button", onClick: () => {
-              void perform(async () => {
-                await save();
-                const current = await request("file_read", { path: script.path });
-                await request("file_save", { path: script.path, content: script.content, expectedHash: current.sha256 });
-                notify("\u811A\u672C\u6587\u4EF6\u5DF2\u5199\u56DE\u3002");
-              });
-            }, children: "\u5199\u56DE\u767B\u8BB0\u6587\u4EF6" })
-          ] })
-        ] }),
-        !!parameters.length && /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("section", { className: "eda-config-section", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("h3", { children: "\u53C2\u6570\u7F16\u8F91" }),
-          /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", { className: "eda-form-grid", children: parameters.map((row) => /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Field, { label: `${row.name}\uFF08\u7B2C ${row.line} \u884C\uFF09`, children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("input", { value: values[row.name] ?? row.value, onChange: (event) => setValues((current) => ({ ...current, [row.name]: event.target.value })) }) }, row.name)) }),
+          }, children: "\u4ECE\u65F6\u5E8F\u8868\u5355\u540C\u6B65 SDC" }),
           /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("button", { type: "button", className: "eda-button", onClick: () => {
             void perform(async () => {
               await save();
-              const result = await request("apply_parameters", { scriptId: script.id, values });
-              accept(result.project);
-              setParameters(result.parameters);
-              notify("\u53C2\u6570\u5DF2\u5B89\u5168\u5E94\u7528\u5E76\u4FDD\u5B58\uFF1B\u4E0D\u4F1A\u6C42\u503C\u8F93\u5165\u7684 Tcl\u3002");
+              const result = await request("export");
+              notify(`\u5DF2\u5BFC\u51FA\u6709\u5E8F\u811A\u672C\u6269\u5C55\uFF1A${result.directory}`);
             });
-          }, children: "\u5E94\u7528\u53C2\u6570\u5E76\u4FDD\u5B58" })
+          }, children: "\u5BFC\u51FA\u811A\u672C\u6269\u5C55" })
+        ] })
+      ] })
+    ] }) : /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_jsx_runtime6.Fragment, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: "eda-section-heading", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("h3", { children: "\u9879\u76EE\u811A\u672C" }),
+        /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: "eda-actions", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("button", { type: "button", className: "eda-button", "aria-label": "\u5BFC\u5165\u811A\u672C", onClick: () => importRef.current?.click(), children: [
+            /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Upload, { size: 16 }),
+            /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("span", { children: "\u5BFC\u5165\u811A\u672C" })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("button", { type: "button", className: "eda-button", onClick: () => add(), children: [
+            /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Plus, { size: 14 }),
+            "\u65B0\u5EFA"
+          ] })
+        ] })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("input", { hidden: true, type: "file", ref: importRef, accept: ".tcl,.sdc,.do,.sh", onChange: (event) => {
+        const file3 = event.target.files?.[0];
+        if (file3) void perform(async () => {
+          if (file3.size > 4 * 1024 * 1024) throw new Error("\u811A\u672C\u4E0D\u80FD\u8D85\u8FC7 4 MiB");
+          const kind = file3.name.split(".").at(-1);
+          if (!EDA_KINDS.includes(kind)) throw new Error("\u8BF7\u9009\u62E9 Tcl / SDC / DO / Shell \u811A\u672C");
+          add(await file3.text(), file3.name, kind);
+        });
+        event.target.value = "";
+      } }),
+      p.scripts.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(PagePicker, { className: "eda-mobile-script-picker", label: "\u9009\u62E9\u811A\u672C", value: selected, options: p.scripts.map((row) => ({ id: row.id, label: `${row.name} \xB7 ${labels[row.stage] || row.stage}` })), onChange: setSelected }),
+      !p.scripts.length && /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", { className: "eda-mobile-script-empty", children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Empty, { children: "\u6682\u65E0\u811A\u672C\u3002\u65B0\u5EFA\u3001\u5BFC\u5165\u6216\u4ECE\u8868\u5355\u751F\u6210\u3002" }) }),
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: "eda-script-layout", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: "eda-script-list", role: "list", "aria-label": "\u9879\u76EE\u811A\u672C", children: [
+          p.scripts.map((row) => /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", { role: "listitem", children: /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("button", { type: "button", className: `eda-script-item${selected === row.id ? " is-selected" : ""}`, "aria-pressed": selected === row.id, onClick: () => setSelected(row.id), children: [
+            /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(FileCodeCorner, { size: 16 }),
+            /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("span", { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("strong", { children: row.name }),
+              /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("small", { children: [
+                labels[row.stage] || row.stage,
+                " \xB7 ",
+                row.kind.toUpperCase(),
+                !row.enabled && " \xB7 \u5DF2\u7981\u7528"
+              ] })
+            ] })
+          ] }) }, row.id)),
+          !p.scripts.length && /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Empty, { children: "\u6682\u65E0\u811A\u672C\u3002\u65B0\u5EFA\u3001\u5BFC\u5165\u6216\u4ECE\u8868\u5355\u751F\u6210\u3002" })
+        ] }),
+        script && /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("article", { className: "eda-script-editor", "aria-label": "\u811A\u672C\u7F16\u8F91\u5668", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: "eda-form-grid", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Field, { label: "\u811A\u672C\u540D\u79F0", full: true, children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("input", { value: script.name, onChange: (event) => patchScript({ name: event.target.value }) }) }),
+            /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(SelectField, { label: "\u9636\u6BB5", value: script.stage, options: EDA_STAGES.map((stage2) => [stage2, labels[stage2] || stage2]), onChange: (stage2) => patchScript({ stage: stage2 }) }),
+            /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(SelectField, { label: "\u683C\u5F0F", value: script.kind, options: EDA_KINDS, onChange: (kind) => patchScript({ kind }) }),
+            /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(SelectField, { label: "\u811A\u672C\u7528\u9014", value: script.usage || "extension", options: [["extension", "\u9636\u6BB5\u6269\u5C55"], ["driver", "\u72EC\u7ACB\u9A71\u52A8"]], onChange: (usage) => patchScript({ usage }) }),
+            /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(SelectField, { label: "\u5185\u5BB9\u6765\u6E90", value: script.sourceMode || "inline", options: [["inline", "\u9879\u76EE\u5185\u8054\u5185\u5BB9"], ["file", "\u8BFB\u53D6\u767B\u8BB0\u6587\u4EF6"]], onChange: (sourceMode) => patchScript({ sourceMode }) }),
+            /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Field, { label: "\u5173\u8054\u811A\u672C\u8DEF\u5F84\uFF08\u53EF\u9009\uFF09", full: true, children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("input", { value: script.path || "", onChange: (event) => patchScript({ path: event.target.value }) }) })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: "eda-script-toolbar", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Check2, { label: "\u542F\u7528", value: script.enabled, onChange: (enabled) => patchScript({ enabled }) }),
+            /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: "eda-actions", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("button", { type: "button", className: "eda-icon-button", "aria-label": "\u811A\u672C\u4E0A\u79FB", title: "\u4E0A\u79FB", disabled: p.scripts[0]?.id === script.id, onClick: () => move(-1), children: [
+                /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(ArrowUp, { size: 15 }),
+                /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("span", { className: "eda-mobile-action-label", children: "\u4E0A\u79FB" })
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("button", { type: "button", className: "eda-icon-button", "aria-label": "\u811A\u672C\u4E0B\u79FB", title: "\u4E0B\u79FB", disabled: p.scripts.at(-1)?.id === script.id, onClick: () => move(1), children: [
+                /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(ArrowDown, { size: 15 }),
+                /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("span", { className: "eda-mobile-action-label", children: "\u4E0B\u79FB" })
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("button", { type: "button", className: "eda-icon-button", "aria-label": "\u4E0B\u8F7D\u811A\u672C", title: "\u4E0B\u8F7D", onClick: () => downloadText(script.name, script.content), children: [
+                /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Download, { size: 15 }),
+                /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("span", { className: "eda-mobile-action-label", children: "\u4E0B\u8F7D" })
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("button", { type: "button", className: "eda-icon-button is-danger", "aria-label": "\u5220\u9664\u5F53\u524D\u811A\u672C", title: "\u5220\u9664", onClick: () => change({ scripts: p.scripts.filter((row) => row.id !== selected).map((row, i) => ({ ...row, sortOrder: i })) }), children: [
+                /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Trash, { size: 15 }),
+                /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("span", { className: "eda-mobile-action-label", children: "\u5220\u9664" })
+              ] })
+            ] })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Field, { label: "\u811A\u672C\u5185\u5BB9", full: true, children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("textarea", { className: "eda-code", spellCheck: false, rows: 14, value: script.content, onChange: (event) => patchScript({ content: event.target.value }) }) }),
+          /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: "eda-actions eda-wrap", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("button", { type: "button", className: "eda-button", onClick: () => {
+              void perform(async () => {
+                const result = await request("extract", { content: script.content });
+                setParameters(result.parameters);
+                setValues(Object.fromEntries(result.parameters.map((row) => [row.name, row.value])));
+                notify(`\u5DF2\u63D0\u53D6 ${result.parameters.length} \u4E2A\u53EF\u7F16\u8F91\u53C2\u6570\u3002`);
+              });
+            }, children: "\u63D0\u53D6\u53EF\u7F16\u8F91\u53C2\u6570" }),
+            script.path && /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_jsx_runtime6.Fragment, { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("button", { type: "button", className: "eda-button", onClick: () => {
+                void perform(async () => {
+                  const result = await request("file_read", { path: script.path });
+                  patchScript({ content: result.content });
+                  notify("\u5DF2\u8BFB\u53D6\u767B\u8BB0\u6587\u4EF6\u5185\u5BB9\uFF0C\u5C1A\u672A\u4FDD\u5B58\u9879\u76EE\u3002");
+                });
+              }, children: "\u8BFB\u53D6\u6587\u4EF6\u5185\u5BB9" }),
+              /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("button", { type: "button", className: "eda-button", onClick: () => {
+                void perform(async () => {
+                  await save();
+                  const current = await request("file_read", { path: script.path });
+                  await request("file_save", { path: script.path, content: script.content, expectedHash: current.sha256 });
+                  notify("\u811A\u672C\u6587\u4EF6\u5DF2\u5199\u56DE\u3002");
+                });
+              }, children: "\u5199\u56DE\u767B\u8BB0\u6587\u4EF6" })
+            ] })
+          ] }),
+          !!parameters.length && /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("section", { className: "eda-config-section", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("h3", { children: "\u53C2\u6570\u7F16\u8F91" }),
+            /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", { className: "eda-form-grid", children: parameters.map((row) => /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Field, { label: `${row.name}\uFF08\u7B2C ${row.line} \u884C\uFF09`, children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("input", { value: values[row.name] ?? row.value, onChange: (event) => setValues((current) => ({ ...current, [row.name]: event.target.value })) }) }, row.name)) }),
+            /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("button", { type: "button", className: "eda-button", onClick: () => {
+              void perform(async () => {
+                await save();
+                const result = await request("apply_parameters", { scriptId: script.id, values });
+                accept(result.project);
+                setParameters(result.parameters);
+                notify("\u53C2\u6570\u5DF2\u5B89\u5168\u5E94\u7528\u5E76\u4FDD\u5B58\uFF1B\u4E0D\u4F1A\u6C42\u503C\u8F93\u5165\u7684 Tcl\u3002");
+              });
+            }, children: "\u5E94\u7528\u53C2\u6570\u5E76\u4FDD\u5B58" })
+          ] })
         ] })
       ] })
     ] })
-  ] }) : page === "backend" ? /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_jsx_runtime6.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(BackendSettings, { config: p.toolbox, change: (toolbox) => change({ toolbox }) }),
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Field, { label: "\u540E\u7AEF\u811A\u672C\u751F\u6210\u76EE\u5F55\uFF08\u53EF\u9009\uFF09", full: true, children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("input", { value: directory, placeholder: `${p.workspace}/eda-scripts/${p.id}/backend`, onChange: (event) => setDirectory(event.target.value) }) }),
-    p.toolbox.backend.start_mode === "from_netlist" && /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(SelectField, { label: "from_netlist \u9636\u6BB5", value: backendPhase, options: [["preflight", "\u8F93\u5165\u68C0\u67E5\u5E76\u751F\u6210\u62A5\u544A"], ["inventory", "\u521D\u59CB\u5316\u5E76\u76D8\u70B9\u5B8F\u5B9E\u4F8B"], ["floorplan", "\u751F\u6210\u5019\u9009 Floorplan DEF"]], onChange: (value) => setBackendPhase(value) }),
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", { className: "eda-actions", children: /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("button", { type: "button", className: "eda-button is-primary", disabled: !p.toolbox.backend.enabled, onClick: () => {
-      void runGeneration(true, p.toolbox.backend.start_mode === "from_netlist" ? backendPhase : void 0);
+  ] }) : page === "mmmc" ? /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_jsx_runtime6.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(MmmcSettings, { config: p.toolbox, change: (toolbox) => change({ toolbox }) }),
+    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Field, { label: "\u751F\u6210\u76EE\u5F55\uFF08\u53EF\u9009\uFF09", full: true, children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("input", { value: directory, placeholder: `${p.workspace}/eda-scripts/${p.id}/backend`, onChange: (event) => setDirectory(event.target.value) }) }),
+    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", { className: "eda-actions eda-wrap", children: /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("button", { type: "button", className: "eda-button is-primary", onClick: () => {
+      void runGeneration(true, "mmmc", "from_netlist");
     }, children: [
       /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(FileCodeCorner, { size: 15 }),
-      p.toolbox.backend.start_mode === "from_netlist" && backendPhase === "preflight" ? "\u751F\u6210\u540E\u7AEF\u8F93\u5165\u68C0\u67E5\u62A5\u544A" : p.toolbox.backend.start_mode === "from_netlist" && backendPhase === "inventory" ? "\u751F\u6210 init / \u5B8F\u76D8\u70B9\u8BF7\u6C42" : p.toolbox.backend.start_mode === "from_netlist" ? "\u751F\u6210\u5019\u9009 Floorplan \u8BF7\u6C42" : "\u751F\u6210\u5B8C\u6574 Innovus \u540E\u7AEF\u811A\u672C"
+      "\u751F\u6210 MMMC \u914D\u7F6E Tcl \u4E0E\u8F93\u5165\u5FEB\u7167"
     ] }) }),
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("p", { className: "eda-muted", children: "from_netlist \u6309 preflight \u2192 inventory \u2192 \u4EBA\u5DE5\u6838\u5BF9\u5B8F/Pin \u4E0E Core \u2192 candidate DEF \u5206\u9636\u6BB5\u8FDB\u884C\uFF1B\u5019\u9009 DEF \u5FC5\u987B\u7531 Innovus \u68C0\u67E5\u5E76\u5728\u65B0\u4F1A\u8BDD\u6062\u590D\u540E\u624D\u80FD\u7528\u4E8E from_existing_floorplan\u3002\u62A5\u544A/\u811A\u672C\u751F\u6210\u4E0D\u4F1A\u81EA\u52A8\u542F\u52A8 Innovus\u3002" }),
+    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("p", { className: "eda-muted", children: "\u6B64\u64CD\u4F5C\u53EA\u57FA\u4E8E\u5DF2\u586B\u5199\u7684 Liberty\u3001RC \u6A21\u578B\u3001SDC \u548C\u89C6\u56FE\u914D\u7F6E\u751F\u6210 MMMC Tcl \u4E0E\u54C8\u5E0C\u5FEB\u7167\uFF1B\u4E0D\u542F\u52A8 Innovus\uFF0C\u4E5F\u4E0D\u58F0\u79F0\u5DE5\u827A\u89D2\u517C\u5BB9\u6216\u65F6\u5E8F\u8986\u76D6\u5B8C\u6574\u3002" }),
     bundle?.flowStage === "backend" && /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("section", { className: "eda-config-section", children: [
       /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("h3", { children: [
-        "\u751F\u6210\u7ED3\u679C \xB7 ",
+        "MMMC \u751F\u6210\u7ED3\u679C \xB7 ",
         bundle.files.length,
         " \u4E2A\u6587\u4EF6"
       ] }),
       /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("p", { className: "eda-workspace-path", children: bundle.flowDirectory }),
-      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Field, { label: "\u811A\u672C\u6587\u4EF6", full: true, children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("select", { value: file2, onChange: (event) => {
-        setFile(event.target.value);
-        setPreview(bundle.files.find((row) => row.destination === event.target.value)?.content || "");
-      }, children: bundle.files.filter((row) => row.content !== void 0).map((row) => /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("option", { children: row.destination }, row.destination)) }) }),
-      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Field, { label: "\u5185\u5BB9\u9884\u89C8", full: true, children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("textarea", { className: "eda-code", rows: 18, spellCheck: false, value: preview, readOnly: true }) }),
-      /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: "eda-actions eda-wrap", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("button", { type: "button", className: "eda-button", onClick: () => downloadText(file2.split("/").at(-1) || "backend.tcl", preview), children: "\u4E0B\u8F7D\u5F53\u524D\u811A\u672C" }),
-        /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("button", { type: "button", className: "eda-button", onClick: () => downloadText("innovus_backend_manifest.json", JSON.stringify({ files: bundle.files.map(({ content, ...row }) => row), runRequests: bundle.runRequests }, null, 2)), children: "\u4E0B\u8F7D\u8F93\u5165\u6E05\u5355\u548C\u8FD0\u884C\u53C2\u6570" })
-      ] })
-    ] })
-  ] }) : /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_jsx_runtime6.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", { className: "eda-section-heading", children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("h3", { children: "\u751F\u6210\u5B8C\u6574 EDA \u811A\u672C" }) }),
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: "eda-form-grid", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(SelectField, { label: "\u751F\u6210\u6267\u884C\u9636\u6BB5", value: flowStage, options: FLOW_STAGES.filter((stage2) => !stage2.startsWith("mbist_") || p.toolbox.modules.mbist).filter((stage2) => !["drc_check", "pre_insertion", "scan_insertion"].includes(stage2) || p.toolbox.modules.scan).map((stage2) => [stage2, labels[stage2]]), onChange: (value) => setFlowStage(value) }),
-      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(SelectField, { label: "\u672C\u6B21 DRC \u4FEE\u590D\u65B9\u5F0F", value: repair, options: ["none", "clock_only", "clock_reset_set", "reset_set"], onChange: setRepair }),
-      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Field, { label: "\u672C\u6B21\u751F\u6210\u76EE\u5F55\uFF08\u53EF\u9009\uFF09", full: true, children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("input", { value: directory, placeholder: `${p.workspace}/eda-scripts/${p.id}/flow`, onChange: (event) => setDirectory(event.target.value) }) })
-    ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("p", { className: "eda-muted", children: "\u4F7F\u7528\u5F53\u524D\u9879\u76EE\u5DF2\u4FDD\u5B58\u7684 RTL\u3001\u5E93\u3001\u7EA6\u675F\u548C\u6269\u5C55\uFF0C\u751F\u6210\u771F\u5B9E\u8F93\u5165\u5FEB\u7167\u3001\u9A71\u52A8\u548C SHA-256 \u6E05\u5355\u3002\u4E0D\u4F1A\u542F\u52A8 EDA\uFF0C\u5DF2\u6709\u62A5\u544A\u4E0E\u65E5\u5FD7\u4F1A\u4FDD\u7559\u3002" }),
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("button", { type: "button", className: "eda-button is-primary", onClick: () => {
-      void runGeneration();
-    }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(FileCodeCorner, { size: 15 }),
-      "\u751F\u6210\u5B8C\u6574\u811A\u672C\u4E0E\u8F93\u5165\u5FEB\u7167"
-    ] }),
-    bundle && /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("section", { className: "eda-config-section", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("h3", { children: [
-        "\u751F\u6210\u7ED3\u679C \xB7 ",
-        bundle.files.length,
-        " \u4E2A\u6587\u4EF6"
-      ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("p", { className: "eda-workspace-path", children: bundle.flowDirectory }),
-      /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("p", { className: "eda-muted", children: [
-        "\u9879\u76EE\u7248\u672C ",
-        bundle.projectRevision,
-        " \xB7 ",
-        bundle.generationId
-      ] }),
       /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Field, { label: "\u751F\u6210\u6587\u4EF6", full: true, children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("select", { value: file2, onChange: (event) => {
         setFile(event.target.value);
         setPreview(bundle.files.find((row) => row.destination === event.target.value)?.content || "");
       }, children: bundle.files.filter((row) => row.content !== void 0).map((row) => /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("option", { children: row.destination }, row.destination)) }) }),
-      /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("p", { className: "eda-hash", children: [
-        "SHA-256\uFF1A",
-        bundle.files.find((row) => row.destination === file2)?.sha256
-      ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Field, { label: "\u5B9E\u9645\u751F\u6210\u6587\u4EF6\u5185\u5BB9", full: true, children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("textarea", { className: "eda-code", rows: 18, spellCheck: false, value: preview, onChange: (event) => setPreview(event.target.value) }) }),
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Field, { label: "\u6587\u4EF6\u5185\u5BB9\u9884\u89C8", full: true, children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("textarea", { className: "eda-code", rows: 18, spellCheck: false, value: preview, readOnly: true }) }),
       /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: "eda-actions eda-wrap", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("button", { type: "button", className: "eda-button", onClick: () => downloadText(file2.split("/").at(-1) || "script.tcl", preview), children: "\u4E0B\u8F7D\u5F53\u524D\u6587\u4EF6" }),
-        /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("button", { type: "button", className: "eda-button", disabled: !/\.(tcl|sdc|do)$/.test(file2), onClick: () => {
-          void perform(async () => {
-            const original = bundle.files.find((row) => row.destination === file2);
-            const result = await request("generated_edit", { directory: bundle.flowDirectory, destination: file2, content: preview, expectedHash: original.sha256 });
-            accept(result.project);
-            notify("\u4FEE\u6539\u5DF2\u767B\u8BB0\u4E3A\u751F\u6210\u8986\u76D6\uFF1B\u8BF7\u91CD\u65B0\u751F\u6210\u5B8C\u6574\u811A\u672C\u540E\u518D\u8FD0\u884C\u3002");
-          });
-        }, children: "\u4FDD\u5B58\u4E3A\u751F\u6210\u8986\u76D6" })
-      ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("details", { className: "eda-brief", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("summary", { children: "\u8F93\u5165\u6E05\u5355\u4E0E Agent \u6267\u884C\u53C2\u6570" }),
-        /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("pre", { children: JSON.stringify({ files: bundle.files.map(({ content, ...row }) => row), runRequests: bundle.runRequests }, null, 2) })
+        /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("button", { type: "button", className: "eda-button", onClick: () => downloadText(file2.split("/").at(-1) || "generated_mmmc.tcl", preview), children: "\u4E0B\u8F7D\u5F53\u524D\u6587\u4EF6" }),
+        /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("button", { type: "button", className: "eda-button", onClick: () => downloadText("mmmc_manifest.json", JSON.stringify({ files: bundle.files.map(({ content, ...row }) => row), runRequests: bundle.runRequests }, null, 2)), children: "\u4E0B\u8F7D\u6E05\u5355\u548C\u54C8\u5E0C" })
       ] })
+    ] })
+  ] }) : page === "backend" ? /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_jsx_runtime6.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: "eda-section-heading", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("h3", { children: "Innovus \u540E\u7AEF\u5B9E\u73B0" }),
+        /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("p", { children: "\u6309\u6B65\u9AA4\u586B\u5199\u5165\u53E3\u3001Floorplan\u3001\u4F9B\u7535\u3001\u5355\u5143\u548C\u4EA4\u4ED8\u53C2\u6570\uFF1B\u751F\u6210\u4EC5\u4F7F\u7528\u5DF2\u767B\u8BB0\u7684\u771F\u5B9E\u8F93\u5165\u3002" })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Check2, { label: "\u542F\u7528\u540E\u7AEF\u811A\u672C\u751F\u6210", value: p.toolbox.backend.enabled, onChange: (enabled) => change({ toolbox: { ...p.toolbox, backend: { ...p.toolbox.backend, enabled } } }) })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("section", { className: "eda-config-section", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("h3", { children: "\u5DF2\u767B\u8BB0\u7684\u751F\u6210\u8986\u76D6" }),
-      !p.toolbox.tcl_overrides.length && !p.toolbox.source_replacements.length && /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("p", { className: "eda-muted", children: "\u6CA1\u6709\u8986\u76D6\uFF0C\u5168\u90E8\u4F7F\u7528\u5F53\u524D\u914D\u7F6E\u751F\u6210\u3002" }),
-      ["tcl_overrides", "source_replacements"].map((key) => p.toolbox[key].map((row, index) => /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: "eda-override", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("span", { children: [
-          key === "tcl_overrides" ? "\u811A\u672C" : "RTL",
-          "\uFF1A",
-          row.destination,
-          /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("small", { children: row.source })
+    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("nav", { className: "eda-subtabs", role: "tablist", "aria-label": "Innovus \u540E\u7AEF\u914D\u7F6E\u5206\u533A", children: [["inputs", "\u5165\u53E3\u4E0E\u8F93\u5165"], ["floorplan", "Floorplan / \u5B8F"], ["power", "\u7535\u6E90\u4E0E\u5E03\u7EBF"], ["cells", "\u5355\u5143\u4E0E CTS"], ["outputs", "\u8F93\u51FA\u4E0E\u751F\u6210"]].map(([id, label]) => /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("button", { type: "button", role: "tab", "aria-selected": backendPage === id, className: backendPage === id ? "is-selected" : "", onClick: () => setBackendPage(id), children: label }, id)) }),
+    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(PagePicker, { className: "eda-mobile-subtab-picker", label: "Innovus \u914D\u7F6E\u9875\u9762", value: backendPage, options: [{ id: "inputs", label: "\u5165\u53E3\u4E0E\u8F93\u5165" }, { id: "floorplan", label: "Floorplan / \u5B8F" }, { id: "power", label: "\u7535\u6E90\u4E0E\u5E03\u7EBF" }, { id: "cells", label: "\u5355\u5143\u4E0E CTS" }, { id: "outputs", label: "\u8F93\u51FA\u4E0E\u751F\u6210" }], onChange: (value) => setBackendPage(value) }),
+    backendPage === "outputs" ? /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_jsx_runtime6.Fragment, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(BackendSettings, { config: p.toolbox, change: (toolbox) => change({ toolbox }), page: "outputs" }),
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Field, { label: "\u540E\u7AEF\u811A\u672C\u751F\u6210\u76EE\u5F55\uFF08\u53EF\u9009\uFF09", full: true, children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("input", { value: directory, placeholder: `${p.workspace}/eda-scripts/${p.id}/backend`, onChange: (event) => setDirectory(event.target.value) }) }),
+      p.toolbox.backend.start_mode === "from_netlist" ? /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(SelectField, { label: "from_netlist \u9636\u6BB5", value: backendPhase === "full" ? "preflight" : backendPhase, options: [["preflight", "\u8F93\u5165\u68C0\u67E5\u5E76\u751F\u6210\u62A5\u544A"], ["inventory", "\u521D\u59CB\u5316\u5E76\u76D8\u70B9\u5B8F\u5B9E\u4F8B"], ["floorplan", "\u751F\u6210\u5019\u9009 Floorplan DEF"]], onChange: (value) => setBackendPhase(value) }) : /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(SelectField, { label: "from_existing_floorplan \u9636\u6BB5", value: backendPhase === "preflight" ? "preflight" : "full", options: [["preflight", "\u8F93\u5165\u68C0\u67E5\u5E76\u751F\u6210\u62A5\u544A"], ["full", "\u5B8C\u6574 PNR flow"]], onChange: (value) => setBackendPhase(value) }),
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", { className: "eda-actions eda-wrap", children: /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("button", { type: "button", className: "eda-button is-primary", disabled: !p.toolbox.backend.enabled, onClick: () => {
+        void runGeneration(true, p.toolbox.backend.start_mode === "from_netlist" ? backendPhase === "full" ? "preflight" : backendPhase : backendPhase === "preflight" ? "preflight" : void 0, p.toolbox.backend.start_mode);
+      }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(FileCodeCorner, { size: 15 }),
+        p.toolbox.backend.start_mode === "from_netlist" && backendPhase === "preflight" ? "\u751F\u6210\u540E\u7AEF\u8F93\u5165\u68C0\u67E5\u62A5\u544A" : p.toolbox.backend.start_mode === "from_netlist" && backendPhase === "inventory" ? "\u751F\u6210 init / \u5B8F\u76D8\u70B9\u8BF7\u6C42" : p.toolbox.backend.start_mode === "from_netlist" ? "\u751F\u6210\u5019\u9009 Floorplan \u8BF7\u6C42" : backendPhase === "preflight" ? "\u751F\u6210\u540E\u7AEF\u8F93\u5165\u68C0\u67E5\u62A5\u544A" : "\u751F\u6210\u5B8C\u6574 Innovus \u540E\u7AEF\u811A\u672C"
+      ] }) }),
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("p", { className: "eda-muted", children: "from_netlist \u6309 preflight \u2192 inventory \u2192 \u4EBA\u5DE5\u6838\u5BF9\u5B8F/Pin \u4E0E Core \u2192 candidate DEF \u5206\u9636\u6BB5\u8FDB\u884C\uFF1B\u5019\u9009 DEF \u5FC5\u987B\u7531 Innovus \u68C0\u67E5\u5E76\u5728\u65B0\u4F1A\u8BDD\u6062\u590D\u540E\u624D\u80FD\u7528\u4E8E from_existing_floorplan\u3002\u62A5\u544A/\u811A\u672C\u751F\u6210\u4E0D\u4F1A\u81EA\u52A8\u542F\u52A8 Innovus\u3002" }),
+      bundle?.flowStage === "backend" && /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("section", { className: "eda-config-section", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("h3", { children: [
+          "\u751F\u6210\u7ED3\u679C \xB7 ",
+          bundle.files.length,
+          " \u4E2A\u6587\u4EF6"
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("button", { type: "button", className: "eda-icon-button is-danger", "aria-label": `\u79FB\u9664\u8986\u76D6 ${row.destination}`, onClick: () => change({ toolbox: { ...p.toolbox, [key]: p.toolbox[key].filter((_, i) => i !== index) } }), children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Trash, { size: 15 }) })
-      ] }, `${key}-${row.destination}`)))
+        /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("p", { className: "eda-workspace-path", children: bundle.flowDirectory }),
+        /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Field, { label: "\u811A\u672C\u6587\u4EF6", full: true, children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("select", { value: file2, onChange: (event) => {
+          setFile(event.target.value);
+          setPreview(bundle.files.find((row) => row.destination === event.target.value)?.content || "");
+        }, children: bundle.files.filter((row) => row.content !== void 0).map((row) => /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("option", { children: row.destination }, row.destination)) }) }),
+        /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Field, { label: "\u5185\u5BB9\u9884\u89C8", full: true, children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("textarea", { className: "eda-code", rows: 18, spellCheck: false, value: preview, readOnly: true }) }),
+        /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: "eda-actions eda-wrap", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("button", { type: "button", className: "eda-button", onClick: () => downloadText(file2.split("/").at(-1) || "backend.tcl", preview), children: "\u4E0B\u8F7D\u5F53\u524D\u811A\u672C" }),
+          /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("button", { type: "button", className: "eda-button", onClick: () => downloadText("innovus_backend_manifest.json", JSON.stringify({ files: bundle.files.map(({ content, ...row }) => row), runRequests: bundle.runRequests }, null, 2)), children: "\u4E0B\u8F7D\u8F93\u5165\u6E05\u5355\u548C\u8FD0\u884C\u53C2\u6570" })
+        ] })
+      ] })
+    ] }) : /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(BackendSettings, { config: p.toolbox, change: (toolbox) => change({ toolbox }), page: backendPage })
+  ] }) : /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_jsx_runtime6.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("nav", { className: "eda-subtabs", role: "tablist", "aria-label": "\u5B8C\u6574\u811A\u672C\u751F\u6210\u5206\u533A", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("button", { type: "button", role: "tab", "aria-selected": generationPage === "config", className: generationPage === "config" ? "is-selected" : "", onClick: () => setGenerationPage("config"), children: "\u751F\u6210\u914D\u7F6E" }),
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("button", { type: "button", role: "tab", disabled: !bundle, "aria-selected": generationPage === "result", className: generationPage === "result" ? "is-selected" : "", onClick: () => setGenerationPage("result"), children: "\u751F\u6210\u7ED3\u679C\u4E0E\u8986\u76D6" })
+    ] }),
+    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(PagePicker, { className: "eda-mobile-subtab-picker", label: "\u811A\u672C\u751F\u6210\u9875\u9762", value: generationPage, options: [{ id: "config", label: "\u751F\u6210\u914D\u7F6E" }, { id: "result", label: "\u751F\u6210\u7ED3\u679C\u4E0E\u8986\u76D6", disabled: !bundle }], onChange: (value) => setGenerationPage(value) }),
+    generationPage === "config" && /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_jsx_runtime6.Fragment, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", { className: "eda-section-heading", children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("h3", { children: "\u751F\u6210\u5B8C\u6574 EDA \u811A\u672C" }) }),
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: "eda-form-grid", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(SelectField, { label: "\u751F\u6210\u6267\u884C\u9636\u6BB5", value: flowStage, options: FLOW_STAGES.filter((stage2) => !stage2.startsWith("mbist_") || p.toolbox.modules.mbist).filter((stage2) => !["drc_check", "pre_insertion", "scan_insertion"].includes(stage2) || p.toolbox.modules.scan).map((stage2) => [stage2, labels[stage2]]), onChange: (value) => setFlowStage(value) }),
+        /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(SelectField, { label: "\u672C\u6B21 DRC \u4FEE\u590D\u65B9\u5F0F", value: repair, options: ["none", "clock_only", "clock_reset_set", "reset_set"], onChange: setRepair }),
+        /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Field, { label: "\u672C\u6B21\u751F\u6210\u76EE\u5F55\uFF08\u53EF\u9009\uFF09", full: true, children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("input", { value: directory, placeholder: `${p.workspace}/eda-scripts/${p.id}/flow`, onChange: (event) => setDirectory(event.target.value) }) })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("p", { className: "eda-muted", children: "\u4F7F\u7528\u5F53\u524D\u9879\u76EE\u5DF2\u4FDD\u5B58\u7684 RTL\u3001\u5E93\u3001\u7EA6\u675F\u548C\u6269\u5C55\uFF0C\u751F\u6210\u771F\u5B9E\u8F93\u5165\u5FEB\u7167\u3001\u9A71\u52A8\u548C SHA-256 \u6E05\u5355\u3002\u4E0D\u4F1A\u542F\u52A8 EDA\uFF0C\u5DF2\u6709\u62A5\u544A\u4E0E\u65E5\u5FD7\u4F1A\u4FDD\u7559\u3002" }),
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", { className: "eda-actions eda-wrap", children: /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("button", { type: "button", className: "eda-button is-primary", onClick: () => {
+        void runGeneration();
+      }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(FileCodeCorner, { size: 15 }),
+        "\u751F\u6210\u5B8C\u6574\u811A\u672C\u4E0E\u8F93\u5165\u5FEB\u7167"
+      ] }) })
+    ] }),
+    generationPage === "result" && /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_jsx_runtime6.Fragment, { children: [
+      bundle && /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("section", { className: "eda-config-section", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("h3", { children: [
+          "\u751F\u6210\u7ED3\u679C \xB7 ",
+          bundle.files.length,
+          " \u4E2A\u6587\u4EF6"
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("p", { className: "eda-workspace-path", children: bundle.flowDirectory }),
+        /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("p", { className: "eda-muted", children: [
+          "\u9879\u76EE\u7248\u672C ",
+          bundle.projectRevision,
+          " \xB7 ",
+          bundle.generationId
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Field, { label: "\u751F\u6210\u6587\u4EF6", full: true, children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("select", { value: file2, onChange: (event) => {
+          setFile(event.target.value);
+          setPreview(bundle.files.find((row) => row.destination === event.target.value)?.content || "");
+        }, children: bundle.files.filter((row) => row.content !== void 0).map((row) => /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("option", { children: row.destination }, row.destination)) }) }),
+        /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("p", { className: "eda-hash", children: [
+          "SHA-256\uFF1A",
+          bundle.files.find((row) => row.destination === file2)?.sha256
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Field, { label: "\u5B9E\u9645\u751F\u6210\u6587\u4EF6\u5185\u5BB9", full: true, children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("textarea", { className: "eda-code", rows: 18, spellCheck: false, value: preview, onChange: (event) => setPreview(event.target.value) }) }),
+        /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: "eda-actions eda-wrap", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("button", { type: "button", className: "eda-button", onClick: () => downloadText(file2.split("/").at(-1) || "script.tcl", preview), children: "\u4E0B\u8F7D\u5F53\u524D\u6587\u4EF6" }),
+          /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("button", { type: "button", className: "eda-button", disabled: !/\.(tcl|sdc|do)$/.test(file2), onClick: () => {
+            void perform(async () => {
+              const original = bundle.files.find((row) => row.destination === file2);
+              const result = await request("generated_edit", { directory: bundle.flowDirectory, destination: file2, content: preview, expectedHash: original.sha256 });
+              accept(result.project);
+              notify("\u4FEE\u6539\u5DF2\u767B\u8BB0\u4E3A\u751F\u6210\u8986\u76D6\uFF1B\u8BF7\u91CD\u65B0\u751F\u6210\u5B8C\u6574\u811A\u672C\u540E\u518D\u8FD0\u884C\u3002");
+            });
+          }, children: "\u4FDD\u5B58\u4E3A\u751F\u6210\u8986\u76D6" })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("details", { className: "eda-brief", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("summary", { children: "\u8F93\u5165\u6E05\u5355\u4E0E Agent \u6267\u884C\u53C2\u6570" }),
+          /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("pre", { children: JSON.stringify({ files: bundle.files.map(({ content, ...row }) => row), runRequests: bundle.runRequests }, null, 2) })
+        ] })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("section", { className: "eda-config-section", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("h3", { children: "\u5DF2\u767B\u8BB0\u7684\u751F\u6210\u8986\u76D6" }),
+        !p.toolbox.tcl_overrides.length && !p.toolbox.source_replacements.length && /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("p", { className: "eda-muted", children: "\u6CA1\u6709\u8986\u76D6\uFF0C\u5168\u90E8\u4F7F\u7528\u5F53\u524D\u914D\u7F6E\u751F\u6210\u3002" }),
+        ["tcl_overrides", "source_replacements"].map((key) => p.toolbox[key].map((row, index) => /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: "eda-override", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("span", { children: [
+            key === "tcl_overrides" ? "\u811A\u672C" : "RTL",
+            "\uFF1A",
+            row.destination,
+            /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("small", { children: row.source })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("button", { type: "button", className: "eda-icon-button is-danger", "aria-label": `\u79FB\u9664\u8986\u76D6 ${row.destination}`, onClick: () => change({ toolbox: { ...p.toolbox, [key]: p.toolbox[key].filter((_, i) => i !== index) } }), children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Trash, { size: 15 }) })
+        ] }, `${key}-${row.destination}`)))
+      ] })
     ] })
   ] }) });
 }
@@ -21970,7 +22066,7 @@ function ToolboxPanel({ page, project: p, change, save, accept, perform, notify 
 // apps/dsh/src/eda-project/navigation.ts
 var edaSections = [
   { id: "project", label: "\u9879\u76EE\u7BA1\u7406", icon: FolderOpen, description: "\u9879\u76EE\u8D44\u6599\u3001\u76EE\u5F55\u4E0E\u793A\u4F8B\u914D\u7F6E", pages: [{ id: "project", label: "\u57FA\u672C\u4FE1\u606F" }, { id: "paths", label: "\u5DE5\u4F5C\u8DEF\u5F84" }, { id: "documents", label: "\u6587\u6863\u4E0E\u4EFB\u52A1" }, { id: "examples", label: "\u793A\u4F8B\u914D\u7F6E" }] },
-  { id: "scripts", label: "\u811A\u672C\u5DE5\u5177\u7BB1", icon: CodeXml, description: "\u8F93\u5165\u3001\u7EFC\u5408\u7B56\u7565\u3001\u7269\u7406\u5B9E\u73B0\u4E0E\u811A\u672C\u751F\u6210", pages: [{ id: "inputs", label: "\u8BBE\u8BA1\u8F93\u5165" }, { id: "libraries", label: "\u5E93\u4E0E\u5DE5\u51B5" }, { id: "compile", label: "\u7EFC\u5408\u7B56\u7565" }, { id: "reports", label: "\u8F93\u51FA\u4E0E\u62A5\u544A" }, { id: "backend", label: "\u7269\u7406\u5B9E\u73B0" }, { id: "scripts", label: "\u811A\u672C\u7BA1\u7406" }, { id: "generate", label: "\u751F\u6210\u9884\u89C8" }] },
+  { id: "scripts", label: "\u811A\u672C\u5DE5\u5177\u7BB1", icon: CodeXml, description: "\u8F93\u5165\u3001\u7EFC\u5408\u7B56\u7565\u3001MMMC \u914D\u7F6E\u3001\u7269\u7406\u5B9E\u73B0\u4E0E\u811A\u672C\u751F\u6210", pages: [{ id: "inputs", label: "\u8BBE\u8BA1\u8F93\u5165" }, { id: "libraries", label: "\u5E93\u4E0E\u5DE5\u51B5" }, { id: "compile", label: "\u7EFC\u5408\u7B56\u7565" }, { id: "reports", label: "\u8F93\u51FA\u4E0E\u62A5\u544A" }, { id: "backend", label: "\u7269\u7406\u5B9E\u73B0" }, { id: "mmmc", label: "MMMC \u914D\u7F6E" }, { id: "scripts", label: "\u811A\u672C\u7BA1\u7406" }, { id: "generate", label: "\u751F\u6210\u9884\u89C8" }] },
   { id: "timing", label: "\u65F6\u5E8F\u7EA6\u675F", icon: Timer, description: "\u65F6\u949F\u3001I/O\u3001\u7535\u6C14\u7EA6\u675F\u4E0E\u4F8B\u5916\u5BA1\u6279", pages: [{ id: "timing", label: "\u4E3B\u65F6\u949F" }, { id: "timing-source", label: "\u7EA6\u675F\u6765\u6E90" }, { id: "timing-generated", label: "\u6D3E\u751F\u65F6\u949F" }, { id: "timing-io", label: "\u8F93\u5165\u8F93\u51FA" }, { id: "timing-electrical", label: "\u7535\u6C14\u7EA6\u675F" }, { id: "timing-exceptions", label: "\u573A\u666F\u4E0E\u4F8B\u5916" }] },
   { id: "test", label: "DFT \u4E0E\u6D4B\u8BD5", icon: Settings2, description: "\u626B\u63CF\u94FE\u3001\u6D4B\u8BD5\u534F\u8BAE\u4E0E\u5382\u5546\u9002\u914D", pages: [{ id: "test", label: "\u626B\u63CF\u914D\u7F6E" }, { id: "test-protocol", label: "\u6D4B\u8BD5\u534F\u8BAE" }, { id: "test-atpg", label: "ATPG" }, { id: "test-adapters", label: "MBIST \u4E0E\u9002\u914D" }, { id: "test-advanced", label: "\u9636\u6BB5\u6269\u5C55" }] },
   { id: "targets", label: "\u76EE\u6807\u4E0E\u9A8C\u6536", icon: Target, description: "\u6309\u6545\u969C\u6A21\u578B\u3001\u8303\u56F4\u4E0E\u573A\u666F\u8BBE\u7F6E\u9A8C\u6536\u6307\u6807", pages: [{ id: "targets", label: "\u6307\u6807\u76EE\u6807" }] },
@@ -22295,7 +22391,10 @@ function EdaProjectWorkbench({ openSession, openInstance, pickDirectory }) {
           /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(Plus, { size: 14 }),
           "\u65B0\u5EFA\u9879\u76EE"
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("button", { type: "button", className: "eda-icon-button", title: "\u5BFC\u5165\u9879\u76EE\u914D\u7F6E", "aria-label": "\u5BFC\u5165\u9879\u76EE\u914D\u7F6E", disabled: busy, onClick: () => setDialog("import"), children: /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(Upload, { size: 16 }) })
+        /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("button", { type: "button", className: "eda-button", title: "\u5BFC\u5165\u9879\u76EE\u914D\u7F6E", "aria-label": "\u5BFC\u5165\u9879\u76EE\u914D\u7F6E", disabled: busy, onClick: () => setDialog("import"), children: [
+          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(Upload, { size: 16 }),
+          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { children: "\u5BFC\u5165\u914D\u7F6E" })
+        ] })
       ] }),
       project && /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("p", { className: "eda-workspace-path", title: project.workspace, children: [
         /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(FolderOpen, { size: 13 }),
@@ -22318,6 +22417,13 @@ function EdaProjectWorkbench({ openSession, openInstance, pickDirectory }) {
         /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { className: "eda-section-title", children: [
           /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("h2", { children: section.label }),
           /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("p", { children: section.description })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { className: "eda-mobile-navigation", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(PagePicker, { label: "\u5DE5\u4F5C\u53F0\u5206\u533A", value: section.id, options: edaSections.map((group) => ({ id: group.id, label: group.label })), onChange: (id) => {
+            const group = edaSections.find((item) => item.id === id);
+            if (group) navigate(lastPages[group.id] || group.pages[0].id);
+          } }),
+          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(PagePicker, { label: "\u5F53\u524D\u9875\u9762", value: tab, options: section.pages.map((item) => ({ id: item.id, label: item.label })), onChange: navigate })
         ] }),
         /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("nav", { className: "eda-tabs", role: "tablist", "aria-label": `${section.label}\u5206\u9875`, children: section.pages.map((item) => /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("button", { type: "button", role: "tab", id: `eda-tab-${item.id}`, "aria-selected": tab === item.id, "aria-controls": "eda-workbench-panel", tabIndex: tab === item.id ? 0 : -1, onClick: () => navigate(item.id), onKeyDown: (event) => {
           const delta = event.key === "ArrowRight" ? 1 : event.key === "ArrowLeft" ? -1 : 0;
@@ -22420,7 +22526,7 @@ function EdaProjectWorkbench({ openSession, openInstance, pickDirectory }) {
               ] }, target.id);
             }) })
           ] }),
-          ["scripts", "generate", "backend"].includes(tab) && /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(ToolboxPanel, { page: tab === "scripts" ? "manage" : tab === "backend" ? "backend" : "generate", project, change, save: persist, accept: acceptSaved, perform, notify: (text2) => setNotice({ text: text2 }) }, `${project.id}-${tab}`),
+          ["scripts", "generate", "backend", "mmmc"].includes(tab) && /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(ToolboxPanel, { page: tab === "scripts" ? "manage" : tab === "backend" ? "backend" : tab === "mmmc" ? "mmmc" : "generate", project, change, save: persist, accept: acceptSaved, perform, notify: (text2) => setNotice({ text: text2 }) }, `${project.id}-${tab}`),
           tab === "workflow" && /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)(import_jsx_runtime9.Fragment, { children: [
             /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { className: "eda-section-heading", children: [
               /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("h3", { children: "\u9009\u62E9\u901A\u7528\u5DE5\u4F5C\u6D41\u6A21\u677F" }),
@@ -22493,7 +22599,10 @@ function EdaProjectWorkbench({ openSession, openInstance, pickDirectory }) {
     /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("footer", { className: "eda-workbench-footer", children: [
       /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { children: dirty ? "\u6709\u672A\u4FDD\u5B58\u7684\u4FEE\u6539" : project ? `\u9879\u76EE\u914D\u7F6E v${project.revision}` : "\u6BCF\u4E2A\u9879\u76EE\u72EC\u7ACB\u914D\u7F6E" }),
       /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { className: "eda-actions", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("button", { type: "button", className: "eda-icon-button", "aria-label": "\u91CD\u65B0\u8BFB\u53D6\u9879\u76EE\u914D\u7F6E", disabled: busy || !project, onClick: reload, children: /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(RefreshCw, { size: 15 }) }),
+        /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("button", { type: "button", className: "eda-icon-button eda-footer-reload", "aria-label": "\u91CD\u65B0\u8BFB\u53D6\u9879\u76EE\u914D\u7F6E", disabled: busy || !project, onClick: reload, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(RefreshCw, { size: 15 }),
+          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { className: "eda-mobile-action-label", children: "\u91CD\u65B0\u8BFB\u53D6" })
+        ] }),
         /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("button", { type: "button", className: "eda-button is-primary", disabled: busy || !project || !dirty, onClick: () => {
           void perform(async () => {
             await persist();
@@ -22549,11 +22658,12 @@ var edaWorkbenchStyles = `
 .eda-tabs>button:hover{color:var(--eda-blue)}
 .eda-tabs>button[aria-selected=true]{border-bottom-color:var(--eda-blue);color:var(--eda-blue);font-weight:600}
 .eda-tabs small{border-radius:5px;padding:0 4px;font-size:10px;background:var(--dsw-alias-bg-layer-2,#f1f5f9)}
-.eda-workbench-content{min-width:0;min-height:0;flex:1;overflow:auto;overscroll-behavior:contain;padding:20px}
+.eda-workbench-content{min-width:0;min-height:0;flex:1;overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:20px}
 .eda-workbench-fields{border:0;padding:0;margin:0;min-width:0}
-.eda-section-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
-.eda-section-heading>span{font-size:11px;color:var(--eda-muted)}
-.eda-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 12px}
+.eda-section-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap;min-width:0}
+.eda-section-heading>div{min-width:0;flex:1 1 220px}
+.eda-section-heading>span{font-size:11px;color:var(--eda-muted);min-width:0}
+.eda-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 12px;min-width:0}
 .eda-field{display:flex;flex-direction:column;min-width:0;gap:6px;font-size:12px;font-weight:500}
 .eda-field>span{overflow-wrap:anywhere}
 .eda-workbench .is-full{grid-column:1/-1}
@@ -22563,23 +22673,25 @@ var edaWorkbenchStyles = `
 .eda-workbench input[type=number]{font-variant-numeric:tabular-nums}
 .eda-workbench input::placeholder,.eda-workbench textarea::placeholder{color:var(--dsw-alias-label-dimmed,#94a3b8)}
 .eda-workbench :is(input,select,textarea):focus-visible{outline:2px solid color-mix(in srgb,var(--eda-blue) 24%,transparent);border-color:var(--eda-blue);outline-offset:1px}
+.eda-subtabs>button:focus-visible,.eda-button:focus-visible{z-index:1}
 .eda-workbench button:focus-visible,.eda-sidebar-entry:focus-visible{outline:2px solid var(--dsw-alias-state-business-primary,#4176e6);outline-offset:2px}
 .eda-hint{display:flex;gap:10px;padding:12px;border-radius:var(--dsw-radius-md,8px);background:var(--dsw-alias-bg-layer-2,#f1f5f9);color:var(--eda-muted);margin-top:20px;font-size:12px}
 .eda-hint>svg{margin-top:2px}
-.eda-button,.eda-icon-button{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:32px;padding:6px 10px;appearance:none;border:1px solid var(--eda-border);border-radius:var(--dsw-radius-md,8px);background:var(--dsw-alias-bg-layer-3,#fff);color:var(--dsw-alias-label-primary,#172033);font:inherit;font-size:12px;line-height:1.5;white-space:nowrap;cursor:pointer}
+.eda-button,.eda-icon-button{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-width:0;min-height:32px;padding:6px 10px;appearance:none;border:1px solid var(--eda-border);border-radius:var(--dsw-radius-md,8px);background:var(--dsw-alias-bg-layer-3,#fff);color:var(--dsw-alias-label-primary,#172033);font:inherit;font-size:12px;line-height:1.5;text-align:center;white-space:normal;overflow-wrap:anywhere;cursor:pointer}
 .eda-icon-button{width:28px;min-height:28px;padding:4px;border-color:transparent;background:transparent}
 .eda-button:hover,.eda-icon-button:hover{background:var(--dsw-alias-interactive-bg-hover,#edf2fa)}
 .eda-button.is-primary{color:#fff;background:var(--eda-blue);border-color:var(--eda-blue)}
 .eda-button.is-primary:hover{filter:brightness(.96)}
+.eda-button:active{transform:translateY(1px)}
 .eda-icon-button.is-danger{color:var(--dsw-alias-state-error-primary,#d34141)}
 .eda-workbench button:disabled,.eda-workbench fieldset:disabled .eda-button,.eda-workbench fieldset:disabled .eda-icon-button{opacity:.45;cursor:default}
 .eda-workbench :is(input,select,textarea):disabled{opacity:.65}
-.eda-actions{display:flex;align-items:center;gap:4px;flex-shrink:0}
+.eda-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap;min-width:0;max-width:100%}
 .eda-targets{display:flex;flex-direction:column;gap:12px}
 .eda-target{display:flex;flex-direction:column;gap:12px;border:1px solid var(--eda-border);border-radius:var(--dsw-radius-lg,12px);padding:12px}
 .eda-target.is-disabled{background:var(--dsw-alias-bg-layer-2,#f8fafc)}
 .eda-target-heading{display:flex;align-items:center;justify-content:space-between}
-.eda-check{display:flex;align-items:center;gap:6px;font-size:12px;white-space:nowrap}
+.eda-check{display:flex;align-items:center;gap:6px;font-size:12px;white-space:normal;min-width:0}
 .eda-check input{width:14px;height:14px;margin:0;accent-color:var(--eda-blue)}
 .eda-target-value{display:grid;grid-template-columns:minmax(86px,1fr) minmax(70px,1.15fr) minmax(55px,.7fr);gap:8px}
 .eda-targets+.eda-muted{margin-top:16px}
@@ -22587,35 +22699,38 @@ var edaWorkbenchStyles = `
 .eda-notice>span{flex:1;min-width:0;overflow-wrap:anywhere}
 .eda-notice>button{display:flex;flex-shrink:0;background:none;border:0;padding:2px;color:inherit;cursor:pointer}
 .eda-notice.is-error,.eda-error{color:var(--dsw-alias-state-error-primary,#c43434)}
-.eda-generate{display:flex;gap:8px;margin-bottom:8px}
-.eda-generate>select{flex:1}
-.eda-script-layout{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;margin-top:16px}
+.eda-generate{display:flex;align-items:flex-end;flex-wrap:wrap;gap:8px;margin-bottom:8px;min-width:0}
+.eda-generate>select{flex:1 1 180px;min-width:0}
+.eda-generate>.eda-button{flex:0 1 auto}
+.eda-script-layout{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;margin-top:16px;min-width:0}
 .eda-script-list{display:flex;flex-direction:column;gap:4px;max-height:230px;overflow:auto;min-width:0}
 .eda-script-item{display:flex;align-items:center;gap:9px;width:100%;min-width:0;padding:10px;border:1px solid transparent;border-radius:var(--dsw-radius-md,8px);background:transparent;color:inherit;text-align:left;font:inherit;cursor:pointer}
 .eda-script-item>span{min-width:0;display:flex;flex-direction:column;gap:3px}
-.eda-script-item strong{font-size:12px;font-weight:500;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.eda-script-item strong{font-size:12px;font-weight:500;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .eda-script-item small{font-size:11px;color:var(--eda-muted)}
 .eda-script-item:hover{background:var(--dsw-alias-interactive-bg-hover,#edf2fa)}
 .eda-script-item.is-selected{border-color:color-mix(in srgb,var(--eda-blue) 35%,transparent);background:color-mix(in srgb,var(--eda-blue) 8%,transparent);color:var(--eda-blue)}
 .eda-script-editor{display:flex;flex-direction:column;gap:12px;min-width:0;padding-top:16px;border-top:1px solid var(--eda-border)}
-.eda-script-toolbar{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.eda-workbench textarea.eda-code{white-space:pre;tab-size:2;min-height:280px;padding:12px;font-family:var(--dsw-font-mono,ui-monospace,monospace);font-size:12px;line-height:1.7}
+.eda-script-toolbar{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;flex-wrap:wrap;min-width:0}
+.eda-script-toolbar .eda-actions{flex:1 1 auto;justify-content:flex-end}
+.eda-workbench textarea.eda-code{white-space:pre;tab-size:2;min-height:280px;max-width:100%;overflow:auto;overscroll-behavior:contain;padding:12px;font-family:var(--dsw-font-mono,ui-monospace,monospace);font-size:12px;line-height:1.7}
 .eda-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:32px 12px;color:var(--eda-muted);font-size:12px;text-align:center}
 .eda-workflow-actions{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:16px 0 12px}
 .eda-brief{border:1px solid var(--eda-border);border-radius:var(--dsw-radius-md,8px);padding:12px;margin-top:16px}
 .eda-brief summary{font-size:12px;cursor:pointer}
-.eda-brief pre{white-space:pre-wrap;overflow-wrap:anywhere;font:inherit;font-family:var(--dsw-font-mono,monospace);font-size:11px;max-height:360px;overflow:auto;background:var(--dsw-alias-bg-layer-2,#f1f5f9);border-radius:6px;padding:12px}
-.eda-instance{display:flex;align-items:center;gap:8px;border:1px solid var(--eda-border);border-radius:var(--dsw-radius-md,8px);padding:12px;margin-top:16px}
+.eda-brief pre{white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;font:inherit;font-family:var(--dsw-font-mono,monospace);font-size:11px;max-height:360px;overflow:auto;background:var(--dsw-alias-bg-layer-2,#f1f5f9);border-radius:6px;padding:12px}
+.eda-instance{display:flex;align-items:center;flex-wrap:wrap;gap:8px;border:1px solid var(--eda-border);border-radius:var(--dsw-radius-md,8px);padding:12px;margin-top:16px;min-width:0}
 .eda-instance>svg{color:var(--eda-blue)}
-.eda-instance>div{flex:1;min-width:0}
+.eda-instance>div{flex:1 1 180px;min-width:0}
 .eda-instance strong{font-size:12px}
 .eda-instance p{color:var(--eda-muted);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.eda-workbench-footer{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 20px;border-top:1px solid var(--eda-border);background:var(--dsw-alias-bg-layer-1,#fff)}
-.eda-workbench-footer>span{font-size:11px;color:var(--eda-muted);min-width:0}
+.eda-workbench-footer{flex-shrink:0;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;padding:12px 20px;border-top:1px solid var(--eda-border);background:var(--dsw-alias-bg-layer-1,#fff)}
+.eda-workbench-footer .eda-actions{flex:1 1 180px;justify-content:flex-end}
+.eda-workbench-footer>span{font-size:11px;color:var(--eda-muted);min-width:0;flex:1 1 160px;overflow-wrap:anywhere}
 .eda-spin{animation:eda-spin 1s linear infinite}
-.eda-project-selector{display:flex;align-items:end;gap:8px;min-width:0}
-.eda-project-selector>.eda-field{flex:1}
-.eda-project-selector>.eda-button{height:36px;flex-shrink:0}
+.eda-project-selector{display:flex;align-items:flex-end;flex-wrap:wrap;gap:8px;min-width:0}
+.eda-project-selector>.eda-field{flex:1 1 220px;min-width:0}
+.eda-project-selector>.eda-button{height:36px;flex:0 1 auto;max-width:100%}
 .eda-project-actions{margin-bottom:20px}
 .eda-wrap{flex-wrap:wrap;gap:8px;margin:12px 0}
 .eda-path-input{display:flex;gap:8px;min-width:0;width:100%}
@@ -22626,9 +22741,13 @@ var edaWorkbenchStyles = `
 .eda-config-section>h3{margin-bottom:16px}
 .eda-config-row{padding:12px;border:1px solid var(--eda-border);border-radius:var(--dsw-radius-lg,12px);margin:12px 0}
 .eda-module-checks{display:flex;flex-wrap:wrap;gap:16px}
-.eda-subtabs{display:flex;gap:4px;padding:4px;border-radius:var(--dsw-radius-md,8px);background:var(--dsw-alias-bg-layer-2,#f1f5f9);margin-bottom:20px}
-.eda-subtabs>button{flex:1;padding:8px;border:0;border-radius:6px;background:transparent;font:inherit;font-size:12px;color:var(--eda-muted);cursor:pointer}
-.eda-subtabs>button.is-selected{background:var(--dsw-alias-bg-layer-1,#fff);color:var(--eda-blue);box-shadow:0 1px 3px #0000000c}
+.eda-subtabs{display:flex;flex-wrap:nowrap;align-items:flex-end;gap:16px;width:100%;max-width:100%;padding:0;border:0;border-bottom:1px solid var(--eda-border);border-radius:0;background:transparent;margin-bottom:20px;min-width:0;overflow-x:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+.eda-subtabs>button{display:flex;align-items:center;justify-content:center;flex:0 0 auto;min-width:max-content;min-height:46px;padding:11px 6px;border:0;border-bottom:2px solid transparent;border-radius:0;background:transparent;font:inherit;font-size:13px;font-weight:500;line-height:1.35;text-align:center;white-space:nowrap;color:var(--dsw-alias-label-primary,#172033);cursor:pointer;transition:color 120ms ease,border-color 120ms ease}
+.eda-subtabs>button:disabled{opacity:.45;cursor:default}
+.eda-subtabs>button:not(.is-selected):not(:disabled):hover{color:var(--eda-blue)}
+.eda-subtabs>button.is-selected{border-bottom-color:var(--eda-blue);color:var(--eda-blue);font-weight:600}
+.eda-subtabs>button:focus-visible{outline:2px solid var(--eda-blue);outline-offset:-2px}
+@media(prefers-reduced-motion:reduce){.eda-subtabs>button{transition:none}}
 .eda-template-list{display:flex;flex-direction:column;gap:8px;max-height:360px;overflow:auto;margin-bottom:20px}
 .eda-template-item{display:flex;align-items:center;gap:10px;width:100%;padding:12px;border:1px solid var(--eda-border);border-radius:var(--dsw-radius-md,8px);background:var(--dsw-alias-bg-layer-3,#fff);color:inherit;text-align:left;cursor:pointer;font:inherit}
 .eda-template-item>span{min-width:0;flex:1;display:flex;flex-direction:column;gap:4px}
@@ -22643,9 +22762,9 @@ dialog.eda-project-dialog{height:auto;max-height:calc(100dvh - 48px);width:min(6
 dialog.eda-project-dialog:not([open]){display:none}
 dialog.eda-project-dialog::backdrop{background:#10182766;backdrop-filter:blur(3px)}
 .eda-project-dialog form{min-width:0}
-.eda-project-dialog footer{display:flex;justify-content:flex-end;gap:8px;margin-top:24px}
+.eda-project-dialog footer{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px;margin-top:24px}
 .eda-project-dialog .eda-error{margin-top:16px}
-/* Two levels: workspace section rail, then contextual page tabs. */
+/* Responsive two-level navigation: section rail/scroll row, then contextual page tabs. */
 .eda-workbench-body{display:flex;flex:1;min-height:0;min-width:0}
 .eda-section-nav{width:152px;flex:0 0 152px;display:flex;flex-direction:column;gap:5px;padding:18px 10px;border-right:1px solid var(--eda-border);background:var(--dsw-alias-bg-layer-2,#f7f9fc);overflow:auto}
 .eda-nav-caption{font-size:11px;color:var(--eda-muted);padding:2px 10px 12px;white-space:nowrap}
@@ -22656,8 +22775,8 @@ dialog.eda-project-dialog::backdrop{background:#10182766;backdrop-filter:blur(3p
 .eda-section-title{padding:18px 20px 8px;flex-shrink:0}
 .eda-section-title h2{font-size:17px}
 .eda-section-title p{color:var(--eda-muted);font-size:12px;margin-top:3px}
-.eda-tabs{padding:0 14px;overflow-x:auto;scrollbar-width:thin;gap:12px;min-height:46px}
-.eda-tabs>button{flex:0 0 auto;font-size:13px;padding:11px 4px}
+.eda-tabs{padding:0 14px;overflow-x:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;scrollbar-width:thin;gap:12px;min-height:46px}
+.eda-tabs>button{flex:0 0 auto;min-width:max-content;font-size:13px;padding:11px 4px}
 .eda-page-heading{margin-bottom:22px;display:flex;flex-direction:column;gap:5px}
 .eda-page-heading h3{font-size:16px;font-weight:600}
 .eda-page-heading p{font-size:12px;color:var(--eda-muted)}
@@ -22667,7 +22786,7 @@ dialog.eda-project-dialog::backdrop{background:#10182766;backdrop-filter:blur(3p
 .eda-config-section>h3{margin-bottom:12px}
 .eda-config-section ul{padding-left:20px;color:var(--eda-muted);font-size:12px;line-height:1.8}
 .eda-config-section .eda-form-grid{margin-top:14px}
-@container (max-width:600px){.eda-section-nav{width:48px;flex-basis:48px;padding:16px 5px;gap:8px}.eda-section-nav>button{padding:10px;justify-content:center}.eda-section-nav>button>span,.eda-nav-caption{display:none}.eda-section-title{padding:16px 16px 6px}.eda-main .eda-form-grid{grid-template-columns:1fr}.eda-main .eda-workbench-content{padding:18px 16px}.eda-tabs{gap:16px;padding:0 16px}.eda-check-grid{grid-template-columns:1fr}.eda-main .eda-target-value{grid-template-columns:80px minmax(70px,1fr) 60px}}
+@container (max-width:600px){.eda-workbench-body{flex-direction:column}.eda-workbench-header{padding:14px 16px 10px}.eda-heading{flex-wrap:wrap;align-items:flex-start;gap:8px;margin-bottom:10px}.eda-save-state{flex:1 1 100%;margin-left:28px;white-space:normal}.eda-project-selector{align-items:stretch}.eda-project-selector>.eda-field{flex:1 1 100%}.eda-project-selector>.eda-button{flex:1 1 auto}.eda-section-title{padding:14px 16px 6px}.eda-main .eda-form-grid{grid-template-columns:minmax(0,1fr)}.eda-main .eda-workbench-content{padding:16px;-webkit-overflow-scrolling:touch}.eda-check-grid{grid-template-columns:1fr}.eda-main .eda-target-value{grid-template-columns:80px minmax(70px,1fr) 60px}.eda-section-heading .eda-actions{flex:1 1 100%;justify-content:flex-start}.eda-generate>.eda-button{flex:1 1 160px}.eda-workbench-footer{align-items:flex-start;padding:10px 14px}.eda-workbench-footer .eda-actions{justify-content:flex-start}.eda-project-dialog{padding:18px}.eda-project-dialog footer{justify-content:flex-start;flex-wrap:wrap}.eda-project-dialog footer>.eda-button{flex:1 1 120px}.eda-template-list{max-height:min(45dvh,360px)}}
 .eda-tag-field{grid-column:1/-1;display:flex;flex-direction:column;gap:10px;min-width:0}
 .eda-tag-label{font-size:12px;font-weight:500}
 .eda-tags{display:flex;flex-wrap:wrap;gap:8px}
@@ -22677,7 +22796,52 @@ dialog.eda-project-dialog::backdrop{background:#10182766;backdrop-filter:blur(3p
 .eda-option-tag:focus-within{outline:2px solid color-mix(in srgb,var(--eda-blue) 30%,transparent);outline-offset:2px}
 @keyframes eda-spin{to{transform:rotate(360deg)}}
 @container (min-width:760px){.eda-workbench-content{padding:24px 32px}.eda-script-layout{grid-template-columns:210px minmax(0,1fr)}.eda-script-list{max-height:620px}.eda-script-editor{border-top:0;border-left:1px solid var(--eda-border);padding:0 0 0 20px}.eda-targets{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.eda-form-grid{grid-template-columns:repeat(2,minmax(0,1fr));max-width:900px}}
-@container (max-width:340px){.eda-workbench-header{padding:14px 12px 10px}.eda-workbench-content{padding:14px 12px}.eda-tabs{padding:0 8px}.eda-tabs>button{gap:3px;font-size:12px}.eda-tabs small{display:none}.eda-form-grid{grid-template-columns:minmax(0,1fr)}.eda-target-value{gap:4px;grid-template-columns:82px minmax(60px,1fr) 52px}.eda-workbench-footer{padding:10px 12px}}
+@container (max-width:340px){.eda-workbench-header{padding:12px}.eda-workbench-content{padding:12px}.eda-section-nav{padding:6px;gap:3px}.eda-section-nav>button{min-height:34px;padding:7px 8px;font-size:11px}.eda-section-title{padding:12px 12px 5px}.eda-tabs{padding:0 8px;gap:10px}.eda-tabs>button{gap:3px;padding:9px 3px;font-size:12px}.eda-tabs small{display:none}.eda-form-grid{grid-template-columns:minmax(0,1fr)}.eda-target-value{gap:4px;grid-template-columns:82px minmax(60px,1fr) 52px}.eda-workbench-footer{padding:9px 10px}.eda-subtabs>button{flex-basis:calc(50% - 4px);padding:7px 5px;font-size:11px}.eda-actions>.eda-button{flex:1 1 140px}.eda-section-heading{align-items:flex-start}.eda-generate>select{flex-basis:100%}.eda-script-list{max-height:180px}.eda-project-dialog{width:calc(100vw - 20px);padding:14px}.eda-workbench-footer .eda-actions{width:100%}}
+/* Mobile navigation is vertical and explicit: no swipe-only section or page tabs. */
+.eda-mobile-navigation,.eda-mobile-picker,.eda-mobile-action-label,.eda-mobile-script-empty{display:none}
+@container (max-width:600px){
+  .eda-section-nav,.eda-tabs,.eda-subtabs{display:none}
+  .eda-section-title{display:none}
+  .eda-mobile-navigation{display:grid;gap:10px;padding:12px 16px;border-bottom:1px solid var(--eda-border);background:var(--dsw-alias-bg-layer-1,#fff)}
+  .eda-mobile-picker{display:flex;flex-direction:column;gap:6px;min-width:0;width:100%;margin:0}
+  .eda-mobile-picker>span{font-size:14px;font-weight:600;color:var(--dsw-alias-label-primary,#172033)}
+  .eda-mobile-picker select{width:100%;height:50px;min-height:50px;padding:10px 12px;border-radius:var(--dsw-radius-md,8px);font-size:16px;line-height:1.4}
+  .eda-mobile-script-picker{margin-bottom:16px}
+  .eda-mobile-script-empty{display:block;margin-bottom:12px}
+  .eda-mobile-action-label{display:inline}
+  .eda-script-layout{display:block}
+  .eda-script-list{display:none}
+  .eda-script-editor{border-top:0;border-left:0;padding:0}
+  .eda-script-toolbar{flex-direction:column;align-items:stretch;gap:10px}
+  .eda-script-toolbar>.eda-actions{width:100%;justify-content:flex-start;gap:8px}
+  .eda-script-toolbar .eda-icon-button{flex:1 1 auto;min-width:0}
+  .eda-workbench button{min-height:48px;font-size:14px}
+  .eda-workbench .eda-icon-button{min-width:48px;min-height:48px;width:auto;padding:10px 12px;gap:7px}
+  .eda-workbench .eda-button{min-height:48px;padding:10px 14px;font-size:14px}
+  .eda-workbench .eda-field{font-size:14px;gap:8px}
+  .eda-workbench :is(input:not([type=checkbox]):not([type=radio]),select,textarea){min-height:48px;padding:10px 12px;font-size:16px;line-height:1.45}
+  .eda-workbench textarea.eda-code{min-height:320px;font-size:14px;line-height:1.5}
+  .eda-workbench input[type=checkbox],.eda-workbench input[type=radio]{width:20px;height:20px}
+  .eda-check{min-height:44px;font-size:14px;gap:10px}
+  .eda-option-tag{min-height:44px;padding:9px 12px;font-size:13px}
+  .eda-option-tag input{width:18px;height:18px}
+  .eda-main .eda-workbench-content{padding:14px 16px 28px}
+  .eda-workbench-footer{padding:10px 14px;gap:10px}
+  .eda-workbench-footer>span{flex:1 1 100%;font-size:12px}
+  .eda-workbench-footer .eda-actions{width:100%;flex:1 1 100%;justify-content:flex-start;gap:8px}
+  .eda-workbench-footer .eda-actions>.eda-button{flex:1 1 auto}
+  .eda-section-heading{align-items:flex-start;gap:10px}
+  .eda-heading h2{font-size:18px}
+  .eda-heading p,.eda-muted,.eda-section-heading p,.eda-workspace-path{font-size:13px}
+  .eda-save-state{font-size:13px}
+  .eda-config-section ul{font-size:14px;line-height:1.7}
+  .eda-template-item strong,.eda-script-item strong{font-size:15px}
+  .eda-template-item small,.eda-script-item small{font-size:13px}
+  .eda-target-value{grid-template-columns:minmax(0,1fr)}
+  .eda-target-heading .eda-icon-button,.eda-config-row .eda-icon-button,.eda-override .eda-icon-button{min-width:48px;min-height:48px}
+  .eda-project-selector>.eda-button{height:auto;flex:1 1 calc(50% - 8px)}
+  .eda-mobile-picker select:focus-visible,.eda-button:focus-visible,.eda-icon-button:focus-visible{outline:2px solid var(--eda-blue);outline-offset:2px}
+}
 @supports (appearance:base-select){.eda-workbench select,.eda-workbench select::picker(select){appearance:base-select}.eda-workbench select{align-items:center}.eda-workbench select::picker(select){border:1px solid var(--eda-border);border-radius:var(--dsw-radius-lg,12px);background:var(--dsw-alias-bg-layer-3,#fff);color:var(--dsw-alias-label-primary);padding:4px;margin:4px 0;box-shadow:0 8px 24px #00000014;max-height:320px;font:inherit;font-size:13px}.eda-workbench option{padding:7px 10px;min-height:32px;gap:8px;border-radius:var(--dsw-radius-sm,5px)}.eda-workbench option:hover{background:var(--dsw-alias-interactive-bg-hover,#edf2fa)}}
 @media(prefers-reduced-motion:reduce){.eda-spin{animation:none}}
 `;

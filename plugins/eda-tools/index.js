@@ -39,9 +39,9 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 
-// node_modules/.pnpm/isexe@2.0.0/node_modules/isexe/windows.js
+// ../../node_modules/.pnpm/isexe@2.0.0/node_modules/isexe/windows.js
 var require_windows = __commonJS({
-  "node_modules/.pnpm/isexe@2.0.0/node_modules/isexe/windows.js"(exports, module) {
+  "../../node_modules/.pnpm/isexe@2.0.0/node_modules/isexe/windows.js"(exports, module) {
     module.exports = isexe;
     isexe.sync = sync;
     var fs = __require("fs");
@@ -79,9 +79,9 @@ var require_windows = __commonJS({
   }
 });
 
-// node_modules/.pnpm/isexe@2.0.0/node_modules/isexe/mode.js
+// ../../node_modules/.pnpm/isexe@2.0.0/node_modules/isexe/mode.js
 var require_mode = __commonJS({
-  "node_modules/.pnpm/isexe@2.0.0/node_modules/isexe/mode.js"(exports, module) {
+  "../../node_modules/.pnpm/isexe@2.0.0/node_modules/isexe/mode.js"(exports, module) {
     module.exports = isexe;
     isexe.sync = sync;
     var fs = __require("fs");
@@ -112,9 +112,9 @@ var require_mode = __commonJS({
   }
 });
 
-// node_modules/.pnpm/isexe@2.0.0/node_modules/isexe/index.js
+// ../../node_modules/.pnpm/isexe@2.0.0/node_modules/isexe/index.js
 var require_isexe = __commonJS({
-  "node_modules/.pnpm/isexe@2.0.0/node_modules/isexe/index.js"(exports, module) {
+  "../../node_modules/.pnpm/isexe@2.0.0/node_modules/isexe/index.js"(exports, module) {
     var fs = __require("fs");
     var core;
     if (process.platform === "win32" || global.TESTING_WINDOWS) {
@@ -167,9 +167,9 @@ var require_isexe = __commonJS({
   }
 });
 
-// node_modules/.pnpm/which@2.0.2/node_modules/which/which.js
+// ../../node_modules/.pnpm/which@2.0.2/node_modules/which/which.js
 var require_which = __commonJS({
-  "node_modules/.pnpm/which@2.0.2/node_modules/which/which.js"(exports, module) {
+  "../../node_modules/.pnpm/which@2.0.2/node_modules/which/which.js"(exports, module) {
     var isWindows = process.platform === "win32" || process.env.OSTYPE === "cygwin" || process.env.OSTYPE === "msys";
     var path3 = __require("path");
     var COLON = isWindows ? ";" : ":";
@@ -263,9 +263,9 @@ var require_which = __commonJS({
   }
 });
 
-// node_modules/.pnpm/path-key@3.1.1/node_modules/path-key/index.js
+// ../../node_modules/.pnpm/path-key@3.1.1/node_modules/path-key/index.js
 var require_path_key = __commonJS({
-  "node_modules/.pnpm/path-key@3.1.1/node_modules/path-key/index.js"(exports, module) {
+  "../../node_modules/.pnpm/path-key@3.1.1/node_modules/path-key/index.js"(exports, module) {
     "use strict";
     var pathKey = (options = {}) => {
       const environment = options.env || process.env;
@@ -280,9 +280,9 @@ var require_path_key = __commonJS({
   }
 });
 
-// node_modules/.pnpm/cross-spawn@7.0.6/node_modules/cross-spawn/lib/util/resolveCommand.js
+// ../../node_modules/.pnpm/cross-spawn@7.0.6/node_modules/cross-spawn/lib/util/resolveCommand.js
 var require_resolveCommand = __commonJS({
-  "node_modules/.pnpm/cross-spawn@7.0.6/node_modules/cross-spawn/lib/util/resolveCommand.js"(exports, module) {
+  "../../node_modules/.pnpm/cross-spawn@7.0.6/node_modules/cross-spawn/lib/util/resolveCommand.js"(exports, module) {
     "use strict";
     var path3 = __require("path");
     var which = require_which();
@@ -322,9 +322,9 @@ var require_resolveCommand = __commonJS({
   }
 });
 
-// node_modules/.pnpm/cross-spawn@7.0.6/node_modules/cross-spawn/lib/util/escape.js
+// ../../node_modules/.pnpm/cross-spawn@7.0.6/node_modules/cross-spawn/lib/util/escape.js
 var require_escape = __commonJS({
-  "node_modules/.pnpm/cross-spawn@7.0.6/node_modules/cross-spawn/lib/util/escape.js"(exports, module) {
+  "../../node_modules/.pnpm/cross-spawn@7.0.6/node_modules/cross-spawn/lib/util/escape.js"(exports, module) {
     "use strict";
     var metaCharsRegExp = /([()\][%!^"`<>&|;, *?])/g;
     function escapeCommand(arg) {
@@ -347,17 +347,17 @@ var require_escape = __commonJS({
   }
 });
 
-// node_modules/.pnpm/shebang-regex@3.0.0/node_modules/shebang-regex/index.js
+// ../../node_modules/.pnpm/shebang-regex@3.0.0/node_modules/shebang-regex/index.js
 var require_shebang_regex = __commonJS({
-  "node_modules/.pnpm/shebang-regex@3.0.0/node_modules/shebang-regex/index.js"(exports, module) {
+  "../../node_modules/.pnpm/shebang-regex@3.0.0/node_modules/shebang-regex/index.js"(exports, module) {
     "use strict";
     module.exports = /^#!(.*)/;
   }
 });
 
-// node_modules/.pnpm/shebang-command@2.0.0/node_modules/shebang-command/index.js
+// ../../node_modules/.pnpm/shebang-command@2.0.0/node_modules/shebang-command/index.js
 var require_shebang_command = __commonJS({
-  "node_modules/.pnpm/shebang-command@2.0.0/node_modules/shebang-command/index.js"(exports, module) {
+  "../../node_modules/.pnpm/shebang-command@2.0.0/node_modules/shebang-command/index.js"(exports, module) {
     "use strict";
     var shebangRegex = require_shebang_regex();
     module.exports = (string4 = "") => {
@@ -375,9 +375,9 @@ var require_shebang_command = __commonJS({
   }
 });
 
-// node_modules/.pnpm/cross-spawn@7.0.6/node_modules/cross-spawn/lib/util/readShebang.js
+// ../../node_modules/.pnpm/cross-spawn@7.0.6/node_modules/cross-spawn/lib/util/readShebang.js
 var require_readShebang = __commonJS({
-  "node_modules/.pnpm/cross-spawn@7.0.6/node_modules/cross-spawn/lib/util/readShebang.js"(exports, module) {
+  "../../node_modules/.pnpm/cross-spawn@7.0.6/node_modules/cross-spawn/lib/util/readShebang.js"(exports, module) {
     "use strict";
     var fs = __require("fs");
     var shebangCommand = require_shebang_command();
@@ -397,9 +397,9 @@ var require_readShebang = __commonJS({
   }
 });
 
-// node_modules/.pnpm/cross-spawn@7.0.6/node_modules/cross-spawn/lib/parse.js
+// ../../node_modules/.pnpm/cross-spawn@7.0.6/node_modules/cross-spawn/lib/parse.js
 var require_parse = __commonJS({
-  "node_modules/.pnpm/cross-spawn@7.0.6/node_modules/cross-spawn/lib/parse.js"(exports, module) {
+  "../../node_modules/.pnpm/cross-spawn@7.0.6/node_modules/cross-spawn/lib/parse.js"(exports, module) {
     "use strict";
     var path3 = __require("path");
     var resolveCommand = require_resolveCommand();
@@ -459,9 +459,9 @@ var require_parse = __commonJS({
   }
 });
 
-// node_modules/.pnpm/cross-spawn@7.0.6/node_modules/cross-spawn/lib/enoent.js
+// ../../node_modules/.pnpm/cross-spawn@7.0.6/node_modules/cross-spawn/lib/enoent.js
 var require_enoent = __commonJS({
-  "node_modules/.pnpm/cross-spawn@7.0.6/node_modules/cross-spawn/lib/enoent.js"(exports, module) {
+  "../../node_modules/.pnpm/cross-spawn@7.0.6/node_modules/cross-spawn/lib/enoent.js"(exports, module) {
     "use strict";
     var isWin = process.platform === "win32";
     function notFoundError(original, syscall) {
@@ -509,9 +509,9 @@ var require_enoent = __commonJS({
   }
 });
 
-// node_modules/.pnpm/cross-spawn@7.0.6/node_modules/cross-spawn/index.js
+// ../../node_modules/.pnpm/cross-spawn@7.0.6/node_modules/cross-spawn/index.js
 var require_cross_spawn = __commonJS({
-  "node_modules/.pnpm/cross-spawn@7.0.6/node_modules/cross-spawn/index.js"(exports, module) {
+  "../../node_modules/.pnpm/cross-spawn@7.0.6/node_modules/cross-spawn/index.js"(exports, module) {
     "use strict";
     var cp = __require("child_process");
     var parse2 = require_parse();
@@ -536,7 +536,7 @@ var require_cross_spawn = __commonJS({
   }
 });
 
-// node_modules/.pnpm/@deepseek-ai+dsh-mcp-client@0.2.2-rc.1_@deepseek-ai+cordis@4.1.0_@deepseek-ai+dsh-attachment@_d7uuuqz4y3ykfv6nkr6zeil56i/node_modules/@deepseek-ai/dsh-mcp-client/lib/index.js
+// ../../node_modules/.pnpm/@deepseek-ai+dsh-mcp-client@0.2.2-rc.1_@deepseek-ai+cordis@4.1.0_@deepseek-ai+dsh-attachment@_d7uuuqz4y3ykfv6nkr6zeil56i/node_modules/@deepseek-ai/dsh-mcp-client/lib/index.js
 var lib_exports = {};
 __export(lib_exports, {
   Config: () => Config,
@@ -546,7 +546,7 @@ __export(lib_exports, {
   name: () => name
 });
 
-// node_modules/.pnpm/@deepseek-ai+cosmokit@1.9.0/node_modules/@deepseek-ai/cosmokit/lib/index.js
+// ../../node_modules/.pnpm/@deepseek-ai+cosmokit@1.9.0/node_modules/@deepseek-ai/cosmokit/lib/index.js
 function isNullable(value) {
   return value === null || value === void 0;
 }
@@ -807,7 +807,7 @@ var Time;
   Time2.template = template;
 })(Time || (Time = {}));
 
-// node_modules/.pnpm/@deepseek-ai+schemastery@3.19.0/node_modules/@deepseek-ai/schemastery/lib/index.mjs
+// ../../node_modules/.pnpm/@deepseek-ai+schemastery@3.19.0/node_modules/@deepseek-ai/schemastery/lib/index.mjs
 var kSchema = /* @__PURE__ */ Symbol.for("schemastery");
 var kValidationError = /* @__PURE__ */ Symbol.for("ValidationError");
 globalThis.__schemastery_index__ ??= 0;
@@ -1448,7 +1448,7 @@ defineMethod("transform", [
   "preserve"
 ], ({ inner }, isInner) => inner.toString(isInner));
 
-// node_modules/.pnpm/@deepseek-ai+cordis@4.1.0_@deepseek-ai+cordis-plugin-loader@1.1.0/node_modules/@deepseek-ai/cordis/lib/index.js
+// ../../node_modules/.pnpm/@deepseek-ai+cordis@4.1.0_@deepseek-ai+cordis-plugin-loader@1.1.0/node_modules/@deepseek-ai/cordis/lib/index.js
 var DisposableList = class {
   sn = 0;
   map = /* @__PURE__ */ new Map();
@@ -3245,7 +3245,7 @@ var Service = class Service2 {
   }
 };
 
-// node_modules/.pnpm/@deepseek-ai+dsh-scope@0.2.2-rc.1_@deepseek-ai+cordis@4.1.0/node_modules/@deepseek-ai/dsh-scope/lib/index.js
+// ../../node_modules/.pnpm/@deepseek-ai+dsh-scope@0.2.2-rc.1_@deepseek-ai+cordis@4.1.0/node_modules/@deepseek-ai/dsh-scope/lib/index.js
 var NamedEntries = class {
   duplicateError;
   data = /* @__PURE__ */ new Map();
@@ -3448,10 +3448,10 @@ function scopeOf(ctx) {
   return ctx[kScope];
 }
 
-// node_modules/.pnpm/@deepseek-ai+dsh-timeout@0.2.2-rc.1_@deepseek-ai+cordis@4.1.0/node_modules/@deepseek-ai/dsh-timeout/lib/index.js
+// ../../node_modules/.pnpm/@deepseek-ai+dsh-timeout@0.2.2-rc.1_@deepseek-ai+cordis@4.1.0/node_modules/@deepseek-ai/dsh-timeout/lib/index.js
 var MAX_TIMER_DELAY_MS = 2147483647;
 
-// node_modules/.pnpm/@modelcontextprotocol+client@2.2.0/node_modules/@modelcontextprotocol/client/dist/chunk-Br0eD_fh.mjs
+// ../../node_modules/.pnpm/@modelcontextprotocol+client@2.2.0/node_modules/@modelcontextprotocol/client/dist/chunk-Br0eD_fh.mjs
 var __create2 = Object.create;
 var __defProp2 = Object.defineProperty;
 var __getOwnPropDesc2 = Object.getOwnPropertyDescriptor;
@@ -3491,7 +3491,7 @@ var __toESM2 = (mod, isNodeMode, target) => (target = mod != null ? __create2(__
   enumerable: true
 }) : target, mod));
 
-// node_modules/.pnpm/@modelcontextprotocol+client@2.2.0/node_modules/@modelcontextprotocol/client/dist/dialects-BOhdv1Fc.mjs
+// ../../node_modules/.pnpm/@modelcontextprotocol+client@2.2.0/node_modules/@modelcontextprotocol/client/dist/dialects-BOhdv1Fc.mjs
 var DRAFT_2020_12_URIS = /* @__PURE__ */ new Set(["https://json-schema.org/draft/2020-12/schema", "http://json-schema.org/draft/2020-12/schema"]);
 var DRAFT_2019_09_URIS = /* @__PURE__ */ new Set(["https://json-schema.org/draft/2019-09/schema", "http://json-schema.org/draft/2019-09/schema"]);
 var DRAFT_07_URIS = /* @__PURE__ */ new Set(["https://json-schema.org/draft-07/schema", "http://json-schema.org/draft-07/schema"]);
@@ -3508,7 +3508,7 @@ function declaredDialect(schema, remedy) {
   throw new Error(`JSON Schema declares an unsupported dialect ("$schema": "${schema.$schema.slice(0, 200)}"). The default validator supports JSON Schema 2020-12, 2019-09, draft-07, and draft-06; ${remedy}`);
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/util.js
+// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/util.js
 var util_exports = {};
 __export(util_exports, {
   BIGINT_FORMAT_RANGES: () => BIGINT_FORMAT_RANGES,
@@ -4364,7 +4364,7 @@ function constantCatch(value) {
   return fn;
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/core.js
+// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/core.js
 var _a;
 var NEVER = /* @__PURE__ */ Object.freeze({
   status: "aborted"
@@ -4485,7 +4485,7 @@ function config(newConfig) {
   return globalConfig;
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/errors.js
+// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/errors.js
 function _getMessage() {
   const internals = this._zod;
   internals.message ?? (internals.message = JSON.stringify(internals.def, jsonStringifyReplacer, 2));
@@ -4600,7 +4600,7 @@ function formatError(error2, mapper = (issue2) => issue2.message) {
   return fieldErrors;
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/parse.js
+// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/parse.js
 function finalizeParams(callee, params) {
   return { callee: params?.callee ?? callee, Err: params?.Err };
 }
@@ -4748,7 +4748,7 @@ var _safeDecodeAsync = (_Err) => async (schema, value, _ctx) => {
   return _safeParseAsync(_Err)(schema, value, _ctx);
 };
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/regexes.js
+// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/regexes.js
 var cuid = /^[cC][0-9a-z]{6,}$/;
 var cuid2 = /^[0-9a-z]+$/;
 var ulid = /^[0-7][0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{25}$/;
@@ -4808,7 +4808,7 @@ var _null = /^null$/i;
 var lowercase = /^[^A-Z]*$/;
 var uppercase = /^[^a-z]*$/;
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/checks.js
+// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/checks.js
 var $ZodCheck = /* @__PURE__ */ $constructor("$ZodCheck", (inst, def) => {
   var _a3;
   inst._zod ?? (inst._zod = {});
@@ -5128,7 +5128,7 @@ var $ZodCheckOverwrite = /* @__PURE__ */ $constructor("$ZodCheckOverwrite", (ins
   };
 });
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/doc.js
+// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/doc.js
 var Doc = class {
   constructor(args = [], closed = {}) {
     this.content = [];
@@ -5169,14 +5169,14 @@ ${content.join("\n")}
   }
 };
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/versions.js
+// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/versions.js
 var version = {
   major: 4,
   minor: 6,
   patch: 7
 };
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/schemas.js
+// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/schemas.js
 var $ZodType = /* @__PURE__ */ $constructor("$ZodType", (inst, def) => {
   var _a3;
   inst ?? (inst = {});
@@ -6908,7 +6908,7 @@ function handleRefineResult(result, payload, input, inst) {
   }
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/memoizer.js
+// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/memoizer.js
 var $ZodCyclicError = class extends Error {
   constructor() {
     super(`Cannot parse a reference cycle that closes through a transform`);
@@ -7182,7 +7182,7 @@ function isBackEdge(ctx, value) {
   return backEdges !== void 0 && isRef(value) && backEdges.has(value);
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/en.js
+// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/locales/en.js
 var error = () => {
   const Sizable = {
     string: { unit: "characters", verb: "to have" },
@@ -7307,7 +7307,7 @@ function en_default() {
   };
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/registries.js
+// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/registries.js
 var _a2;
 var $ZodRegistry = class {
   constructor() {
@@ -7355,7 +7355,7 @@ function registry() {
 (_a2 = globalThis).__zod_globalRegistry ?? (_a2.__zod_globalRegistry = registry());
 var globalRegistry = globalThis.__zod_globalRegistry;
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/api.js
+// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/api.js
 function snapshotChecks(def) {
   if (def.checks)
     def.checks = [...def.checks];
@@ -7908,7 +7908,7 @@ function _check(fn, params) {
   return ch;
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/to-json-schema.js
+// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/to-json-schema.js
 function assignProps(target, ...sources) {
   for (const source of sources) {
     for (const key of Reflect.ownKeys(source)) {
@@ -8438,7 +8438,7 @@ var createStandardJSONSchemaMethod = (schema, io, processors = {}) => (params) =
   return finalize(ctx, schema);
 };
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/json-schema-processors.js
+// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/json-schema-processors.js
 var narrowMin = (agg, key, value) => {
   if (agg[key] === void 0 || value > agg[key])
     agg[key] = value;
@@ -9186,7 +9186,7 @@ function toJSONSchema(input, params) {
   return finalize(ctx, input);
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/errors.js
+// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/errors.js
 var _installedErrorProtos = /* @__PURE__ */ new WeakSet([Object.prototype, Error.prototype]);
 function _lazyMethod(proto, key, make) {
   Object.defineProperty(proto, key, {
@@ -9231,7 +9231,7 @@ var ZodRealError = /* @__PURE__ */ $constructor("ZodError", initializer2, void 0
   Parent: Error
 });
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/parse.js
+// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/parse.js
 var parse = /* @__PURE__ */ _parse(ZodRealError);
 var parseAsync = /* @__PURE__ */ _parseAsync(ZodRealError);
 var safeParse = /* @__PURE__ */ _safeParse(ZodRealError);
@@ -9245,7 +9245,7 @@ var safeDecode = /* @__PURE__ */ _safeDecode(ZodRealError);
 var safeEncodeAsync = /* @__PURE__ */ _safeEncodeAsync(ZodRealError);
 var safeDecodeAsync = /* @__PURE__ */ _safeDecodeAsync(ZodRealError);
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/schemas.js
+// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/schemas.js
 function _ensureDefaultLocale() {
   if (!globalConfig.localeError)
     config(en_default());
@@ -10279,7 +10279,7 @@ function preprocess(fn, schema) {
   });
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/compat.js
+// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/compat.js
 var ZodIssueCode = {
   invalid_type: "invalid_type",
   too_big: "too_big",
@@ -10297,7 +10297,7 @@ var ZodFirstPartyTypeKind;
 /* @__PURE__ */ (function(ZodFirstPartyTypeKind2) {
 })(ZodFirstPartyTypeKind || (ZodFirstPartyTypeKind = {}));
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/iso.js
+// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/iso.js
 var iso_exports = {};
 __export(iso_exports, {
   ZodISODate: () => ZodISODate,
@@ -10322,7 +10322,7 @@ function duration2(params) {
   return _isoDuration(ZodISODuration, params);
 }
 
-// node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/coerce.js
+// ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/classic/coerce.js
 var coerce_exports = {};
 __export(coerce_exports, {
   bigint: () => bigint2,
@@ -10347,7 +10347,7 @@ function date4(params) {
   return _coercedDate(ZodDate, params);
 }
 
-// node_modules/.pnpm/@modelcontextprotocol+core@2.2.0/node_modules/@modelcontextprotocol/core/dist/auth-BNDyLTqp.mjs
+// ../../node_modules/.pnpm/@modelcontextprotocol+core@2.2.0/node_modules/@modelcontextprotocol/core/dist/auth-BNDyLTqp.mjs
 var LATEST_PROTOCOL_VERSION = "2025-11-25";
 var SUPPORTED_PROTOCOL_VERSIONS = [
   LATEST_PROTOCOL_VERSION,
@@ -11288,7 +11288,7 @@ var OAuthTokenRevocationRequestSchema = object({
   token_type_hint: string2().optional()
 }).strip();
 
-// node_modules/.pnpm/@modelcontextprotocol+client@2.2.0/node_modules/@modelcontextprotocol/client/dist/src-xKF0PJN-.mjs
+// ../../node_modules/.pnpm/@modelcontextprotocol+client@2.2.0/node_modules/@modelcontextprotocol/client/dist/src-xKF0PJN-.mjs
 var BRANDS = /* @__PURE__ */ Symbol.for("mcp.sdk.errorBrands");
 function stampErrorBrands(instance, ctor) {
   const brands = /* @__PURE__ */ new Set();
@@ -16019,7 +16019,7 @@ function createFetchWithInit(baseFetch = fetch, baseInit) {
   };
 }
 
-// node_modules/.pnpm/@modelcontextprotocol+client@2.2.0/node_modules/@modelcontextprotocol/client/dist/ajvProvider-97rDpkRx.mjs
+// ../../node_modules/.pnpm/@modelcontextprotocol+client@2.2.0/node_modules/@modelcontextprotocol/client/dist/ajvProvider-97rDpkRx.mjs
 var require_code$1 = /* @__PURE__ */ __commonJSMin(((exports) => {
   Object.defineProperty(exports, "__esModule", { value: true });
   exports.regexpCode = exports.getEsmExportName = exports.getProperty = exports.safeStringify = exports.stringify = exports.strConcat = exports.addCodeArg = exports.str = exports._ = exports.nil = exports._Code = exports.Name = exports.IDENTIFIER = exports._CodeOrName = void 0;
@@ -23029,10 +23029,10 @@ var AjvJsonSchemaValidator = class {
 };
 var Ajv = import_ajv.Ajv;
 
-// node_modules/.pnpm/@modelcontextprotocol+client@2.2.0/node_modules/@modelcontextprotocol/client/dist/shimsNode.mjs
+// ../../node_modules/.pnpm/@modelcontextprotocol+client@2.2.0/node_modules/@modelcontextprotocol/client/dist/shimsNode.mjs
 var CORS_IS_POSSIBLE = false;
 
-// node_modules/.pnpm/pkce-challenge@5.0.1/node_modules/pkce-challenge/dist/index.node.js
+// ../../node_modules/.pnpm/pkce-challenge@5.0.1/node_modules/pkce-challenge/dist/index.node.js
 var crypto;
 crypto = globalThis.crypto?.webcrypto ?? // Node.js [18-16] REPL
 globalThis.crypto ?? // Node.js >18
@@ -23075,7 +23075,7 @@ async function pkceChallenge(length) {
   };
 }
 
-// node_modules/.pnpm/eventsource-parser@3.1.1/node_modules/eventsource-parser/dist/index.js
+// ../../node_modules/.pnpm/eventsource-parser@3.1.1/node_modules/eventsource-parser/dist/index.js
 var ParseError = class extends Error {
   constructor(message, options) {
     super(message), this.name = "ParseError", this.type = options.type, this.field = options.field, this.value = options.value, this.line = options.line;
@@ -23251,7 +23251,7 @@ function isEventPrefix(chunk, i, firstCharCode) {
   return firstCharCode === 101 && chunk.charCodeAt(i + 1) === 118 && chunk.charCodeAt(i + 2) === 101 && chunk.charCodeAt(i + 3) === 110 && chunk.charCodeAt(i + 4) === 116 && chunk.charCodeAt(i + 5) === 58;
 }
 
-// node_modules/.pnpm/eventsource-parser@3.1.1/node_modules/eventsource-parser/dist/stream.js
+// ../../node_modules/.pnpm/eventsource-parser@3.1.1/node_modules/eventsource-parser/dist/stream.js
 var EventSourceParserStream = class extends TransformStream {
   constructor({ onError, onRetry, onComment, maxBufferSize } = {}) {
     let parser;
@@ -23276,7 +23276,7 @@ var EventSourceParserStream = class extends TransformStream {
   }
 };
 
-// node_modules/.pnpm/@modelcontextprotocol+client@2.2.0/node_modules/@modelcontextprotocol/client/dist/index.mjs
+// ../../node_modules/.pnpm/@modelcontextprotocol+client@2.2.0/node_modules/@modelcontextprotocol/client/dist/index.mjs
 var OAuthClientFlowError = class extends Error {
   static {
     Object.defineProperty(this, "mcpBrand", { value: "mcp.OAuthClientFlowError" });
@@ -27085,7 +27085,7 @@ var StreamableHTTPClientTransport = class {
   }
 };
 
-// node_modules/.pnpm/@deepseek-ai+dsh-util-values@0.2.2-rc.1_@deepseek-ai+cordis@4.1.0/node_modules/@deepseek-ai/dsh-util-values/lib/index.js
+// ../../node_modules/.pnpm/@deepseek-ai+dsh-util-values@0.2.2-rc.1_@deepseek-ai+cordis@4.1.0/node_modules/@deepseek-ai/dsh-util-values/lib/index.js
 var SIMPLE_ESCAPES = {
   '"': '"',
   "\\": "\\",
@@ -27866,7 +27866,7 @@ function deepFreeze(value) {
   return value;
 }
 
-// node_modules/.pnpm/@modelcontextprotocol+client@2.2.0/node_modules/@modelcontextprotocol/client/dist/stdio.mjs
+// ../../node_modules/.pnpm/@modelcontextprotocol+client@2.2.0/node_modules/@modelcontextprotocol/client/dist/stdio.mjs
 var import_cross_spawn = __toESM(require_cross_spawn(), 1);
 import process2 from "node:process";
 import { PassThrough } from "node:stream";
@@ -28078,7 +28078,7 @@ var StdioClientTransport = class {
   }
 };
 
-// node_modules/.pnpm/@deepseek-ai+dsh-http-proxy@0.2.2-rc.1_@deepseek-ai+cordis@4.1.0/node_modules/@deepseek-ai/dsh-http-proxy/lib/index.js
+// ../../node_modules/.pnpm/@deepseek-ai+dsh-http-proxy@0.2.2-rc.1_@deepseek-ai+cordis@4.1.0/node_modules/@deepseek-ai/dsh-http-proxy/lib/index.js
 var POLICY_ENV_NAMES = {
   httpProxy: ["http_proxy", "HTTP_PROXY"],
   httpsProxy: ["https_proxy", "HTTPS_PROXY"],
@@ -28112,7 +28112,7 @@ function proxyEnvironmentForChild() {
   return overlay;
 }
 
-// node_modules/.pnpm/@deepseek-ai+dsh-subprocess@0.2.2-rc.1_@deepseek-ai+cordis@4.1.0_@deepseek-ai+dsh-http-proxy@_zvmorczhuh23y3a2tizupkndp4/node_modules/@deepseek-ai/dsh-subprocess/lib/index.js
+// ../../node_modules/.pnpm/@deepseek-ai+dsh-subprocess@0.2.2-rc.1_@deepseek-ai+cordis@4.1.0_@deepseek-ai+dsh-http-proxy@_zvmorczhuh23y3a2tizupkndp4/node_modules/@deepseek-ai/dsh-subprocess/lib/index.js
 var SENSITIVE_ENV_PATTERN = /KEY|PASSWORD|SECRET|TOKEN/i;
 function scrubbedParentEnv() {
   const env = {};
@@ -28122,11 +28122,11 @@ function scrubbedParentEnv() {
   return env;
 }
 
-// node_modules/.pnpm/@deepseek-ai+dsh-mcp-client@0.2.2-rc.1_@deepseek-ai+cordis@4.1.0_@deepseek-ai+dsh-attachment@_d7uuuqz4y3ykfv6nkr6zeil56i/node_modules/@deepseek-ai/dsh-mcp-client/lib/index.js
+// ../../node_modules/.pnpm/@deepseek-ai+dsh-mcp-client@0.2.2-rc.1_@deepseek-ai+cordis@4.1.0_@deepseek-ai+dsh-attachment@_d7uuuqz4y3ykfv6nkr6zeil56i/node_modules/@deepseek-ai/dsh-mcp-client/lib/index.js
 import { createHash } from "node:crypto";
 import { isDeepStrictEqual } from "node:util";
 
-// node_modules/.pnpm/@deepseek-ai+dsh-attachment@0.2.2-rc.1_@deepseek-ai+cordis@4.1.0_@deepseek-ai+dsh-brand@0.2.2_mqiyiqkapmmj7t4gwpeiyqu5sq/node_modules/@deepseek-ai/dsh-attachment/lib/index.js
+// ../../node_modules/.pnpm/@deepseek-ai+dsh-attachment@0.2.2-rc.1_@deepseek-ai+cordis@4.1.0_@deepseek-ai+dsh-brand@0.2.2_mqiyiqkapmmj7t4gwpeiyqu5sq/node_modules/@deepseek-ai/dsh-attachment/lib/index.js
 import { Buffer as Buffer2 } from "node:buffer";
 var IMAGE_ADMISSION_ERROR_CODES = [
   "TOO_MANY_IMAGES",
@@ -28156,10 +28156,10 @@ function isImageAdmissionError(error2) {
   return error2 instanceof Error && "code" in error2 && typeof error2.code === "string" && IMAGE_ADMISSION_ERROR_CODE_SET.has(error2.code);
 }
 
-// node_modules/.pnpm/@deepseek-ai+dsh-llm@0.2.2-rc.1_@deepseek-ai+cordis@4.1.0/node_modules/@deepseek-ai/dsh-llm/lib/index.js
+// ../../node_modules/.pnpm/@deepseek-ai+dsh-llm@0.2.2-rc.1_@deepseek-ai+cordis@4.1.0/node_modules/@deepseek-ai/dsh-llm/lib/index.js
 import { createRequire } from "node:module";
 
-// node_modules/.pnpm/@deepseek-ai+dsh-typert-protocol@0.2.2-rc.1_@deepseek-ai+cordis@4.1.0/node_modules/@deepseek-ai/dsh-typert-protocol/lib/index.js
+// ../../node_modules/.pnpm/@deepseek-ai+dsh-typert-protocol@0.2.2-rc.1_@deepseek-ai+cordis@4.1.0/node_modules/@deepseek-ai/dsh-typert-protocol/lib/index.js
 var RemoteError = class extends Error {
   code;
   details;
@@ -28303,7 +28303,7 @@ function validateName(subject, value) {
   if (!isTypertRemoteSegment(value)) throw new TypeError(`typert-protocol: ${subject} must contain only RPC endpoint segment characters`);
 }
 
-// node_modules/.pnpm/@deepseek-ai+dsh-llm@0.2.2-rc.1_@deepseek-ai+cordis@4.1.0/node_modules/@deepseek-ai/dsh-llm/lib/index.js
+// ../../node_modules/.pnpm/@deepseek-ai+dsh-llm@0.2.2-rc.1_@deepseek-ai+cordis@4.1.0/node_modules/@deepseek-ai/dsh-llm/lib/index.js
 function freezeMessage(message) {
   return deepFreeze(structuredClone(message));
 }
@@ -29361,7 +29361,7 @@ function detachDirectoryEntry(entry) {
   };
 }
 
-// node_modules/.pnpm/@deepseek-ai+dsh-tools@0.2.2-rc.1_jgkys65yxmks4gexbm2z5hxl7q/node_modules/@deepseek-ai/dsh-tools/lib/shared-DTdn5dXO.js
+// ../../node_modules/.pnpm/@deepseek-ai+dsh-tools@0.2.2-rc.1_jgkys65yxmks4gexbm2z5hxl7q/node_modules/@deepseek-ai/dsh-tools/lib/shared-DTdn5dXO.js
 var ToolExecutorUnavailableError = class extends HarnessError {
   constructor() {
     super("The selected tool executor is unavailable. Load an executor in this composition before running the agent.", "TOOL_EXECUTOR_UNAVAILABLE");
@@ -29658,7 +29658,7 @@ var ToolActivationError = class extends HarnessError {
   }
 };
 
-// node_modules/.pnpm/@deepseek-ai+dsh-tools@0.2.2-rc.1_jgkys65yxmks4gexbm2z5hxl7q/node_modules/@deepseek-ai/dsh-tools/lib/index.js
+// ../../node_modules/.pnpm/@deepseek-ai+dsh-tools@0.2.2-rc.1_jgkys65yxmks4gexbm2z5hxl7q/node_modules/@deepseek-ai/dsh-tools/lib/index.js
 function projectToolSchema(definition, detachParameters) {
   const { name: name3, description, parameters, deferLoading } = definition;
   const detached = detachParameters ? snapshotJsonValue(parameters) : parameters;
@@ -29954,7 +29954,7 @@ var ToolsService = class extends Service {
   }
 };
 
-// node_modules/.pnpm/@deepseek-ai+dsh-mcp-client@0.2.2-rc.1_@deepseek-ai+cordis@4.1.0_@deepseek-ai+dsh-attachment@_d7uuuqz4y3ykfv6nkr6zeil56i/node_modules/@deepseek-ai/dsh-mcp-client/lib/index.js
+// ../../node_modules/.pnpm/@deepseek-ai+dsh-mcp-client@0.2.2-rc.1_@deepseek-ai+cordis@4.1.0_@deepseek-ai+dsh-attachment@_d7uuuqz4y3ykfv6nkr6zeil56i/node_modules/@deepseek-ai/dsh-mcp-client/lib/index.js
 function buildChildEnv(extra2) {
   return {
     ...scrubbedParentEnv(),
@@ -30553,12 +30553,12 @@ async function apply(ctx, config2) {
   if (outcome.error !== void 0 && config2.failOnStartupError) throw new Error(`mcp-client(${config2.serverName}): initial connection or tool synchronization failed`, { cause: outcome.error });
 }
 
-// apps/dsh/src/eda/plugin.ts
+// src/eda/plugin.ts
 import { fileURLToPath } from "node:url";
 import path2 from "node:path";
 import { existsSync, readFileSync } from "node:fs";
 
-// apps/dsh/src/eda/activity.ts
+// src/eda/activity.ts
 import { readFile, readdir } from "node:fs/promises";
 import path from "node:path";
 async function activeEdaJobs(jobsDir, sessionId) {
@@ -30593,7 +30593,7 @@ async function activeEdaJobs(jobsDir, sessionId) {
   return ids;
 }
 
-// apps/dsh/src/eda/plugin.ts
+// src/eda/plugin.ts
 var name2 = "EDA MCP Tool";
 var inject2 = ["tools", "skills"];
 var Config2 = Schema.object({

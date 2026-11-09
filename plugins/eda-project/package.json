@@ -1,8 +1,8 @@
 {
   "name": "@agent-studio/plugin-eda-project",
-  "version": "0.1.0",
+  "version": "0.1.4",
   "type": "module",
-  "description": "按项目保存芯片设计参数、工艺库和工作目录，并生成 EDA 脚本。",
+  "description": "分步骤配置芯片设计、MMMC 与物理后端参数，生成带输入快照的 EDA 脚本。",
   "main": "./index.js",
   "exports": {
     ".": "./index.js",
