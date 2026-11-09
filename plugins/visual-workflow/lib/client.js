@@ -67,6 +67,8 @@ window.__ModuleLoader__.load({
 		* 会话标题不在此定义：官方 agents.create 的会话元信息不接受自定义字段，故不带 label 入参。
 		*/
 		const EP_CREATE_SESSION = "createSession";
+		/** Registered workspace list for choosing a new-session cwd. */
+		const EP_LIST_WORKSPACES = "listWorkspaces";
 		/** 模板列表端点名（角色/任务/数据库三类共用）。 */
 		const EP_LIST_TEMPLATES = "listTemplates";
 		/** 保存模板。 */
@@ -3489,7 +3491,7 @@ window.__ModuleLoader__.load({
 			*  资产态与模板态同口径（用户裁决）：画布内容先转实例再运行；资产详情只提供
 			*  模式/名称/描述/元参数，节点与连线一律取当前画布（编辑中的草稿即事实源）。
 			*/
-			const createInstanceFromCanvas = (0, react.useCallback)(async (afterCreate) => {
+			const createInstanceFromCanvas = (0, react.useCallback)(async (afterCreate, selectedWorkspacePath) => {
 				if (state.currentKind === "workflow" || state.currentKind === "service") {
 					const saved = await saveCanvas();
 					return state.currentKind === "workflow" ? saved : null;
@@ -3498,9 +3500,45 @@ window.__ModuleLoader__.load({
 				const template = instanceSourceOf(state);
 				if (!template) return null;
 				const { newSession } = newSessionOptionsOf(state);
+				if (newSession && !selectedWorkspacePath) {
+					try {
+						const result = await remote.call(EP_LIST_WORKSPACES);
+						const workspaces = Array.isArray(result) ? result.flatMap((item) => {
+							if (typeof item !== "object" || item === null) return [];
+							const row = item;
+							if (typeof row.id !== "string" || typeof row.title !== "string" || typeof row.directory !== "string") return [];
+							return [{
+								id: row.id,
+								title: row.title,
+								directory: row.directory,
+								sessionCount: Number(row.sessionCount) || 0
+							}];
+						}) : [];
+						if (workspaces.length === 0) {
+							notify("info", t.workspaceListEmpty);
+							return null;
+						}
+						dispatch({
+							type: "CONFIRM_SET",
+							confirm: {
+								kind: "workspacePicker",
+								title: t.workspaceSelectTitle,
+								message: t.workspaceSelectMessage,
+								workspaces,
+								onWorkspaceSelected: (directory) => createInstanceFromCanvas(afterCreate, directory)
+							}
+						});
+					} catch (error) {
+						toastError(error);
+					}
+					return null;
+				}
 				let targetSessionId = state.sessionId;
 				if (newSession) try {
-					const created = await remote.call(EP_CREATE_SESSION, { sessionId: state.sessionId });
+					const created = await remote.call(EP_CREATE_SESSION, {
+						sessionId: state.sessionId,
+						workspacePath: selectedWorkspacePath
+					});
 					targetSessionId = String(created?.sessionId ?? "");
 					if (!targetSessionId) throw new Error(t.sessionCreateFailed);
 				} catch (error) {
@@ -13467,6 +13505,28 @@ window.__ModuleLoader__.load({
 												}),
 												/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
 													type: "button",
+													className: "wf-template-batch__action wf-template-batch__delete",
+													title: t.deleteFlow,
+													"aria-label": t.deleteFlow,
+													disabled: !selectedTemplateIdsInMode.length,
+													onClick: () => {
+														props.onDeleteFlowTemplates?.(selectedTemplateIdsInMode);
+														setBatchExportActive(false);
+														setSelectedTemplateIds([]);
+													},
+													children: /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("svg", {
+														viewBox: "0 0 16 16",
+														fill: "none",
+														stroke: "currentColor",
+														strokeWidth: "1.5",
+														strokeLinecap: "round",
+														strokeLinejoin: "round",
+														"aria-hidden": "true",
+														children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("path", { d: "M3 4h10M6 4V2.5h4V4M5 4.5l.7 9h4.6l.7-9" }), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("path", { d: "M6.5 6.5v4M9.5 6.5v4" })]
+													})
+												}),
+												/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+													type: "button",
 													className: "wf-template-batch__action",
 													onClick: () => {
 														setBatchExportActive(false);
@@ -13505,7 +13565,7 @@ window.__ModuleLoader__.load({
 										type: "button",
 										role: section.key === "flowTemplates" && batchExportActive ? "checkbox" : void 0,
 										"aria-checked": section.key === "flowTemplates" && batchExportActive ? selectedTemplateIdSet.has(item.id) : void 0,
-										className: `wf-docitem${item.pinned ? " is-pinned" : ""}${item.active ? " is-active" : ""}${section.key === "flowTemplates" && selectedTemplateIdSet.has(item.id) ? " is-export-selected" : ""}`,
+										className: `wf-docitem${section.key === "flowTemplates" && batchExportActive ? " wf-docitem--batch" : ""}${item.pinned ? " is-pinned" : ""}${item.active ? " is-active" : ""}${section.key === "flowTemplates" && selectedTemplateIdSet.has(item.id) ? " is-export-selected" : ""}`,
 										onClick: section.key === "flowTemplates" && batchExportActive ? () => toggleTemplateSelection(item.id) : void 0,
 										onPointerDown: section.key === "flowTemplates" && batchExportActive ? void 0 : (event) => onBeginDrag(event, item.payload),
 										children: [
@@ -13954,7 +14014,12 @@ window.__ModuleLoader__.load({
 					onClick: onClose,
 					children: copy.importCancel
 				}, "cancel")
-			] : [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+			] : confirm.kind === "workspacePicker" ? [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+				type: "button",
+				className: "wf-btn",
+				onClick: onClose,
+				children: copy.unsavedCancel
+			}, "cancel")] : [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
 				type: "button",
 				className: "wf-btn is-danger",
 				onClick: () => {
@@ -13977,6 +14042,19 @@ window.__ModuleLoader__.load({
 				children: [
 					/* @__PURE__ */ (0, react_jsx_runtime.jsx)("h3", { children: title }),
 					/* @__PURE__ */ (0, react_jsx_runtime.jsx)("p", { children: message }),
+					confirm.kind === "workspacePicker" ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+						className: "wf-workspace-picker__list",
+						children: (confirm.workspaces ?? []).map((workspace) => /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("button", {
+							type: "button",
+							className: "wf-workspace-picker__item",
+							onClick: () => {
+								const handler = confirm.onWorkspaceSelected;
+								onClose();
+								handler?.(workspace.directory);
+							},
+							children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("strong", { children: workspace.title }), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", { children: workspace.directory })]
+						}, workspace.id))
+					}) : null,
 					/* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
 						className: "wf-confirm__actions",
 						children: actions
@@ -16886,6 +16964,7 @@ window.__ModuleLoader__.load({
 				...t,
 				modeName
 			}), [t, modeName]);
+			const [mobilePane, setMobilePane] = (0, react.useState)("canvas");
 			const [routingRevision, setRoutingRevision] = (0, react.useState)(0);
 			const [maxActiveSubagents, setMaxActiveSubagents] = (0, react.useState)(void 0);
 			const [subgraphEditorId, setSubgraphEditorId] = (0, react.useState)(null);
@@ -16953,6 +17032,7 @@ window.__ModuleLoader__.load({
 			]);
 			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
 				className: "wf-root",
+				"data-wf-mobile-pane": mobilePane,
 				children: [
 					/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("nav", {
 						className: "wf-tabs",
@@ -17002,13 +17082,13 @@ window.__ModuleLoader__.load({
 							}),
 							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
 								type: "button",
-								className: "wf-btn is-ghost",
+								className: "wf-btn is-ghost wf-titlebar__import",
 								onClick: () => libraryImportRef.current?.click(),
 								children: t.importWorkflow
 							}),
 							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
 								type: "button",
-								className: "wf-btn is-ghost",
+								className: "wf-btn is-ghost wf-titlebar__export",
 								onClick: () => {
 									transfer.exportCurrent();
 								},
@@ -17047,7 +17127,7 @@ window.__ModuleLoader__.load({
 							}),
 							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
 								type: "button",
-								className: "wf-btn",
+								className: "wf-btn wf-titlebar__scheduler",
 								title: t.scheduler,
 								onClick: () => dispatch({
 									type: "SCHEDULER_OPEN",
@@ -17057,13 +17137,40 @@ window.__ModuleLoader__.load({
 							}),
 							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
 								type: "button",
-								className: "wf-btn",
+								className: "wf-btn wf-titlebar__combos",
 								title: t.combos,
 								onClick: () => dispatch({
 									type: "COMBO_OPEN",
 									open: true
 								}),
 								children: t.combos
+							})
+						]
+					}),
+					/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("nav", {
+						className: "wf-mobile-nav",
+						"aria-label": t.mobileNavLabel,
+						children: [
+							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+								type: "button",
+								"aria-current": mobilePane === "library" ? "page" : void 0,
+								className: mobilePane === "library" ? "is-active" : "",
+								onClick: () => setMobilePane("library"),
+								children: t.mobileLibrary
+							}),
+							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+								type: "button",
+								"aria-current": mobilePane === "canvas" ? "page" : void 0,
+								className: mobilePane === "canvas" ? "is-active" : "",
+								onClick: () => setMobilePane("canvas"),
+								children: t.mobileCanvas
+							}),
+							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+								type: "button",
+								"aria-current": mobilePane === "properties" ? "page" : void 0,
+								className: mobilePane === "properties" ? "is-active" : "",
+								onClick: () => setMobilePane("properties"),
+								children: t.mobileProperties
 							})
 						]
 					}),
@@ -17076,14 +17183,23 @@ window.__ModuleLoader__.load({
 								canvasNodes: state.canvas.nodes,
 								canPlaceNodes: !!state.currentId,
 								onPlaceBasicNode: (kind, position, sourceId) => {
-									const rect = canvasShellRef.current?.getBoundingClientRect();
-									const center = rect ? canvasApiRef.current?.screenToWorld(rect.left + rect.width / 2, rect.top + rect.height / 2) : void 0;
-									canvas.placeBasicNode(kind, position ?? {
-										x: (center?.x ?? 200) - 104,
-										y: (center?.y ?? 200) - 58
-									}, sourceId);
+									const placeAtCenter = (explicitPosition) => {
+										const viewport = canvasShellRef.current?.querySelector(".wf-canvas")?.getBoundingClientRect();
+										const center = viewport && viewport.width > 0 && viewport.height > 0 ? canvasApiRef.current?.screenToWorld(viewport.left + viewport.width / 2, viewport.top + viewport.height / 2) : void 0;
+										canvas.placeBasicNode(kind, explicitPosition ?? {
+											x: (center?.x ?? 200) - 104,
+											y: (center?.y ?? 200) - 58
+										}, sourceId);
+									};
+									if (mobilePane === "library") {
+										setMobilePane("canvas");
+										window.setTimeout(() => placeAtCenter(), 0);
+										return;
+									}
+									placeAtCenter(position);
+									setMobilePane("canvas");
 								},
-								open: leftOpen,
+								open: leftOpen || mobilePane === "library",
 								width: state.panels.leftWidth
 							}),
 							leftOpen ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
@@ -17187,14 +17303,23 @@ window.__ModuleLoader__.load({
 										onNodeDragStart: canvas.onNodeDragStart,
 										onNodeMove: canvas.moveNode,
 										onNodeDropToGroup: canvas.addNodeToGroup,
-										onNodeSelect: (id) => selection.selectNode(id),
+										onNodeSelect: (id) => {
+											selection.selectNode(id);
+											setMobilePane("properties");
+										},
 										onOpenSubgraph: setSubgraphEditorId,
 										onEdgeSelect: (id) => {
-											if (!lockedEdgeIds.has(id)) selection.selectEdge(id);
+											if (!lockedEdgeIds.has(id)) {
+												selection.selectEdge(id);
+												setMobilePane("properties");
+											}
 										},
 										onEdgeEditStart: canvas.rememberGraph,
 										onEdgeAppearanceChange: canvas.setEdgeAppearance,
-										onPaneClick: () => selection.clearSelection(),
+										onPaneClick: () => {
+											selection.clearSelection();
+											setMobilePane("canvas");
+										},
 										onConnect: canvas.onConnect,
 										onConnectionRejected: canvas.onConnectionRejected,
 										onNodeDuplicate: canvas.duplicateSelected,
@@ -17227,7 +17352,7 @@ window.__ModuleLoader__.load({
 								host: textExpandHost,
 								children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)(Inspector, {
 									copy: t,
-									open: inspectorOpen,
+									open: inspectorOpen || mobilePane === "properties",
 									width: state.panels.rightWidth,
 									editorData,
 									presets: state.presets,
@@ -17242,7 +17367,10 @@ window.__ModuleLoader__.load({
 									onDelete: () => {
 										editor.deleteEditor();
 									},
-									onCollapse: selection.clearSelection,
+									onCollapse: () => {
+										selection.clearSelection();
+										setMobilePane("canvas");
+									},
 									maxActiveSubagents,
 									onSave: () => {
 										editor.saveEditor();
@@ -18020,6 +18148,36 @@ window.__ModuleLoader__.load({
 				onSelectWorkflow: doc.selectWorkflow,
 				onSelectFlowTemplate: doc.selectFlowTemplate,
 				onExportFlowTemplates: transfer.exportFlowTemplates,
+				onDeleteFlowTemplates: (ids) => dispatch({
+					type: "CONFIRM_SET",
+					confirm: {
+						kind: "confirmText",
+						title: t.deleteFlow,
+						message: `${t.confirmDelete}（${ids.length}）`,
+						onConfirm: () => {
+							(async () => {
+								for (const id of ids) {
+									if (state.flowTemplates.find((item) => item.id === id)?._draft === true) dispatch({
+										type: "FLOW_TEMPLATE_REMOVED",
+										id
+									});
+									else await flowTemplates.deleteFlowTemplate(id);
+									if (state.currentKind === "flowTemplate" && state.currentId === id) {
+										dispatch({ type: "CLEAR_CANVAS" });
+										dispatch({ type: "CLEAR_SELECTION" });
+									}
+								}
+								notify("info", t.toastDeleted);
+							})().catch((error) => {
+								toastError(error);
+								dispatch({
+									type: "CONFIRM_SET",
+									confirm: null
+								});
+							});
+						}
+					}
+				}),
 				onSelectFlowAsset: selectFlowAsset,
 				onOpenRoleAsset: (id) => {
 					assets.openRoleAsset(id);
@@ -18045,8 +18203,10 @@ window.__ModuleLoader__.load({
 				editor,
 				groupTemplates,
 				instanceRunBadges,
+				flowTemplates,
 				libraryFlows,
 				modeName,
+				notify,
 				parentTemplate,
 				placeRoleAsset,
 				roleTemplates,
@@ -18054,6 +18214,7 @@ window.__ModuleLoader__.load({
 				setLibrarySource,
 				stageKinds,
 				state,
+				toastError,
 				transfer.exportFlowTemplates
 			]);
 			return /* @__PURE__ */ (0, react_jsx_runtime.jsx)(StudioLayout, {
@@ -18120,6 +18281,10 @@ window.__ModuleLoader__.load({
 			studio: "工作台",
 			badge: "可视化编排",
 			note: "拖拽卡片 · 连线编排 · 一键运行",
+			mobileNavLabel: "工作台区域",
+			mobileLibrary: "资源库",
+			mobileCanvas: "画布",
+			mobileProperties: "属性",
 			workbenchInUse: "工作台已在另一个标签页中打开",
 			mode1: "流程编排",
 			mode2: "API服务",
@@ -18532,7 +18697,7 @@ window.__ModuleLoader__.load({
 			unsavedCancel: "取消",
 			importWorkflow: "导入",
 			exportWorkflow: "导出",
-			batchExportTemplates: "多选导出",
+			batchExportTemplates: "多选",
 			selectAllTemplates: "全选",
 			exportSelectedTemplates: "打包导出 ({count})",
 			cancelTemplateSelection: "取消",
@@ -18600,6 +18765,9 @@ window.__ModuleLoader__.load({
 			workspaceHint: "新会话工作区路径（绝对路径目录）；该路径即新会话 cwd，也是沙箱 workspace-write 根；未选择则继承当前会话工作区",
 			sessionWorkingDirectory: "工作目录",
 			workspacePickerUnavailable: "当前环境不支持官方目录选择器，无法选择工作区（未选择时将继承当前会话工作区）",
+			workspaceSelectTitle: "选择新会话工作区",
+			workspaceSelectMessage: "点击一个工作区，新会话将在该目录中创建。",
+			workspaceListEmpty: "当前没有可选工作区。请先在工作区管理中添加工作区。",
 			currentSessionBadge: "当前",
 			overwriteInstanceTitle: "覆盖已有实例",
 			overwriteInstanceMessage: "该会话已绑定一个工作流实例，新运行的工作流将会覆盖旧的工作流（旧实例内容将更新为新模板内容，运行历史保留）。是否继续？",
@@ -18779,6 +18947,10 @@ window.__ModuleLoader__.load({
 			studio: "Workbench",
 			badge: "Visual Orchestration",
 			note: "Drag cards · Wire connections · Run",
+			mobileNavLabel: "Workbench sections",
+			mobileLibrary: "Library",
+			mobileCanvas: "Canvas",
+			mobileProperties: "Properties",
 			workbenchInUse: "The studio is already open in another tab",
 			mode1: "Orchestration Mode",
 			mode2: "Service Mode",
@@ -19183,7 +19355,7 @@ window.__ModuleLoader__.load({
 			unsavedCancel: "Cancel",
 			importWorkflow: "Import",
 			exportWorkflow: "Export",
-			batchExportTemplates: "Select templates",
+			batchExportTemplates: "Multi-select",
 			selectAllTemplates: "Select all",
 			exportSelectedTemplates: "Export package ({count})",
 			cancelTemplateSelection: "Cancel",
@@ -19250,6 +19422,9 @@ window.__ModuleLoader__.load({
 			workspaceHint: "New-session workspace path (absolute directory); it becomes the new-session cwd and the sandbox workspace-write root; unset inherits the current session workspace",
 			sessionWorkingDirectory: "Working directory",
 			workspacePickerUnavailable: "The official directory picker is unavailable in this environment (the current session workspace is inherited when unset)",
+			workspaceSelectTitle: "Choose a workspace for the new session",
+			workspaceSelectMessage: "Select a workspace to create the new session in that directory.",
+			workspaceListEmpty: "There are no available workspaces. Add a workspace in workspace management first.",
 			currentSessionBadge: "Current",
 			overwriteInstanceTitle: "Overwrite existing instance",
 			overwriteInstanceMessage: "This session already holds a workflow instance; the new workflow will overwrite the old one (the old instance content is replaced with the new template content, run history is kept). Continue?",
@@ -21040,8 +21215,12 @@ g.is-locked .wf-graph__edge-hit {
 /* ---- 资源条目（分组 / 条目 / 徽标） ---- */
 .wf-docgroup {
   display: flex;
+  flex-wrap: nowrap;
   align-items: center;
   justify-content: space-between;
+  gap: 4px;
+  overflow-x: auto;
+  scrollbar-width: thin;
   padding: 5px 7px 2px;
   font-size: 10px;
   font-weight: 700;
@@ -21050,7 +21229,19 @@ g.is-locked .wf-graph__edge-hit {
   color: var(--wf-ink-2);
 }
 
+.wf-docgroup > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wf-docgroup > .wf-template-batch__action {
+  margin-left: auto;
+}
+
 .wf-docgroup__add {
+  flex-shrink: 0;
   width: 20px;
   height: 20px;
   min-width: 20px;
@@ -21074,22 +21265,28 @@ g.is-locked .wf-graph__edge-hit {
 
 .wf-template-batch__actions {
   display: flex;
+  flex: 0 0 auto;
+  flex-wrap: nowrap;
   align-items: center;
   gap: 3px;
   margin-left: auto;
 }
 
 .wf-docgroup--batch {
-  flex-wrap: wrap;
+  gap: 2px;
 }
 
-.wf-docgroup--batch .wf-template-batch__actions {
-  width: 100%;
-  justify-content: flex-end;
-  margin: 2px 0 0;
+.wf-docitem.wf-docitem--batch {
+  grid-template-columns: 15px 26px minmax(0, 1fr) auto;
 }
 
 .wf-template-batch__action {
+  flex-shrink: 0;
+  height: 22px;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border: 1px solid var(--wf-border);
   border-radius: 5px;
   background: var(--wf-layer);
@@ -21115,6 +21312,20 @@ g.is-locked .wf-graph__edge-hit {
 .wf-template-batch__action:disabled {
   opacity: .48;
   cursor: default;
+}
+
+.wf-template-batch__delete {
+  width: 24px;
+  height: 22px;
+  padding: 2px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wf-template-batch__delete svg {
+  width: 14px;
+  height: 14px;
 }
 
 /* 可折叠分栏的标题按钮（历史资产 / 历史经验分栏）：与普通标题同排版，只是整体可点。
@@ -21225,7 +21436,7 @@ g.is-locked .wf-graph__edge-hit {
   justify-content: center;
   border: 1px solid var(--wf-border-strong);
   border-radius: 4px;
-  color: #fff;
+  color: var(--wf-on-brand);
   font-size: 10px;
   line-height: 1;
 }
@@ -21975,6 +22186,44 @@ g.is-locked .wf-graph__edge-hit {
   gap: 8px;
   margin-top: 16px;
   flex-wrap: wrap;
+}
+
+.wf-workspace-picker__list {
+  display: grid;
+  gap: 8px;
+  max-height: min(52vh, 420px);
+  overflow: auto;
+  margin-top: 14px;
+}
+
+.wf-workspace-picker__item {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  padding: 11px 12px;
+  border: 1px solid var(--wf-border);
+  border-radius: 9px;
+  background: var(--wf-bg);
+  color: var(--wf-ink);
+  text-align: left;
+  cursor: pointer;
+}
+
+.wf-workspace-picker__item:hover,
+.wf-workspace-picker__item:focus-visible {
+  border-color: var(--wf-brand);
+  background: var(--wf-layer);
+}
+
+.wf-workspace-picker__item strong {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.wf-workspace-picker__item span {
+  overflow-wrap: anywhere;
+  color: var(--wf-ink-2);
+  font-size: 11px;
 }
 
 /* ---- 运行历史弹层 ---- */
@@ -23101,6 +23350,8 @@ button.wf-sidebar-entry:active {
 }
 `,
 			`
+.wf-mobile-nav { display: none; }
+
 /* 官方右侧 Sidebar 自行管理列几何（grid track / 全屏 / 折叠滑动 / 分栏），插件不再触碰官方
    frame 网格与对话主列内边距（0.1.5-rc.1 迁移：浮窗与分栏视图模式已整体删除）。 */
 @media (max-width: 1180px) {
@@ -23133,6 +23384,115 @@ button.wf-sidebar-entry:active {
   .wf-confirm__actions .wf-btn {
     flex: 1;
   }
+
+  /* On phones, choose a workspace section explicitly instead of compressing the three desktop columns. */
+  .wf-root {
+    grid-template-rows: auto 60px minmax(0, 1fr) auto;
+    max-height: 100dvh;
+  }
+
+  .wf-tabs {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-areas: 'title title mode mode' 'import export scheduler combos';
+    gap: 5px;
+    padding: 7px;
+    min-height: 96px;
+    height: auto;
+  }
+
+  .wf-titlebar__title { grid-area: title; align-self: center; font-size: 14px; }
+  .wf-titlebar__badge, .wf-titlebar__note, .wf-titlebar__spacer { display: none; }
+  .wf-titlebar__mode { grid-area: mode; justify-self: end; }
+  .wf-titlebar__import { grid-area: import; }
+  .wf-titlebar__export { grid-area: export; }
+  .wf-titlebar__scheduler { grid-area: scheduler; }
+  .wf-titlebar__combos { grid-area: combos; }
+  .wf-tabs .wf-btn {
+    min-width: 0;
+    min-height: 48px;
+    padding: 8px 5px;
+    font-size: 14px;
+    white-space: normal;
+    text-align: center;
+  }
+
+  .wf-mobile-nav {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+    padding: 6px 8px;
+    background: var(--wf-layer);
+    border-bottom: 1px solid var(--wf-border);
+  }
+
+  .wf-mobile-nav button {
+    min-width: 0;
+    min-height: 48px;
+    border: 1px solid var(--wf-border-strong);
+    border-radius: 10px;
+    background: var(--wf-layer-2);
+    color: var(--wf-ink-2);
+    font-size: 14px;
+    font-weight: 650;
+  }
+
+  .wf-mobile-nav button.is-active {
+    border-color: var(--wf-brand);
+    background: color-mix(in srgb, var(--wf-brand) 12%, var(--wf-layer));
+    color: var(--wf-brand);
+  }
+
+  .wf-main {
+    position: relative;
+    display: block;
+  }
+
+  .wf-docrail, .wf-canvas-shell, .wf-inspector { display: none !important; }
+  .wf-root[data-wf-mobile-pane='library'] .wf-docrail,
+  .wf-root[data-wf-mobile-pane='canvas'] .wf-canvas-shell,
+  .wf-root[data-wf-mobile-pane='properties'] .wf-inspector {
+    position: absolute;
+    inset: 0;
+    width: 100% !important;
+    max-width: none;
+    height: 100%;
+    display: flex !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+  }
+
+  .wf-splitter, .wf-bottom-area { display: none !important; }
+
+  .wf-toolbar {
+    height: auto;
+    min-height: 0;
+    max-height: 202px;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: 7px;
+    gap: 6px;
+  }
+
+  .wf-toolbar > * { flex: 1 1 calc(20% - 6px); min-width: 0; }
+  .wf-toolbar .wf-btn { min-height: 48px; padding: 8px 5px; font-size: 14px; white-space: normal; text-align: center; }
+  .wf-toolbar .wf-toolbar__panels { display: none !important; }
+  .wf-toolbar .wf-layout-control { min-width: 0; justify-content: center; }
+  .wf-toolbar .wf-status, .wf-toolbar .wf-toolbar__switch { flex-basis: 100%; max-width: none; margin-left: 0; min-height: 48px; font-size: 14px; }
+
+  .wf-lib-tabs { padding: 7px 8px 0; gap: 6px; }
+  .wf-lib-tab, .wf-lib-source__tab { min-height: 48px; font-size: 14px; }
+  .wf-lib-search__input { min-height: 48px; font-size: 16px; }
+  .wf-docrail__list { padding: 10px; }
+  .wf-docrail .wf-docitem, .wf-docgroup__toggle { min-height: 48px; font-size: 14px; }
+  .wf-inspector__scroll { padding: 16px; gap: 14px; }
+  .wf-inspector label { font-size: 14px; }
+  .wf-inspector input, .wf-inspector select, .wf-inspector textarea { min-height: 48px; font-size: 16px; }
+  .wf-inspector textarea { min-height: 120px; }
+  .wf-inspector__collapse { width: 48px; height: 48px; }
+  .wf-inspector__footer .wf-btn { min-height: 48px; font-size: 14px; }
 }
 `,
 			`
