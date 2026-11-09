@@ -1,6 +1,6 @@
 {
   "meta": {
     "title": "Codex Coding Assistant",
-    "description": "Codex-inspired shell-first coding with path-verified reads, bounded directory listings, parallel verified inspections, SVG viewing, and resilient search."
+    "description": "Model-aware Codex-style coding prompts: exact OpenAI templates or generic instructions, tool-aware rendering and composition, resourceful execution and global batch editing, verified paths, parallel inspection, bounded directory listings, SVG image reading and resilient search within native DSH permissions and sandboxing."
   }
 }

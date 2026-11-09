@@ -1,18 +1,29 @@
 {
   "name": "@agent-studio/plugin-dsh-codex",
-  "version": "0.1.7",
+  "version": "0.2.8",
   "type": "module",
-  "description": "Codex 编程提示、原生权限沙箱兼容编辑、并行检查、SVG 查看和搜索容错。",
+  "description": "按模型加载 Codex 风格编程提示；全模式仅向模型提供 apply_patch 文本修改，保留 read/glob/grep 检索与 shell rg、并行检查和 SVG 图片读取，遵循 DSH 权限与沙箱。",
   "main": "./index.js",
   "exports": {
     ".": "./index.js",
+    "./global-edit": "./global-file-edit.js",
+    "./global-behavior": "./global-behavior.js",
+    "./prompt-renderer": "./prompt-renderer.js",
+    "./model-prompts": "./model-prompts.js",
     "./package.json": "./package.json",
     "./locale/*.json": "./locale/*.json"
   },
   "files": [
     "index.js",
+    "global-file-edit.js",
+    "global-behavior.js",
+    "prompt-renderer.js",
+    "model-prompts.js",
+    "prompts/**",
     "cordis.patch.yml",
     "README.md",
+    "UPSTREAM_PROMPT_DESIGN.md",
+    "upstream-prompt-design.json",
     "locale/*.json"
   ],
   "engines": {
@@ -24,6 +35,7 @@
     }
   },
   "dependencies": {
+    "@deepseek-ai/schemastery": "3.19.0",
     "sharp": "0.35.5"
   }
 }

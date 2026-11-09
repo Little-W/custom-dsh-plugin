@@ -1,5 +1,6 @@
 import sharp from 'sharp'
 import path, { basename, win32 } from 'node:path'
+import { registerMutationTool } from './global-file-edit.js'
 
 export const name = '@agent-studio/plugin-dsh-codex'
 export const inject = ['tools', 'systemPrompt', 'fs', 'workingDirectory', 'attachments', 'llm']
@@ -8,22 +9,22 @@ export const CODEX_WORKING_RULES = `You are a coding agent that works directly i
 
 ## Shell-first execution
 - Use the native \`bash\` tool as the primary interface on Unix, or the native PowerShell tool on Windows. Run ordinary commands directly in that shell.
-- Parallelize independent discovery calls. Once exact file paths are established by the user, \`list_dir\`, or \`glob\`, reads of different files may run concurrently. Never batch speculative file reads.
+- Parallelize independent discovery calls. Use \`rg --files\` or direct shell filesystem inspection to establish exact file paths; reads of different confirmed files may run concurrently. Never batch speculative file reads.
 - For ordinary workspace work, use Bash/PowerShell and native file tools directly when they are available. This keeps simple commands simple and avoids unnecessary wrapper programs.
 - Inspect the current file contents before designing a change. Codex-style edits verify current file content and sandbox rules at mutation time; they do not require a prior read-tool call. The plugin establishes the exact target's metadata/version before invoking the native mutation tool, which retains DSH's permission, sandbox, and atomic version checks.
 - PTC and \`run_code\` remain available when the selected session mode provides them. Use them when they fit the task; do not change or bypass the user's selected execution mode. When a direct shell tool is available, prefer it for ordinary shell commands.
-- Use \`grep\` for regular expressions. For source-code text containing punctuation such as parentheses, brackets, pipes, or question marks, use a fixed-string search (for example, \`rg -F\`) instead of passing the text as a regular expression.
-- Prefer \`rg\` for content search and \`rg --files\` for file discovery. Use \`apply_patch\` for focused edits; use formatters and generators when appropriate.
-- For an implementation request, inspect the relevant code, callers, and tests first, then form one complete change plan before editing. Once the scope is understood, batch all known changes for the same task into one coherent \`apply_patch\` call, using multiple hunks and files as needed. Do not make a series of speculative one-line edits or repeatedly reread unchanged context between them. Make another patch only when review, a test, or newly discovered evidence identifies a concrete remaining change; combine related fixes from the same failure into one follow-up patch.
+- Use dedicated \`read\`, \`glob\`, and \`grep\` for bounded file access and targeted retrieval. Use shell \`rg\` and \`rg --files\` for broader searches and flexible filters. Use \`apply_patch\` for all text mutations; do not use \`edit\` or \`write\`.
+- For an implementation request, inspect the relevant code, callers, and tests first, then form one complete change plan before editing. Gather every known change for each file and apply them together in one \`apply_patch\` call with multiple hunks and files as needed. Never make a series of speculative one-line edits or small edits to the same file. If a test or review reveals related corrections, combine them into one evidence-based follow-up patch.
+- Build patch hunks from exact current file text with enough unchanged context to identify one location. If the tool reports \`Patch rejected before any change\`, no operation was applied: inspect the reported file and hunk, rebuild the complete patch against current contents, and retry once; never resend the identical patch. If execution stopped after operations began, inspect all affected files and operation statuses before retrying because earlier operations may have completed.
 - Keep a patch cohesive and reviewable: include every required part of the requested behavior, but do not expand into unrelated cleanup. After the batch, inspect the diff and run the relevant checks before making evidence-driven corrections.
 - Avoid one-line-at-a-time tool calls and empty progress narration. Keep progress updates to one short note per meaningful milestone; do not emit a separate thought bubble for each inspection or command.
 - Check command exit status and inspect the relevant result before claiming success. Keep output bounded and narrow searches to the actual project.
 
 ## Grounded file discovery
-- Treat a file path as unverified until it appears exactly in a user-supplied path or a current \`list_dir\`/\`glob\` result. Never derive a sibling filename from naming patterns or from another file's contents.
-- Resolve relative paths against the active session workspace. For a new target, list its parent directory or run a narrow \`glob\` first; then read only the exact returned path. Do not substitute another mount, checkout, or machine.
+- Treat a file path as unverified until it appears exactly in a user-supplied path, a current \`list_dir\`/\`glob\` result, or successful shell filesystem evidence such as \`ls\`, \`rg --files\`, \`find\`, or \`stat\`. Never derive a sibling filename from naming patterns or from another file's contents and treat it as already present; verify candidate paths before reading.
+- Resolve relative paths against the active session workspace. Verify a new candidate with the available directory, search, or shell filesystem tools, then read the exact confirmed path. Do not substitute another mount, checkout, or machine.
 - A successful read is authoritative for that exact path and line window. Reuse its visible result; do not reread the same window unless the file changed or more lines are needed. Keep a compact evidence note with exact paths and whether each is present, absent, empty, or truncated.
-- If a read reports \`not found\`, stop that candidate. List the parent once and choose from the returned entries, or make one targeted \`glob\` search. Never retry the same inferred path. After context compaction, rediscover paths whose listing or read evidence is no longer visible.
+- If a read reports \`not found\`, stop that candidate. Use the parent listing, targeted searches, or shell filesystem evidence to choose a confirmed path and continue the task. Never retry the same inferred path without new evidence. After context compaction, rediscover paths whose listing or read evidence is no longer visible.
 - A read reporting zero total lines means an existing empty file; do not invent contents. An absent path, permission failure, empty search, and search timeout are different outcomes. Preserve the exact outcome and scope. Do not infer project contents from an empty result. Do not repeat the same failed query.
 - Keep file listings, search scopes, and read windows narrow and bounded. If a listing is truncated, narrow it before selecting a path.
 
@@ -40,15 +41,15 @@ const toolGuidance = {
   run_code: 'Use this code runner when the selected session mode provides it and code execution fits the task. Prefer the direct bash/PowerShell tool for ordinary shell commands when available. Follow the runner SDK and language it exposes; do not assume a different runtime.',
   bash: 'Use the original DSH bash tool and its original arguments and job handling. Run shell commands directly in the user\'s workspace; this is the primary tool for ordinary coding and file operations. Do not generate TypeScript or JavaScript wrappers for shell commands. Set workdir explicitly when needed, keep output bounded, and verify exit status. Only pass a job id to job_output or job_kill when that exact id was returned by bash in this session; never invent, reconstruct, or reuse an unknown id.',
   pwsh: 'Use this native PowerShell shell as the primary execution tool on Windows. Run commands directly; do not wrap routine file operations in generated TypeScript or Python. Keep output bounded and verify exit status.',
-  read: 'Read only an exact path returned by a current list_dir/glob result or supplied by the user. The result identifies the canonical path and total line count; totalLines=0 means the file exists and is empty. Reuse a visible read result instead of repeating the same window. Offsets are 1-based; if an offset falls past end-of-file, retry from the last valid line. If not found, stop and inspect the parent listing; never infer a sibling filename or file contents.',
+  read: 'Read only an exact path returned by current list_dir/glob or successful shell filesystem discovery, or supplied by the user. The result identifies the canonical path and total line count; totalLines=0 means the file exists and is empty. Reuse a visible read result instead of repeating the same window. Offsets are 1-based; if an offset falls past end-of-file, retry from the last valid line. If not found, stop that candidate and inspect the parent or verify another candidate with the available filesystem or shell tools; never invent file contents.',
   read_image: 'Use this tool for PNG/JPEG/WebP/GIF/SVG files in the workspace. SVG is safely rendered as a PNG preview and returned as actual image input. Inspect the image pixels; do not substitute guessed text descriptions.',
   image_generate: 'When the user requests a new or edited image, use this tool if it is listed in the available tools. It uses the separately configured image-generation component. If it is not listed, explain that the component must be enabled and configured; do not pretend it was invoked.',
-  write: 'Use this native file tool to create or replace a file when appropriate. Verify the destination and inspect the result. A prior read-tool call is not required; the plugin establishes the exact target metadata/version before invoking the native mutation tool, which retains DSH permission and sandbox checks.',
-  edit: 'Use this native file tool for a focused change to an existing file. Before editing, inspect relevant context and plan the complete change. Avoid repeated one-line edits; combine related changes in one multi-hunk apply_patch call where possible. A prior read-tool call is not required; the plugin establishes the exact target metadata/version before invoking the native mutation tool, which retains DSH permission, sandbox, and atomic version checks. Inspect the diff and run relevant checks.',
-  glob: 'Search a confirmed workspace root. A zero-result response means no paths matched this pattern in this scope; check the root and adjust the pattern once instead of repeating the same search.',
-  grep: 'Search a confirmed workspace root using ripgrep regular-expression syntax. Escape regex metacharacters when searching literal code text; for literal source snippets with punctuation, prefer shell `rg -F`. If a regex is rejected, retry the query as a fixed string once. A zero-result response means no content matched this query in this scope; check the root and adjust the query once instead of repeating the same search.',
-  apply_patch: 'Use this tool for focused, reviewable source edits. Its patch format supports multiple hunks and files in one call: after inspecting the relevant code, callers, and tests, combine all known changes for the task into one coherent patch instead of a sequence of tiny edits. Codex parses and verifies patches against current filesystem content and sandbox rules without requiring a prior read-tool call. The plugin establishes metadata/version observations for exact update/delete targets before invoking the native patch tool; DSH then performs its normal content matching, permission approval, sandbox enforcement, and atomic mutation. Inspect the resulting diff and run relevant checks.',
-  list_dir: 'List the direct entries of a confirmed directory in the active session workspace. Use this to verify exact file names before reading; the listing is bounded and reports whether entries were omitted. Use glob for recursive file discovery.',
+  write: 'Do not call write for file mutations. Use apply_patch for new files and complete file changes. The global file-edit enhancement preserves DSH permission and sandbox checks.',
+  edit: 'Do not call edit for file mutations. Use apply_patch as the only file-mutation tool. The global file-edit enhancement preserves DSH permission, sandbox, and atomic-write checks.',
+  apply_patch: 'Apply the complete known change in one patch call. Include multiple hunks for a file and related files in the same patch; do not split a known change into repeated small patches. Build hunks from exact current text. A prior read-tool call is not required, but metadata observation does not replace source inspection or guarantee that stale hunk text will match. If the result says "Patch rejected before any change", no operation was applied: inspect the reported file and hunk, rebuild the complete patch against current contents, and retry once; never resend the identical patch. If execution stopped after operations began, inspect all affected files and operation statuses before retrying because earlier operations may have completed. The global file-edit enhancement records exact DSH version observations and preserves permission approval, sandbox enforcement, content checks, and atomic mutation behavior.',
+  glob: 'Search a confirmed workspace root for files matching the supplied path pattern. Treat the result as scoped to that root and current ignore rules; narrow the query if too many paths match. Shell rg --files is available for broader discovery.',
+  grep: 'Search a confirmed workspace root using the declared pattern and path arguments. Use fixed-string mode for literal snippets when supported by the schema. If a regex is rejected, inspect the exact error and adjust the query; shell rg is available for PCRE2 or custom filtering when installed.',
+  list_dir: 'List the direct entries of a confirmed directory in the active session workspace. Use this to verify exact file names before reading; the listing is bounded and reports whether entries were omitted. Use glob or shell `rg --files` for recursive file discovery.',
 }
 
 const GOAL_GUIDANCE = 'Goal creation and human-directed changes belong to the top-level agent. Create, edit, pause, or resume a goal only when the current turn contains a direct user message on that top-level agent. A resumed/automatic continuation or subagent turn must not request those actions; let the goal driver continue its admitted round. During the exact active goal round, complete or blocked may be reported only when their documented completion or repeated-blockage criteria are met. Before any authorized update, call get_goal in the current turn and use its exact goal_id and revision. Do not retry an authority error by guessing or changing goal identifiers.'
@@ -78,35 +79,6 @@ function pathApiFor(filePath) {
   return /^[A-Za-z]:[\\/]/.test(filePath) || filePath.startsWith('\\\\') ? win32 : path
 }
 
-function mutationTargetPaths(toolName, args) {
-  if (typeof args?.file_path === 'string' && args.file_path.trim()) return [args.file_path]
-  if (toolName !== 'apply_patch') return []
-  const patch = typeof args === 'string'
-    ? args
-    : args !== null && typeof args === 'object'
-      ? Object.values(args).find(value => typeof value === 'string' && value.includes('*** Begin Patch'))
-      : undefined
-  if (typeof patch !== 'string') return []
-  const paths = new Set()
-  for (const match of patch.matchAll(/^\*\*\* (?:Update|Delete) File:\s*(.+?)\s*$/gm)) {
-    if (match[1]) paths.add(match[1])
-  }
-  return [...paths]
-}
-
-async function seedMutationObservations(ctx, toolName, args, exec) {
-  const targets = mutationTargetPaths(toolName, args)
-  if (!ctx.fs || targets.length === 0) return
-  const cwd = exec.agent === undefined ? undefined : await ctx.workingDirectory.ensure(exec.agent, exec.signal)
-  for (const filePath of targets) {
-    const target = await ctx.fs.resolve(filePath, { ...(cwd ? { cwd } : {}), signal: exec.signal })
-    const info = await ctx.fs.stat(target, exec.signal)
-    ctx.emit('fs/observed', target, info === undefined
-      ? { kind: 'absent' }
-      : { kind: 'present', version: info.version }, exec)
-  }
-}
-
 async function explainMissingRead(ctx, args, exec, cause) {
   const fs = ctx.fs
   if (!fs || typeof args?.file_path !== 'string' || !/(?:not found|does not exist|ENOENT|FS_NOT_FOUND)/i.test(String(cause))) return cause
@@ -125,14 +97,14 @@ async function explainMissingRead(ctx, args, exec, cause) {
     const more = entries.length > visible.length ? `\n[${entries.length - visible.length} more entries omitted]` : ''
     return new Error(
       `The requested file does not exist: "${target.displayPath}". No file content was read. `
-      + `The active workspace parent directory is "${parent.displayPath}"; use only an exact listed path or run one targeted glob search. `
+      + `The active workspace parent directory is "${parent.displayPath}"; choose an exact listed path or continue targeted discovery with the available filesystem or shell tools. `
       + `Do not retry this inferred path. Parent entries (up to ${MISSING_READ_CONTEXT_LIMIT}):\n${listing}${more}\nOriginal read error: ${String(cause)}`,
       { cause },
     )
   } catch (contextError) {
     if (contextError === cause) return cause
     return new Error(
-      `The requested file was not found and no content was read. Do not retry this inferred path; list its parent directory or run one targeted glob search. Original read error: ${String(cause)}. File-discovery context was unavailable: ${String(contextError)}`,
+      `The requested file was not found and no content was read. Do not repeat this inferred path without new evidence; continue targeted discovery using the available filesystem or shell tools. Original read error: ${String(cause)}. File-discovery context was unavailable: ${String(contextError)}`,
       { cause },
     )
   }
@@ -309,11 +281,16 @@ export function apply(ctx) {
             return await original.execute(args, exec)
           } catch (error) {
             const message = error instanceof Error ? `${error.message}\n${String(error.cause ?? '')}` : String(error)
+            if (/(?:look[- ]around|look[- ]ahead|look[- ]behind|backreferences?)[\s\S]*(?:not supported|unsupported)|(?:not supported|unsupported)[\s\S]*(?:look[- ]around|look[- ]ahead|look[- ]behind|backreferences?)/i.test(message)) {
+              throw new Error(
+                'DSH grep uses ripgrep default Rust regex syntax, which does not support look-around or backreferences. '
+                + 'Use the native bash tool with `rg --pcre2` if installed, or split the query into a positive candidate search and a separate exclusion/filter step. '
+                + 'Do not retry this PCRE-only expression through grep. Original error: ' + message,
+                { cause: error },
+              )
+            }
             if (!/(?:pattern rejected by ripgrep|regex parse error|error parsing regex|unclosed group)/i.test(message)
               || !args || typeof args !== 'object' || typeof args.pattern !== 'string') throw error
-
-            // A common model mistake is passing a source-code snippet as a regex.
-            // Retry it literally so punctuation cannot turn a useful search into a hard failure.
             const literalPattern = args.pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
             return original.execute({ ...args, pattern: literalPattern }, exec)
           }
@@ -340,20 +317,13 @@ export function apply(ctx) {
           }
         },
       })
+    } else if (MUTATING_TOOLS.has(name)) {
+      registerMutationTool(ctx, name, guidance)
     } else {
       tools.register({
         ...original,
         description: guidance,
         ...(PARALLEL_READ_TOOLS.has(name) ? { isConcurrencySafe: () => true } : {}),
-        ...(MUTATING_TOOLS.has(name) ? {
-          async execute(args, exec) {
-            // Establish the exact target's current CAS basis from metadata, not
-            // a read-tool call. Then invoke the original tool once so escalation
-            // approval and sandbox enforcement keep their native semantics.
-            await seedMutationObservations(ctx, name, args, exec)
-            return original.execute(args, exec)
-          },
-        } : {}),
       })
     }
   }

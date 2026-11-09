@@ -1,0 +1,292 @@
+{
+  "format_version": 1,
+  "generated_at_utc": "2026-11-08T15:59:20.038768+00:00",
+  "scope": "Local source snapshots and selected design excerpts, not a dump of a live model request.",
+  "repositories": {
+    "openai-codex": {
+      "path": "/media/6/Projects/langgraph_dev/openai-codex",
+      "revision": "78245b47af2a7aafcabe025828ceecca69db4df1"
+    },
+    "opencode": {
+      "path": "/media/6/Projects/langgraph_dev/opencode",
+      "revision": "9bbb8ce18c80f099e0e448775f59d965ead40a21"
+    }
+  },
+  "excerpts": [
+    {
+      "id": "codex-model-instruction-resolution",
+      "repository": "openai-codex",
+      "path": "codex-rs/prompts/src/model_instructions.rs",
+      "role": "根据选定模型元数据取得基础指令原文",
+      "source_sha256": "e53d3d2b7196b5520ebfa0d9a010b07c6e5925c1d0ef2619d4b1ad5498e2b78f",
+      "worktree_modified": false,
+      "start_line": 1,
+      "end_line": 21,
+      "text": "//! Returns literal model instructions from the captured model metadata.\n//! Missing templates produce a warning; supplied empty templates remain valid input.\n\nuse crate::ResolvedModelMessages;\nuse codex_protocol::openai_models::ModelInfo;\n\n/// Renders base instructions from the caller's captured model, retaining missing-template warnings.\npub fn render_model_instructions(model_info: &ModelInfo) -> String {\n    let template = ResolvedModelMessages::from_model(model_info).instructions_template();\n    if template.is_none() {\n        tracing::warn!(\n            model = %model_info.slug,\n            \"Model has no instruction template; returning empty instructions.\"\n        );\n    }\n    template.unwrap_or_default().to_owned()\n}\n\n#[cfg(test)]\n#[path = \"model_instructions_tests.rs\"]\nmod tests;\n"
+    },
+    {
+      "id": "codex-captured-model-messages",
+      "repository": "openai-codex",
+      "path": "codex-rs/prompts/src/model_messages.rs",
+      "role": "分别解析模型消息族，保留未提供值与显式空值的区别",
+      "source_sha256": "b4482482f5723c76acd53b28455f494b401ca3a37ab9bcbb03d1514210d31032",
+      "worktree_modified": false,
+      "start_line": 55,
+      "end_line": 85,
+      "text": "/// Resolves model-owned text from catalog overrides or bundled defaults, one family at a time.\n///\n/// The view borrows the consumer's captured model metadata without resolving any families.\n/// Missing values select bundled text or retain delegation to consumer-owned settings.\n/// Explicit empty strings remain overrides.\n#[derive(Debug, Clone, Copy)]\npub struct ResolvedModelMessages<'a> {\n    catalog_messages: Option<&'a ModelMessages>,\n}\n\nimpl<'a> ResolvedModelMessages<'a> {\n    /// Borrows messages from the selected model; absent catalog values still use defaults.\n    pub fn from_model(model_info: &'a ModelInfo) -> Self {\n        Self {\n            catalog_messages: model_info.model_messages.as_ref(),\n        }\n    }\n\n    /// Resolves only bundled defaults, independently of any selected model.\n    pub fn bundled() -> Self {\n        Self {\n            catalog_messages: None,\n        }\n    }\n\n    /// Resolves the literal instruction template, preserving missing values.\n    pub fn instructions_template(&self) -> Option<&'a str> {\n        self.catalog_messages\n            .and_then(|messages| messages.instructions_template.as_deref())\n    }\n\n"
+    },
+    {
+      "id": "codex-base-config-override",
+      "repository": "openai-codex",
+      "path": "codex-rs/models-manager/src/model_info.rs",
+      "role": "配置覆盖模型指令与人格策略",
+      "source_sha256": "4c08962f50658d48723c49016a0a7be4d5ad98f7ab4cc80876a953e18c9a7f09",
+      "worktree_modified": false,
+      "start_line": 46,
+      "end_line": 61,
+      "text": "    if let Some(base_instructions) = &config.base_instructions {\n        let model_messages = model.model_messages.get_or_insert_default();\n        model_messages.instructions_template = Some(base_instructions.clone());\n        model_messages.instructions_variables = None;\n    } else if config.personality == Some(Personality::None)\n        && let Some(instructions_template) = model\n            .model_messages\n            .as_mut()\n            .and_then(|messages| messages.instructions_template.as_mut())\n    {\n        *instructions_template = strip_personality_section(std::mem::take(instructions_template));\n    }\n\n    model\n}\n\n"
+    },
+    {
+      "id": "codex-fallback-instructions",
+      "repository": "openai-codex",
+      "path": "codex-rs/models-manager/src/model_info.rs",
+      "role": "后备模型基础指令的实际文件来源",
+      "source_sha256": "4c08962f50658d48723c49016a0a7be4d5ad98f7ab4cc80876a953e18c9a7f09",
+      "worktree_modified": false,
+      "start_line": 16,
+      "end_line": 18,
+      "text": "pub const BASE_INSTRUCTIONS: &str = include_str!(\"../prompt.md\");\nconst PERSONALITY_SECTION_HEADER: &str = \"# Personality\";\n\n"
+    },
+    {
+      "id": "codex-base-message-role",
+      "repository": "openai-codex",
+      "path": "codex-rs/core/src/context/base_instructions.rs",
+      "role": "独立 developer 消息片段",
+      "source_sha256": "d3c394eb1fc677328c973e0558007aca01fc9c1f819d3eedd0a442775972dc6c",
+      "worktree_modified": false,
+      "start_line": 1,
+      "end_line": 31,
+      "text": "use super::ContextualUserFragment;\nuse codex_protocol::models::ContentItemKind;\n\n#[derive(Clone, Debug, PartialEq, Eq)]\npub(crate) struct BaseInstructionsFragment(pub(crate) String);\n\nimpl ContextualUserFragment for BaseInstructionsFragment {\n    fn content_kind(&self) -> ContentItemKind {\n        ContentItemKind(\"model.base_instructions\".to_string())\n    }\n\n    fn role(&self) -> &'static str {\n        \"developer\"\n    }\n\n    fn requires_separate_message(&self) -> bool {\n        true\n    }\n\n    fn markers(&self) -> (&'static str, &'static str) {\n        Self::type_markers()\n    }\n\n    fn type_markers() -> (&'static str, &'static str) {\n        (\"\", \"\")\n    }\n\n    fn body(&self) -> String {\n        self.0.clone()\n    }\n}\n"
+    },
+    {
+      "id": "codex-developer-message-role",
+      "repository": "openai-codex",
+      "path": "codex-rs/core/src/context/developer_instructions.rs",
+      "role": "部署 developer 指令片段",
+      "source_sha256": "65924b2320a5c0109e969cdee598d69ced087fe32bca282af13c793ed31f4836",
+      "worktree_modified": false,
+      "start_line": 1,
+      "end_line": 37,
+      "text": "use super::ContextualUserFragment;\nuse codex_protocol::models::ContentItemKind;\n\n#[derive(Debug, Clone, PartialEq, Eq)]\npub(crate) struct DeveloperInstructions {\n    instructions: String,\n}\n\nimpl DeveloperInstructions {\n    pub(crate) fn new(instructions: impl Into<String>) -> Self {\n        Self {\n            instructions: instructions.into(),\n        }\n    }\n}\n\nimpl ContextualUserFragment for DeveloperInstructions {\n    fn content_kind(&self) -> ContentItemKind {\n        ContentItemKind(\"generic.developer_instructions\".to_string())\n    }\n\n    fn role(&self) -> &'static str {\n        \"developer\"\n    }\n\n    fn markers(&self) -> (&'static str, &'static str) {\n        Self::type_markers()\n    }\n\n    fn type_markers() -> (&'static str, &'static str) {\n        (\"\", \"\")\n    }\n\n    fn body(&self) -> String {\n        self.instructions.clone()\n    }\n}\n"
+    },
+    {
+      "id": "codex-user-instruction-role",
+      "repository": "openai-codex",
+      "path": "codex-rs/core/src/context/user_instructions.rs",
+      "role": "携带目录归属的 AGENTS.md 用户指令片段",
+      "source_sha256": "fd331f381cd81c788c50b951fb7f5641581cdd5593ff1cc92dd47428b42ea7b9",
+      "worktree_modified": false,
+      "start_line": 1,
+      "end_line": 35,
+      "text": "use super::ContextualUserFragment;\nuse codex_protocol::models::ContentItemKind;\n\n#[derive(Debug, Clone, PartialEq)]\npub(crate) struct UserInstructions {\n    pub(crate) directory: Option<String>,\n    pub(crate) text: String,\n}\n\nimpl ContextualUserFragment for UserInstructions {\n    fn content_kind(&self) -> ContentItemKind {\n        ContentItemKind(\"agents_md.instructions\".to_string())\n    }\n\n    fn role(&self) -> &'static str {\n        \"user\"\n    }\n\n    fn markers(&self) -> (&'static str, &'static str) {\n        Self::type_markers()\n    }\n\n    fn type_markers() -> (&'static str, &'static str) {\n        (\"# AGENTS.md instructions\", \"</INSTRUCTIONS>\")\n    }\n\n    fn body(&self) -> String {\n        let directory = self\n            .directory\n            .as_ref()\n            .map(|directory| format!(\" for {directory}\"))\n            .unwrap_or_default();\n        format!(\"{directory}\\n\\n<INSTRUCTIONS>\\n{}\\n\", self.text)\n    }\n}\n"
+    },
+    {
+      "id": "codex-world-state-layers",
+      "repository": "openai-codex",
+      "path": "codex-rs/core/src/context/world_state/mod.rs",
+      "role": "动态世界状态按能力和来源拆分",
+      "source_sha256": "4653787b72fc2ca54aeec0f39cdb14ff5fc8118a90532efdce8898eb908d1503",
+      "worktree_modified": false,
+      "start_line": 1,
+      "end_line": 18,
+      "text": "mod agents_md;\nmod apps_instructions;\nmod collaboration_mode;\nmod compact_permissions;\nmod context_window_guidance;\nmod environment;\nmod environments_instructions;\nmod managed_developer_instructions;\nmod model;\nmod multi_agent_mode;\nmod multi_agent_usage_hint;\nmod permissions;\nmod persistent_mode;\nmod plugins_instructions;\nmod realtime;\n#[cfg(test)]\nmod test_support;\nmod tools;\n"
+    },
+    {
+      "id": "codex-autonomy",
+      "repository": "openai-codex",
+      "path": "codex-rs/core/gpt_5_2_prompt.md",
+      "role": "持续执行和主动解决阻碍的行为参考",
+      "source_sha256": "415333a461404a790c981fb00a7b9dc73b1906d3f87133dc8afe7ed77e92bd67",
+      "worktree_modified": false,
+      "start_line": 29,
+      "end_line": 33,
+      "text": "## Autonomy and Persistence\nPersist until the task is fully handled end-to-end within the current turn whenever feasible: do not stop at analysis or partial fixes; carry changes through implementation, verification, and a clear explanation of outcomes unless the user explicitly pauses or redirects you.\n\nUnless the user explicitly asks for a plan, asks a question about the code, is brainstorming potential solutions, or some other intent that makes it clear that code should not be written, assume the user wants you to make code changes or run tools to solve the user's problem. In these cases, it's bad to output your proposed solution in a message, you should go ahead and actually implement the change. If you encounter challenges or blockers, you should attempt to resolve them yourself.\n\n"
+    },
+    {
+      "id": "codex-task-execution",
+      "repository": "openai-codex",
+      "path": "codex-rs/core/gpt_5_2_prompt.md",
+      "role": "端到端任务推进的行为参考",
+      "source_sha256": "415333a461404a790c981fb00a7b9dc73b1906d3f87133dc8afe7ed77e92bd67",
+      "worktree_modified": false,
+      "start_line": 109,
+      "end_line": 135,
+      "text": "## Task execution\n\nYou are a coding agent. You must keep going until the query or task is completely resolved, before ending your turn and yielding back to the user. Persist until the task is fully handled end-to-end within the current turn whenever feasible and persevere even when function calls fail. Only terminate your turn when you are sure that the problem is solved. Autonomously resolve the query to the best of your ability, using the tools available to you, before coming back to the user. Do NOT guess or make up an answer.\n\nYou MUST adhere to the following criteria when solving queries:\n\n- Working on the repo(s) in the current environment is allowed, even if they are proprietary.\n- Analyzing code for vulnerabilities is allowed.\n- Showing user code and tool call details is allowed.\n- Use the `apply_patch` tool to edit files (NEVER try `applypatch` or `apply-patch`, only `apply_patch`). This is a FREEFORM tool, so do not wrap the patch in JSON.\n\nIf completing the user's task requires writing or modifying files, your code and final answer should follow these coding guidelines, though user instructions (i.e. AGENTS.md) may override these guidelines:\n\n- Fix the problem at the root cause rather than applying surface-level patches, when possible.\n- Avoid unneeded complexity in your solution.\n- Do not attempt to fix unrelated bugs or broken tests. It is not your responsibility to fix them. (You may mention them to the user in your final message though.)\n- Update documentation as necessary.\n- Keep changes consistent with the style of the existing codebase. Changes should be minimal and focused on the task.\n- If you're building a web app from scratch, give it a beautiful and modern UI, imbued with best UX practices.\n- Use `git log` and `git blame` to search the history of the codebase if additional context is required.\n- NEVER add copyright or license headers unless specifically requested.\n- Do not waste tokens by re-reading files after calling `apply_patch` on them. The tool call will fail if it didn't work. The same goes for making folders, deleting folders, etc.\n- Do not `git commit` your changes or create new git branches unless explicitly requested.\n- Do not add inline comments within code unless explicitly requested.\n- Do not use one-letter variable names unless explicitly requested.\n- NEVER output inline citations like \"【F:README.md†L5-L14】\" in your outputs. The CLI is not able to render these so they will just be broken in the UI. Instead, if you output valid filepaths, users will be able to click on them to open the files in their editor.\n\n"
+    },
+    {
+      "id": "codex-creative-scope",
+      "repository": "openai-codex",
+      "path": "codex-rs/models-manager/prompt.md",
+      "role": "后备提示词中的创造性与任务精度平衡",
+      "source_sha256": "ac8ae107a0d72fe3476b430afb161ea4e67da2e446d778aefc44828160559807",
+      "worktree_modified": false,
+      "start_line": 165,
+      "end_line": 172,
+      "text": "## Ambition vs. precision\n\nFor tasks that have no prior context (i.e. the user is starting something brand new), you should feel free to be ambitious and demonstrate creativity with your implementation.\n\nIf you're operating in an existing codebase, you should make sure you do exactly what the user asks with surgical precision. Treat the surrounding codebase with respect, and don't overstep (i.e. changing filenames or variables unnecessarily). You should balance being sufficiently ambitious and proactive when completing tasks of this nature.\n\nYou should use judicious initiative to decide on the right level of detail and complexity to deliver based on the user's needs. This means showing good judgment that you're capable of doing the right extras without gold-plating. This might be demonstrated by high-value, creative touches when scope of the task is vague; while being surgical and targeted when scope is tightly specified.\n\n"
+    },
+    {
+      "id": "codex-pragmatic-values",
+      "repository": "openai-codex",
+      "path": "codex-rs/core/templates/personalities/gpt-5.2-codex_pragmatic.md",
+      "role": "务实、清晰、严谨的工程协作人格",
+      "source_sha256": "3c1e6e6507ac1a04d57f378e6535b78ea2793670f964cbce2cb6e0a7a3d6e7e0",
+      "worktree_modified": false,
+      "start_line": 5,
+      "end_line": 11,
+      "text": "## Values\nYou are guided by these core values:\n- Clarity: You communicate reasoning explicitly and concretely, so decisions and tradeoffs are easy to evaluate upfront.\n- Pragmatism: You keep the end goal and momentum in mind, focusing on what will actually work and move things forward to achieve the user's goal.\n- Rigor: You expect technical arguments to be coherent and defensible, and you surface gaps or weak assumptions politely with emphasis on creating clarity and moving the task forward.\n\n\n"
+    },
+    {
+      "id": "opencode-common-skeleton",
+      "repository": "opencode",
+      "path": "packages/core/src/session/runner/prompt/system.txt",
+      "role": "通用系统提示词骨架",
+      "source_sha256": "ab9749036fe5a6b96c74c302900f67a9b249589b4fc4b8a8d18f3c6879dc506d",
+      "worktree_modified": false,
+      "start_line": 1,
+      "end_line": 15,
+      "text": "You are an AI agent running in OpenCode, a coding agent harness. Help the user accomplish their goals using the tools you have available.\n\n# Harness\n- Responses are rendered as GitHub-flavored Markdown.\n- `<system-reminder>` blocks are harness instructions, not user-authored content. Read and follow them.\n- Prefer parallelizing independent tool calls.\n${OPENCODE_TOOL_GUIDANCE}\n\n# Communication\n- Use clear file paths when referring to files.\n- Keep responses clear and concise, and avoid unnecessary technical jargon.\n\n# Working in codebases\n- Keep changes consistent with the structure, naming, style, and patterns of the surrounding code.\n- Treat unfamiliar files or changes as potential user work and investigate before deleting or overwriting them.\n"
+    },
+    {
+      "id": "opencode-tool-aware-rendering",
+      "repository": "opencode",
+      "path": "packages/core/src/session/system-prompt.ts",
+      "role": "按实际可用工具渲染工具使用指引",
+      "source_sha256": "88f088f1bfa0b5e7dabfb6d3083c19d4203f7e12cc00a251494264a5b243f1dd",
+      "worktree_modified": false,
+      "start_line": 1,
+      "end_line": 28,
+      "text": "export * as SessionSystemPrompt from \"./system-prompt.js\"\n\nimport PROMPT from \"./runner/prompt/system.txt\"\n\nexport function make(tools: string[]) {\n  return render(PROMPT, tools)\n}\n\nexport function render(prompt: string, tools: string[]) {\n  const instructions: string[] = []\n  if (tools.includes(\"shell\")) {\n    instructions.push(\n      \"- Prefer dedicated tools over shell commands; fall back to the shell when a tool cannot do what you need.\",\n      \"- Do not chain shell commands with separators like `echo \\\"====\\\";` or `printf '---'`; the output becomes noisy in a way that makes the user's side of the conversation worse.\",\n    )\n  }\n  if (tools.includes(\"write\")) {\n    instructions.push(\n      \"- Use the write tool to create files or completely replace their content. Prefer using the edit tool for targeted changes.\",\n    )\n  }\n  if (tools.includes(\"edit\")) {\n    instructions.push(\n      \"- Use the edit tool for targeted changes to existing text files. It replaces the exact text in `oldString` with `newString`, and the values must differ. By default, `oldString` must occur exactly once. If it occurs multiple times, include more surrounding context to make it unique or set `replaceAll` to true to replace every occurrence.\",\n    )\n  }\n  return prompt.replace(\"${OPENCODE_TOOL_GUIDANCE}\", instructions.join(\"\\n\"))\n}\n"
+    },
+    {
+      "id": "opencode-transcript-layers",
+      "repository": "opencode",
+      "path": "packages/core/src/session/model-request.ts",
+      "role": "agent 自定义提示、通用系统提示和运行指令来源的拼装",
+      "source_sha256": "9b295efe14e64105d99f7edda87ce6205e722954f3a133c38f9db630d6b6886c",
+      "worktree_modified": false,
+      "start_line": 101,
+      "end_line": 125,
+      "text": "export const baseTranscript = (input: {\n  readonly agent: Agent.Info\n  readonly model: SessionRunnerModel.Resolved\n  readonly tools: Tool.Snapshot\n  readonly initial: ReadonlyArray<Instructions.Rendered>\n  readonly messages: ReadonlyArray<SessionMessage.Info>\n}) => {\n  const providerMetadataKey = input.model.model.route.providerMetadataKey ?? input.model.model.provider\n  return {\n    providerMetadataKey,\n    system: [\n      SystemPart.make(\n        input.agent.system\n          ? input.agent.system\n          : SessionSystemPrompt.make(input.tools.definitions.map((tool) => tool.name)),\n      ),\n      {\n        ...SystemPart.make(Instructions.join(input.initial)),\n        metadata: { experimental: { instructions: input.initial } },\n      },\n    ].filter((part) => part.text.length > 0),\n    messages: toLLMMessages(input.messages, input.model.ref, providerMetadataKey),\n  }\n}\n\n"
+    },
+    {
+      "id": "opencode-model-optimization",
+      "repository": "opencode",
+      "path": "packages/core/src/plugin/optimize.ts",
+      "role": "按模型选择模板、override/append、自定义提示保护及多个生命周期钩子",
+      "source_sha256": "802c9c7af8b650a90dea67e3838827db027f80e00bb5d651da700b4cc0d14bcb",
+      "worktree_modified": false,
+      "start_line": 1,
+      "end_line": 104,
+      "text": "export * as OptimizePlugin from \"./optimize.js\"\n\nimport { define, type Context } from \"@opencode/plugin/effect/plugin\"\nimport type { SessionHooks } from \"@opencode/plugin/effect/session\"\nimport { Model } from \"@opencode/schema/model\"\nimport { Effect } from \"effect\"\nimport { SessionSystemPrompt } from \"../session/system-prompt.js\"\n\nimport PROMPT_GPT from \"./system-prompt/gpt.txt\"\nimport PROMPT_ASTRA from \"./system-prompt/gpt-astra.txt\"\nimport PROMPT_KIMI from \"./system-prompt/kimi.txt\"\nimport PROMPT_META from \"./system-prompt/meta.txt\"\nimport PROMPT_TRINITY from \"./system-prompt/trinity.txt\"\nimport PROMPT_ANTHROPIC from \"./system-prompt/anthropic.txt\"\n\nexport const OpenAIPlugin = make(\"opencode.prompt.openai\", (model) => {\n  const id = model.id.toLowerCase()\n  if (!id.includes(\"gpt\")) return undefined\n  return id.includes(\"astra\") ? PROMPT_ASTRA : PROMPT_GPT\n})\n\nexport const AnthropicPlugin = make(\n  \"opencode.prompt.anthropic\",\n  (model) => {\n    const id = model.id.toLowerCase()\n    if (!id.includes(\"claude\")) return undefined\n    return PROMPT_ANTHROPIC\n  },\n  \"append\",\n)\n\n// Both OpenAIToolsPlugin and AnthropicToolsPlugin are disabled intentionally until we can figure out a good ux for displaying\n// heavy grep/glob usage done via shell or other mechanisms\n\nexport const OpenAIToolsPlugin = make(\"opencode.optimize.openai.tools\", (model, tools) => {\n  const ids = [model.id, model.modelID, model.family].join(\" \").toLowerCase()\n  if (!ids.includes(\"gpt\")) return undefined\n  delete tools.grep\n  delete tools.glob\n  return undefined\n})\n\nexport const AnthropicToolsPlugin = make(\"opencode.optimize.anthropic.tools\", (model, tools) => {\n  const ids = [model.id, model.modelID, model.family].join(\" \").toLowerCase()\n  if (!ids.includes(\"claude\")) return undefined\n  delete tools.grep\n  delete tools.glob\n  return undefined\n})\n\nexport const KimiPlugin = make(\"opencode.prompt.kimi\", (model) =>\n  model.id.toLowerCase().includes(\"kimi\") ? PROMPT_KIMI : undefined,\n)\nexport const ArceePlugin = make(\"opencode.prompt.arcee\", (model) =>\n  model.id.toLowerCase().includes(\"trinity\") ? PROMPT_TRINITY : undefined,\n)\nexport const MetaPlugin = make(\"opencode.prompt.meta\", (model) => {\n  if (!model.id.toLowerCase().includes(\"muse\")) return undefined\n  return PROMPT_META.replaceAll(\"{{MODEL_NAME}}\", model.name)\n})\n\nexport const Plugins = [OpenAIPlugin, AnthropicPlugin, KimiPlugin, ArceePlugin, MetaPlugin] as const\n\nconst models = new WeakMap<SessionHooks[\"context\"], Model.Info>()\n\nexport const resolveModel = (ctx: Context, event: SessionHooks[\"context\"]) =>\n  Effect.gen(function* () {\n    const cached = models.get(event)\n    if (cached?.providerID === event.model.providerID && cached.id === event.model.id) return cached\n    const model =\n      (yield* ctx.model.list()).data.find(\n        (model) => model.providerID === event.model.providerID && model.id === event.model.id,\n      ) ?? Model.Info.default(event.model.providerID, event.model.id)\n    models.set(event, model)\n    return model\n  })\n\nfunction make(\n  id: string,\n  optimize: (model: Model.Info, tools: SessionHooks[\"context\"][\"tools\"]) => string | undefined,\n  mode: \"override\" | \"append\" = \"override\",\n) {\n  return define({\n    id,\n    effect: Effect.fn(`OptimizePlugin.${id}`)(function* (ctx) {\n      const hook = (event: SessionHooks[\"context\"]) =>\n        Effect.gen(function* () {\n          const model = yield* resolveModel(ctx, event)\n          // Curate tools before rendering their guidance, including for agents with a custom system prompt.\n          const template = optimize(model, event.tools)\n          if (!template) return\n          if ((yield* ctx.agent.get({ agentID: event.agent })).data.system) return\n          const system = event.system[0]\n          if (!system) return\n          const rendered = SessionSystemPrompt.render(template, Object.keys(event.tools))\n          const text = mode === \"append\" ? `${system.text}\\n\\n${rendered}` : rendered\n          event.system[0] = { ...system, text }\n        }).pipe(Effect.catch(() => Effect.void))\n      yield* ctx.session.hook(\"context\", hook)\n      yield* ctx.session.hook(\"compaction\", hook)\n      yield* ctx.session.hook(\"generate\", hook)\n    }),\n  })\n}\n"
+    },
+    {
+      "id": "opencode-autonomy",
+      "repository": "opencode",
+      "path": "packages/core/src/plugin/system-prompt/gpt-astra.txt",
+      "role": "根据用户意图主动完整执行任务",
+      "source_sha256": "bbb87472e9f6e7960819e9e4af6bd0aed10db8fdc219c2e93820df8066cd5da3",
+      "worktree_modified": false,
+      "start_line": 16,
+      "end_line": 21,
+      "text": "## Autonomy\n\nInfer the user's intent and your task scope from their instructions and the prior conversation context. You should bias towards action and carry out the user's intended task until it is completed. If the intent is unclear, progress towards the goal using the available information and ask for clarification while continuing independent work when possible.\n\nWhen the user's prompt indicates a request for action, such as \"can you...\", \"I want to...\", \"help me...\" and similar expressions, treat these as instructions to take action. Do not stop at acknowledging capability (e.g. \"Yes…\"), proposing a plan, or offering to continue. Do not settle for a partial or \"helpful enough\" solution to save time, effort, or tokens. Continue until the user's intended goal is fulfilled, even when it requires sustained work.\n\n"
+    },
+    {
+      "id": "opencode-evidence-first",
+      "repository": "opencode",
+      "path": "packages/core/src/plugin/system-prompt/meta.txt",
+      "role": "用本地证据和实际执行验证结论",
+      "source_sha256": "5e50dacb87875d8d55d134e64e2651d73de2c2934965761f2b83fe03c83c63df",
+      "worktree_modified": false,
+      "start_line": 16,
+      "end_line": 21,
+      "text": "# Behavior - Verification\n- IMPORTANT: Verify the correctness of your solution through execution whenever possible and reasonable: run code to confirm expected outputs, write and execute tests, and/or perform sanity checks. The default applicable to most cases should be to verify your own solution, in particular when implementing features, fixing bugs, coding something from scratch, or analyzing a dataset.\n- Evidence before synthesis. Your output must always be based on factual and verified information. Inspect relevant files yourself before producing output. Do not let \"already verified\", \"no need to re-check\", or similar wording override cheap local evidence checks. Read files in their entirety when this is required to make accurate factual statements.\n- If your findings contradict a previous claim, clearly state the discrepancy and trust evidence-backed claims over unverified speculation.\n- After investigating multiple hypotheses, clearly state all hypotheses and the outcome of your investigation. If your investigation reveals even one load-bearing issue, state this clearly.\n\n"
+    },
+    {
+      "id": "opencode-implementation-cycle",
+      "repository": "opencode",
+      "path": "packages/core/src/plugin/system-prompt/kimi.txt",
+      "role": "实际工具操作、实现、执行验证和迭代",
+      "source_sha256": "a336c5d8a6f407dc5a1a030c06cfcc89458cf11c784cc7de91370e21a3b9133c",
+      "worktree_modified": false,
+      "start_line": 21,
+      "end_line": 46,
+      "text": "# General Guidelines for Coding\n\nWhen building something from scratch, you should:\n\n- Understand the user's requirements.\n- Ask the user for clarification if there is anything unclear.\n- Design the architecture and make a plan for the implementation.\n- Write the code in a modular and maintainable way.\n\nAlways use tools to implement your code changes:\n\n- Use `write`/`edit` to create or modify source files. Code that only appears in your text response is NOT saved to the file system and will not take effect.\n- Use `shell` to run and test your code after writing it.\n- Iterate: if tests fail, read the error, fix the code with `write`/`edit`, and re-test with `shell`.\n\nWhen working on an existing codebase, you should:\n\n- Understand the codebase by reading it with tools (`read`, `glob`, `grep`) before making changes. Identify the ultimate goal and the most important criteria to achieve the goal.\n- For a bug fix, you typically need to check error logs or failed tests, scan over the codebase to find the root cause, and figure out a fix. If user mentioned any failed tests, you should make sure they pass after the changes.\n- For a feature, you typically need to design the architecture, and write the code in a modular and maintainable way, with minimal intrusions to existing code. Add new tests if the project already has tests.\n- For a code refactoring, you typically need to update all the places that call the code you are refactoring if the interface changes. DO NOT change any existing logic especially in tests, focus only on fixing any errors caused by the interface changes.\n- Make MINIMAL changes to achieve the goal. This is very important to your performance.\n- Follow the coding style of existing code in the project.\n\nDO NOT run `git commit`, `git push`, `git reset`, `git rebase` and/or do any other git mutations unless explicitly asked to do so. Ask for confirmation each time when you need to do git mutations, even if the user has confirmed in earlier conversations.\n\n"
+    },
+    {
+      "id": "opencode-instruction-source-model",
+      "repository": "opencode",
+      "path": "packages/core/src/instructions/index.ts",
+      "role": "可组合指令来源及 initial/changed/removed 表示",
+      "source_sha256": "82243322a5dfccffeb4236328cc699bf5a8d7af7a8a80033b6784344acb28e8d",
+      "worktree_modified": false,
+      "start_line": 16,
+      "end_line": 57,
+      "text": "type NonValue = Data.TaggedEnum<{ Unavailable: {}; Removed: {} }>\nconst NonValue = Data.taggedEnum<NonValue>()\n\n/** The read failed temporarily; the stored value stands. */\nexport const unavailable = NonValue.Unavailable()\nexport type Unavailable = typeof unavailable\n\n/** An observed absence: the source exists but its value is gone. */\nexport const removed = NonValue.Removed()\nexport type Removed = typeof removed\n\n/**\n * One composable instruction source over canonical JSON — the same\n * representation that is hashed, stored, and replayed. `make` builds one from\n * a typed definition; renderers returning `undefined` skip (undecodable or\n * unrenderable historical values).\n */\nexport interface Source {\n  readonly key: Key\n  readonly read: Effect.Effect<Schema.Json | Unavailable | Removed>\n  readonly initial: (value: Schema.Json) => string | undefined\n  readonly changed: (previous: Schema.Json, current: Schema.Json) => string | undefined\n  readonly removed: (previous: Schema.Json) => string | undefined\n}\n\nexport declare namespace Source {\n  /** The typed definition supplied when constructing a source. */\n  export interface Definition<A> {\n    readonly key: Key\n    readonly codec: Schema.Codec<A, Schema.Json>\n    readonly read: Effect.Effect<A | Unavailable | Removed>\n    readonly render: {\n      readonly initial: (current: A) => string\n      readonly changed: (previous: A, current: A) => string\n      readonly removed?: (previous: A) => string\n    }\n  }\n}\n\n/** Ordered sources; identical values render identical bytes. */\nexport type List = ReadonlyArray<Source>\n\n"
+    },
+    {
+      "id": "opencode-instruction-diff",
+      "repository": "opencode",
+      "path": "packages/core/src/instructions/index.ts",
+      "role": "暂时不可用与确定删除的不同状态处理",
+      "source_sha256": "82243322a5dfccffeb4236328cc699bf5a8d7af7a8a80033b6784344acb28e8d",
+      "worktree_modified": false,
+      "start_line": 142,
+      "end_line": 161,
+      "text": "export function diff(observed: ReadResult, previous?: Values): Effect.Effect<Admission, InitializationBlocked> {\n  const blocked = previous ? [] : observed.flatMap((entry) => (isUnavailable(entry.value) ? [entry.key] : []))\n  if (blocked.length > 0) return Effect.fail(new InitializationBlocked({ keys: blocked }))\n  const delta: Record<string, Hash | Instruction.Removed> = {}\n  const blobs: Record<string, Schema.Json> = {}\n  for (const entry of observed) {\n    if (isUnavailable(entry.value)) continue\n    if (isRemoved(entry.value)) {\n      if (previous && Object.hasOwn(previous, entry.key)) delta[entry.key] = Instruction.removed\n      continue\n    }\n    const next = hash(entry.value)\n    if (previous?.[entry.key] === next) continue\n    delta[entry.key] = next\n    blobs[next] = entry.value\n  }\n  return Effect.succeed({ delta, blobs })\n}\n\n/** One source's rendered text, keyed so consumers can tell the sources apart. */\n"
+    },
+    {
+      "id": "opencode-context-reinjection",
+      "repository": "opencode",
+      "path": "packages/core/src/session/instructions.ts",
+      "role": "指令注入以模型可见持久历史为去重依据，压缩/撤回后重新发现",
+      "source_sha256": "2b0fc99a481811d50c2c9fcb417d2839c2993e60221978c503dad1366ae6a644",
+      "worktree_modified": false,
+      "start_line": 36,
+      "end_line": 46,
+      "text": "    // Resolved once for the Location layer; the synthetic text and dedup ledger keep\n    // absolute paths, but the human-facing description shows paths relative to the project\n    // root so opening a subdirectory still describes paths from the project root.\n    const root = yield* fs.resolve(location.project.directory)\n    // Same-step parallel reads settle concurrently, so an in-memory claim guards each\n    // Session/path pair while a load is in flight. The claim is released once the load\n    // settles: the synthetic message metadata scanned below is the only lasting ledger,\n    // so paths whose synthetics drop out of model-visible history (compaction, revert)\n    // are re-discovered and re-injected instead of staying silently lost.\n    const inFlight = yield* Ref.make<Map<SessionSchema.ID, Set<string>>>(new Map())\n\n"
+    },
+    {
+      "id": "opencode-context-ledger",
+      "repository": "opencode",
+      "path": "packages/core/src/session/instructions.ts",
+      "role": "从持久合成消息读取已经注入的指令路径",
+      "source_sha256": "2b0fc99a481811d50c2c9fcb417d2839c2993e60221978c503dad1366ae6a644",
+      "worktree_modified": false,
+      "start_line": 100,
+      "end_line": 114,
+      "text": "function previouslyInjected(db: Database.Interface[\"db\"], sessionID: SessionSchema.ID) {\n  return Effect.gen(function* () {\n    const history = yield* SessionHistory.synthetics(db, sessionID)\n    return new Set(\n      history\n        .filter((message): message is SessionMessage.Synthetic => message.type === \"synthetic\")\n        .flatMap(\n          (message) =>\n            Option.getOrUndefined(Schema.decodeUnknownOption(InjectedMetadata)(message.metadata))?.instruction.paths ??\n            [],\n        ),\n    )\n  })\n}\n\n"
+    },
+    {
+      "id": "opencode-dynamic-environment",
+      "repository": "opencode",
+      "path": "packages/core/src/instructions/builtins.ts",
+      "role": "日期和环境事实作为独立可变化的指令来源",
+      "source_sha256": "2cf42ae08ea7dc52120e4cde1ac9acf55c705bc12313a93ccb031e5e7636fb3e",
+      "worktree_modified": false,
+      "start_line": 1,
+      "end_line": 60,
+      "text": "export * as InstructionBuiltIns from \"./builtins.js\"\n\nimport { makeLocationNode } from \"@opencode/util/effect/app-node\"\nimport { Context, DateTime, Effect, Layer, Schema } from \"effect\"\nimport { Global } from \"@opencode/util/global\"\nimport { Location } from \"../location.js\"\nimport { Instructions } from \"./index.js\"\n\nexport interface Interface {\n  readonly load: () => Effect.Effect<Instructions.List>\n}\n\nexport class Service extends Context.Service<Service, Interface>()(\"@opencode/InstructionBuiltIns\") {}\n\nconst layer = Layer.effect(\n  Service,\n  Effect.gen(function* () {\n    const global = yield* Global.Service\n    const location = yield* Location.Service\n    return Service.of({\n      load: () =>\n        Effect.succeed(\n          Instructions.combine([\n            Instructions.make({\n              key: Instructions.Key.make(\"core/date\"),\n              codec: Schema.toCodecJson(Schema.String),\n              read: DateTime.nowAsDate.pipe(Effect.map((date) => date.toDateString())),\n              render: {\n                initial: (date) => `Today's date: ${date}`,\n                changed: (_previous, date) => `Today's date is now: ${date}`,\n              },\n            }),\n            Instructions.make({\n              key: Instructions.Key.make(\"core/environment\"),\n              codec: Schema.toCodecJson(Schema.String),\n              read: Effect.sync(() =>\n                [\n                  \"<env>\",\n                  `  Working directory: ${location.directory}`,\n                  `  Workspace root folder: ${location.project.directory}`,\n                  `  Is directory a git repo: ${location.vcs?.type === \"git\" ? \"yes\" : \"no\"}`,\n                  `  Platform: ${process.platform}`,\n                  `  Prefer ${global.tmp} over generic system temporary directories such as /tmp; it is pre-created and approved for external access.`,\n                  \"</env>\",\n                ].join(\"\\n\"),\n              ),\n              render: {\n                initial: (environment) =>\n                  [\"Here is some useful information about the environment you are running in:\", environment].join(\"\\n\"),\n                changed: (_previous, environment) =>\n                  [\"The environment you are running in is now:\", environment].join(\"\\n\"),\n              },\n            }),\n          ]),\n        ),\n    })\n  }),\n)\n\nexport const node = makeLocationNode({ service: Service, layer, deps: [Global.node, Location.node] })\n"
+    },
+    {
+      "id": "opencode-continuation-prompts",
+      "repository": "opencode",
+      "path": "packages/core/src/session/runner/llm.ts",
+      "role": "流中断和输出限长后的通用继续执行提醒",
+      "source_sha256": "606619006b4ec1a4ec7bd88b2f2f1defa007c7f5891aff0f4481626a2c3a209e",
+      "worktree_modified": false,
+      "start_line": 37,
+      "end_line": 42,
+      "text": "const CONTINUE_AFTER_INCOMPLETE_STREAM =\n  \"The previous response was interrupted. Continue from where you left off without repeating completed content.\"\n\nconst CONTINUE_AFTER_OUTPUT_LIMIT =\n  \"Your last response hit the output token limit (stop reason: length). Do not apologize, recap, or repeat yourself. Break the remaining work into smaller pieces.\"\n\n"
+    }
+  ]
+}

@@ -1,0 +1,177 @@
+{
+  "format_version": 1,
+  "source": "/home/yusen/.codex/models_cache.json",
+  "cache_fetched_at": "2026-11-08T16:01:45.779948200Z",
+  "cache_client_version": "0.162.0",
+  "exported_at_utc": "2026-11-08T16:01:54.990517+00:00",
+  "configured_default_model": "gpt-6-luna",
+  "top_level_model_instructions_file": null,
+  "top_level_base_instructions_override_present": false,
+  "scope": "Exact cached model base instruction templates, not the complete assembled prompt of a running conversation.",
+  "models": [
+    {
+      "model": "gpt-6.1-sol",
+      "file": "gpt-6.1-sol.md",
+      "field": "model_messages.instructions_template",
+      "bytes": 21534,
+      "sha256": "d12e6dbdfd4a4ddb26a1f6048b69a32b8b32f74e4add9791d1dff7f4cac0b032",
+      "other_model_message_fields": [
+        "approvals",
+        "auto_review",
+        "collaboration_modes",
+        "confirmation_policies",
+        "guardian_v2",
+        "multi_agent",
+        "permissions",
+        "persistent_instructions",
+        "token_budget"
+      ]
+    },
+    {
+      "model": "gpt-6-astra",
+      "file": "gpt-6-astra.md",
+      "field": "model_messages.instructions_template",
+      "bytes": 21183,
+      "sha256": "4ddce5803b638f01342f657002289d1307634c677df840eeefdd4bc5b451276d",
+      "other_model_message_fields": [
+        "approvals",
+        "auto_review",
+        "collaboration_modes",
+        "confirmation_policies",
+        "guardian_v2",
+        "multi_agent",
+        "permissions",
+        "persistent_instructions",
+        "token_budget"
+      ]
+    },
+    {
+      "model": "gpt-6.1-terra",
+      "file": "gpt-6.1-terra.md",
+      "field": "model_messages.instructions_template",
+      "bytes": 21183,
+      "sha256": "4ddce5803b638f01342f657002289d1307634c677df840eeefdd4bc5b451276d",
+      "other_model_message_fields": [
+        "approvals",
+        "auto_review",
+        "collaboration_modes",
+        "confirmation_policies",
+        "guardian_v2",
+        "multi_agent",
+        "permissions",
+        "persistent_instructions",
+        "token_budget"
+      ]
+    },
+    {
+      "model": "gpt-6-sol",
+      "file": "gpt-6-sol.md",
+      "field": "model_messages.instructions_template",
+      "bytes": 18754,
+      "sha256": "a8567d97e0fb03f19942650430e0905fd2e092f102e8d98c03fc1b89995619c2",
+      "other_model_message_fields": [
+        "approvals",
+        "auto_review",
+        "collaboration_modes",
+        "confirmation_policies",
+        "guardian_v2",
+        "multi_agent",
+        "permissions",
+        "persistent_instructions",
+        "token_budget"
+      ]
+    },
+    {
+      "model": "gpt-reserve",
+      "file": "gpt-reserve.md",
+      "field": "model_messages.instructions_template",
+      "bytes": 17766,
+      "sha256": "a91357a1cd2727a0be06d461248d6e3a7274746e38108f548a3adf2cc2430415",
+      "other_model_message_fields": [
+        "approvals",
+        "auto_review",
+        "collaboration_modes",
+        "multi_agent",
+        "permissions",
+        "token_budget"
+      ]
+    },
+    {
+      "model": "gpt-6-luna",
+      "file": "gpt-6-luna.md",
+      "field": "model_messages.instructions_template",
+      "bytes": 17799,
+      "sha256": "e52174f354e3970ad8de5935fff8d04ddf2890a35659283d163befb56490198c",
+      "other_model_message_fields": [
+        "approvals",
+        "auto_review",
+        "collaboration_modes",
+        "confirmation_policies",
+        "guardian_v2",
+        "multi_agent",
+        "permissions",
+        "persistent_instructions",
+        "token_budget"
+      ]
+    },
+    {
+      "model": "gpt-5.6-sol",
+      "file": "gpt-5.6-sol.md",
+      "field": "model_messages.instructions_template",
+      "bytes": 17766,
+      "sha256": "a91357a1cd2727a0be06d461248d6e3a7274746e38108f548a3adf2cc2430415",
+      "other_model_message_fields": [
+        "approvals",
+        "auto_review",
+        "collaboration_modes",
+        "multi_agent",
+        "permissions",
+        "token_budget"
+      ]
+    },
+    {
+      "model": "gpt-5.6-terra",
+      "file": "gpt-5.6-terra.md",
+      "field": "model_messages.instructions_template",
+      "bytes": 17766,
+      "sha256": "a91357a1cd2727a0be06d461248d6e3a7274746e38108f548a3adf2cc2430415",
+      "other_model_message_fields": [
+        "approvals",
+        "auto_review",
+        "collaboration_modes",
+        "multi_agent",
+        "permissions",
+        "token_budget"
+      ]
+    },
+    {
+      "model": "gpt-5.6-luna",
+      "file": "gpt-5.6-luna.md",
+      "field": "model_messages.instructions_template",
+      "bytes": 17766,
+      "sha256": "a91357a1cd2727a0be06d461248d6e3a7274746e38108f548a3adf2cc2430415",
+      "other_model_message_fields": [
+        "approvals",
+        "auto_review",
+        "collaboration_modes",
+        "multi_agent",
+        "permissions",
+        "token_budget"
+      ]
+    },
+    {
+      "model": "codex-auto-review",
+      "file": "codex-auto-review.md",
+      "field": "model_messages.instructions_template",
+      "bytes": 17766,
+      "sha256": "a91357a1cd2727a0be06d461248d6e3a7274746e38108f548a3adf2cc2430415",
+      "other_model_message_fields": [
+        "approvals",
+        "auto_review",
+        "collaboration_modes",
+        "multi_agent",
+        "permissions"
+      ]
+    }
+  ]
+}

@@ -2,10 +2,14 @@ import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
 import test from 'node:test'
 import { apply, CODEX_WORKING_RULES, inject } from './index.js'
+import { apply as applyGlobalFileEdit, GLOBAL_FILE_EDIT_RULES, hideLegacyMutationSchemas } from './global-file-edit.js'
 
-test('Codex guidance makes shell primary and prevents repeating empty searches', () => {
+test('Codex guidance retains DSH bounded search and routes text mutations through apply_patch', () => {
   assert.match(CODEX_WORKING_RULES, /native `bash` tool as the primary interface/)
   assert.match(CODEX_WORKING_RULES, /Do not repeat the same failed query/)
+  assert.match(CODEX_WORKING_RULES, /dedicated `read`, `glob`, and `grep`/)
+  assert.match(CODEX_WORKING_RULES, /shell `rg` and `rg --files`/)
+  assert.match(CODEX_WORKING_RULES, /do not use `edit` or `write`/)
   assert.match(CODEX_WORKING_RULES, /native `read_image` tool/)
   assert.match(CODEX_WORKING_RULES, /built-in `image_generate` tool/)
   assert.match(CODEX_WORKING_RULES, /renders a safe PNG preview/)
@@ -18,14 +22,14 @@ test('Codex guidance makes shell primary and prevents repeating empty searches',
   assert.match(CODEX_WORKING_RULES, /zero total lines means an existing empty file/)
   assert.match(CODEX_WORKING_RULES, /Never batch speculative file reads/)
   assert.match(CODEX_WORKING_RULES, /form one complete change plan before editing/)
-  assert.match(CODEX_WORKING_RULES, /one coherent `apply_patch` call/)
-  assert.match(CODEX_WORKING_RULES, /Do not make a series of speculative one-line edits/)
+  assert.match(CODEX_WORKING_RULES, /apply them together in one `apply_patch` call/)
+  assert.match(CODEX_WORKING_RULES, /Never make a series of speculative one-line edits/)
   assert.match(CODEX_WORKING_RULES, /inspect the diff and run the relevant checks/)
   assert.match(CODEX_WORKING_RULES, /do not require a prior read-tool call/)
   assert.match(CODEX_WORKING_RULES, /metadata\/version/)
 })
 
-test('invalid grep regex retries as a literal source search', async () => {
+test('invalid grep regex retries once as a literal query', async () => {
   let calls = 0
   const grep = {
     name: 'grep', description: '', parameters: {}, output: { schema: { type: 'object' } },
@@ -41,10 +45,28 @@ test('invalid grep regex retries as a literal source search', async () => {
     systemPrompt: { section: () => () => {} },
     on: () => () => {},
   })
-
   const result = await registered.get('grep').execute({ pattern: 'if (selectedTab != CHAT)' }, {})
   assert.equal(calls, 2)
   assert.equal(result.pattern, 'if \\(selectedTab != CHAT\\)')
+})
+
+test('unsupported grep look-around returns shell rg PCRE2 guidance without retrying', async () => {
+  let calls = 0
+  const grep = {
+    name: 'grep', description: '', parameters: {}, output: { schema: { type: 'object' } },
+    async execute() {
+      calls += 1
+      throw new Error('regex parse error: look-around, including look-ahead and look-behind, is not supported')
+    },
+  }
+  const registered = new Map()
+  apply({
+    tools: { get: name => name === 'grep' ? grep : undefined, register: tool => registered.set(tool.name, tool) },
+    systemPrompt: { section: () => () => {} },
+    on: () => () => {},
+  })
+  await assert.rejects(registered.get('grep').execute({ pattern: 'className="eda-actions(?![^\"]*eda-wrap)' }, {}), /does not support look-around or backreferences[\s\S]*rg --pcre2/)
+  assert.equal(calls, 1)
 })
 
 test('edit refreshes DSH observation from metadata without calling the read tool', async () => {
@@ -120,7 +142,7 @@ test('apply_patch seeds update/delete metadata once and preserves native executi
     async execute(args, exec) {
       patchCalls += 1
       assert.equal(exec.signal, undefined)
-      assert.equal(observed.length, 2)
+      assert.equal(observed.length, 3)
       assert.equal(args.patch, patchText)
       return { applied: true }
     },
@@ -131,18 +153,131 @@ test('apply_patch seeds update/delete metadata once and preserves native executi
     on: () => () => {},
     fs: {
       async resolve(filePath) { return { displayPath: filePath } },
-      async stat(target) { return { type: 'file', version: `v:${target.displayPath}` } },
+      async stat(target) {
+        if (target.displayPath.endsWith('/new.kt')) return undefined
+        return { type: 'file', version: `v:${target.displayPath}` }
+      },
     },
     emit(event, target, observation) { observed.push([event, target.displayPath, observation]) },
   })
-  const result = await registered.get('apply_patch').execute({ patch: patchText }, {})
+  const result = await applyPatch.execute({ patch: patchText }, {})
   assert.deepEqual(result, { applied: true })
   assert.deepEqual(reads, [])
   assert.deepEqual(observed, [
     ['fs/observed', '/workspace/first.kt', { kind: 'present', version: 'v:/workspace/first.kt' }],
     ['fs/observed', '/workspace/old.kt', { kind: 'present', version: 'v:/workspace/old.kt' }],
+    ['fs/observed', '/workspace/new.kt', { kind: 'absent' }],
   ])
   assert.equal(patchCalls, 1)
+})
+
+test('native apply_patch is wrapped in place without duplicate registration', async () => {
+  const metadata = []
+  const exec = { agent: { session: {} }, signal: new AbortController().signal }
+  const native = {
+    name: 'apply_patch', description: 'native patch tool', parameters: {}, output: {},
+    async execute(args, actualExec) { assert.equal(actualExec, exec); return { applied: args.patch } },
+  }
+  const tools = {
+    get(name) { return name === 'apply_patch' ? native : undefined },
+    register() { throw new Error('duplicate tool registration') },
+    schemas() { return [native] },
+  }
+  applyGlobalFileEdit({
+    tools,
+    systemPrompt: { section: () => () => {} },
+    on: () => () => {},
+    fs: {
+      async resolve(filePath, options) { metadata.push(['resolve', filePath, options.cwd]); return { displayPath: filePath } },
+      async stat(target) { metadata.push(['stat', target.displayPath]); return { version: 'v1' } },
+    },
+    workingDirectory: { async ensure() { return '/workspace' } },
+    emit(event, target, observation, actor) { metadata.push([event, target.displayPath, observation, actor === exec]) },
+  })
+  const result = await native.execute({ patch: '*** Begin Patch\n*** Update File: /workspace/a.js\n@@\n-old\n+new\n*** End Patch' }, exec)
+  assert.equal(result.applied.includes('Update File: /workspace/a.js'), true)
+  assert.deepEqual(metadata, [
+    ['resolve', '/workspace/a.js', '/workspace'],
+    ['stat', '/workspace/a.js'],
+    ['fs/observed', '/workspace/a.js', { kind: 'present', version: 'v1' }, true],
+  ])
+  assert.equal(native.description.includes('complete known change'), true)
+})
+
+test('global editing component applies one-patch guidance and native metadata seeding outside Codex preset', async () => {
+  const registered = new Map()
+  const sections = new Map()
+  const metadata = []
+  let assemble
+  const exec = { agent: { session: {} }, signal: new AbortController().signal }
+  const originals = new Map(['edit', 'write', 'apply_patch'].map(name => [name, {
+    name, description: `native ${name}`, parameters: { type: 'object' }, output: { schema: { type: 'object' } },
+    async execute(args, actualExec) { assert.equal(actualExec, exec); return { name, args } },
+  }]))
+  applyGlobalFileEdit({
+    tools: { get: name => originals.get(name), register: tool => registered.set(tool.name, tool) },
+    systemPrompt: { section: section => sections.set(section.name, section) },
+    on: (name, listener) => { assert.equal(name, 'system-prompt/assemble'); assemble = listener; return () => {} },
+    fs: {
+      async resolve(filePath, options) { return { displayPath: filePath, options } },
+      async stat(target) { return { type: 'file', version: `v:${target.displayPath}` } },
+    },
+    workingDirectory: { async ensure() { return '/workspace' } },
+    emit(event, target, observation, actor) { metadata.push([event, target.displayPath, observation, actor]) },
+  })
+
+  assert.match(GLOBAL_FILE_EDIT_RULES, /all session modes/)
+  assert.match(GLOBAL_FILE_EDIT_RULES, /Do not use separate text-edit or file-write tools/)
+  assert.match(GLOBAL_FILE_EDIT_RULES, /one apply_patch call/)
+  assert.ok(sections.has('studio:dsh-codex:global-file-edit'))
+  const originalAssembly = { sections: [
+    { name: 'tool:edit', text: 'native edit guidance' },
+    { name: 'tool:write', text: 'native write guidance' },
+    { name: 'tool:apply_patch', text: 'native patch guidance' },
+    { name: 'other', text: 'unchanged' },
+  ] }
+  const assembled = await assemble(originalAssembly, {}, async () => originalAssembly)
+  assert.match(assembled.sections[0].text, /Do not call edit for file mutations/)
+  assert.match(assembled.sections[2].text, /one patch call/)
+  assert.equal(assembled.sections[3], originalAssembly.sections[3])
+
+  const patch = '*** Begin Patch\n*** Update File: /workspace/A.kt\n@@\n-a\n+b\n*** Update File: /workspace/B.kt\n@@\n-c\n+d\n*** End Patch'
+  const result = await originals.get('apply_patch').execute({ patch }, exec)
+  assert.deepEqual(result, { name: 'apply_patch', args: { patch } })
+  assert.deepEqual(metadata.map(row => row.slice(0, 3)), [
+    ['fs/observed', '/workspace/A.kt', { kind: 'present', version: 'v:/workspace/A.kt' }],
+    ['fs/observed', '/workspace/B.kt', { kind: 'present', version: 'v:/workspace/B.kt' }],
+  ])
+})
+
+test('Codex bundle installs global edit policy separately from the Codex preset', async () => {
+  const patch = await readFile(new URL('./cordis.patch.yml', import.meta.url), 'utf8')
+  assert.match(patch, /id: studio-dsh-codex-global-apply-patch\s+name: '@deepseek-ai\/dsh-tool-fs'\s+config:\s+read: false\s+readImage: false\s+write: false\s+edit: false\s+applyPatch: true/)
+  assert.match(patch, /id: studio-dsh-codex-global-file-edit\s+name: '@agent-studio\/plugin-dsh-codex\/global-edit'/)
+  assert.match(patch, /id: preset-codex/)
+  assert.match(patch, /edit: false\s+write: false\s+applyPatch: true/)
+})
+
+test('global file-edit plugin removes edit/write from model-facing schemas while retaining read/search/patch', () => {
+  const calls = []
+  const tools = {
+    schemas(scope, toolSet) {
+      calls.push([scope, toolSet, this === tools])
+      return ['read', 'glob', 'grep', 'edit', 'write', 'apply_patch'].map(name => ({ name }))
+    },
+  }
+  const registered = new Map()
+  tools.get = name => name === 'apply_patch' ? { name } : undefined
+  tools.register = tool => registered.set(tool.name, tool)
+  applyGlobalFileEdit({
+    tools,
+    systemPrompt: { section: () => () => {} },
+    on: () => () => {},
+  })
+  const exposed = tools.schemas('workspace', ['allowed'])
+  assert.deepEqual(exposed, [{ name: 'read' }, { name: 'glob' }, { name: 'grep' }, { name: 'apply_patch' }])
+  assert.deepEqual(calls, [['workspace', ['allowed'], true]])
+  assert.equal(hideLegacyMutationSchemas(tools), false, 'the registry schema filter is installed only once')
 })
 
 test('read retries an out-of-range offset at the last existing line', async () => {
@@ -292,11 +427,14 @@ test('plugin descriptions reflect implemented features without claiming image ge
     readFile(new URL('./cordis.patch.yml', import.meta.url), 'utf8'),
   ])
   for (const description of [pkg.description, zh.meta.description, en.meta.description]) {
-    assert.match(description, /并行检查|parallel .*inspections/)
-    assert.match(description, /搜索容错|resilient search/)
+    assert.match(description, /Codex.*编程提示|Codex-style (?:coding )?prompts/)
+    assert.match(description, /并行检查|parallel inspection/)
+    assert.match(description, /apply_patch 文本修改|apply_patch as the only text mutation tool/)
+    assert.match(description, /shell rg|基于 rg/)
+    assert.match(description, /沙箱|sandbox/)
     assert.doesNotMatch(description, /OpenAI.*图片生成|OpenAI image generation/i)
   }
-  assert.match(preset, /description: Codex 编程提示与 shell 优先流程/)
+  assert.match(preset, /description: Codex 风格编程提示与 shell 优先流程/)
   assert.doesNotMatch(preset, /OpenAI 图片生成/)
 })
 
@@ -342,7 +480,7 @@ test('preset-scoped tool overrides preserve contracts and replace the single nat
   })
   assert.equal(inject.includes('fs'), true)
   assert.equal(inject.includes('workingDirectory'), true)
-  assert.equal(registered.size, originals.size)
+  assert.equal(registered.size, originals.size - 1, 'native apply_patch is wrapped in place; Codex extends the other dedicated tools')
   for (const [name, original] of originals) {
     const replacement = registered.get(name)
     if (name === 'bash') {
@@ -354,7 +492,12 @@ test('preset-scoped tool overrides preserve contracts and replace the single nat
       assert.deepEqual(replacement.parameters, original.parameters)
       continue
     }
-    if (name !== 'grep' && name !== 'read' && !['edit', 'write', 'apply_patch'].includes(name)) assert.equal(replacement.execute, original.execute)
+    if (name === 'apply_patch') {
+      assert.equal(replacement, undefined, 'apply_patch must not be registered twice')
+      assert.match(original.execute.toString(), /seedMutationObservations/, 'native apply_patch receives the metadata wrapper')
+      continue
+    }
+    if (!['read', 'grep', 'edit', 'write', 'apply_patch'].includes(name)) assert.equal(replacement.execute, original.execute)
     assert.deepEqual(replacement.parameters, original.parameters)
     assert.notEqual(replacement.description, original.description)
   }
@@ -394,7 +537,14 @@ test('preset-scoped tool overrides preserve contracts and replace the single nat
   for (const name of ['tool:edit', 'tool:write', 'tool:apply_patch']) {
     const text = assembled.sections.find(section => section.name === name).text
     assert.doesNotMatch(text, /read (?:a file|an existing file) before/i)
-    assert.match(text, /(?:prior read-tool call is not required|without requiring a prior read-tool call)/i)
+    if (name === 'tool:apply_patch') {
+      assert.match(text, /prior read-tool call is not required/i)
+      assert.match(text, /Patch rejected before any change.*retry once/s)
+    } else if (name === 'tool:edit') {
+      assert.match(text, /Do not call edit.*apply_patch as the only file-mutation tool/)
+    } else {
+      assert.match(text, /Do not call write.*Use apply_patch/)
+    }
   }
   assert.equal(assembled.sections.find(section => section.name === 'other').text, 'keep this')
 

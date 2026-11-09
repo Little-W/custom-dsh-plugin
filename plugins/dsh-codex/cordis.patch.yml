@@ -1,10 +1,28 @@
 - insert:
+    - id: studio-dsh-codex-global-apply-patch
+      name: '@deepseek-ai/dsh-tool-fs'
+      config:
+        read: false
+        readImage: false
+        write: false
+        edit: false
+        applyPatch: true
+    - id: studio-dsh-codex-prompt-renderer
+      name: '@agent-studio/plugin-dsh-codex/prompt-renderer'
+    - id: studio-dsh-codex-model-prompts
+      name: '@agent-studio/plugin-dsh-codex/model-prompts'
+      config:
+        mode: override
+    - id: studio-dsh-codex-global-behavior
+      name: '@agent-studio/plugin-dsh-codex/global-behavior'
+    - id: studio-dsh-codex-global-file-edit
+      name: '@agent-studio/plugin-dsh-codex/global-edit'
     - id: preset-codex
       name: '@deepseek-ai/dsh-agent-preset'
       config:
         id: codex
         name: Codex 编程助手
-        description: Codex 编程提示与 shell 优先流程；先核实路径再读取，支持并行检查、限量目录列表、SVG 查看和搜索容错。
+        description: Codex 风格编程提示与 shell 优先流程；按模型加载基础模板并适配 DSH 工具，支持全模式自主探索、apply_patch 批量编辑、read/glob/grep 检索、并行检查、路径核实、SVG 图片读取和 shell rg 搜索。
         order: 0
         plugins:
           - id: persona
@@ -26,6 +44,8 @@
           - id: tool-fs
             name: '@deepseek-ai/dsh-tool-fs'
             config:
+              edit: false
+              write: false
               applyPatch: true
           - id: tool-fs-search
             name: '@deepseek-ai/dsh-tool-fs-search'

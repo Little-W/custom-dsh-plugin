@@ -1,6 +1,6 @@
 {
   "meta": {
     "title": "Codex Coding Assistant",
-    "description": "Codex-inspired shell-first coding with path-verified reads, bounded directory listings, parallel verified inspections, SVG viewing, and resilient search."
+    "description": "Model-aware Codex-style prompts expose apply_patch as the only text mutation tool in all modes, retain bounded read/glob/grep retrieval and shell rg, support parallel inspection and SVG previews, and preserve native DSH permissions and sandboxing."
   }
 }
