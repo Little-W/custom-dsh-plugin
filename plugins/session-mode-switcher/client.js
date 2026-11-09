@@ -17,7 +17,7 @@ var __copyProps = (to, from, except, desc) => {
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-// ../custom-dsh-plugin/plugins/session-mode-switcher/client.tsx
+// ../../../custom-dsh-plugin/plugins/session-mode-switcher/client.tsx
 var client_exports = {};
 __export(client_exports, {
   apply: () => apply,

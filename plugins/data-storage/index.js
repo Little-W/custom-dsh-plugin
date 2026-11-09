@@ -1,6 +1,6 @@
 import { createRequire as __createRequire } from 'node:module'; const require = __createRequire(import.meta.url);
 
-// apps/dsh/src/data-storage-plugin.ts
+// src/data-storage-plugin.ts
 import { createWriteStream, existsSync } from "node:fs";
 import { cp, lstat, mkdir, mkdtemp, readFile, readdir, realpath, rename, rm, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";

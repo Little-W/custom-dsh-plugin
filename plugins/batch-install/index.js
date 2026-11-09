@@ -1,6 +1,6 @@
 import { createRequire as __createRequire } from 'node:module'; const require = __createRequire(import.meta.url);
 
-// apps/dsh/src/plugin-batch-install.ts
+// src/plugin-batch-install.ts
 import { lstat, readFile, readdir, realpath } from "node:fs/promises";
 import path from "node:path";
 function reply(res, body2, status = 200) {
