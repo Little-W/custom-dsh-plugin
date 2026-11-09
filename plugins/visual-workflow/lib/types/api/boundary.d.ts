@@ -112,6 +112,8 @@ export interface ApiHost {
     store: FlowStore;
     dataDir: string;
     engine: EmbeddingEngine;
+    /** Registered DSH workspaces, read-only for the new-session workspace chooser. */
+    workspaceRegistry?: { list?(): unknown };
     /** 新会话创建缝（「开启新会话」一次性动作：从模板创建实例时先新建主会话；缺失时建会话端点 501）。 */
     sessionProvider?: {
         createSession(options: {

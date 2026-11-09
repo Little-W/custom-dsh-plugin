@@ -20,6 +20,25 @@ export class WorkflowEndpoints extends VisualWorkflowApiBase {
             : String(args.sessionId);
         return this.host.store.listWorkflows(sessionId);
     }
+    /** Read registered workspace roots through the host registry capability. */
+    async listWorkspaces() {
+        const listed = this.host.workspaceRegistry?.list?.();
+        if (!Array.isArray(listed))
+            return [];
+        return listed.flatMap((item) => {
+            if (typeof item !== 'object' || item === null)
+                return [];
+            const workspace = item;
+            if (typeof workspace.id !== 'string' || typeof workspace.path !== 'string')
+                return [];
+            return [{
+                    id: workspace.id,
+                    title: typeof workspace.title === 'string' && workspace.title ? workspace.title : workspace.path,
+                    directory: workspace.path,
+                    sessionCount: Array.isArray(workspace.sessionIds) ? workspace.sessionIds.length : 0,
+                }];
+        });
+    }
     /**
      * 创建新主会话端点（「开启新会话」一次性动作：从模板创建实例时先新建主会话，
      * 实例绑定该新会话 id）。

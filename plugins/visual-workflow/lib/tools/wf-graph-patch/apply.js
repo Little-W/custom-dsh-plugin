@@ -103,19 +103,18 @@ export const DEFAULT_ROLE_RETRY_LIMIT = 3;
 /**
  * 父代理**不可配置**的角色节点字段（画布所有；用户裁决）。
  *
- * 为什么：这些字段属于运行治理、提示词注入与「节点来源」范畴——retryLimit / reactLimit
- * 影响重试与 ReAct 截停，promptFilePath 会把角色提示词指向宿主文件，
+ * 为什么：这些字段属于运行治理、提示词注入与「节点来源」范畴——reactLimit
+ * 影响 ReAct 截停，promptFilePath 会把角色提示词指向宿主文件，
  * injectSystemPrompt / injectToolSections 决定官方系统提示词段与工具散文段的注入；
  * sourceAssetId 是「该节点由哪个角色资产拖入而来」的事实，资产入库时据此登记源资产新版本，
  * 由父代理随意写入会让资产版本链指向错误的来源。
  * 因此一律不进入它的配置面：
- *   - create_node：剥离传入值，按系统默认写入；
+ *   - create_node：剥离传入值，按系统默认写入；retryLimit 是显式节点配置，不在此保护列表；
  *   - update_node_data：剥离传入值，保留节点现值（用户手动改过的值不被覆盖）。
  * 注意：关闭注入开关只影响散文段与 assembly.contexts（工具调用能力由 tools[] 决定），
  * 且环境事实段（工作目录）不受该开关管辖。
  */
 export const PARENT_UNCONFIGURABLE_ROLE_FIELDS = [
-    'retryLimit',
     'reactLimit',
     'promptFilePath',
     'injectSystemPrompt',
@@ -143,15 +142,18 @@ function roleSourceAssetIdOf(op) {
     return String(record[ROLE_SOURCE_ASSET_ID_FIELD] ?? '').trim();
 }
 /**
- * 创建路径的系统默认值（父代理传入的对应字段一律忽略）。
+ * 创建路径的默认值。注入开关与 ReAct 上限由系统管理；明确提供的 retryLimit 属于节点配置，必须保留。
  * 官方人设/系统散文段对节点子代理没有价值，只会与角色提示词重复，故注入开关固定关闭；
- * 重试与 ReAct 上限取系统默认。
+ * 未提供 retryLimit 时才使用默认值。
  */
 export function applyRoleNodeCreateDefaults(raw) {
     const data = (raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : {});
     const out = stripParentUnconfigurableRoleFields(data);
-    out.retryLimit = DEFAULT_ROLE_RETRY_LIMIT;
-    out.reactLimit = null;
+    if (typeof out.retryLimit !== 'number' || !Number.isFinite(out.retryLimit) || out.retryLimit < 0) {
+        out.retryLimit = DEFAULT_ROLE_RETRY_LIMIT;
+    }
+    if (out.reactLimit === undefined)
+        out.reactLimit = null;
     out.injectSystemPrompt = false;
     out.injectToolSections = false;
     return out;

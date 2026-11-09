@@ -22,6 +22,8 @@ export function registerWfWaitAgent(ctx, host) {
         description: 'Wait until an already-started workflow node settles (ordinary child agent or Team member). ' +
             'Use this instead of the official wait_agent when waiting for a non-Team child: wait_agent only observes official Team members and returns no-active-peer for ordinary nodes. ' +
             'This tool never starts or re-dispatches a node; it polls the run snapshot and returns the node status, run status, output summary and elapsed time. ' +
+            'A new user prompt interrupts the wait and returns interruptedByUserInput=true; stop workflow scheduling and finish the current turn so the native agent loop can process the queued prompt. ' +
+            'If no active subagent is working on the selected node, the wait is interrupted immediately and returns interruptedByNoActiveAgent=true; inspect the node or dispatch it before waiting again. ' +
             'Returns status="timeout" when the timeout expires; runStatus reports paused/stopped/interrupted runs immediately.',
         parameters: {
             nodeId: { type: 'string', required: true, description: 'Node id from the flow definition file (nodes[].id). A proxy node is resolved to its source node.' },
@@ -38,6 +40,9 @@ export function registerWfWaitAgent(ctx, host) {
                     output: { type: 'string', description: 'Final node output summary when the node settled successfully.' },
                     attempts: { type: 'number', description: 'Attempt count recorded in the run snapshot.' },
                     childId: { type: 'string', description: 'The child session id currently bound to the node.' },
+                    interruptedByUserInput: { type: 'boolean', description: 'Whether a new user prompt arrived during the wait.' },
+                    interruptedByNoActiveAgent: { type: 'boolean', description: 'Whether the wait ended because no active subagent can settle the node.' },
+                    interruptMessage: { type: 'string', description: 'Reason the wait ended because no subagent is active.' },
                     waitedMs: { type: 'number', required: true, description: 'Elapsed wait in milliseconds.' },
                 },
             },

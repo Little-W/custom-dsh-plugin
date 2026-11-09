@@ -41,6 +41,8 @@ export declare class VisualWorkflowHost extends Service {
     readonly schedulerTaskStore: SchedulerTaskStore;
     /** 全局工具开关存储（tool-switches.json；父代理工具白名单「关闭」侧，全局即时生效）。 */
     readonly toolSwitches: ToolSwitchStore;
+    /** Registered DSH workspaces, read-only for the new-session workspace chooser. */
+    readonly workspaceRegistry: { list?(): unknown } | undefined;
     /** 新会话创建缝（「开启新会话」一次性动作：创建实例时新建主会话；API 端点使用）。 */
     readonly sessionProvider: CordisSessionProvider;
     /** 会话工作目录解析（新会话继承创建者 cwd 用；API 端点使用）。 */

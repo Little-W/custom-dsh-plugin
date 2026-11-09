@@ -58,6 +58,13 @@ const OFFICIAL_IDENTITY_SECTIONS = ['harness:identity', 'deployment:persona-pref
  * 散文段」，而不是「让代理不知道自己在哪里」。
  */
 const ENVIRONMENT_FACT_SECTIONS = ['deployment:persona-suffix'];
+// Deployment-wide execution/verification rules are operational policy, not
+// a role persona. Role prose switches must not erase them in any hook order.
+const OPERATIONAL_POLICY_SECTIONS = [
+    'studio:dsh-codex:global-behavior',
+    'studio:dsh-codex:global-file-edit',
+    'studio:plugin-preview:guidance',
+];
 /** 是否为 Code Mode 协议段（tools:sdk / tools:ptc-only / 旧名 tools:code-only；复数命名且以 `tools:` 开头）。 */
 function isCodeProtocolSection(name) {
     return CODE_PROTOCOL_SECTIONS.includes(name);
@@ -80,6 +87,8 @@ function isEnvironmentFactSection(name) {
  * 其余官方散文段按 injectSystemPrompt。
  */
 function shouldKeepSection(name, ref) {
+    if (OPERATIONAL_POLICY_SECTIONS.includes(name))
+        return true;
     if (name === VISUAL_WORKFLOW_PROMPT_SECTION)
         return true; // 角色 Prompt 段始终保留
     if (isCodeProtocolSection(name))

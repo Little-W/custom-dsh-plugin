@@ -103,6 +103,10 @@ export class VisualWorkflowHost extends Service {
     get disposed() {
         return this._disposed;
     }
+    get workspaceRegistry() {
+        const registry = this.ctx.get('workspaceRegistry');
+        return typeof registry === 'object' && registry !== null ? registry : undefined;
+    }
     constructor(ctx, config, options = {}) {
         super(ctx, VisualWorkflowHostServiceName);
         this.config = config;
@@ -326,6 +330,7 @@ export class VisualWorkflowHost extends Service {
         const agentId = String(agent.id ?? '');
         if (!agentId)
             return;
+        this.modelSelection.selectAgent(agent, agentId);
         // 状态优先级：仍在 withPending（首建）→ 用本次 pending；否则用首建持久化的对应该子代理状态（重发布/恢复）
         const state = this.childPrompt.peekPending() ?? this.childPromptStates.get(agentId);
         if (!state)

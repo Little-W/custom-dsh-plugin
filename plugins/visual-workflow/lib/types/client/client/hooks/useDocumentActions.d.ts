@@ -45,7 +45,7 @@ export interface DocumentActionsFace {
      * @param afterCreate 创建/覆盖成功后的回调（异步确认框路径同样触发）；
      *   「运行」入口用它接续启动（因为确认框是异步的，返回值不可依赖）。
      */
-    createInstanceFromCanvas(afterCreate?: (created: WorkflowDocument | ServiceState) => void): Promise<WorkflowDocument | null>;
+    createInstanceFromCanvas(afterCreate?: (created: WorkflowDocument | ServiceState) => void, selectedWorkspacePath?: string): Promise<WorkflowDocument | null>;
     /** 实例 → 模板（另存为全局共享工作流模板）。 */
     saveCurrentAsFlowTemplate(): Promise<void>;
     /** 当前工作流模板 → 复制为新模板（保留画布内容，名称追加「副本」）。 */

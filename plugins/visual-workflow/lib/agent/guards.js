@@ -16,20 +16,6 @@ import { REACT_CAP_DENY_REASON, REACT_CAP_MESSAGE } from '../prompts/index.js';
 // 软截停的两条模型可见文本集中在 prompts/texts/rule-soft-stop.ts；此处 re-export 保持既有导出面。
 export { REACT_CAP_DENY_REASON, REACT_CAP_MESSAGE };
 /**
- * 注入消息的来源插件标识。
- *
- * 【0.1.7-rc.1 取证】官方 `MessageSourceMap`（dsh-llm/lib/types/message.d.ts L101-108）
- * 只有 `user` / `model` / `tool` / `system-prompt` 四个基础分支，注释明确
- * 「there is no shared catch-all `plugin` kind」——0.1.5-rc.3 时代的 `plugin` 分支已被移除。
- * 本插件保持发送该 kind 的依据：该 map 是 **merge-extensible** sum type，官方消费端对
- * 未知 kind 一律 fall-through（同上注释 L98-99「consumers fall through unknown kinds」），
- * 且插件零官方运行时依赖、无法在官方的 `MessageSourceMap` 上做模块增强声明。
- * 保留 `plugin` 使转录归因行为与 0.1.5-rc.3 完全一致（同为默认标签，不改为 `user`
- * 以免把插件指令伪装成用户发言）。若官方未来对未知 kind 收紧为硬校验，需改为
- * `{ kind: 'user' }`。
- */
-const PLUGIN_SOURCE_ID = 'visual-workflow';
-/**
  * 创建软截停护栏：返回桥（runner 登记上限/编排器消费标记）与贡献
  * （贡献签名为 `(childCtx) => disposer`；由宿主在子代理创建窗口内对 childCtx 调用，
  * 撤销函数归宿主持有——本模块不持有作用域撤销表，见同目录 AGENTS.md § 状态所有权）。
@@ -128,8 +114,8 @@ export function createReactGuard() {
                             id: randomUUID(),
                             role: 'user',
                             content: [{ type: 'text', text: REACT_CAP_MESSAGE }],
-                            // source 必须满足官方 plugin 来源的全部必填字段（见 PLUGIN_SOURCE_ID 取证）
-                            source: { kind: 'plugin', plugin: PLUGIN_SOURCE_ID },
+                            // v4 persists direct producer attribution; the retired `{ kind: 'plugin' }` wrapper is rejected.
+                            source: { kind: 'visual-workflow', form: 'react-cap' },
                         },
                     ],
                 };

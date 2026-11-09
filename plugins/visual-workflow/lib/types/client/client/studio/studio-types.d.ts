@@ -77,7 +77,9 @@ export type EditorRef = {
 } | null;
 /** 对话框状态（未保存守卫/确认/导入冲突）。 */
 export interface ConfirmState {
-    kind: 'unsaved' | 'confirmText' | 'importConflict';
+    kind: 'unsaved' | 'confirmText' | 'importConflict' | 'workspacePicker';
+    workspaces?: Array<{ id: string; title: string; directory: string; sessionCount: number }>;
+    onWorkspaceSelected?: (directory: string) => unknown;
     title?: string;
     message?: string;
     /** 确认后的回调（未保存守卫：保存/放弃后继续执行）。 */

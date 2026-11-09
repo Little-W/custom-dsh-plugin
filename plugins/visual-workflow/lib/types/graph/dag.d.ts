@@ -25,6 +25,11 @@ export interface FlowDag {
 export declare function isFlowLine(line: Line): boolean;
 /** 构建流程子图（忽略端点缺失的线，避免悬空引用影响判定）。 */
 export declare function buildFlowDag(nodes: GraphNode[] | null | undefined, lines: Line[] | null | undefined): FlowDag;
+/** Valid proxy id -> agent/parent id. Invalid aliases remain subject to structural validation. */
+export declare function flowAliasIds(nodes: GraphNode[] | null | undefined): Map<string, string>;
+/** Flow topology with role aliases resolved, matching runtime scheduling. Canvas data is unchanged. */
+export declare function buildExecutionFlowDag(nodes: GraphNode[] | null | undefined, lines: Line[] | null | undefined): FlowDag;
+export declare function reachableFlowIds(dag: FlowDag, entries: Iterable<string>): Set<string>;
 /**
  * 环检测（DFS 三色染色）：返回**参与环**的节点集合。
  * 为什么不用拓扑排序的「处理不完」近似：那条路会把「环下游的整段链条」也划入，

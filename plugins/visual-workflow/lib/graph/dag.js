@@ -43,6 +43,32 @@ export function buildFlowDag(nodes, lines) {
     }
     return { nodeIds, adjacency, incoming, edges };
 }
+/** Resolve valid role aliases exactly as the runtime does, without editing canvas nodes/lines. */
+export function flowAliasIds(nodes) {
+    const byId = new Map((nodes ?? []).map(node => [node.id, node]));
+    return new Map((nodes ?? []).filter(node => node.kind === 'proxy'
+        && ['agent', 'parent'].includes(byId.get(node.proxySourceId)?.kind))
+        .map(node => [node.id, node.proxySourceId]));
+}
+/** Execution topology: aliases share one role, including edges attached on either side. */
+export function buildExecutionFlowDag(nodes, lines) {
+    const aliases = flowAliasIds(nodes);
+    return buildFlowDag((nodes ?? []).filter(node => !aliases.has(node.id)),
+        (lines ?? []).map(line => ({ ...line,
+            source: aliases.get(line.source) ?? line.source,
+            target: aliases.get(line.target) ?? line.target,
+        })));
+}
+/** All nodes reachable from the supplied entries, including conditional flow branches. */
+export function reachableFlowIds(dag, entries) {
+    const visited = new Set(entries), queue = [...visited];
+    for (let cursor = 0; cursor < queue.length; cursor++) {
+        for (const next of dag.adjacency.get(queue[cursor]) ?? []) {
+            if (!visited.has(next)) { visited.add(next); queue.push(next); }
+        }
+    }
+    return visited;
+}
 /**
  * 环检测（DFS 三色染色）：返回**参与环**的节点集合。
  * 为什么不用拓扑排序的「处理不完」近似：那条路会把「环下游的整段链条」也划入，

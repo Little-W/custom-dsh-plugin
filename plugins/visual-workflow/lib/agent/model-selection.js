@@ -1,151 +1,123 @@
-// src/host/agent/model-selection.ts
-//
-// 节点思考强度（reasoning effort）注入。
-//
-// 官方取证：
-//   - 官方机制 = ModelSelection + installModelSelection(agentCtx, selection)
-//     （packages/core/agent/src/model-selection.ts L10-75）：两条 scoped waterfall
-//     （system-prompt/assemble 注入 provider/model 变量；agent/request 改写
-//     LlmCallConfig 的 provider/model/reasoningEffort），selection.current 可变，
-//     由调用入口持有；
-//
-// 本移植：结构逐条对齐官方 installModelSelection 的双瀑布与可变 selection 语义，
-// payload/next 全部 unknown 收窄；selection 以 WeakMap 按 childCtx 对象身份登记，
-// runner 在 startContinuable 返回后经 agents.get(childId).ctx 找到同一对象并写入
-// 节点级 { provider, model, reasoningEffort }——无全局 pending 状态
-//
-// 【与官方的已知差异（取证：dsh-agent/lib/types/model-selection.d.ts L23-41）】该版本官方
-// installModelSelection 在 provider/model **变化**时还会向下一次被受理的请求追加以
-// user 角色写入的持久化告知（durable notice），effort 单变与空决策不写。本平台按
-// 「节点子代理的 provider/model 在创建时确定、运行中不切换」使用该能力，故未移植告知线；
-// 若将来允许节点级运行中切换模型，必须补齐该行为并同步测试（见同目录 AGENTS.md § 依赖边界）。
+// Native AgentModel owns routing, durable selections and model-switch notices.
+// Only hosts without AgentModel use the legacy assembly/request waterfalls.
 import { AsyncLocalStorage } from 'node:async_hooks';
-/**
- * 在 childCtx 上安装模型选择双瀑布监听（官方 installModelSelection 的零依赖移植）。
- * 返回 disposer（官方契约：贡献必须返回该次安装的清理器）。
- */
-export function installModelSelectionLike(childCtx, selection) {
-    // system-prompt/assemble：组装期把 provider/model 注入提示词变量（官方 L40-53）
-    const disposeAssembly = childCtx.on('system-prompt/assemble', async (_rawAssembly, _rawContext, next) => {
-        const assembly = await next();
-        const selected = selection.current;
-        selection.assembled = selected;
-        if (selected === undefined)
-            return assembly;
-        const shaped = assembly;
-        if (!shaped || typeof shaped !== 'object')
-            return assembly;
-        return {
-            ...shaped,
-            variables: {
-                ...(shaped.variables ?? {}),
-                provider: selected.provider,
-                model: selected.model,
-            },
-        };
-    });
-    // agent/request：请求路由改写 provider/model，并写入 reasoningEffort
-    // （官方 L54-70：无 effort 时清除继承值，恢复所选模型默认行为）
-    const disposeRequest = childCtx.on('agent/request', async (_rawPayload, next) => {
-        const resolved = (await next());
-        const selected = selection.assembled;
-        if (selected === undefined)
-            return resolved;
-        const shaped = resolved && typeof resolved === 'object' ? resolved : {};
-        const withoutInherited = { ...shaped };
-        delete withoutInherited.reasoningEffort;
-        return {
-            ...withoutInherited,
-            provider: selected.provider,
-            model: selected.model,
-            ...(selected.reasoningEffort === undefined ? {} : { reasoningEffort: selected.reasoningEffort }),
-        };
-    });
-    return () => {
-        disposeAssembly();
-        disposeRequest();
-    };
+
+/** An empty workflow setting means inherit; it must never become the route "/". */
+export function normalizeModelSelection(value) {
+    const provider = typeof value?.provider === 'string' ? value.provider.trim() : '';
+    const model = typeof value?.model === 'string' ? value.model.trim() : '';
+    if (!provider || !model)
+        return undefined;
+    const effort = typeof value.reasoningEffort === 'string' ? value.reasoningEffort.trim() : '';
+    return { provider, model, ...(effort ? { reasoningEffort: effort } : {}) };
 }
-/**
- * 创建模型选择装配：返回贡献与 attach 入口。
- * 为什么 attach 在创建后（而非贡献内取配置）：贡献签名固定 (childCtx) => disposer，
- * 无法携带节点参数；WeakMap 身份匹配让 runner 在拿到 childId → agent.ctx 后写值，
- * 无 pending 状态竞态（并发创建安全）。
- */
+
+function nativeModelOf(agent) {
+    return typeof agent?.model?.select === 'function' ? agent.model : undefined;
+}
+
+/** Compatibility only: modern hosts freeze routing BEFORE prompt/tool preparation. */
+export function installModelSelectionLike(childCtx, selection) {
+    const disposeAssembly = childCtx.on('system-prompt/assemble', async (_assembly, context, next) => {
+        const assembly = await next();
+        if (selection.nativeModel || context?.modelSelection)
+            return assembly;
+        const selected = normalizeModelSelection(selection.current);
+        selection.assembled = selected;
+        if (!selected || !assembly || typeof assembly !== 'object')
+            return assembly;
+        return { ...assembly, variables: { ...(assembly.variables ?? {}), provider: selected.provider, model: selected.model } };
+    });
+    const disposeRequest = childCtx.on('agent/request', async (payload, next) => {
+        const resolved = await next();
+        // Also guard late registration/recovery: never override a modern Agent's fixed step.
+        if (selection.nativeModel || nativeModelOf(payload?.agent))
+            return resolved;
+        const selected = normalizeModelSelection(selection.assembled);
+        if (!selected)
+            return resolved;
+        const withoutInherited = { ...resolved };
+        delete withoutInherited.reasoningEffort;
+        return { ...withoutInherited, ...selected };
+    });
+    return () => { disposeAssembly(); disposeRequest(); };
+}
+
 export function createModelSelectionSetup() {
     const selections = new WeakMap();
-    /** 创建窗口内的选择（仅在该窗口内可见；按 childId 的留存表见 remembered）。 */
+    const nativeModels = new WeakMap();
     const pending = new AsyncLocalStorage();
-    /**
-     * childId → 已记住的模型选择（重发布重装用）。
-     * 【释放路径】条目与子代理身份绑定，只增不减；内容为两个短字符串，随宿主持有的本装配
-     * 对象一起回收（宿主 dispose 后无引用）。childId 全局唯一，故不按会话再分表。
-     */
     const remembered = new Map();
-    // 父代理（根 Agent）按 sessionId 的绑定表：每会话只注册一次，更新走 selection.current。
-    // 【释放路径】监听器注册在根 Agent 的 ctx 上，随该 ctx 的 fiber 卸载自动移除；
-    // 本表只保留装配期的状态引用，随宿主实例一起回收（宿主持有本装配对象，不单独释放）。
     const parentRefs = new Map();
-    const contribution = (rawChildCtx) => {
-        const childCtx = rawChildCtx;
-        const pendingSelection = pending.getStore();
-        const selection = {
-            current: pendingSelection ? { ...pendingSelection } : undefined,
-            assembled: undefined,
-        };
+    const contribution = childCtx => {
+        const selection = { current: normalizeModelSelection(pending.getStore()), assembled: undefined, nativeModel: nativeModels.get(childCtx) };
         selections.set(childCtx, selection);
-        return installModelSelectionLike(childCtx, selection);
+        // Native model selection already supplies prompt variables and request routing.
+        return selection.nativeModel ? () => {} : installModelSelectionLike(childCtx, selection);
     };
-    const attach = (childCtx, selection) => {
+    const attach = (childCtx, value) => {
+        const selected = normalizeModelSelection(value);
         const ref = selections.get(childCtx);
-        if (!ref)
-            return; // 该 child 未走本贡献（如非延续子代理/其他 provider）：静默忽略
-        ref.current = { ...selection };
-    };
-    const withPending = (selection, operation) => pending.run(selection, operation);
-    const remember = (childId, selection) => {
-        const id = String(childId ?? '');
-        if (!id)
+        if (!ref || !selected)
             return;
-        remembered.set(id, { ...selection });
+        ref.current = selected;
+    };
+    const remember = (childId, value) => {
+        const selected = normalizeModelSelection(value);
+        if (childId && selected)
+            remembered.set(String(childId), selected);
     };
     const restore = (childId, childCtx) => {
-        const selection = remembered.get(String(childId ?? ''));
-        if (!selection)
-            return;
-        if (childCtx === null || typeof childCtx !== 'object')
-            return;
-        const ref = selections.get(childCtx);
-        if (!ref)
-            return; // 该 child 未走本贡献：无 selection 可写，静默跳过
-        ref.current = { ...selection };
+        const selected = remembered.get(String(childId ?? ''));
+        if (childCtx && typeof childCtx === 'object' && selected)
+            attach(childCtx, selected);
     };
-    const bindParent = (ctx, selection, sessionId) => {
+    // Called in agent/created, before the first step's selection is captured.
+    const selectAgent = (agent, childId) => {
+        const model = nativeModelOf(agent);
+        if (model && agent.ctx && typeof agent.ctx === 'object') {
+            nativeModels.set(agent.ctx, model);
+            const ref = selections.get(agent.ctx);
+            if (ref) ref.nativeModel = model;
+        }
+        const selected = normalizeModelSelection(pending.getStore() ?? remembered.get(String(childId ?? '')));
+        if (selected) model?.select(selected);
+    };
+    const bindParent = (ctx, value, sessionId, onSelectionChange, agent) => {
         if (!ctx || typeof ctx !== 'object')
             return;
+        const nativeModel = nativeModelOf(agent) ?? nativeModels.get(ctx);
+        const selected = normalizeModelSelection(value);
+        if (nativeModel && selected)
+            nativeModel.select(selected);
         let ref = parentRefs.get(sessionId);
-        if (!ref) {
-            ref = { current: undefined, assembled: undefined };
+        // Reactivating a session creates a NEW Agent scope even in the same process.
+        if (!ref || ref.ctx !== ctx) {
+            ref?.dispose();
+            ref = { ctx, current: selected, assembled: undefined, nativeModel, selectionSync: Promise.resolve() };
             parentRefs.set(sessionId, ref);
-            installModelSelectionLike(ctx, ref);
+            const disposeRouting = nativeModel ? () => {} : installModelSelectionLike(ctx, ref);
+            const disposeEvents = ctx.on('session/event', (_session, event) => {
+                if (event?.type !== 'model/selection')
+                    return;
+                const next = normalizeModelSelection(event.data);
+                if (!next)
+                    return;
+                ref.current = next;
+                const sync = ref.onSelectionChange;
+                ref.selectionSync = ref.selectionSync.then(() => sync?.({ ...next })).catch(() => {});
+            });
+            ref.dispose = () => { disposeRouting(); disposeEvents(); };
         }
-        ref.current = { ...selection };
+        ref.nativeModel = nativeModel;
+        ref.current = selected;
+        ref.onSelectionChange = typeof onSelectionChange === 'function' ? onSelectionChange : undefined;
     };
-    const parentModelOf = (sessionId) => {
-        const id = String(sessionId ?? '');
-        if (!id)
-            return null;
-        const ref = parentRefs.get(id);
-        // 返回副本：查询方不得就地改写本装配持有的选择引用
-        return ref?.current ? { ...ref.current } : null;
+    const copyOf = value => value ? { ...value } : null;
+    return {
+        contribution, attach, remember, restore, selectAgent, bindParent,
+        withPending: (value, operation) => pending.run(normalizeModelSelection(value), operation),
+        modelOf: childId => copyOf(remembered.get(String(childId ?? ''))),
+        parentModelOf: sessionId => copyOf(parentRefs.get(String(sessionId ?? ''))?.current),
     };
-    const modelOf = (childId) => {
-        const id = String(childId ?? '');
-        if (!id)
-            return null;
-        const selection = remembered.get(id);
-        return selection ? { ...selection } : null;
-    };
-    return { contribution, attach, withPending, remember, restore, bindParent, modelOf, parentModelOf };
 }
-//# sourceMappingURL=model-selection.js.map

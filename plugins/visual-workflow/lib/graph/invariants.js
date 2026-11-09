@@ -12,6 +12,7 @@
 //
 // 纯函数：不读时钟/随机源，同输入同输出（输出按 level → code → message 稳定排序）。
 import { buildFlowDag, detectCycleNodes } from './dag.js';
+import { feedbackFlowView } from './feedback.js';
 import { ruleCannotReachEnd, ruleConditionPair, ruleEndFlowIn, ruleEndRequired, ruleFlowCycle, ruleOrphanNode, ruleReachability, ruleStageDirection, ruleStartFlowOut, ruleStartRequired, } from './invariants-rules-flow.js';
 import { ruleCtxSource, ruleDataNodeComplete, ruleDbTarget, ruleGroupMembers, ruleParentProxyFlowIn, ruleProxySource, ruleRoleNodeConfigured, } from './invariants-rules-nodes.js';
 import { ruleDuplicateRoleLabel, ruleMetaLimits, ruleNamingConvention } from './invariants-rules-meta.js';
@@ -39,6 +40,7 @@ function issueKey(issue) {
 export function checkGraphInvariants(input) {
     const dag = buildFlowDag(input.flow?.nodes, input.flow?.lines);
     const cycleNodes = detectCycleNodes(dag);
+    const forwardDag = feedbackFlowView(input.flow).dag;
     const issues = [
         // 流程与阶段维度
         ...ruleStartRequired(input),
@@ -63,7 +65,7 @@ export function checkGraphInvariants(input) {
         // 元参数与命名维度
         ...ruleDuplicateRoleLabel(input),
         ...ruleNamingConvention(input),
-        ...ruleMetaLimits(input, dag, cycleNodes),
+        ...ruleMetaLimits(input, forwardDag, detectCycleNodes(forwardDag)),
     ];
     const forbidden = new Set((input.meta?.forbiddenShapes ?? []).map((code) => String(code)));
     const seen = new Set();

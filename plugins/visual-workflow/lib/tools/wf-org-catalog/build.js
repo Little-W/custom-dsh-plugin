@@ -16,16 +16,17 @@ export const DETAIL_HINT = 'Index entries are **candidates** only (name / descri
     + '["flow-xxx"] = the workflow asset\'s complete skeleton; ["role-xxx"] = the sub-agent role asset\'s full systemPrompt; '
     + '["flow-xxx#node-yyy"] = the full systemPrompt of that inline role\'s fixed version. '
     + 'The skeleton already contains stage nodes, group configuration, lines and data-node bodies (those have no second recall path); '
-    + 'the only long field recalled on demand is the role systemPrompt. '
+    + 'role-node retryLimit and other execution fields are included in each node record; the role systemPrompt is the only long role field recalled on demand. '
     + 'The parent agent\'s prompt is never recallable through this catalog, by any id shape. '
+    + 'When checking saved text, inspect the exact returned field and node id: task/step body is node.content; agent instructions are in inlineRoles[].systemPrompt, not in the skeleton. Empty or missing content is not populated by a label, summary, description, or a separate patch input. '
     + 'A bad id among ids fails alone and does not block the rest.';
 /** 骨架返回体里的提示：角色提示词走复合 id 按需召回；角色版本无法解析时的取舍。 */
-export const WORKFLOW_DETAIL_NOTE = 'Role nodes in nodes (kind=agent) omit systemPrompt: recall each one by its composite id from inlineRoles. '
+export const WORKFLOW_DETAIL_NOTE = 'Role nodes in nodes (kind=agent) include execution parameters such as retryLimit but omit systemPrompt: recall each prompt by its composite id from inlineRoles. '
     + 'The parent node (kind=parent) is the orchestrator itself: its prompt is never recallable and is absent from inlineRoles. '
     + 'roleAssetId / roleVersionId are the role asset and version this node is pinned to; when that role version row can no longer be resolved, both fields are omitted (the rest of the skeleton is unaffected).';
 /** 实例骨架返回体提示：第 3 层入口 + 孤立节点禁令（口径与资产骨架一致）。 */
 export const INSTANCE_DETAIL_NOTE = 'This is the skeleton of the instance running in this session: topology only, no asset content. '
-    + 'Role nodes in nodes (kind=agent) omit systemPrompt: recall each one by its instance#<node id> from inlineRoles. '
+    + 'Role nodes in nodes (kind=agent) include execution parameters such as retryLimit but omit systemPrompt: recall each prompt by its instance#<node id> from inlineRoles. '
     + 'The parent node (kind=parent) is the orchestrator itself: its prompt is never recallable and is absent from inlineRoles. '
     + 'schedulable=false marks nodes that are not dispatch targets (including proxy aliases): dispatch the proxySourceId instead.';
 /**
@@ -269,6 +270,7 @@ export function buildRoleDetail(asset) {
         name: trimmedOrNull(asset.name) ?? id,
         kind: asset.kind === 'parent' ? 'parent' : 'agent',
         presetId: trimmedOrNull(asset.presetId),
+        retryLimit: typeof asset.retryLimit === 'number' && Number.isFinite(asset.retryLimit) ? asset.retryLimit : 3,
         provider: textOf(asset.provider),
         model: textOf(asset.model),
         ...(reasoning ? { reasoning } : {}),
@@ -295,6 +297,7 @@ export function buildInlineRoleDetail(input) {
         ...(input.roleVersionId !== undefined ? { roleVersionId: input.roleVersionId } : {}),
         label: textOf(data.label),
         presetId: trimmedOrNull(data.presetId),
+        retryLimit: typeof data.retryLimit === 'number' && Number.isFinite(data.retryLimit) ? data.retryLimit : 3,
         provider: textOf(data.provider),
         model: textOf(data.model),
         ...(reasoning ? { reasoning } : {}),
@@ -329,6 +332,7 @@ function roleNodeEntry(node, roleAssetId, roleVersionId) {
         kind: node.kind,
         label: labelOf(node),
         presetId: trimmedOrNull(data.presetId),
+        retryLimit: typeof data.retryLimit === 'number' && Number.isFinite(data.retryLimit) ? data.retryLimit : 3,
         provider: textOf(data.provider),
         model: textOf(data.model),
         ...(reasoning ? { reasoning } : {}),

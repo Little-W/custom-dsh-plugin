@@ -17,6 +17,16 @@
     maxDepth: 2
     maxActiveSubagents: 16
 - insert:
+    # 知识积累组件：独立 insert 行使其成为 DSH「包含的组件」列表中的独立组件，
+    # 可单独启停，不必随 visual-workflow 主组件一起加载。
+    # name 指向 package.json exports 的 `./knowledge`（lib/knowledge/index.js）。
+    - id: visual-workflow-knowledge
+      name: dsh-visual-workflow/knowledge
+      inject: [tools]
+      config:
+        # 与主组件同源：知识库与生成的技能落在工作流数据根目录下。
+        dataDir: !!js dshHomePath('visual-workflow')
+
     - id: visual-workflow
       name: dsh-visual-workflow
       inject: [agents, sessions, subagents, agentTeams, tools, llm, webServer]

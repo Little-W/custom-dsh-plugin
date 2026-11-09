@@ -44,10 +44,12 @@ export const TOOL_ZH = {
     wf_send_message: '向父代理或本运行的成员节点投递一条单向持久消息（不等待回复）',
     wf_db_query: '数据库三模式访问（search / query / schema；需 db-in 连线）',
     wf_org_catalog: '只读勘察组织资产（编排规则/资产/组合/preset/模型），可按需召回详情；仅父代理可用',
-    wf_graph_patch: '改写工作流图（图结构）；仅父代理可用',
+    wf_graph_patch: '读取、校验或原子修改工作流图；仅父代理可用',
     wf_experience_learn: '提交主体自己的经验候选入库；空数组调用取生成 Prompt',
     wf_experience_recall: '按主体类型语义召回既有经验（先取候选摘要，再按 id 取全文）',
     wf_experience_feedback: '提交已使用经验的四维评价（任务收尾阶段，与经验学习同阶段）',
+    wf_knowledge_capture: '沉淀可复用的工作流技能或已修复的错误教训',
+    wf_knowledge_recall: '召回知识库：自迭代指引 / 摘要检索 / 按 id 读全文',
 };
 /** 内置常用工具英文描述映射（与 TOOL_ZH 同键；未命中回退 schema 原文，不加 [EN] 前缀）。 */
 export const TOOL_EN = {
@@ -83,10 +85,12 @@ export const TOOL_EN = {
     wf_send_message: 'Send one durable message to the parent or a member node (no reply awaited)',
     wf_db_query: 'Three-mode database access (search / query / schema; needs a db-in edge)',
     wf_org_catalog: 'Read-only survey of org assets; recall details on demand; parent only',
-    wf_graph_patch: 'Rewrite the workflow graph (structure); parent only',
+    wf_graph_patch: 'Read, validate or atomically patch a workflow graph; parent only',
     wf_experience_learn: 'Submit your own experience candidates; empty array fetches the prompt',
     wf_experience_recall: 'Recall existing experiences by subject type; then read full entries by id',
     wf_experience_feedback: 'Rate the experiences you used (four dimensions; task wrap-up stage)',
+    wf_knowledge_capture: 'Capture a reusable workflow skill or a diagnosed error lesson',
+    wf_knowledge_recall: 'Read the knowledge base: guide / summary recall / full entries by id',
 };
 /**
  * 组合管理卡片描述（纯函数，导出供单测）：

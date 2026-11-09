@@ -33,6 +33,7 @@ import { applyGraphOpsTolerant } from './apply.js';
 import { expandRoleRefs } from './role-ref.js';
 import { knownModelsOf, modelSelectionFailures, writtenModelSelectionsOf } from './policy.js';
 import { ALLOWED_OP_NAMES_TEXT, ROLE_SOURCE_ASSET_ID_FIELD, unknownOpsOf, } from './types.js';
+import { graphDiagnostics, unchangedState } from './diagnostics.js';
 /** 由图文档与已用量组装只读预算（生效元参数按文档声明归一）。 */
 function budgetOf(doc, options = {}) {
     return orgBudgetOf(effectiveOrgMeta(metaOfDocument(doc)), orgUsageOf(doc, options));
@@ -52,13 +53,16 @@ function warningsOf(issues, toleratedCodes = new Set()) {
  * 阻断型 issue → WF_GRAPH_INVALID（错误文本带全部明细与修复建议，
  * 这是模型自我修正的唯一通道，故必须把建议原样透出）。
  */
-function throwGraphInvalid(issues) {
+function issueIdentity(issue) {
+    return JSON.stringify([issue.code, [...(issue.nodeIds ?? [])].sort(), [...(issue.lineIds ?? [])].sort(), issue.message]);
+}
+function throwGraphInvalid(issues, doc, input, candidate) {
     const detail = issues.map((issue) => {
         const where = [...(issue.nodeIds ?? []), ...(issue.lineIds ?? [])].join(',');
         const hint = String(issue.suggestion ?? '').trim();
         return `[${issue.code}]${where ? `(${where})` : ''} ${issue.message}${hint ? ` -> suggestion: ${hint}` : ''}`;
     }).join('\n');
-    throw new WfError(`WF_GRAPH_INVALID: the patch was blocked by the graph checker (${issues.length} issue(s)):\n${detail}`, 'WF_GRAPH_INVALID');
+    throw new WfError(`WF_GRAPH_INVALID: the patch was blocked by the graph checker (${issues.length} issue(s)):\n${detail}\n${unchangedState(doc, input, candidate, issues)}`, 'WF_GRAPH_INVALID');
 }
 /** 补丁 op 数上限（与 rules.patchContract 的规则文本同源；元参数 patchOpsMax 由检查器护栏判定）。 */
 const PATCH_OPS_HARD_LIMIT = PATCH_OPS_MAX;
@@ -70,10 +74,10 @@ const PATCH_OPS_HARD_LIMIT = PATCH_OPS_MAX;
  * 为什么消息里保留每条自己的错误码：只有码能让模型分辨「改入参形状」还是「改图」。
  * 批次级码取一致语义：全部为参数层错误才是 WF_BAD_ARGS，出现图语义错误则归 WF_GRAPH_INVALID。
  */
-function throwPatchErrors(errors) {
+function throwPatchErrors(errors, doc, input) {
     const detail = errors.map((item) => `#${item.index + 1} ${item.op} [${item.code}] ${item.message}`).join('\n');
     const code = errors.every((item) => item.code === 'WF_BAD_ARGS') ? 'WF_BAD_ARGS' : 'WF_GRAPH_INVALID';
-    throw new WfError(`the patch was not applied: ${errors.length} op(s) are invalid, so nothing was persisted (the target graph is unchanged)\n${detail}\nFix every reported problem and submit again.`, code);
+    throw new WfError(`the patch was not applied: ${errors.length} op(s) are invalid, so nothing was persisted (the target graph is unchanged)\n${detail}\n${unchangedState(doc, input)}\nFix every reported problem and submit again.`, code);
 }
 /**
  * 判定目标实际类型（按真实存在性，不按调用方声明）：
@@ -184,13 +188,16 @@ async function runGraphGroup(host, input, ops) {
     // 通路的 loadDoc 返回的是模板本体（WorkflowTemplate 缺 sessionId 这一与图无关的实例归属
     // 字段），故此处收敛一次。不引入类型体操：判据只是「模板在该管道内按文档处理」。
     const doc = (await loadDoc(host, input));
+    if (input.expectRevision !== undefined && input.expectRevision !== (doc.revision ?? 0)) {
+        throw new WfError(`WF_PATCH_CONFLICT: expectRevision=${input.expectRevision}, currentRevision=${doc.revision ?? 0}. The saved graph changed; nothing was applied. Use action="read" on this same scope/targetId and rebuild the patch against that saved revision.`, 'WF_PATCH_CONFLICT');
+    }
     const meta = effectiveOrgMeta(metaOfDocument(doc));
     // 既有图问题基线（legacy 宽容）：已存在的阻断型问题不应让**任何**后续合法编辑都失败，
-    // 否则历史导入/旧版本保存的图会永久不可编辑。只阻断本批补丁**新引入**的问题 code；
+    // 否则历史导入/旧版本保存的图会永久不可编辑。按定位与明细识别同一个问题；
     // 既有问题仍在返回 warnings 中透出（带「既有 legacy 问题」前缀）。新建模板不适用宽容。
-    const baselineBlockingCodes = new Set((input.newTemplateDoc ? [] : checkGraphInvariants({ flow: doc, meta, origin: 'agent', patchOps: 0 }))
+    const baselineBlockingIssues = new Set((input.newTemplateDoc ? [] : checkGraphInvariants({ flow: doc, meta, origin: 'agent', patchOps: 0 }))
         .filter((issue) => issue.level === 'error')
-        .map((issue) => issue.code));
+        .map(issueIdentity));
     // 角色引用先异步展开（资产取数），再交给纯同步应用器：
     //   - 成功项换成完整 data，后续存在性校验天然能看到资产带来的 presetId/provider/model；
     //   - 失败项由 skipped 标记，apply 既不应用也不重复报错，错误索引仍对应原批。
@@ -205,12 +212,12 @@ async function runGraphGroup(host, input, ops) {
         ...await modelSelectionFailuresOf(host, expansion.ops, applied.result.doc),
     ].sort((left, right) => left.index - right.index);
     if (failures.length > 0)
-        throwPatchErrors(failures);
+        throwPatchErrors(failures, doc, input);
     const result = applied.result;
     // 串联既有结构校验：先 validateFlow（结构合法性）→ 再 checkGraphInvariants（编排质量）
     const structural = validateFlow(result.doc);
     if (!structural.ok) {
-        throw new WfError(`WF_GRAPH_INVALID: the patch violates structural validation: ${structural.issues.slice(0, 6).map((issue) => `[${issue.code}] ${issue.message}`).join('; ')}`, 'WF_GRAPH_INVALID');
+        throw new WfError(`WF_GRAPH_INVALID: the patch violates structural validation: ${structural.issues.slice(0, 6).map((issue) => `[${issue.code}] ${issue.message}`).join('; ')}\n${unchangedState(doc, input, result.doc, structural.issues)}`, 'WF_GRAPH_INVALID');
     }
     // 改图方恒为代理（工具不再提供来源参数）：元参数硬护栏因此永久生效。
     const issues = checkGraphInvariants({
@@ -220,10 +227,14 @@ async function runGraphGroup(host, input, ops) {
         patchOps: ops.length,
     });
     const blocking = issues.filter((issue) => issue.level === 'error');
-    const introduced = blocking.filter((issue) => !baselineBlockingCodes.has(issue.code));
+    const introduced = blocking.filter((issue) => !baselineBlockingIssues.has(issueIdentity(issue)));
     if (introduced.length > 0)
-        throwGraphInvalid(introduced);
+        throwGraphInvalid(introduced, doc, input, result.doc);
     const toleratedCodes = new Set(blocking.map((issue) => issue.code));
+    if (input.validateOnly) return {
+        revision: doc.revision ?? 0, issues, toleratedCodes, result,
+        budget: budgetOf(result.doc, { patchOps: ops.length }),
+    };
     result.doc.lastPatch = {
         origin: 'agent',
         at: new Date().toISOString(),
@@ -404,6 +415,20 @@ export async function executeGraphPatch(host, sessionId, args) {
     if (scope !== 'template' && scope !== 'instance') {
         throw new WfError("WF_SCOPE_INVALID: scope must be 'template' or 'instance'", 'WF_SCOPE_INVALID');
     }
+    const action = args?.action ?? 'apply';
+    if (!['read', 'validate', 'apply'].includes(action)) throw new WfError('WF_BAD_ARGS: action must be read, validate or apply', 'WF_BAD_ARGS');
+    if (action === 'read') {
+        const targetId = String(args?.targetId ?? '').trim();
+        if (!targetId || args.create !== undefined || args.ops !== undefined) throw new WfError('WF_BAD_ARGS: action=read requires targetId and must omit ops/create; it never applies a patch', 'WF_BAD_ARGS');
+        await assertScopeTarget(host, scope, { sessionId, targetId });
+        const doc = await loadDoc(host, { scope, sessionId, targetId });
+        const graph = JSON.parse(JSON.stringify({ id: doc.id, name: doc.name, mode: doc.mode, revision: doc.revision ?? 0, nodes: doc.nodes, lines: doc.lines }), (key, value) => /^(?:password|apiKey|api_key|accessToken|refreshToken|authorization|token|secret)$/i.test(key) ? '[redacted]' : value);
+        if (args.includePrompts !== true) for (const node of graph.nodes) {
+            if ((node.kind === 'agent' || node.kind === 'parent') && node.data) delete node.data.systemPrompt;
+        }
+        const issues = checkGraphInvariants({ flow: doc, meta: effectiveOrgMeta(metaOfDocument(doc)), origin: 'agent', patchOps: 0 });
+        return { ok: true, readOnly: true, scope, targetId, revision: doc.revision ?? 0, applied: 0, warnings: warningsOf(issues, new Set(issues.filter(issue => issue.level === 'error').map(issue => issue.code))), budget: budgetOf(doc), graph, diagnostics: graphDiagnostics(doc, issues) };
+    }
     const spec = parseNewTemplateSpec(args?.create);
     const ops = stripInternalRoleSourceFields(Array.isArray(args?.ops) ? args?.ops : []);
     if (ops.length === 0)
@@ -437,6 +462,7 @@ export async function executeGraphPatch(host, sessionId, args) {
         scope,
         sessionId,
         targetId,
+        validateOnly: action === 'validate',
         ...(expectRevision !== undefined ? { expectRevision } : {}),
         ...(spec ? { newTemplateDoc: newTemplateDoc(targetId, spec) } : {}),
     };
@@ -444,6 +470,11 @@ export async function executeGraphPatch(host, sessionId, args) {
     if (!spec)
         await assertScopeTarget(host, scope, { sessionId, targetId });
     const { revision, issues, toleratedCodes, result, budget } = await runGraphGroup(host, baseInput, ops);
+    if (action === 'validate') return {
+        ok: true, readOnly: true, validated: true, scope, targetId, revision,
+        applied: 0, proposedOps: ops.length, budget,
+        warnings: warningsOf(issues, toleratedCodes), diagnostics: graphDiagnostics(result.doc, issues),
+    };
     return {
         ok: true,
         scope,
@@ -472,10 +503,20 @@ export function registerWfGraphPatch(ctx, host) {
         // 描述只写「何时调用 / 前置条件 / 失败语义 / 副作用」：字段形状与提交规则由
         // wf_org_catalog 的 rules.patchContract 单点承载（指针在 ops 参数描述里），
         // 常驻文本只保留影响「是否/如何调用本工具」的内容。
-        description: 'Apply one patch to a workflow template or the running instance. '
+        description: 'Apply one patch to a workflow template or the running instance. For a saved workflow whose id is unknown, find it first with wf_org_catalog({templateQuery:<name or keyword>}) and use the returned tpl-* id. '
+            + 'Use action=read with scope and targetId (omit ops/create) to read the exact editable template/instance, including revision, nodes, lines and task/step content; includePrompts=true also returns role instructions. The catalog asset library is not the saved tpl-* template. '
+            + 'Read returns diagnostics with current issues, role-alias mappings and execution reachability. A proxy shares its source role; it is not an independent execution unit. '
+            + 'Use action=validate with ops to run the same argument, revision, scope, model and graph checks as apply without saving or refreshing a running instance. A successful validation reports applied=0 and proposedOps; it never means the patch was saved. '
+            + 'Default action=apply. Every failure is atomic: no submitted op is saved. Use action=read after missing/duplicate ids or a revision conflict, never undo nodes or edges that existed only in a failed payload. Change only requested fields. '
+            + 'Review feedback may return via a fail edge to the same ancestor agent with finite retryLimit and a separate pass route to an end; forward dependencies must remain acyclic. '
             + 'For a NEW template pass scope=template with create and a complete graph, including its parent/Leader node. Templates may edit parent roles; the current running parent remains protected. '
+            + 'Read rules.patchContract from wf_org_catalog before constructing node data; it defines the fields for every node kind. '
+            + 'A role node is one agent/role instance: data.retryLimit sets failed-task feedback retries for that same node (default 3; retries after the first attempt), not the number of copies or Team members; data.reactLimit is the separate in-call ReAct iteration cap. '
+            + 'Write task or step body text to data.content and role instructions to data.systemPrompt. A patch payload is proposed input, not evidence of previously saved text; success confirms the submitted patch and revision only. '
             + 'Role nodes can be configured by id: set data.roleAssetId to reuse a role recalled from wf_org_catalog instead of writing its full prompt and settings.',
         parameters: {
+            action: { type: 'string', enum: ['read', 'validate', 'apply'], description: 'read: return the saved graph and diagnostics; omit ops/create. validate: check proposed ops without writing, return applied=0 and proposedOps. apply (default): atomically persist ops.' },
+            includePrompts: { type: 'boolean', description: 'For action=read, include full agent/parent data.systemPrompt (default false). Task/step data.content and all topology are always returned. Structured credential fields are redacted.' },
             scope: { type: 'string', required: true, enum: ['template', 'instance'], description: 'template: plan a reusable workflow template; instance: adjust the current running instance.' },
             targetId: { type: 'string', description: 'Workflow template id (scope=template) or workflow/instance id (scope=instance). Required unless create is given; with create you may omit it to let the server mint a new id.' },
             create: {
@@ -491,15 +532,20 @@ export function registerWfGraphPatch(ctx, host) {
             expectRevision: { type: 'number', description: 'Optimistic-lock revision you last read; mismatch is rejected without retry (WF_PATCH_CONFLICT).' },
             ops: {
                 type: 'array',
-                required: true,
+                required: false,
                 description: 'Patch operations. '
-                    + 'Exact field shapes are NOT listed here — read rules.patchContract from wf_org_catalog (omit ids). '
+                    + 'Read rules.patchContract from wf_org_catalog (omit ids) before calling: it lists valid fields for each node kind and the exact semantics of content, retryLimit and reactLimit. '
+                    + 'Node data map: agent/parent={label,systemPrompt,roleAssetId,presetId,provider,model,reasoning,retryLimit,reactLimit,loopLimit,inputSchema,outputSchema,groupId,promptFilePath,systemPromptSource,injectSystemPrompt,injectToolSections}; task/step={label,content}; group={label,collabPrompt,memberIds,dynamic,maxMembers,memberRolePrompt,size}; database={label,description,dbType,dbKind,localPath|conn,vectorSource,vectorOptions}; stage={label}; proxy uses top-level proxySourceId and optional data.label/autoLayoutReference; subgraph={label,description,sourceTemplateId,graph:{nodes,lines}}. '
                     + 'Role reuse: set data.roleAssetId to a role id from wf_org_catalog (role-*, flow-*#<node id>, or instance#<node id>); '
                     + 'the recalled systemPrompt / presetId / provider / model / reasoning / inputSchema / outputSchema are filled in, '
                     + 'explicit data fields override them, and the reference itself is never persisted. '
                     + 'Example: [{ "op": "create_node", "node": { "kind": "agent", "id": "n1", "data": { "roleAssetId": "role-xxx" } } }, '
                     + '{ "op": "connect", "source": "n1", "target": "n2" }].',
-                items: { type: 'object', additionalProperties: true },
+                items: {
+                    type: 'object',
+                    additionalProperties: true,
+                    description: 'create_node: node={kind,id?,data} with kind-specific fields listed in ops.description and rules.patchContract. update_node_data: {nodeId,data} uses the same kind-specific data fields. Node fields belong under node.data except proxySourceId; task/step body uses content, role instructions use systemPrompt, and retryLimit configures retries on one role node.',
+                },
             },
         },
         output: {
@@ -511,10 +557,15 @@ export function registerWfGraphPatch(ctx, host) {
                 type: 'object',
                 additionalProperties: false,
                 properties: {
-                    ok: { type: 'boolean', required: true, description: 'true when the patch was persisted.' },
+                    ok: { type: 'boolean', required: true, description: 'true when read, validation or apply succeeded. Only apply persists a patch; inspect readOnly and applied.' },
+                    readOnly: { type: 'boolean', description: 'true for action=read or validate; applied=0 and no write was performed.' },
+                    validated: { type: 'boolean', description: 'true for a successful action=validate. The proposed patch was checked but not saved.' },
+                    proposedOps: { type: 'number', description: 'Number of proposed operations checked by action=validate; none were saved.' },
+                    diagnostics: { type: 'object', additionalProperties: true, description: 'For read or validate: issues, aliases [{nodeId,sourceNodeId}], reachableNodeIds and unreachableNodeIds in runtime topology. For read these describe saved state; for validate they describe the unsaved proposal.' },
+                    graph: { type: 'object', additionalProperties: true, description: 'For action=read: exact saved id, revision, mode, name, nodes and lines. Role systemPrompt is included only when includePrompts=true.' },
                     scope: { type: 'string', required: true, enum: ['template', 'instance'], description: 'Echo of the patch scope.' },
                     targetId: { type: 'string', required: true, description: 'Echo of the patched target id.' },
-                    revision: { type: 'number', required: true, description: 'New revision after persisting.' },
+                    revision: { type: 'number', required: true, description: 'Saved revision read by action=read, or new persisted revision after action=apply. Use this as expectRevision for the next patch.' },
                     applied: { type: 'number', required: true, description: 'Number of ops applied.' },
                     warnings: { type: 'array', required: true, description: 'Checker warnings (non-blocking).', items: { type: 'object', additionalProperties: true } },
                     // 只读预算：additionalProperties:true，避免嵌套字段被宿主判为未声明

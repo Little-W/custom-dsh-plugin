@@ -61,6 +61,16 @@ export interface GraphPatchHost extends RoleRefHost {
 /** 补丁执行结果（工具返回体）。 */
 export interface GraphPatchToolResult {
     ok: true;
+    readOnly?: boolean;
+    validated?: boolean;
+    proposedOps?: number;
+    diagnostics?: {
+        issues: import('../../graph/invariants-types.js').GraphIssue[];
+        aliases: Array<{ nodeId: string; sourceNodeId: string }>;
+        reachableNodeIds: string[];
+        unreachableNodeIds: string[];
+    };
+    graph?: Pick<WorkflowDocument, 'id' | 'name' | 'mode' | 'revision' | 'nodes' | 'lines'>;
     scope: PatchScope;
     targetId: string;
     revision: number;
@@ -85,6 +95,8 @@ export interface GraphPatchToolResult {
 }
 /** 组装并执行一次补丁（导出供单测直接断言，无需起工具注册表）。 */
 export declare function executeGraphPatch(host: GraphPatchHost, sessionId: string, args: {
+    action?: unknown;
+    includePrompts?: unknown;
     scope?: unknown;
     targetId?: unknown;
     ops?: unknown;

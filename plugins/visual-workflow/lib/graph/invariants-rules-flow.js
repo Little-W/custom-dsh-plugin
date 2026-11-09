@@ -12,6 +12,8 @@
 // 启动唯一/父唯一）；本层 = 编排质量（可达性/孤岛/断头/条件分支完整性）。
 // 纯函数：不读时钟/随机源，不改写入参，输出顺序稳定（按输入顺序遍历）。
 import { channelOut } from './model.js';
+import { buildExecutionFlowDag, detectCycleNodes, flowAliasIds, reachableFlowIds } from './dag.js';
+import { feedbackFlowView } from './feedback.js';
 /** 可执行单元种类（流程端点判定用：agent/parent/group）。 */
 const UNIT_KINDS = ['agent', 'parent', 'group', 'subgraph'];
 /** 节点 id 是否为可执行单元。 */
@@ -36,8 +38,9 @@ export function ruleStartRequired({ flow }) {
         }];
 }
 /** b) 启动节点的流程出 ≥1 且目标为可执行单元。 */
-export function ruleStartFlowOut(input, dag) {
+export function ruleStartFlowOut(input, _dag) {
     const { flow } = input;
+    const dag = buildExecutionFlowDag(flow?.nodes, flow?.lines);
     const byId = nodeMapOf(flow);
     const issues = [];
     for (const node of flow?.nodes ?? []) {
@@ -92,7 +95,7 @@ export function ruleEndFlowIn(input, dag) {
             return false;
         if (source.kind === 'proxy')
             return isUnit(byId.get(source.proxySourceId));
-        return isUnit(source);
+        return isUnit(source) || (flow.mode !== 'mode2' && source.kind === 'pause') || source.kind === 'step';
     };
     for (const node of flow?.nodes ?? []) {
         if (node.kind !== 'end')
@@ -115,7 +118,7 @@ export function ruleEndFlowIn(input, dag) {
                 level: 'error',
                 message: `the end/output node's flow-in comes from non-executable nodes: ${bad.join(', ')}`,
                 nodeIds: [node.id, ...bad],
-                suggestion: 'the end node\'s flow-in may only come from an executable node (agent / parent / Team); a proxy node is accepted when its source node is executable',
+                suggestion: 'connect an executable node, a step, or a mode1 pause gate to the end; a proxy is accepted when its source is executable',
             });
         }
     }
@@ -127,6 +130,13 @@ export function ruleOrphanNode({ flow }) {
     for (const line of flow?.lines ?? []) {
         connected.add(line.source);
         connected.add(line.target);
+    }
+    for (const [alias, main] of flowAliasIds(flow?.nodes)) {
+        if (connected.has(alias)) connected.add(main);
+    }
+    for (const group of flow?.nodes ?? []) {
+        if (group.kind !== 'group' || !connected.has(group.id)) continue;
+        for (const id of group.data?.memberIds ?? []) connected.add(id);
     }
     return (flow?.nodes ?? [])
         .filter((node) => !connected.has(node.id))
@@ -141,13 +151,14 @@ export function ruleOrphanNode({ flow }) {
 /** f) 条件线相对分支缺失（warning，不阻断）。 */
 export function ruleConditionPair({ flow }) {
     const groups = new Map();
+    const aliases = flowAliasIds(flow?.nodes);
     for (const line of flow?.lines ?? []) {
         const type = line.condition?.type;
         if (!type || type === 'content')
             continue;
         if (line.sourceHandle !== channelOut('flow'))
             continue;
-        const key = `${line.source}|${line.sourceHandle}`;
+        const key = `${aliases.get(line.source) ?? line.source}|${line.sourceHandle}`;
         const group = groups.get(key) ?? { pass: [], fail: [], ids: [] };
         if (type === 'pass')
             group.pass.push(line.target);
@@ -183,7 +194,9 @@ export function ruleConditionPair({ flow }) {
     return issues;
 }
 /** g) 流程子图存在多节点环（自环由 validateFlow 拦截，此处只报 ≥2 节点的环）。 */
-export function ruleFlowCycle(_input, dag, cycleNodes) {
+export function ruleFlowCycle(input, _dag, _cycleNodes) {
+    const { dag } = feedbackFlowView(input.flow);
+    const cycleNodes = detectCycleNodes(dag);
     const multi = [...cycleNodes].filter((id) => {
         const out = dag.adjacency.get(id) ?? [];
         return out.some((next) => next !== id && cycleNodes.has(next));
@@ -193,27 +206,17 @@ export function ruleFlowCycle(_input, dag, cycleNodes) {
     return [{
             code: 'flowCycle',
             level: 'error',
-            message: `the flow contains a cycle: ${multi.join(' -> ')}`,
+            message: `the forward flow contains a cycle among nodes: ${multi.join(', ')}`,
             nodeIds: multi,
-            suggestion: 'break one flow edge in the cycle (turn it into a conditional branch or serialize it); the flow must be a terminable DAG',
+            lineIds: dag.edges.filter(edge => cycleNodes.has(edge.source) && cycleNodes.has(edge.target)).map(edge => edge.id),
+            suggestion: 'keep forward dependencies acyclic. A review return must use condition.type="fail", target the same ancestor agent with a finite non-negative retryLimit, and have a separate pass path reaching an end. Arbitrary pass/content conditions do not break a cycle. Review retries are counted across successful implementation turns and preserved on resume.',
         }];
 }
 /** h) 可达性：有流程入但从启动节点沿流程不可达（孤岛段）。 */
-export function ruleReachability(input, dag) {
+export function ruleReachability(input, _dag) {
+    const dag = buildExecutionFlowDag(input.flow?.nodes, input.flow?.lines);
     const starts = (input.flow?.nodes ?? []).filter((node) => node.kind === 'start').map((node) => node.id);
-    const visited = new Set(starts);
-    const queue = [...starts];
-    let cursor = 0;
-    while (cursor < queue.length) {
-        const id = queue[cursor];
-        cursor += 1;
-        for (const next of dag.adjacency.get(id) ?? []) {
-            if (visited.has(next))
-                continue;
-            visited.add(next);
-            queue.push(next);
-        }
-    }
+    const visited = reachableFlowIds(dag, starts);
     const issues = [];
     for (const node of input.flow?.nodes ?? []) {
         const hasIncoming = (dag.incoming.get(node.id) ?? []).length > 0;
@@ -226,13 +229,14 @@ export function ruleReachability(input, dag) {
             level: 'error',
             message: `node "${node.id}" has a flow-in edge but is unreachable from the start node (island segment)`,
             nodeIds: [node.id],
-            suggestion: 'reconnect the island to the main flow (a flow edge from a reachable node), or delete the whole island',
+            suggestion: 'read the saved target and inspect this node and its upstream flow sources; reconnect the intended predecessor in the same atomic patch. ctx/db edges do not make a node flow-reachable. A proxy is an alias of its role, not an extra execution unit; do not duplicate or delete roles just to silence this check',
         });
     }
     return issues;
 }
 /** i) 断头流程：有流程入但无流程出且不是结束节点（warning）。 */
-export function ruleCannotReachEnd(input, dag) {
+export function ruleCannotReachEnd(input, _dag) {
+    const dag = buildExecutionFlowDag(input.flow?.nodes, input.flow?.lines);
     const issues = [];
     for (const node of input.flow?.nodes ?? []) {
         if (node.kind === 'end')

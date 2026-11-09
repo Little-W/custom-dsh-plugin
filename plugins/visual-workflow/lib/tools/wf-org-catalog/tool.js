@@ -36,6 +36,24 @@ import { INSTANCE_ID } from './types.js';
  * @param sessionId 调用者会话；只有实例相关 id（`instance` / `instance#<nodeId>`）需要它。
  */
 export async function executeOrgCatalog(host, args, sessionId = '') {
+    const templateQuery = typeof args?.templateQuery === 'string' ? args.templateQuery.trim() : '';
+    if (args?.templateQuery !== undefined) {
+        if (!templateQuery)
+            throw new WfError('WF_BAD_ARGS: templateQuery must be a non-empty workflow name or keyword', 'WF_BAD_ARGS');
+        if (args?.ids !== undefined) {
+            const ids = normalizeAssetIds(args.ids);
+            if (ids === null)
+                throw new WfError('WF_BAD_ARGS: ids must be an array of strings', 'WF_BAD_ARGS');
+            if (ids.length)
+                throw new WfError('WF_BAD_ARGS: templateQuery cannot be combined with ids', 'WF_BAD_ARGS');
+        }
+        const limit = args?.limit === undefined ? 10 : Number(args.limit);
+        if (!Number.isInteger(limit) || limit < 1 || limit > 20)
+            throw new WfError('WF_BAD_ARGS: limit must be an integer from 1 to 20', 'WF_BAD_ARGS');
+        return searchTemplates(host, templateQuery, limit);
+    }
+    if (args?.limit !== undefined)
+        throw new WfError('WF_BAD_ARGS: limit is only valid with templateQuery', 'WF_BAD_ARGS');
     const ids = normalizeAssetIds(args?.ids);
     if (ids === null) {
         throw new WfError(`WF_BAD_ARGS: ids must be an array of strings (omit it to get the asset index only) - received ${JSON.stringify(args?.ids ?? null)}`, 'WF_BAD_ARGS');
@@ -44,6 +62,44 @@ export async function executeOrgCatalog(host, args, sessionId = '') {
     if (limitProblem)
         throw new WfError(limitProblem, 'WF_BAD_ARGS');
     return ids.length === 0 ? await buildIndexFrom(host) : await buildDetailsFrom(host, ids, sessionId);
+}
+/** Search saved editable templates by title/description, returning only ids and revisions. */
+async function searchTemplates(host, query, limit) {
+    if (typeof host.store?.listFlowTemplates !== 'function')
+        throw new WfError('WF_ORG_UNAVAILABLE: saved workflow template search is unavailable in this host', 'WF_ORG_UNAVAILABLE');
+    const templates = await host.store.listFlowTemplates();
+    const normalized = query.toLocaleLowerCase();
+    const matches = (templates ?? []).map((template) => {
+        const name = String(template.name ?? '');
+        const description = String(template.description ?? '');
+        const lowerName = name.toLocaleLowerCase();
+        const lowerDescription = description.toLocaleLowerCase();
+        const exact = lowerName === normalized;
+        const nameMatch = lowerName.includes(normalized);
+        const descriptionMatch = lowerDescription.includes(normalized);
+        return { template, exact, nameMatch, descriptionMatch };
+    }).filter((item) => item.nameMatch || item.descriptionMatch)
+        .sort((a, b) => Number(b.exact) - Number(a.exact)
+        || Number(b.nameMatch) - Number(a.nameMatch)
+        || String(a.template.name ?? '').localeCompare(String(b.template.name ?? '')))
+        .map(({ template, exact, nameMatch }) => ({
+        id: String(template.id ?? ''),
+        name: String(template.name ?? template.id ?? ''),
+        description: String(template.description ?? ''),
+        mode: String(template.mode ?? ''),
+        revision: Number(template.revision) || 0,
+        match: exact ? 'exact' : nameMatch ? 'name' : 'description',
+    })).filter((item) => item.id.startsWith('tpl-'));
+    return {
+        kind: 'templates',
+        query,
+        total: matches.length,
+        templates: matches.slice(0, limit),
+        truncated: matches.length > limit,
+        nextStep: matches.length
+            ? 'Choose the exact tpl-* id, then call wf_graph_patch({action:"read",scope:"template",targetId:<id>,includePrompts:true}) before editing. Apply changes with the returned revision as expectRevision, then read the same template again to verify.'
+            : 'No saved template matched this name or keyword. Refine templateQuery or ask whether the workflow should be created as a new template.',
+    };
 }
 /**
  * 索引取数。
@@ -272,20 +328,28 @@ export function registerWfOrgCatalog(ctx, host) {
     const tools = requireToolsService(ctx, WF_ORG_CATALOG);
     const def = defineTool({
         name: WF_ORG_CATALOG,
-        description: 'Read-only survey of the organization assets available for planning. Omit ids for the compact index (combos, presets, models, orchestration rules, asset index); pass ids to recall details in one batch. '
-            + 'Assets are reusable configurations; recall one to reuse. Index entries are candidates only — full content by id. Templates are NOT listed here. '
+        description: 'Read-only workflow and organization discovery. Set templateQuery to find saved editable workflow templates by name/description; results return exact tpl-* ids and revisions, not graph contents. Read the selected template with wf_graph_patch(action="read",scope="template",targetId=id) before editing, then apply using its revision. Omit ids and templateQuery for the compact organization index; pass ids to recall reusable asset details. '
+            + 'Saved workflow templates are distinct from versioned flow-* assets. Use templateQuery for saved templates; do not guess template or runtime instance ids. '
             + 'The parent agent\'s own prompt is never recallable through this catalog, by any id shape. '
             + 'rules.patchContract carries the write-patch contract — read it before calling wf_graph_patch. '
             + 'Supported ids: flow-* (workflow skeleton), role-* (sub-agent role asset), <flow-id>#<node-id> (inline sub-agent role), '
             + 'instance (skeleton of the instance currently running in this session — topology only, no asset content) and instance#<node-id> (that instance\'s inline sub-agent role). '
             + 'A node subagent\'s tools come ONLY from its presetId; picking one here is mandatory (empty = zero tools). '
             + 'Role ids returned here are reusable by wf_graph_patch: set data.roleAssetId to the role-*, flow-*#<node id> or instance#<node id> value instead of copying the prompt and settings. '
-            + 'Skeletons omit role systemPrompts; recall them by their composite id. Idempotent, side-effect free.',
+            + 'Skeletons include role execution parameters such as retryLimit but omit role systemPrompts; recall prompts by composite id. When verifying content, inspect the returned node id and canonical field: task/step body is nodes[].content; role instructions are inlineRoles[].systemPrompt. Empty/missing means no saved body; do not infer it from labels, summaries, descriptions, patch arguments, or another node. Idempotent, side-effect free.',
         parameters: {
             ids: {
                 type: 'array',
                 items: { type: 'string' },
-                description: 'Ids to recall in detail; omit (or pass []) for the compact index. Supported: flow-* (workflow asset), role-* (sub-agent role asset), <flow-id>#<node-id> (inline sub-agent role pinned in that workflow asset), instance (skeleton of the instance running in this session), instance#<node-id> (inline sub-agent role of that running instance). Parent-agent prompts are not recallable. Bad, missing or retired ids come back as per-item errors and never block the others. At most 20 ids per call - submit further batches when needed.',
+                description: 'Ids to recall in detail; omit (or pass []) for the compact index. Supported: flow-* (workflow asset), role-* (sub-agent role asset), <flow-id>#<node-id> (inline sub-agent role pinned in that workflow asset), instance (skeleton of the instance running in this session), instance#<node-id> (inline sub-agent role of that running instance). For saved text, task/step node content is returned as nodes[].content; role prompt text is a separate inlineRoles[].systemPrompt detail. Parent-agent prompts are not recallable. Empty/missing fields are empty/missing in the loaded object; never treat a planned patch input as a read result. Bad, missing or retired ids come back as per-item errors and never block the others. At most 20 ids per call - submit further batches when needed.',
+            },
+            templateQuery: {
+                type: 'string',
+                description: 'Search saved editable workflow templates by exact or partial name/description. Returns compact candidates with tpl-* id and revision. Then read the chosen candidate through wf_graph_patch(action="read",scope="template",targetId=id). Cannot be combined with non-empty ids.',
+            },
+            limit: {
+                type: 'number',
+                description: 'Maximum template search results (1–20, default 10); valid only with templateQuery.',
             },
         },
         output: {
@@ -294,7 +358,7 @@ export function registerWfOrgCatalog(ctx, host) {
             schema: {
                 type: 'object',
                 additionalProperties: true,
-                description: 'kind="index": idConvention / detailHint / combos / presets / models / assets.workflows / assets.roles / rules / truncated. kind="details": assets (workflow skeleton | role asset | inline role) + errors (per-id failures that did not block the rest).',
+                description: 'kind="templates": compact saved-template search results with tpl-* ids, revisions, total and truncation status. kind="index": idConvention / detailHint / combos / presets / models / assets / rules. kind="details": assets plus per-id errors.',
             },
             render: textRender,
         },

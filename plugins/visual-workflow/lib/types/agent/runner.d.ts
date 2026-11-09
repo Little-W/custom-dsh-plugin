@@ -291,6 +291,7 @@ export declare class NodeAgentRunner implements NodeRunner {
         childId: string;
         created: boolean;
         replacedChildId?: string;
+        childSignature?: string;
     }>;
     /**
      * 尽力中断子代理当前回合并清空其待处理 inbox。
@@ -336,6 +337,7 @@ export declare class NodeAgentRunner implements NodeRunner {
         childId: string;
         created: boolean;
         replacedChildId?: string;
+        childSignature: string;
     }>;
     private requireSubagents;
     private requireParent;

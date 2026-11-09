@@ -3,6 +3,7 @@
 // 规划期父代理提示词构建器（/arrange 注入；正文在 texts/parent-planner.ts）。
 // 三种目标只差 identity / goal / grammar 三个变量。
 import { isEnglishSystemLanguage } from '../system-language.js';
+import { knowledgeRuleOf } from '../knowledge/prompt.js';
 import { renderTemplate } from './render.js';
 import { PARENT_PLANNER } from './texts/parent-planner.js';
 import { PARENT_PLANNER_EN } from './texts/en/parent-planner.js';
@@ -62,7 +63,7 @@ export function buildOrgPlanPrompt(params) {
     const english = isEnglishSystemLanguage(facts.systemLanguage);
     const target = describeTarget(facts, english);
     const intent = String(dynamic.userIntent ?? '').trim();
-    return renderTemplate(english ? PARENT_PLANNER_EN : PARENT_PLANNER, {
+    const prompt = renderTemplate(english ? PARENT_PLANNER_EN : PARENT_PLANNER, {
         identity: target.identity,
         goal: target.goal,
         grammar: target.grammar,
@@ -70,5 +71,8 @@ export function buildOrgPlanPrompt(params) {
         userIntent: intent || (english ? '(not provided; clarify the goal with the user first)' : '（未提供，请先与用户确认目标后再动手）'),
         userSop: String(dynamic.userSop ?? '').trim(),
     });
+    const body = prompt.trimEnd();
+    const rule = knowledgeRuleOf(facts.systemLanguage);
+    return body ? `${body}\n\n${rule}` : rule;
 }
 //# sourceMappingURL=planner.js.map

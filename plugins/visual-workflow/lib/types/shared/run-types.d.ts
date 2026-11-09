@@ -9,6 +9,8 @@ export type NodeRunStatus = 'pending' | 'running' | 'armed' | 'ok' | 'fail' | 's
  * 自旧 run 并标记来源，经 resumedFromRunId 追溯继承链（需求文档 §4.7 规则 2）。
  */
 export interface RunSnapshot {
+    /** Review-feedback budget per main role; preserved across successful implementation turns and resume. */
+    feedbackRetries?: Record<string, { count: number; sourceTurns: string[] }>;
     /** 本次运行冻结的语言；旧快照缺失时回退 Host 设置。 */
     systemLanguage?: string;
     /** run 稳定标识（runId）。 */
@@ -96,6 +98,10 @@ export interface RunSnapshot {
     nodes: Array<{
         /** 节点 id。 */
         nodeId: string;
+        /** 节点绑定的可延续子代理会话 id（断点恢复后用于接回原子代理）。 */
+        childId?: string;
+        /** 创建该子代理时的配置签名；配置变更时恢复路径会按原规则创建新子代理。 */
+        childSignature?: string;
         /** 该节点当前执行状态。 */
         status: NodeRunStatus;
         /** 尝试次数（回流重试计数，需求文档 §4.2.3.2 规则 3）。 */

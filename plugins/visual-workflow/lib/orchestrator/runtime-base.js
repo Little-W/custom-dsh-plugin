@@ -13,6 +13,7 @@
 // 继承链：RuntimeBase ← RuntimeLaunch ← RuntimeExecute ← RuntimeComm ←
 // RuntimeObserve ← RuntimeLifecycle ← OrchestratorRuntime（runtime.ts 收口）。
 import { randomUUID } from 'node:crypto';
+import { normalizeModelSelection } from '../agent/model-selection.js';
 import { cloneSnapshot, setNodeStatus } from './snapshot.js';
 import { RESUMABLE_STATUSES } from './resume.js';
 import { orchestrationChangeTextOf } from '../prompts/index.js';
@@ -26,6 +27,44 @@ import { parentRoleIdentityOf } from './role-identity.js';
 import { WfError, messageOf } from './errors.js';
 import { flattenSubgraphs } from '../graph/index.js';
 import { consoleLogger, } from './seams.js';
+/** Prefer the native projection: it includes pending choices, headers and restored defaults. */
+function latestModelSelectionOf(root) {
+    if (typeof root?.model?.current === 'function')
+        return normalizeModelSelection(root.model.current()) ?? null;
+    const session = root?.session;
+    if (!session || typeof session !== 'object')
+        return null;
+    const seq = Number(session.seq);
+    const length = Number.isFinite(seq) && seq >= 0 ? seq : (Array.isArray(session.events) ? session.events.length : 0);
+    const from = Math.max(0, length - 200);
+    for (let index = length - 1; index >= from; index -= 1) {
+        let event;
+        try {
+            if (typeof session.eventAt === 'function')
+                event = session.eventAt(index);
+        }
+        catch {
+            event = undefined;
+        }
+        if (event === undefined && Array.isArray(session.events))
+            event = session.events[index];
+        if (event?.type !== 'model/selection')
+            continue;
+        const data = event.data;
+        const provider = typeof data?.provider === 'string' ? data.provider.trim() : '';
+        const model = typeof data?.model === 'string' ? data.model.trim() : '';
+        if (!provider || !model)
+            return null;
+        return {
+            provider,
+            model,
+            ...(typeof data.reasoningEffort === 'string' && data.reasoningEffort.trim()
+                ? { reasoningEffort: data.reasoningEffort.trim() }
+                : {}),
+        };
+    }
+    return null;
+}
 export class RuntimeBase {
     deps;
     /** 全部 run（含已终止的历史内存条目；持久化历史另见 store.listRuns）。 */
@@ -85,14 +124,57 @@ export class RuntimeBase {
                 injectToolSections: parentNode.data.injectToolSections !== false,
             }, sessionId);
             const data = parentNode.data;
-            this.deps.modelSelection.bindParent(ctx, {
+            const sessionSelection = latestModelSelectionOf(root);
+            const configuredSelection = {
                 provider: String(data.provider ?? ''),
                 model: String(data.model ?? ''),
-                ...(typeof data.reasoning === 'string' && data.reasoning.trim() ? { reasoningEffort: data.reasoning } : {}),
-            }, sessionId);
+                ...(typeof data.reasoning === 'string' && data.reasoning.trim() ? { reasoningEffort: data.reasoning.trim() } : {}),
+            };
+            const syncSelection = async (selection) => {
+                try {
+                    await this.syncParentModelSelection(flow.id, sessionId, parentNode.id, selection);
+                }
+                catch (error) {
+                    this.log().warn(`[visual-workflow] 会话模型设置同步到实例失败：${error instanceof Error ? error.message : String(error)}`);
+                }
+            };
+            this.deps.modelSelection.bindParent(ctx,
+                sessionSelection ?? normalizeModelSelection(configuredSelection),
+                sessionId, syncSelection, root);
+            if (sessionSelection)
+                await syncSelection(sessionSelection);
         }
         catch (error) {
             this.deps.logger?.warn(`[visual-workflow] 父代理配置注入失败：${error instanceof Error ? error.message : String(error)}`);
+        }
+    }
+    /** Persist session-bar model changes into this workflow instance's parent-node settings. */
+    async syncParentModelSelection(flowId, sessionId, parentNodeId, selection) {
+        for (let attempt = 0; attempt < 4; attempt += 1) {
+            const current = await this.deps.store.getWorkflow(sessionId, flowId);
+            if (!current)
+                return;
+            const nodes = current.nodes.map((node) => {
+                if (node.id !== parentNodeId || node.kind !== 'parent')
+                    return node;
+                const data = { ...node.data, provider: selection.provider, model: selection.model };
+                if (selection.reasoningEffort === undefined)
+                    delete data.reasoning;
+                else
+                    data.reasoning = selection.reasoningEffort;
+                return { ...node, data };
+            });
+            if (nodes.every((node, index) => node === current.nodes[index]))
+                return;
+            try {
+                const saved = await this.deps.store.saveWorkflow({ ...current, nodes }, sessionId, { expectedRevision: current.revision });
+                await this.refreshActiveDefinitions(flowId, sessionId, saved);
+                return;
+            }
+            catch (error) {
+                if (error?.code !== 'FLOW_REVISION_CONFLICT' || attempt === 3)
+                    throw error;
+            }
         }
     }
     /** 记录告警（watchdog 扫描失败/持久化告警路径）。 */

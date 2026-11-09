@@ -105,6 +105,12 @@ export interface WaitAgentResult {
     output?: string;
     attempts?: number;
     childId?: string;
+    /** A new user prompt arrived while waiting; the agent should process it before scheduling further nodes. */
+    interruptedByUserInput?: boolean;
+    /** No live subagent can settle this node; the parent should inspect or dispatch it. */
+    interruptedByNoActiveAgent?: boolean;
+    /** Human-readable reason for the no-active-agent interruption. */
+    interruptMessage?: string;
     waitedMs: number;
 }
 /** wf_resume 入参（人工决策后继续暂停/停止的编排；可选回滚）。 */

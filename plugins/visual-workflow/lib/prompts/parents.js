@@ -5,6 +5,7 @@
 // 组装方式：正文全部在 texts/parent-*.ts；本文件只把事实翻译成模板变量并渲染一次。
 // 模板变量命名与 texts/ 文件头的「变量」注释一一对应。
 import { isEnglishSystemLanguage } from '../system-language.js';
+import { knowledgeRuleOf } from '../knowledge/prompt.js';
 import { flag, renderTemplate } from './render.js';
 import { PARENT_ORCHESTRATOR } from './texts/parent-orchestrator.js';
 import { PARENT_HYBRID } from './texts/parent-hybrid.js';
@@ -12,6 +13,12 @@ import { PARENT_EXECUTOR, PARENT_TASK_SPEC } from './texts/parent-executor.js';
 import { PARENT_ORCHESTRATOR_EN } from './texts/en/parent-orchestrator.js';
 import { PARENT_HYBRID_EN } from './texts/en/parent-hybrid.js';
 import { PARENT_EXECUTOR_EN, PARENT_TASK_SPEC_EN } from './texts/en/parent-executor.js';
+/** 在父代理提示词末尾追加知识积累规则（正文由 knowledge/prompt.js 单一维护）。 */
+function withKnowledgeRule(prompt, systemLanguage) {
+    const body = String(prompt ?? '').trimEnd();
+    const rule = knowledgeRuleOf(systemLanguage);
+    return body ? `${body}\n\n${rule}` : rule;
+}
 /** 上游产出行（多行文本；无上游时返回空串，由模板输出「（无）」/ "(none)"）。 */
 function upstreamLinesOf(entries, english) {
     return entries
@@ -59,20 +66,20 @@ function dynamicVarsOf(dynamic) {
 export function buildOrchestratorPrompt(params) {
     const { facts, dynamic } = params;
     const english = isEnglishSystemLanguage(facts.systemLanguage);
-    return renderTemplate(english ? PARENT_ORCHESTRATOR_EN : PARENT_ORCHESTRATOR, {
+    return withKnowledgeRule(renderTemplate(english ? PARENT_ORCHESTRATOR_EN : PARENT_ORCHESTRATOR, {
         workflowName: facts.workflowName,
         systemLanguage: String(facts.systemLanguage ?? '').trim(),
         workflowGoal: String(facts.workflowGoal ?? '').trim(),
         ...teamVarsOf(facts, english),
         ...dynamicVarsOf(dynamic),
-    });
+    }), facts.systemLanguage);
 }
 /** 情况2（编排 + 自执行）父代理提示词构建器（纯函数）。 */
 export function buildHybridPrompt(params) {
     const { facts, dynamic } = params;
     const parent = facts.parentNode;
     const english = isEnglishSystemLanguage(facts.systemLanguage);
-    return renderTemplate(english ? PARENT_HYBRID_EN : PARENT_HYBRID, {
+    return withKnowledgeRule(renderTemplate(english ? PARENT_HYBRID_EN : PARENT_HYBRID, {
         workflowName: facts.workflowName,
         parentNodeLabel: parent ? parent.nodeLabel : '',
         parentNodeId: parent ? parent.nodeId : '',
@@ -80,7 +87,7 @@ export function buildHybridPrompt(params) {
         workflowGoal: String(facts.workflowGoal ?? '').trim(),
         ...teamVarsOf(facts, english),
         ...dynamicVarsOf(dynamic),
-    });
+    }), facts.systemLanguage);
 }
 /**
  * 情况2 父代理自执行单元任务块（编排指令末段小节正文；纯函数）。

@@ -8,6 +8,8 @@ export declare class WorkflowEndpoints extends VisualWorkflowApiBase {
     listWorkflows(args: {
         sessionId?: unknown;
     }): Promise<unknown>;
+    /** Read registered workspace roots through the host registry capability. */
+    listWorkspaces(): Promise<unknown>;
     /**
      * 创建新主会话端点（「开启新会话」一次性动作：从模板创建实例时先新建主会话，
      * 实例绑定该新会话 id）。

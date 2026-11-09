@@ -43,6 +43,8 @@ export declare abstract class RuntimeBase {
      * 非侵入：仅挂载到根 Agent 的 ctx，只对本会话生效；缺父代理节点/根无 ctx 时静默跳过。
      */
     protected bindParentConfig(flow: WorkflowDocument, root: RootAgentLike, sessionId: string): Promise<void>;
+    /** Persist session-bar model changes into the matching workflow instance. */
+    protected syncParentModelSelection(flowId: string, sessionId: string, parentNodeId: string, selection: import('./seams.js').ModelSelectionValue): Promise<void>;
     /** 记录告警（watchdog 扫描失败/持久化告警路径）。 */
     warn(message: string): void;
     /**

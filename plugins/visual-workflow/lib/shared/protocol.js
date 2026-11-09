@@ -54,6 +54,8 @@ export const EP_SERVICE_DEBUG = 'serviceDebug';
  * 会话标题不在此定义：官方 agents.create 的会话元信息不接受自定义字段，故不带 label 入参。
  */
 export const EP_CREATE_SESSION = 'createSession';
+/** Registered workspace list for the new-session chooser. */
+export const EP_LIST_WORKSPACES = 'listWorkspaces';
 /** 模板列表端点名（角色/任务/数据库三类共用）。 */
 export const EP_LIST_TEMPLATES = 'listTemplates';
 /** 保存模板。 */
@@ -435,6 +437,7 @@ export const ENDPOINT_NAMES = [
     'serviceStatus',
     'serviceDebug',
     'createSession',
+    'listWorkspaces',
     'listTemplates',
     'putTemplate',
     'deleteTemplate',

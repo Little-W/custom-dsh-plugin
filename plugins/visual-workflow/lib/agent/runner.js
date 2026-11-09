@@ -15,6 +15,7 @@
 // - 无强制追加：wf_ask_user/wf_send_message 仅组合勾选时进 allow（旧自动追加删除，PRD §4.4.2 规则 7）；
 // - wf_db_query 仅存在 db-in 连线时追加（§4.4.3 规则 5）；
 // - CHILD_AGENT_HIDDEN_TOOLS（wf_run_node/wf_run_node_wait/wf_finish + 自主编排两工具）永不进 allow，且 tools.restrict 显式 deny（双保险）。
+import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { dbInEdges } from '../graph/index.js';
 import { consumeReactCappedOf } from './guards.js';
@@ -37,7 +38,7 @@ export function childKey(sessionId, flowId, nodeId) {
  */
 export function nodeChildSignature(node, resolvedTools, rolePrompt, injectSystemPrompt = true, injectToolSections = true, collabPrompt = '') {
     const data = node.kind === 'parent' || node.kind === 'agent' ? node.data : undefined;
-    return JSON.stringify({
+    const composition = JSON.stringify({
         rolePrompt: String(rolePrompt ?? ''),
         provider: String(data?.provider ?? ''),
         model: String(data?.model ?? ''),
@@ -49,6 +50,8 @@ export function nodeChildSignature(node, resolvedTools, rolePrompt, injectSystem
         // 协作 Prompt 属于组级配置；变化时同样重建子代理，避免旧协作信息残留
         collabPrompt,
     });
+    // Persist only a digest in run snapshots; composition contains full prompts and tool details.
+    return createHash('sha256').update(composition).digest('hex');
 }
 /**
  * provider 首选序（spawn > fork > codex > claude-code > dsh-sdk > acp > 首个可用）。
@@ -488,7 +491,7 @@ export class NodeAgentRunner {
                 return { childId: member.childId, created: member.created };
             }
         }
-        const { childId, created, replacedChildId } = await this.ensureNodeChild(input);
+        const { childId, created, replacedChildId, childSignature } = await this.ensureNodeChild(input);
         // 每轮派发前刷新护栏上限与模型选择（节点级参数可按次覆盖；官方 selection 可变态）。
         // 【时序】setLimit 必须位于任何 await 之前：子代理本轮第一步推理的 pre-step 事件
         // 一旦触发就读 limits 表——若先派发再登记，新回合（可能换了 limit）的第一步
@@ -502,7 +505,12 @@ export class NodeAgentRunner {
         }
         this.attachModelSelection(childId, input);
         await this.attachPromptState(childId, input);
-        return replacedChildId === undefined ? { childId, created } : { childId, created, replacedChildId };
+        return {
+            childId,
+            created,
+            ...(replacedChildId === undefined ? {} : { replacedChildId }),
+            childSignature,
+        };
     }
     /**
      * 尽力中断子代理当前回合并清空其待处理 inbox。
@@ -608,7 +616,19 @@ export class NodeAgentRunner {
         const signature = nodeChildSignature(node, tools, rolePrompt, injectSystemPrompt, injectToolSections, collabPrompt);
         const existing = this.nodeChildren.get(key);
         if (existing && existing.signature === signature)
-            return { childId: existing.childId, created: false };
+            return { childId: existing.childId, created: false, childSignature: signature };
+        // Runner maps are process-local. A restarted host can recover a still-registered child from
+        // the run snapshot; only reuse it when the saved composition exactly matches this node.
+        const restoredChildId = String(input.resumeChildId ?? '').trim();
+        const restoredSignature = String(input.resumeChildSignature ?? '');
+        const restoredAgent = restoredChildId && restoredChildId !== input.sessionId
+            ? this.deps.agents()?.get(restoredChildId)
+            : null;
+        if (restoredChildId && restoredSignature === signature && restoredAgent) {
+            this.nodeChildren.set(key, { childId: restoredChildId, signature });
+            this.childIds.add(restoredChildId);
+            return { childId: restoredChildId, created: false, childSignature: signature };
+        }
         const provider = detectSubagentProvider(subagents);
         if (!provider)
             throw new Error('没有可用的子代理 provider（预期 spawn 或 fork）');
@@ -620,6 +640,12 @@ export class NodeAgentRunner {
             agentOptions.provider = node.data.provider;
         if (node.data?.model)
             agentOptions.model = node.data.model;
+        const selectedProvider = String(node.data?.provider ?? '').trim();
+        const selectedModel = String(node.data?.model ?? '').trim();
+        const selectedReasoning = String(input.thinking ?? node.data?.reasoning ?? '').trim();
+        const modelSelection = selectedProvider && selectedModel
+            ? { provider: selectedProvider, model: selectedModel, ...selectedReasoning ? { reasoningEffort: selectedReasoning } : {} }
+            : undefined;
         const promptState = {
             systemPrompt: rolePrompt,
             injectSystemPrompt,
@@ -632,7 +658,7 @@ export class NodeAgentRunner {
         // 建立子代理并提交首条任务，不再在返回后重复安装——避免二次「工具已更新」。
         const label = node.data.label || `visual-workflow:${input.flowId}:${node.id}`;
         const prompt = input.blocks.length > 0 ? input.blocks : [{ type: 'text', text: fallbackPrompt(node) }];
-        const started = await this.deps.promptSetup.withPending(promptState, async () => {
+        const started = await this.deps.modelSelection.withPending(modelSelection, () => this.deps.promptSetup.withPending(promptState, async () => {
             // 0.2.1+：统一激活入口。request 已不接受 toolFilter/persona；工具白名单由 host
             // 在 agent/created 窗口内自行 restrict（child-tool-filter），故此处不再传递。
             if (typeof subagents.startActivation === 'function') {
@@ -667,8 +693,9 @@ export class NodeAgentRunner {
                 });
             }
             throw new Error('subagents 服务不支持创建可延续子代理（缺少 startActivation/startContinuable）');
-        });
-        const previous = this.nodeChildren.get(key);
+        }));
+        const previous = this.nodeChildren.get(key)
+            ?? (restoredAgent && restoredChildId ? { childId: restoredChildId, signature: restoredSignature } : undefined);
         const replacedChildId = previous && previous.childId !== started.childId ? previous.childId : undefined;
         if (replacedChildId) {
             // 配置签名变化重建子代理：旧 child 的作用域装配归 host 的 childScopeDisposers 管理，
@@ -691,9 +718,12 @@ export class NodeAgentRunner {
                 // 中断是尽力而为（目标不存在/已停止视为成功）；startNodeTask 返回后不再观察
             });
         }
-        return replacedChildId === undefined
-            ? { childId: started.childId, created: true }
-            : { childId: started.childId, created: true, replacedChildId };
+        return {
+            childId: started.childId,
+            created: true,
+            ...(replacedChildId === undefined ? {} : { replacedChildId }),
+            childSignature: signature,
+        };
     }
     // ---- 内部辅助 ---------------------------------------------------------------
     requireSubagents() {
@@ -724,13 +754,17 @@ export class NodeAgentRunner {
         if (!agent || typeof agent !== 'object' || !agent.ctx)
             return;
         const selection = {
-            provider: String(node.data?.provider ?? ''),
-            model: String(node.data?.model ?? ''),
+            provider: String(node.data?.provider ?? '').trim(),
+            model: String(node.data?.model ?? '').trim(),
         };
+        if (!selection.provider || !selection.model)
+            return;
         const reasoning = input.thinking ?? node.data?.reasoning;
         if (typeof reasoning === 'string' && reasoning.trim())
             selection.reasoningEffort = reasoning;
         try {
+            if (agent.model && typeof agent.model.select === 'function')
+                agent.model.select(selection);
             this.deps.modelSelection.attach(agent.ctx, selection);
             // 同时按 childId 留存：attach 只写进该 child 的 ctx（无法按 id 反查），
             // 而「这个子代理在用哪个模型」是评价归因等消费方需要按身份查询的事实。

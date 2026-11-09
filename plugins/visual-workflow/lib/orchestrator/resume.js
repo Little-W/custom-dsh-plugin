@@ -79,6 +79,8 @@ export function buildResumedSnapshot(input) {
                 outputSummary: prevNode.outputSummary,
                 ...(prevNode.turns ? { turns: structuredClone(prevNode.turns) } : {}),
                 ...(prevNode.stopReason ? { stopReason: prevNode.stopReason } : {}),
+                ...(prevNode.childId ? { childId: prevNode.childId } : {}),
+                ...(prevNode.childSignature ? { childSignature: prevNode.childSignature } : {}),
                 resumed: true,
             };
         }
@@ -90,6 +92,8 @@ export function buildResumedSnapshot(input) {
             endedAt: null,
             output: '',
             outputSummary: '',
+            ...(prevNode?.childId ? { childId: prevNode.childId } : {}),
+            ...(prevNode?.childSignature ? { childSignature: prevNode.childSignature } : {}),
         };
     });
     return {
@@ -105,6 +109,7 @@ export function buildResumedSnapshot(input) {
         resumedFromRunId: prev.id,
         resumeFromNodeId,
         nodes,
+        ...(prev.feedbackRetries ? { feedbackRetries: structuredClone(prev.feedbackRetries) } : {}),
         // 元参数冻结副本继承（D-13）：续跑沿用旧 run 冻结的预算，不重读模板/实例 meta
         // ——「冻结即冻结」，保证审计与后续评估能还原本次运行当时的约束。
         ...(prev.meta ? { meta: structuredClone(prev.meta) } : {}),

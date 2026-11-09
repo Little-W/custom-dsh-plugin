@@ -9,7 +9,11 @@ import { resolveConfig } from './config.js';
 // ── 插件入口 ────────────────────────────────────────────────────────────
 /** 插件 apply 入口：实例化并注册 visualWorkflowHost service（随 fiber 自动注销）。 */
 export function apply(ctx, config) {
-    ctx.plugin(VisualWorkflowHost, resolveConfig(config));
+    const resolved = resolveConfig(config);
+    ctx.plugin(VisualWorkflowHost, resolved);
+    // 知识积累组件不再作为内部子插件挂载：它在 cordis.patch.yml 中是一条独立
+    // insert 行（name: dsh-visual-workflow/knowledge），因此会作为独立组件
+    // 出现在 DSH 的「包含的组件」列表中，并可单独启停。
 }
 // ---------------------------------------------------------------------------
 // re-export：原入口公共 API（拆分后外部引用路径不变）

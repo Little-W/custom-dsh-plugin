@@ -27,6 +27,7 @@ export interface NodeRunner {
         childId: string;
         created: boolean;
         replacedChildId?: string;
+        childSignature?: string;
     }>;
     /** 尽力中断某子代理当前回合（保留会话；官方 interrupt 语义）。 */
     interruptChild(childId: string, sessionId: string): Promise<void>;
@@ -56,6 +57,9 @@ export interface NodeRunner {
 export interface NodeStartInput {
     sessionId: string;
     flowId: string;
+    /** 上一进程快照中的节点子代理身份；签名一致且 Agent 仍存在时恢复复用。 */
+    resumeChildId?: string;
+    resumeChildSignature?: string;
     /**
      * 运行模式（缺省按模式一处理）。模式二的服务文档存储在 services/ 目录，
      * 子代理引擎须据此分派 db-in 连线检测的读取源（getServiceAsFlow），
@@ -128,7 +132,13 @@ export interface RootAgentLike {
     ctx?: unknown;
     followup?: (message: RootInjectedMessage) => void;
     steer?: (message: CoordinatorMessage) => void;
+    inbox?: {
+        nextTurn?: unknown[];
+        nextStep?: unknown[];
+    };
     session?: {
+        seq?: unknown;
+        eventAt?: (seq: number | unknown) => unknown;
         events?: unknown[];
     };
 }
@@ -231,7 +241,7 @@ export interface ModelSelectionValue {
  * 把父代理节点的模型三元组写进会话根 Agent 的 ctx）。
  */
 export interface ParentModelSelectionLike {
-    bindParent(ctx: unknown, selection: ModelSelectionValue, sessionId: string): void;
+    bindParent(ctx: unknown, selection: ModelSelectionValue, sessionId: string, onSelectionChange?: (selection: ModelSelectionValue) => void | Promise<void>): void;
 }
 export declare const consoleLogger: OrchestratorLogger;
 /** 运行锁信息（flowLockInfo 结果；暂停保留锁，status 供消息区分）。 */

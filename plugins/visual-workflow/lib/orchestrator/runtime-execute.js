@@ -19,6 +19,54 @@ import { RESUMABLE_STATUSES } from './resume.js';
 import { hasProducedOutput, setNodeStatus, terminalizeNodes } from './snapshot.js';
 import { GLOBAL_RUN_CALL_LIMIT } from './seams.js';
 import { RuntimeLaunch } from './runtime-launch.js';
+import { commitFeedbackRetry, planFeedbackRetry } from './feedback-budget.js';
+/** User prompts are committed to the root session inbox as durable splice events. */
+function hasUserInboxMessageAfter(session, startIndex) {
+    if (!session)
+        return false;
+    const rawLength = Number(session.seq);
+    const length = Number.isFinite(rawLength) && rawLength >= 0
+        ? rawLength
+        : (Array.isArray(session.events) ? session.events.length : 0);
+    for (let index = startIndex; index < length; index += 1) {
+        let rawEvent;
+        try {
+            rawEvent = typeof session.eventAt === 'function' ? session.eventAt(index) : undefined;
+        }
+        catch {
+            rawEvent = undefined;
+        }
+        if (rawEvent === undefined && Array.isArray(session.events))
+            rawEvent = session.events[index];
+        if (typeof rawEvent !== 'object' || rawEvent === null)
+            continue;
+        const event = rawEvent;
+        if (event.type !== 'agent/inbox/spliced' || !Array.isArray(event.data?.inserted))
+            continue;
+        if (event.data.inserted.some((rawMessage) => {
+            if (typeof rawMessage !== 'object' || rawMessage === null)
+                return false;
+            const message = rawMessage;
+            return message.source?.kind === 'user';
+        }))
+            return true;
+    }
+    return false;
+}
+function sessionEventCount(session) {
+    const rawLength = Number(session?.seq);
+    return Number.isFinite(rawLength) && rawLength >= 0
+        ? rawLength
+        : (Array.isArray(session?.events) ? session.events.length : 0);
+}
+function hasUserInputInInbox(inbox) {
+    return [inbox?.nextTurn, inbox?.nextStep].some((messages) => Array.isArray(messages) && messages.some((rawMessage) => {
+        if (typeof rawMessage !== 'object' || rawMessage === null)
+            return false;
+        const message = rawMessage;
+        return message.source?.kind === 'user';
+    }));
+}
 export class RuntimeExecute extends RuntimeLaunch {
     // ---- wf_run_node ----------------------------------------------------------
     /** 校验调用者为「当前会话根 Agent」并取可直接执行节点的激活运行（必要时静默接续）。 */
@@ -197,6 +245,7 @@ export class RuntimeExecute extends RuntimeLaunch {
         // 语义：把「Leader 按证据选路」从聊天语义变成可审计、可门禁的运行事实；
         // 简单线性流程（无条件出边或出边<2）不受影响。
         this.assertDecisionRecorded(run, flow, resolvedNodeId);
+        const feedbackRetry = planFeedbackRetry(run.snapshot, flow, resolvedNodeId, effectiveRetryLimit);
         // 启动子代理之前，为其 db-in 所连本地库预建索引：把构建耗时吸收到启动阶段，
         // 避免子代理首次检索才构建（延迟/「无索引」间歇）。best-effort：构建缺失/失败
         // 不阻塞节点启动，交由 wf_db_query(mode=search) 的惰性构建兜底。
@@ -225,10 +274,16 @@ export class RuntimeExecute extends RuntimeLaunch {
         }
         run.dispatching.add(resolvedNodeId);
         try {
-            const { childId, replacedChildId } = await this.deps.runner.startNodeTask({
+            if (feedbackRetry) {
+                commitFeedbackRetry(run.snapshot, feedbackRetry);
+                await this.persistWarn(run);
+            }
+            const { childId, replacedChildId, childSignature } = await this.deps.runner.startNodeTask({
                 sessionId: run.snapshot.sessionId,
                 flowId: run.snapshot.flowId,
                 mode: run.snapshot.mode,
+                ...(snapshotNode?.childId ? { resumeChildId: snapshotNode.childId } : {}),
+                ...(snapshotNode?.childSignature ? { resumeChildSignature: snapshotNode.childSignature } : {}),
                 node,
                 blocks,
                 signal: run.controller.signal,
@@ -255,6 +310,14 @@ export class RuntimeExecute extends RuntimeLaunch {
                     this.childIndex.set(replacedChildId, { ...retired, retired: true });
             }
             run.inflight.add(childId);
+            const startedNode = run.snapshot.nodes.find((item) => item.nodeId === resolvedNodeId);
+            if (startedNode) {
+                startedNode.childId = childId;
+                if (childSignature)
+                    startedNode.childSignature = childSignature;
+                else
+                    delete startedNode.childSignature;
+            }
             this.childIndex.set(childId, {
                 sessionId: run.snapshot.sessionId,
                 flowId: run.snapshot.flowId,
@@ -263,6 +326,7 @@ export class RuntimeExecute extends RuntimeLaunch {
                 ...roleIdentityOf(node),
             });
             this.childByNode.set(resolvedNodeId, childId);
+            await this.persistWarn(run);
             if (!waitRequested) {
                 return {
                     nodeId: resolvedNodeId,
@@ -347,11 +411,26 @@ export class RuntimeExecute extends RuntimeLaunch {
         const timeoutMs = Number.isFinite(rawTimeout) ? Math.min(3600000, Math.max(1000, rawTimeout)) : 300000;
         const startedAt = this.now();
         const deadline = startedAt + timeoutMs;
+        const rootAgent = this.deps.agents.getRootAgent(caller.sessionId);
+        const eventCountAtStart = sessionEventCount(rootAgent?.session);
         // 节点可能在等待期间被改图删除；每轮重读最新实例文档，与 wf_run_node 同一事实源。
         let resolvedNodeId = rawNodeId;
         while (true) {
             if (callerSignal?.aborted)
                 throw new WfError('WF_CANCELLED: the run has been stopped', 'WF_CANCELLED');
+            const currentRoot = this.deps.agents.getRootAgent(caller.sessionId);
+            if (hasUserInputInInbox(currentRoot?.inbox) || hasUserInboxMessageAfter(currentRoot?.session, eventCountAtStart)) {
+                const entry = run.snapshot.nodes.find((item) => item.nodeId === resolvedNodeId);
+                return {
+                    nodeId: resolvedNodeId,
+                    status: entry?.status ?? 'pending',
+                    runStatus: run.snapshot.status,
+                    ...(entry ? { attempts: entry.attempts } : {}),
+                    ...(this.childByNode.get(resolvedNodeId) ? { childId: this.childByNode.get(resolvedNodeId) } : {}),
+                    interruptedByUserInput: true,
+                    waitedMs: this.now() - startedAt,
+                };
+            }
             const flow = await this.currentResolvedFlow(run);
             let node = nodeById(flow, rawNodeId);
             if (node?.kind === 'proxy')
@@ -380,6 +459,26 @@ export class RuntimeExecute extends RuntimeLaunch {
                     runStatus: run.snapshot.status,
                     ...(entry ? { attempts: entry.attempts } : {}),
                     ...(this.childByNode.get(resolvedNodeId) ? { childId: this.childByNode.get(resolvedNodeId) } : {}),
+                    waitedMs: this.now() - startedAt,
+                };
+            }
+            // A stale `running` snapshot (or a wait call for a node that was never
+            // dispatched) has no worker that can settle it. End the wait so the parent
+            // can inspect/re-dispatch instead of sleeping until the caller's timeout.
+            // Keep the short dispatch window open because startNodeTask may still be
+            // publishing the child id when a parallel wf_wait_agent call arrives.
+            const childId = this.childByNode.get(resolvedNodeId);
+            if (!run.dispatching.has(resolvedNodeId)
+                && (status === 'pending' || status === 'running')
+                && (!childId || !this.deps.agents.childRunning(childId))) {
+                return {
+                    nodeId: resolvedNodeId,
+                    status,
+                    runStatus: run.snapshot.status,
+                    ...(entry ? { attempts: entry.attempts } : {}),
+                    ...(childId ? { childId } : {}),
+                    interruptedByNoActiveAgent: true,
+                    interruptMessage: `No active subagent is working on node "${resolvedNodeId}"; wait was interrupted.`,
                     waitedMs: this.now() - startedAt,
                 };
             }
