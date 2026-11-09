@@ -1,6 +1,6 @@
 {
   "meta": {
     "title": "Session Features",
-    "description": "Preserve task plans and child-agent progress, resume interrupted sessions, and combine repeated thought updates into one status."
+    "description": "Preserve task plans and queued messages, resume interrupted sessions, edit or resend messages, and group or hide reasoning bubbles."
   }
 }

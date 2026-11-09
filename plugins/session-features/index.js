@@ -1,6 +1,7 @@
 import { createRequire as __createRequire } from 'node:module'; const require = __createRequire(import.meta.url);
+import { installQueueDurability } from './queue-durability.js';
 
-// apps/dsh/src/session-task-plan.ts
+// src/session-task-plan.ts
 function savedTaskPlan(events) {
   for (let i = events.length - 1; i >= 0; i--) {
     const event = events[i];
@@ -40,10 +41,10 @@ function installSessionTaskPlan(ctx) {
   ctx.effect(() => prompt.context({ name: "studio:session-task-plan", order: 130, required: true, interpolate: false, text: ({ agent }) => agent ? taskPlanContext(savedTaskPlan(eventsOf(agent))?.tasks ?? []) : "" }), "studio: persistent task plan context");
 }
 
-// node_modules/.pnpm/@deepseek-ai+dsh-llm@0.2.2-rc.1_@deepseek-ai+cordis@4.1.0/node_modules/@deepseek-ai/dsh-llm/lib/index.js
+// ../../node_modules/.pnpm/@deepseek-ai+dsh-llm@0.2.2-rc.1_@deepseek-ai+cordis@4.1.0/node_modules/@deepseek-ai/dsh-llm/lib/index.js
 import { createRequire } from "node:module";
 
-// node_modules/.pnpm/@deepseek-ai+cosmokit@1.9.0/node_modules/@deepseek-ai/cosmokit/lib/index.js
+// ../../node_modules/.pnpm/@deepseek-ai+cosmokit@1.9.0/node_modules/@deepseek-ai/cosmokit/lib/index.js
 function isNullable(value) {
   return value === null || value === void 0;
 }
@@ -304,7 +305,7 @@ var Time;
   Time2.template = template;
 })(Time || (Time = {}));
 
-// node_modules/.pnpm/@deepseek-ai+cordis@4.1.0_@deepseek-ai+cordis-plugin-loader@1.1.0/node_modules/@deepseek-ai/cordis/lib/index.js
+// ../../node_modules/.pnpm/@deepseek-ai+cordis@4.1.0_@deepseek-ai+cordis-plugin-loader@1.1.0/node_modules/@deepseek-ai/cordis/lib/index.js
 var DisposableList = class {
   sn = 0;
   map = /* @__PURE__ */ new Map();
@@ -2101,7 +2102,7 @@ var Service = class Service2 {
   }
 };
 
-// node_modules/.pnpm/@deepseek-ai+dsh-typert-protocol@0.2.2-rc.1_@deepseek-ai+cordis@4.1.0/node_modules/@deepseek-ai/dsh-typert-protocol/lib/index.js
+// ../../node_modules/.pnpm/@deepseek-ai+dsh-typert-protocol@0.2.2-rc.1_@deepseek-ai+cordis@4.1.0/node_modules/@deepseek-ai/dsh-typert-protocol/lib/index.js
 var RemoteError = class extends Error {
   code;
   details;
@@ -2245,7 +2246,7 @@ function validateName(subject, value) {
   if (!isTypertRemoteSegment(value)) throw new TypeError(`typert-protocol: ${subject} must contain only RPC endpoint segment characters`);
 }
 
-// node_modules/.pnpm/@deepseek-ai+dsh-util-values@0.2.2-rc.1_@deepseek-ai+cordis@4.1.0/node_modules/@deepseek-ai/dsh-util-values/lib/index.js
+// ../../node_modules/.pnpm/@deepseek-ai+dsh-util-values@0.2.2-rc.1_@deepseek-ai+cordis@4.1.0/node_modules/@deepseek-ai/dsh-util-values/lib/index.js
 var SIMPLE_ESCAPES = {
   '"': '"',
   "\\": "\\",
@@ -2902,12 +2903,12 @@ function deepFreeze(value) {
   return value;
 }
 
-// node_modules/.pnpm/@deepseek-ai+dsh-brand@0.2.2-rc.1_@deepseek-ai+cordis@4.1.0/node_modules/@deepseek-ai/dsh-brand/lib/index.js
+// ../../node_modules/.pnpm/@deepseek-ai+dsh-brand@0.2.2-rc.1_@deepseek-ai+cordis@4.1.0/node_modules/@deepseek-ai/dsh-brand/lib/index.js
 function brandString(value) {
   return value;
 }
 
-// node_modules/.pnpm/@deepseek-ai+schemastery@3.19.0/node_modules/@deepseek-ai/schemastery/lib/index.mjs
+// ../../node_modules/.pnpm/@deepseek-ai+schemastery@3.19.0/node_modules/@deepseek-ai/schemastery/lib/index.mjs
 var kSchema = /* @__PURE__ */ Symbol.for("schemastery");
 var kValidationError2 = /* @__PURE__ */ Symbol.for("ValidationError");
 globalThis.__schemastery_index__ ??= 0;
@@ -3548,10 +3549,10 @@ defineMethod("transform", [
   "preserve"
 ], ({ inner }, isInner) => inner.toString(isInner));
 
-// node_modules/.pnpm/@deepseek-ai+dsh-timeout@0.2.2-rc.1_@deepseek-ai+cordis@4.1.0/node_modules/@deepseek-ai/dsh-timeout/lib/index.js
+// ../../node_modules/.pnpm/@deepseek-ai+dsh-timeout@0.2.2-rc.1_@deepseek-ai+cordis@4.1.0/node_modules/@deepseek-ai/dsh-timeout/lib/index.js
 var MAX_TIMER_DELAY_MS = 2147483647;
 
-// node_modules/.pnpm/@deepseek-ai+dsh-llm@0.2.2-rc.1_@deepseek-ai+cordis@4.1.0/node_modules/@deepseek-ai/dsh-llm/lib/index.js
+// ../../node_modules/.pnpm/@deepseek-ai+dsh-llm@0.2.2-rc.1_@deepseek-ai+cordis@4.1.0/node_modules/@deepseek-ai/dsh-llm/lib/index.js
 function freezeMessage(message) {
   return deepFreeze(structuredClone(message));
 }
@@ -4612,7 +4613,7 @@ function detachDirectoryEntry(entry) {
   };
 }
 
-// apps/dsh/src/session-continuation.ts
+// src/session-continuation.ts
 import { randomUUID as randomUUID2 } from "node:crypto";
 function conversationPhase(events, running) {
   if (running) return "running";
@@ -4629,6 +4630,16 @@ function conversationPhase(events, running) {
 }
 function continuationMessage() {
   return { id: MessageId(`continue-${randomUUID2()}`), role: "user", source: { kind: "studio-continuation", form: "resume-signal" }, content: [] };
+}
+async function wakeWithContinuation(agent, message) {
+  if (typeof agent.runMaintenance !== "function" || typeof agent.inbox?.prepend !== "function" || typeof agent.inbox?.remove !== "function") {
+    throw new Error("当前 DSH AgentLoop 不支持安全恢复排队消息，请更新 DSH 后重试");
+  }
+  await agent.runMaintenance(async () => {
+    agent.send(message, "next-turn", true);
+    if (!agent.inbox.remove(message.id)) throw new Error("无法定位内部继续信号，已取消本次恢复");
+    agent.inbox.prepend("next-turn", message);
+  });
 }
 var SessionContinuation = class {
   constructor(services) {
@@ -4699,7 +4710,7 @@ var SessionContinuation = class {
         if (!current.resumable) return current;
         const parked = [...agent.inbox.nextStep, ...agent.inbox.nextTurn].find((item) => item.source.kind === "studio-continuation");
         if (parked) agent.inbox.remove(parked.id);
-        agent.send(message, "next-step", true);
+        await wakeWithContinuation(agent, message);
       }
     }
     return this.state(state.sessionId);
@@ -4797,13 +4808,17 @@ function registerSessionContinuationRoute(server, continuation) {
   });
 }
 
-// apps/dsh/src/session-agent-loop.ts
+// src/session-agent-loop.ts
 var name = "@agent-studio/plugin-session-features";
+var Config = Schema.object({
+  hideAllThoughts: Schema.boolean().default(false).description("隐藏全部思考气泡及思考汇总入口，保留工具与回复正文。保存后立即生效。").volatile()
+});
 var inject = ["agentLoop", "systemPrompt"];
 function apply(ctx) {
   const loop = ctx.get("agentLoop");
   if (!loop) throw new Error("\u4F1A\u8BDD\u529F\u80FD\u589E\u5F3A\u9700\u8981 DSH \u539F\u751F AgentLoop");
   installSessionTaskPlan(ctx);
+  installQueueDurability(ctx);
   const handles = /* @__PURE__ */ new Map();
   ctx.provide("studioAgentHandles", {
     dispose: async (id) => {
@@ -4843,8 +4858,9 @@ function apply(ctx) {
     if (loop.resume === wrappedResume) loop.resume = resume;
   }, "session features: native agent lifecycle");
 }
-var session_agent_loop_default = { name, inject, apply };
+var session_agent_loop_default = { name, Config, inject, apply };
 export {
+  Config,
   apply,
   session_agent_loop_default as default,
   inject,

@@ -1,6 +1,6 @@
 {
   "name": "@agent-studio/plugin-session-features",
-  "version": "0.2.10",
+  "version": "0.2.26",
   "type": "module",
   "description": "保存任务清单并恢复会话，合并重复的思考状态，支持撤回编辑和重新发送消息。",
   "main": "./index.js",
@@ -13,6 +13,7 @@
   },
   "files": [
     "index.js",
+    "queue-durability.js",
     "client.js",
     "cordis.patch.yml",
     "icon.svg",

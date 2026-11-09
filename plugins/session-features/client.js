@@ -18,7 +18,7 @@ var __copyProps = (to, from, except, desc) => {
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-// apps/dsh/src/client-session-ui.tsx
+// src/client-session-ui.tsx
 var client_session_ui_exports = {};
 __export(client_session_ui_exports, {
   apply: () => apply,
@@ -26,16 +26,16 @@ __export(client_session_ui_exports, {
 });
 module.exports = __toCommonJS(client_session_ui_exports);
 
-// apps/dsh/src/session-continuation-ui.tsx
+// src/session-continuation-ui.tsx
 var import_react4 = require("react");
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/createLucideIcon.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/createLucideIcon.mjs
 var import_react3 = require("react");
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/toKebabCase.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/toKebabCase.mjs
 var toKebabCase = (string) => string?.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/toLucideIconData.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/toLucideIconData.mjs
 function toLucideIconData(iconName, iconNode, aliases = []) {
   if (iconNode == null) {
     throw new Error("[lucide]: iconNode is required when icon name is used");
@@ -48,7 +48,7 @@ function toLucideIconData(iconName, iconNode, aliases = []) {
   };
 }
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/toCamelCase.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/toCamelCase.mjs
 var toCamelCase = (string) => {
   let out = "";
   let upperNext = false;
@@ -67,21 +67,21 @@ var toCamelCase = (string) => {
   return out;
 };
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/toPascalCase.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/toPascalCase.mjs
 var toPascalCase = (string) => {
   const camelCase = toCamelCase(string);
   return camelCase.charAt(0).toUpperCase() + camelCase.slice(1);
 };
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/Icon.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/Icon.mjs
 var import_react2 = require("react");
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/mergeClasses.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/mergeClasses.mjs
 var mergeClasses = (...classes) => classes.filter((className, index, array) => {
   return Boolean(className) && className.trim() !== "" && array.indexOf(className) === index;
 }).join(" ").trim();
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/build/defaultAttributes.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/build/defaultAttributes.mjs
 var defaultAttributes = {
   xmlns: "http://www.w3.org/2000/svg",
   width: 24,
@@ -94,7 +94,7 @@ var defaultAttributes = {
   "stroke-linejoin": "round"
 };
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/build/buildLucideIconNode.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/build/buildLucideIconNode.mjs
 function isDefined(value) {
   return value !== null && value !== void 0;
 }
@@ -147,7 +147,7 @@ function buildLucideIconNode(icon, params = {}) {
   ];
 }
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/build/buildLucideIconForReact.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/build/buildLucideIconForReact.mjs
 function buildLucideIconForReact(icon, params = {}) {
   return buildLucideIconNode(icon, {
     ...params,
@@ -162,7 +162,7 @@ function buildLucideIconForReact(icon, params = {}) {
   });
 }
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/hasA11yProp.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/hasA11yProp.mjs
 var hasA11yProp = (props) => {
   for (const prop in props) {
     if (prop.startsWith("aria-") || prop === "role" || prop === "title") {
@@ -172,12 +172,12 @@ var hasA11yProp = (props) => {
   return false;
 };
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/context.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/context.mjs
 var import_react = require("react");
 var LucideContext = (0, import_react.createContext)({});
 var useLucideContext = () => (0, import_react.useContext)(LucideContext);
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/Icon.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/Icon.mjs
 var Icon = (0, import_react2.forwardRef)(
   ({
     color,
@@ -231,7 +231,7 @@ var Icon = (0, import_react2.forwardRef)(
   }
 );
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/createLucideIcon.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/createLucideIcon.mjs
 function createLucideIcon(iconDataOrName, iconNode = [], aliases = []) {
   const iconData = typeof iconDataOrName === "string" ? toLucideIconData(iconDataOrName, iconNode, aliases) : iconDataOrName;
   const Component = (0, import_react3.forwardRef)(
@@ -248,7 +248,7 @@ function createLucideIcon(iconDataOrName, iconNode = [], aliases = []) {
   return Component;
 }
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/loader-circle.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/loader-circle.mjs
 var __iconData = {
   name: "loader-circle",
   size: 24,
@@ -258,7 +258,7 @@ var __iconData = {
 __iconData.node;
 var LoaderCircle = createLucideIcon(__iconData);
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/play.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/play.mjs
 var __iconData2 = {
   name: "play",
   size: 24,
@@ -275,7 +275,7 @@ var __iconData2 = {
 __iconData2.node;
 var Play = createLucideIcon(__iconData2);
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/rotate-ccw.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/rotate-ccw.mjs
 var __iconData3 = {
   name: "rotate-ccw",
   size: 24,
@@ -287,7 +287,7 @@ var __iconData3 = {
 __iconData3.node;
 var RotateCcw = createLucideIcon(__iconData3);
 
-// apps/dsh/src/session-message-actions.ts
+// src/session-message-actions.ts
 var pendingKey = "dsh.session-features.pending-message-action";
 var pendingActions = /* @__PURE__ */ new Map();
 function stagePendingMessageAction(action) {
@@ -335,7 +335,7 @@ function pendingActionMatches(input) {
   return !!action && sessionId === action.targetSessionId && Number.isFinite(action.createdAt) && now >= action.createdAt && now - action.createdAt <= 6e4;
 }
 
-// apps/dsh/src/session-continuation-ui.tsx
+// src/session-continuation-ui.tsx
 var import_jsx_runtime = require("react/jsx-runtime");
 var endpoint = "/studio/sessions/continuation";
 function shouldShowContinueAction(input) {
@@ -445,12 +445,14 @@ var continuationStyles = `
 @media (prefers-reduced-motion:reduce) { .studio-chat-resuming { animation:none; } }
 `;
 
-// apps/dsh/src/session-message-actions-ui.tsx
+// src/session-message-actions-ui.tsx
 var import_react5 = require("react");
 var import_jsx_runtime2 = require("react/jsx-runtime");
 function registerSessionMessageActions(slots, services) {
-  const Native = slots.entries("conversation.chat.node").filter((entry) => entry.options.key === "user").sort((a, b) => (a.options.priority ?? 0) - (b.options.priority ?? 0))[0]?.component;
-  if (!Native) throw new Error("\u539F\u751F\u7528\u6237\u6D88\u606F\u6E32\u67D3\u5668\u4E0D\u53EF\u7528");
+  const Native = slots.entries("conversation.chat.node")
+    .filter((entry) => entry.options.key === "user" && !entry.component?.__studioMessageActions && !entry.component?.type?.__studioMessageActions)
+    .sort((a, b) => (a.options.priority ?? 0) - (b.options.priority ?? 0))[0]?.component;
+  if (!Native) throw new Error("原生用户消息渲染器不可用");
   function UserMessageWithActions(props) {
     const running = props.useSession((state) => state.running === true);
     const removed = props.useSession((state) => state.removed === true);
@@ -464,7 +466,7 @@ function registerSessionMessageActions(slots, services) {
     const hasAccess = boundary.kind === "create" ? canCreate : canFork;
     const disabled = running || removed || !hasAccess || busy || !supported || invalidBoundary || !props.sessionId;
     const firstMessage = boundary.kind === "create";
-    const actionTitle = running ? "\u8BF7\u5148\u7B49\u5F85\u5F53\u524D\u4F1A\u8BDD\u7ED3\u675F" : removed ? "\u5DF2\u5220\u9664\u7684\u4F1A\u8BDD\u4E0D\u80FD\u521B\u5EFA\u6D88\u606F\u5206\u652F" : !hasAccess ? "\u5F53\u524D\u8D26\u53F7\u65E0\u6743\u521B\u5EFA\u6D88\u606F\u5206\u652F" : invalidBoundary ? "\u65E0\u6CD5\u5728\u6B64\u6D88\u606F\u4E4B\u524D\u5EFA\u7ACB\u5206\u652F" : reason;
+    const actionTitle = running ? "请先等待当前会话结束" : removed ? "已删除的会话不能创建消息分支" : !hasAccess ? "当前账号无权创建消息分支" : invalidBoundary ? "无法在此消息之前建立分支" : reason;
     const startBranch = async (mode) => {
       if (!props.sessionId || running || removed || !hasAccess || !supported || invalidBoundary || busy) return;
       setError("");
@@ -476,35 +478,27 @@ function registerSessionMessageActions(slots, services) {
         window.setTimeout(() => setBusy(false), 1800);
       } catch {
         setBusy(false);
-        setError("\u521B\u5EFA\u6D88\u606F\u5206\u652F\u5931\u8D25\uFF0C\u8BF7\u7A0D\u540E\u91CD\u8BD5");
+        setError("创建消息分支失败，请稍后重试");
       }
     };
-    if (props.node.kind !== "user") return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Native, { ...props });
+    if (props.node.kind !== "user") return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Native, { ...props, renderSlotChain: props.renderFactorySlot });
     return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "studio-message-actions-wrap", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Native, { ...props }),
-      /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "studio-message-actions", "aria-label": "\u6D88\u606F\u64CD\u4F5C", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Native, { ...props, renderSlotChain: props.renderFactorySlot }),
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "studio-message-actions", "aria-label": "消息操作", children: [
         error && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { role: "status", children: error }),
-        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { type: "button", disabled, title: actionTitle ?? (firstMessage ? "\u65B0\u5EFA\u4F1A\u8BDD\u5E76\u5C06\u6587\u5B57\u653E\u5165\u8F93\u5165\u6846" : "\u5728\u6B64\u6D88\u606F\u4E4B\u524D\u521B\u5EFA\u5206\u652F\uFF0C\u5E76\u5C06\u6587\u5B57\u653E\u5165\u8F93\u5165\u6846"), onClick: () => {
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { type: "button", disabled, title: actionTitle ?? (firstMessage ? "新建会话并将文字放入输入框" : "在此消息之前创建分支，并将文字放入输入框"), onClick: () => {
           void startBranch("edit");
-        }, children: "\u64A4\u56DE\u5E76\u7F16\u8F91" }),
-        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { type: "button", disabled, title: actionTitle ?? (firstMessage ? "\u65B0\u5EFA\u4F1A\u8BDD\u5E76\u91CD\u65B0\u53D1\u9001\u8FD9\u6761\u6D88\u606F" : "\u5728\u6B64\u6D88\u606F\u4E4B\u524D\u521B\u5EFA\u5206\u652F\u5E76\u91CD\u65B0\u53D1\u9001\u8FD9\u6761\u6D88\u606F"), onClick: () => {
+        }, children: "撤回并编辑" }),
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { type: "button", disabled, title: actionTitle ?? (firstMessage ? "新建会话并重新发送这条消息" : "在此消息之前创建分支并重新发送这条消息"), onClick: () => {
           void startBranch("resend");
-        }, children: "\u91CD\u65B0\u53D1\u9001" })
+        }, children: "重新发送" })
       ] })
     ] });
   }
-  return slots.register({
-    name: "conversation.chat.node",
-    key: "user",
-    priority: -10,
-    locale: "chat",
-    // Preserve the child seat the native user renderer uses to display
-    // source decorations inside the message bubble.
-    children: { "conversation.chat.user.before": { kind: "chain", scope: "session" } }
-  }, UserMessageWithActions);
+  UserMessageWithActions.__studioMessageActions = true;
+  return slots.register({ name: "conversation.chat.node", key: "user", priority: -10, locale: "chat" }, UserMessageWithActions);
 }
 var messageActionStyles = `
-.studio-message-actions-wrap { position:relative; min-width:0; }
 .studio-message-actions { display:flex; justify-content:flex-end; align-items:center; gap:4px; min-height:26px; margin-top:1px; }
 .studio-message-actions button { border:0; border-radius:var(--dsw-radius-sm,6px); padding:3px 8px; background:transparent; color:var(--dsw-alias-label-tertiary,#87909e); font:inherit; font-size:12px; line-height:18px; cursor:pointer; }
 .studio-message-actions button:hover:not(:disabled) { background:var(--dsw-alias-interactive-bg-hover,#eef1f5); color:var(--dsw-alias-label-secondary,#4f5968); }
@@ -514,7 +508,7 @@ var messageActionStyles = `
 @media (prefers-reduced-motion:reduce) { .studio-message-actions { transition:none; } }
 `;
 
-// apps/dsh/src/session-resume-notice.tsx
+// src/session-resume-notice.tsx
 var import_jsx_runtime3 = require("react/jsx-runtime");
 function registerSessionResumeNotice(slots) {
   function ResumeTrigger(props) {
@@ -544,7 +538,7 @@ var resumeNoticeStyles = `
 .studio-resume-notice > pre { white-space:pre-wrap; overflow-wrap:anywhere; margin:8px 0; padding:12px; border-radius:10px; background:var(--dsw-alias-bg-base, #f6f8fa); font:12px/20px ui-monospace,monospace; }
 `;
 
-// apps/dsh/src/plugin-settings.tsx
+// src/plugin-settings.tsx
 var import_jsx_runtime4 = require("react/jsx-runtime");
 var pluginSettingsStyles = `
 .studio-plugin-settings { width:100%; min-width:0; box-sizing:border-box; color:var(--dsw-alias-label-primary); font:inherit; font-size:13px; line-height:1.5; }
@@ -597,192 +591,173 @@ div:has(> div > button.eda-sidebar-entry) { display:flex; flex-direction:column;
 @media (prefers-reduced-motion:reduce) { .studio-plugin-switch span { transition:none; } }
 `;
 
-// apps/dsh/src/session-thought-status.ts
-function selectNestedThoughtGroups(bubbles) {
-  const groups = /* @__PURE__ */ new Map();
-  for (const bubble of bubbles) {
-    const group = groups.get(bubble.processGroup) ?? [];
-    group.push(bubble.value);
-    groups.set(bubble.processGroup, group);
-  }
-  return groups;
-}
+// src/session-thought-status.ts
 function installUnifiedThoughtStatus(doc = document) {
-  const processSelector = "[data-step-process][data-chat-turn]";
+  const processSelector = '[data-step-process][data-chat-turn]';
   const thoughtSelector = '[data-variant="think"]';
-  const memberAttribute = "data-session-features-thought-member";
-  const summaryAttribute = "data-session-features-thought-summary";
-  const originalHidden = /* @__PURE__ */ new Map();
-  const originalInlineHidden = /* @__PURE__ */ new Map();
-  let timer;
+  const summaryAttribute = 'data-session-features-thought-summary';
+  const memberAttribute = 'data-session-features-thought-member';
+  const records = new Map();
+  let queued = false, disposed = false, hideAll = false;
+  const root = doc.documentElement;
+  const previousMode = root.getAttribute('data-session-features-thoughts');
+  const owns = (element, group) => element.closest(processSelector) === group;
+  const contentOf = group => Array.from(group.querySelectorAll('[data-step-process-content]')).find(element => owns(element, group));
+  const setAttribute = (element, key, value) => {
+    if (element.getAttribute(key) !== value) element.setAttribute(key, value);
+  };
+  const pureThoughtRow = (row, group) => {
+    if (!row || row === group) return false;
+    if (row.dataset.chatGroupPart === 'reasoning') return true;
+    if (row.querySelector('[data-tool-call], [data-chat-steering-batch], img, video, audio, canvas, table')) return false;
+    const copy = row.cloneNode(true);
+    copy.querySelectorAll(thoughtSelector).forEach(node => node.remove());
+    return copy.textContent.trim() === '';
+  };
+  const makeSummary = group => {
+    const button = doc.createElement('button');
+    button.type = 'button';
+    button.className = 'studio-thought-subgroup-summary';
+    button.setAttribute(summaryAttribute, '');
+    const leading = doc.createElement('span');
+    leading.className = 'studio-thought-subgroup-leading';
+    leading.setAttribute('aria-hidden', 'true');
+    for (const [iconName, className] of [
+      ['dsw-icon-think-outline-regular', 'studio-thought-subgroup-think-icon'],
+      ['dsw-icon-chevron-down-outline-regular', 'studio-thought-subgroup-chevron']
+    ]) {
+      const icon = doc.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      icon.setAttribute('width', '14'); icon.setAttribute('height', '14');
+      icon.setAttribute('data-icon', iconName); icon.setAttribute('class', className);
+      const use = doc.createElementNS('http://www.w3.org/2000/svg', 'use');
+      use.setAttribute('href', `#${iconName}`); icon.append(use); leading.append(icon);
+    }
+    const label = doc.createElement('span');
+    label.className = 'studio-thought-subgroup-label';
+    button.append(leading, label);
+    button.onclick = () => {
+      const expanded = group.dataset.sessionFeaturesThoughtExpanded !== 'true';
+      group.dataset.sessionFeaturesThoughtExpanded = String(expanded);
+      updateSummary(group, records.get(group));
+    };
+    return { button, label, count: 0, members: new Set() };
+  };
+  const updateSummary = (group, record) => {
+    if (!record) return;
+    const expanded = group.dataset.sessionFeaturesThoughtExpanded === 'true';
+    const label = `思考 · ${record.count} 条`;
+    if (record.label.textContent !== label) record.label.textContent = label;
+    setAttribute(record.button, 'aria-expanded', String(expanded));
+    setAttribute(record.button, 'aria-label', `${expanded ? '收起' : '展开'} ${record.count} 条思考记录`);
+  };
+  const release = (group, record) => {
+    record.button.remove();
+    for (const member of record.members) member.removeAttribute(memberAttribute);
+    records.delete(group);
+  };
   const reconcile = () => {
-    timer = void 0;
-    for (const flow of Array.from(doc.querySelectorAll('[data-slot="conversation.chat.flow"]'))) {
-      const groupedBubbles = selectNestedThoughtGroups(Array.from(flow.querySelectorAll(thoughtSelector)).flatMap((bubble) => {
-        const processGroup = bubble.closest(processSelector);
-        if (processGroup === null) return [];
-        const row = bubble.closest("[data-chat-anchor-key]");
-        const flowRow = row !== processGroup && row !== null ? row : bubble;
-        const inline = bubble.closest("[data-turn-process-inline]");
-        const hasOtherContent = flowRow.querySelector('[data-variant]:not([data-variant="think"])') !== null || flowRow.querySelector("[data-tool-call], [data-chat-steering-batch]") !== null;
-        return [{ processGroup, value: {
-          member: hasOtherContent ? inline ?? bubble : flowRow,
-          inline
-        } }];
-      }));
-      for (const group of Array.from(flow.querySelectorAll(processSelector))) {
-        const entries = groupedBubbles.get(group) ?? [];
-        const members = Array.from(new Set(entries.map((entry) => entry.member)));
-        const inlineThoughts = Array.from(new Set(entries.flatMap((entry) => entry.inline === null ? [] : [entry.inline])));
-        const summary = Array.from(group.querySelectorAll(`button[${summaryAttribute}]`)).find((button) => button.closest(processSelector) === group);
-        for (const member of Array.from(originalHidden.keys()).filter((candidate) => !candidate.isConnected || candidate.closest(processSelector) === group && !members.includes(candidate))) {
-          const hidden = originalHidden.get(member);
-          if (hidden === null || hidden === void 0) member.removeAttribute("hidden");
-          else member.setAttribute("hidden", hidden);
-          originalHidden.delete(member);
-          member.removeAttribute(memberAttribute);
-        }
-        for (const inline of Array.from(originalInlineHidden.keys()).filter((candidate) => !candidate.isConnected || !inlineThoughts.includes(candidate) && candidate.closest(processSelector) === group)) {
-          const hidden = originalInlineHidden.get(inline);
-          if (hidden === null || hidden === void 0) inline.removeAttribute("hidden");
-          else inline.setAttribute("hidden", hidden);
-          originalInlineHidden.delete(inline);
-        }
-        if (entries.length < 2 || members.length === 0) {
-          summary?.remove();
-          for (const member of members) {
-            member.removeAttribute(memberAttribute);
-            const hidden = originalHidden.get(member);
-            if (hidden === null || hidden === void 0) member.removeAttribute("hidden");
-            else member.setAttribute("hidden", hidden);
-            originalHidden.delete(member);
-          }
-          for (const inline of inlineThoughts) {
-            const hidden = originalInlineHidden.get(inline);
-            if (hidden === null || hidden === void 0) inline.removeAttribute("hidden");
-            else inline.setAttribute("hidden", hidden);
-            originalInlineHidden.delete(inline);
-          }
-          continue;
-        }
-        for (const member of members) {
-          if (!originalHidden.has(member)) originalHidden.set(member, member.getAttribute("hidden"));
-          member.setAttribute(memberAttribute, "");
-        }
-        for (const inline of inlineThoughts) {
-          if (!originalInlineHidden.has(inline)) originalInlineHidden.set(inline, inline.getAttribute("hidden"));
-        }
-        const anchor = members[0];
-        let toggle = summary;
-        if (!toggle || toggle.parentElement !== anchor.parentElement || toggle.nextElementSibling !== anchor) {
-          toggle?.remove();
-          toggle = doc.createElement("button");
-          toggle.type = "button";
-          toggle.className = "studio-thought-subgroup-summary";
-          toggle.setAttribute(summaryAttribute, "");
-          const leading = doc.createElement("span");
-          leading.className = "studio-thought-subgroup-leading";
-          leading.setAttribute("aria-hidden", "true");
-          for (const [iconName, className] of [
-            ["dsw-icon-think-outline-regular", "studio-thought-subgroup-think-icon"],
-            ["dsw-icon-chevron-down-outline-regular", "studio-thought-subgroup-chevron"]
-          ]) {
-            const icon = doc.createElementNS("http://www.w3.org/2000/svg", "svg");
-            icon.setAttribute("width", "14");
-            icon.setAttribute("height", "14");
-            icon.setAttribute("data-icon", iconName);
-            icon.setAttribute("class", className);
-            const use = doc.createElementNS("http://www.w3.org/2000/svg", "use");
-            use.setAttribute("href", `#${iconName}`);
-            icon.append(use);
-            leading.append(icon);
-          }
-          const text = doc.createElement("span");
-          text.className = "studio-thought-subgroup-label";
-          toggle.append(leading, text);
-          anchor.parentElement?.insertBefore(toggle, anchor);
-        }
-        toggle.onclick = () => {
-          const expanded2 = group.dataset.sessionFeaturesThoughtExpanded !== "true";
-          group.dataset.sessionFeaturesThoughtExpanded = String(expanded2);
-          toggle.setAttribute("aria-expanded", String(expanded2));
-          for (const member of members) {
-            if (expanded2) {
-              const hidden = originalHidden.get(member);
-              if (hidden === null || hidden === void 0) member.removeAttribute("hidden");
-              else member.setAttribute("hidden", hidden);
-            } else member.setAttribute("hidden", "");
-          }
-          for (const inline of inlineThoughts) {
-            if (expanded2) inline.removeAttribute("hidden");
-            else {
-              const hidden = originalInlineHidden.get(inline);
-              if (hidden === null || hidden === void 0) inline.removeAttribute("hidden");
-              else inline.setAttribute("hidden", hidden);
-            }
-          }
-        };
-        const label = `\u601D\u8003 \xB7 ${entries.length} \u6761`;
-        const labelNode = toggle.querySelector(".studio-thought-subgroup-label");
-        if (labelNode && labelNode.textContent !== label) labelNode.textContent = label;
-        const expanded = group.dataset.sessionFeaturesThoughtExpanded === "true";
-        toggle.setAttribute("aria-expanded", String(expanded));
-        toggle.setAttribute("aria-label", expanded ? `\u6536\u8D77 ${entries.length} \u6761\u601D\u8003\u8BB0\u5F55` : `\u5C55\u5F00 ${entries.length} \u6761\u601D\u8003\u8BB0\u5F55`);
-        for (const member of members) {
-          if (expanded) {
-            const hidden = originalHidden.get(member);
-            if (hidden === null || hidden === void 0) member.removeAttribute("hidden");
-            else member.setAttribute("hidden", hidden);
-          } else member.setAttribute("hidden", "");
-        }
-        for (const inline of inlineThoughts) {
-          if (expanded) inline.removeAttribute("hidden");
-          else {
-            const hidden = originalInlineHidden.get(inline);
-            if (hidden === null || hidden === void 0) inline.removeAttribute("hidden");
-            else inline.setAttribute("hidden", hidden);
-          }
-        }
+    queued = false;
+    if (disposed) return;
+    const groups = Array.from(doc.querySelectorAll(`[data-slot="conversation.chat.flow"] ${processSelector}`));
+    for (const [group, record] of records) {
+      if (!group.isConnected || !groups.includes(group)) release(group, record);
+    }
+    for (const group of groups) {
+      const content = contentOf(group);
+      const bubbles = Array.from(group.querySelectorAll(thoughtSelector)).filter(bubble => owns(bubble, group));
+      let record = records.get(group);
+      if (!content || bubbles.length === 0) {
+        if (record) release(group, record);
+        continue;
       }
+      if (!record) {
+        record = makeSummary(group);
+        records.set(group, record);
+      }
+      record.count = bubbles.length;
+      const members = new Set();
+      for (const bubble of bubbles) {
+        const row = bubble.closest('[data-chat-anchor-key]');
+        if (pureThoughtRow(row, group)) members.add(row);
+      }
+      for (const member of record.members) {
+        if (!members.has(member)) member.removeAttribute(memberAttribute);
+      }
+      for (const member of members) setAttribute(member, memberAttribute, '');
+      record.members = members;
+      // One stable button per primary group, always before its first tool row.
+      // Never reparent a native row or take ownership of native hidden/motion state.
+      if (record.button.parentElement !== content || content.firstElementChild !== record.button) {
+        content.insertBefore(record.button, content.firstChild);
+      }
+      updateSummary(group, record);
     }
   };
-  const schedule = () => {
-    if (timer !== void 0) return;
-    timer = setTimeout(reconcile, 50);
+  const schedule = mutations => {
+    if (disposed || queued) return;
+    // Streaming text updates inside an existing row do not change grouping.
+    const relevant = !mutations || mutations.some(mutation => {
+      if (mutation.type === 'attributes') return true;
+      const target = mutation.target.nodeType === 1 ? mutation.target : mutation.target.parentElement;
+      if (target?.closest(`[${summaryAttribute}], ${thoughtSelector}`)) return false;
+      // A legacy mixed Assistant row can gain an answer beside its reasoning.
+      // Reclassify it before paint instead of leaving the answer hidden too.
+      if (target?.closest(processSelector)) return true;
+      return [...mutation.addedNodes, ...mutation.removedNodes].some(node => node.nodeType === 1
+        && !node.hasAttribute(summaryAttribute)
+        && (node.matches(`${processSelector}, ${thoughtSelector}, [data-chat-anchor-key]`)
+          || node.querySelector(`${processSelector}, ${thoughtSelector}`)));
+    });
+    if (!relevant) return;
+    queued = true;
+    // MutationObserver and microtasks settle before paint, unlike a 50ms timer.
+    queueMicrotask(reconcile);
   };
-  const observer = new MutationObserver(schedule);
-  observer.observe(doc.documentElement, { subtree: true, childList: true });
+  const Observer = doc.defaultView?.MutationObserver ?? MutationObserver;
+  const observer = new Observer(schedule);
+  root.setAttribute('data-session-features-thoughts', 'grouped');
+  observer.observe(root, { subtree: true, childList: true, attributes: true,
+    attributeFilter: ['data-variant', 'data-chat-group-part', 'data-chat-flow-kind'] });
   reconcile();
-  return () => {
+  const stop = () => {
+    disposed = true;
     observer.disconnect();
-    if (timer !== void 0) clearTimeout(timer);
-    for (const button of Array.from(doc.querySelectorAll(`button[${summaryAttribute}]`))) button.remove();
-    for (const member of Array.from(doc.querySelectorAll(`[${memberAttribute}]`))) {
-      member.removeAttribute(memberAttribute);
-      const hidden = originalHidden.get(member);
-      if (hidden === null || hidden === void 0) member.removeAttribute("hidden");
-      else member.setAttribute("hidden", hidden);
-    }
-    for (const [inline, hidden] of originalInlineHidden) {
-      if (hidden === null) inline.removeAttribute("hidden");
-      else inline.setAttribute("hidden", hidden);
-    }
-    originalHidden.clear();
-    originalInlineHidden.clear();
-    for (const group of Array.from(doc.querySelectorAll(processSelector))) {
+    for (const [group, record] of records) {
+      release(group, record);
       delete group.dataset.sessionFeaturesThoughtExpanded;
     }
+    if (previousMode === null) root.removeAttribute('data-session-features-thoughts');
+    else root.setAttribute('data-session-features-thoughts', previousMode);
   };
+  stop.setHideAll = value => {
+    hideAll = value === true;
+    root.setAttribute('data-session-features-thoughts', hideAll ? 'hidden' : 'grouped');
+  };
+  return stop;
 }
 var unifiedThoughtStatusStyles = `
+/* CSS gates already cover newly inserted/replaced rows before the observer runs.
+   Do not write native hidden attributes: React and flow-motion own those. */
+html[data-session-features-thoughts="grouped"] [data-step-process][data-chat-turn]:not([data-session-features-thought-expanded="true"]) :is([data-variant="think"], [data-chat-group-part="reasoning"], [data-session-features-thought-member]),
+html[data-session-features-thoughts="hidden"] :is([data-variant="think"], [data-chat-group-part="reasoning"], [data-session-features-thought-member], [data-session-features-thought-summary]) {
+  display:none !important;
+}
+/* Reasoning can share an Assistant row with a visible answer. Remove just its
+   otherwise empty inline wrapper so the answer keeps its normal spacing. */
+html[data-session-features-thoughts="grouped"] [data-step-process][data-chat-turn]:not([data-session-features-thought-expanded="true"]) div:has(> [data-variant="think"]):not(:has(> :not([data-variant="think"]))),
+html[data-session-features-thoughts="hidden"] div:has(> [data-variant="think"]):not(:has(> :not([data-variant="think"]))) {
+  display:none !important;
+}
 .studio-thought-subgroup-summary {
   position:sticky; top:0; z-index:4;
-  display:flex; align-items:center; gap:6px; box-sizing:border-box; width:100%; min-height:24px; margin:0;
+  display:flex; align-items:center; gap:6px; box-sizing:border-box; width:100%; min-height:24px; margin:0 !important;
   padding:0 2px; border:0; border-radius:var(--dsw-radius-sm,6px);
   background:var(--dsw-alias-bg-base,#fff);
   color:var(--dsw-alias-label-tertiary,#87909e);
-  font:inherit; font-size:var(--dsh-content-font-size-secondary,13px); font-weight:400;
+  font:inherit; font-size:var(--dsh-content-font-size,14px); font-weight:400;
+  line-height:calc(24px + var(--dsh-content-font-delta,0px));
   text-align:left; cursor:pointer;
+  transition:none !important; overflow-anchor:none;
 }
 .studio-thought-subgroup-leading {
   position:relative; flex:none; display:inline-flex; align-items:center; justify-content:center;
@@ -803,49 +778,106 @@ var unifiedThoughtStatusStyles = `
   .studio-thought-subgroup-summary:hover .studio-thought-subgroup-think-icon { opacity:0; }
   .studio-thought-subgroup-summary:hover .studio-thought-subgroup-chevron { opacity:1; }
 }
-.studio-thought-subgroup-label {
-  font:inherit; font-size:var(--dsh-content-font-size-secondary,13px); font-weight:400;
-  line-height:calc(24px + var(--dsh-content-font-delta,0px));
-}
+.studio-thought-subgroup-label { font:inherit; font-weight:400; line-height:inherit; }
 .studio-thought-subgroup-summary:hover { background:var(--dsw-alias-interactive-bg-hover,#eef1f5); color:var(--dsw-alias-label-secondary,#4f5968); }
 .studio-thought-subgroup-summary:focus-visible { outline:2px solid var(--dsw-alias-state-business-primary,#4578ed); outline-offset:1px; }
 @media (prefers-reduced-motion:reduce) { .studio-thought-subgroup-leading svg { transition:none; } }
 `;
 
-// apps/dsh/src/client-session-ui.tsx
+// src/client-session-ui.tsx
 var import_jsx_runtime5 = require("react/jsx-runtime");
 var SESSION_FEATURES_PACKAGE = "@agent-studio/plugin-session-features";
-function SessionFeaturesSettings() {
+var SESSION_FEATURES_ROW = "studio-session-features";
+var emptyThoughtSettingsSnapshot = { status: "loading", writable: false, value: undefined };
+var emptyThoughtSettingsForm = { getSnapshot: () => emptyThoughtSettingsSnapshot, subscribe: () => () => {}, mutate: async () => false };
+function SessionFeaturesSettings({ view, form = emptyThoughtSettingsForm }) {
+  const state = (0, import_react4.useSyncExternalStore)(listener => form.subscribe(listener), () => form.getSnapshot());
+  const [saving, setSaving] = (0, import_react4.useState)(false);
+  const [error, setError] = (0, import_react4.useState)("");
+  const hidden = state.value?.hideAllThoughts === true;
+  const change = async () => {
+    if (saving || !state.writable) return;
+    setSaving(true); setError("");
+    try {
+      const accepted = await form.mutate([{ op: "set", path: ["hideAllThoughts"], value: !hidden }], state.revision);
+      if (!accepted) throw new Error("设置未保存，请刷新插件设置后重试。");
+    } catch (cause) { setError(cause instanceof Error ? cause.message : String(cause)); }
+    finally { setSaving(false); }
+  };
+  if (view === "summary") return (0, import_jsx_runtime5.jsx)("span", { children: "保存任务进度，恢复中断会话，管理消息操作与思考气泡显示。" });
   return /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("section", { className: "studio-plugin-settings", children: [
     /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("h3", { children: "\u4F1A\u8BDD\u529F\u80FD\u589E\u5F3A" }),
-    /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("p", { children: "\u81EA\u52A8\u4FDD\u5B58\u4F1A\u8BDD TodoList \u548C TaskPlan\uFF0C\u652F\u6301\u4ECE\u68C0\u67E5\u70B9\u7EE7\u7EED\u4F1A\u8BDD\u3002\u666E\u901A\u6587\u672C\u6D88\u606F\u53EF\u64A4\u56DE\u5E76\u7F16\u8F91\uFF0C\u6216\u5728\u65B0\u5206\u652F\u4E2D\u91CD\u65B0\u53D1\u9001\uFF1B\u539F\u4F1A\u8BDD\u8BB0\u5F55\u4F1A\u4FDD\u7559\u3002" })
+    /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("p", { children: "\u81EA\u52A8\u4FDD\u5B58\u4F1A\u8BDD TodoList \u548C TaskPlan\uFF0C\u652F\u6301\u4ECE\u68C0\u67E5\u70B9\u7EE7\u7EED\u4F1A\u8BDD\u3002\u666E\u901A\u6587\u672C\u6D88\u606F\u53EF\u64A4\u56DE\u5E76\u7F16\u8F91\uFF0C\u6216\u5728\u65B0\u5206\u652F\u4E2D\u91CD\u65B0\u53D1\u9001\uFF1B\u539F\u4F1A\u8BDD\u8BB0\u5F55\u4F1A\u4FDD\u7559\u3002" }),
+    (0, import_jsx_runtime5.jsxs)("div", { className: "studio-plugin-settings__status", children: [
+      (0, import_jsx_runtime5.jsxs)("div", { className: "studio-plugin-settings__status-label", children: [
+        (0, import_jsx_runtime5.jsx)("span", { id: "studio-hide-thoughts-label", children: "隐藏全部思考气泡" }),
+        (0, import_jsx_runtime5.jsx)("small", { children: "隐藏思考内容和汇总入口，保留工具、正文及一级组操作。设置保存后立即应用于所有会话。" })
+      ] }),
+      (0, import_jsx_runtime5.jsx)("button", { type: "button", role: "switch", className: "studio-plugin-switch", "aria-labelledby": "studio-hide-thoughts-label", "aria-checked": hidden, disabled: saving || state.status !== "ready" || !state.writable, onClick: change, children: (0, import_jsx_runtime5.jsx)("span", {}) })
+    ] }),
+    error && (0, import_jsx_runtime5.jsx)("p", { role: "alert", children: error }),
+    state.status === "unavailable" && (0, import_jsx_runtime5.jsx)("p", { role: "status", children: "设置暂不可用，请重新加载插件设置。" })
   ] });
 }
 var inject = [];
 function apply(ctx) {
+  let stopThoughtStatus;
   ctx.effect(() => {
     const style = document.createElement("style");
     style.dataset.plugin = "studio-session-features";
     style.textContent = continuationStyles + resumeNoticeStyles + pluginSettingsStyles + messageActionStyles + unifiedThoughtStatusStyles;
     document.head.append(style);
-    const stopThoughtStatus = installUnifiedThoughtStatus(document);
+    stopThoughtStatus = installUnifiedThoughtStatus(document);
     return () => {
       stopThoughtStatus();
       style.remove();
     };
   }, "session features: styles");
+  ctx.inject(["slots", "configForms"], (child) => {
+    const slots = child.get("slots"), form = child.get("configForms").get(SESSION_FEATURES_ROW);
+    child.effect(() => {
+      const sync = () => stopThoughtStatus?.setHideAll(form.getSnapshot().value?.hideAllThoughts === true);
+      const unsubscribe = form.subscribe(sync);
+      sync();
+      return unsubscribe;
+    }, "session features: native thought display preference");
+    const Settings = props => (0, import_jsx_runtime5.jsx)(SessionFeaturesSettings, { ...props, form });
+    child.effect(() => slots.inject("plugins.bundle.config", () => slots.register({ name: "plugins.bundle.config", key: SESSION_FEATURES_PACKAGE }, Settings)), "session features: bundle settings");
+    child.effect(() => slots.inject("plugins.row.config", () => slots.register({ name: "plugins.row.config", key: `${SESSION_FEATURES_PACKAGE}#${SESSION_FEATURES_ROW}` }, Settings)), "session features: component settings");
+  });
   ctx.inject(["slots", "sessions", "uiWorkspace"], (child) => {
     const slots = child.get("slots");
     const sessions = child.get("sessions");
     const uiWorkspace = child.get("uiWorkspace");
     child.effect(() => slots.inject("conversation.input.right", () => slots.register({ name: "conversation.input.right", id: "studio-chat-continue", order: 1e3 }, SessionContinueAction)), "session features: continue action");
-    child.effect(() => slots.inject("conversation.chat.node", () => registerSessionMessageActions(slots, {
-      fork: (request) => sessions.fork(request),
-      create: (request) => sessions.create(request),
-      openSession: (sessionId) => uiWorkspace.openSession(sessionId)
-    })), "session features: message retract and resend actions");
+    child.effect(() => {
+      let disposed = false;
+      let attempts = 0;
+      let timer;
+      let disposeInjection;
+      const services = {
+        fork: (request) => sessions.fork(request),
+        create: (request) => sessions.create(request),
+        openSession: (sessionId) => uiWorkspace.openSession(sessionId)
+      };
+      const connect = () => {
+        if (disposed) return;
+        const userEntry = slots.entries("conversation.chat.node").find((entry) => entry.options.key === "user");
+        if (!userEntry?.children?.["conversation.chat.user.before"]) {
+          if (attempts++ < 120) timer = window.setTimeout(connect, 100);
+          else console.warn("[session-features] 用户消息操作槽未就绪，撤回与重发按钮未注册");
+          return;
+        }
+        disposeInjection = slots.inject("conversation.chat.node", () => registerSessionMessageActions(slots, services));
+      };
+      connect();
+      return () => {
+        disposed = true;
+        window.clearTimeout(timer);
+        disposeInjection?.();
+      };
+    }, "session features: message retract and resend actions");
     child.effect(() => slots.inject("conversation.chat.node", () => registerSessionResumeNotice(slots)), "session features: resume notice");
-    child.effect(() => slots.inject("plugins.bundle.config", () => slots.register({ name: "plugins.bundle.config", key: SESSION_FEATURES_PACKAGE }, SessionFeaturesSettings)), "session features: bundle settings");
   });
 }
 /*! Bundled license information:
