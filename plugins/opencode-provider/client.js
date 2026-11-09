@@ -18,7 +18,7 @@ var __copyProps = (to, from, except, desc) => {
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-// apps/dsh/src/client-opencode-provider.tsx
+// src/client-opencode-provider.tsx
 var client_opencode_provider_exports = {};
 __export(client_opencode_provider_exports, {
   apply: () => apply,
@@ -26,16 +26,16 @@ __export(client_opencode_provider_exports, {
 });
 module.exports = __toCommonJS(client_opencode_provider_exports);
 
-// apps/web/src/components/models/ProviderSettings.tsx
+// ../web/src/components/models/ProviderSettings.tsx
 var import_react9 = require("react");
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/createLucideIcon.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/createLucideIcon.mjs
 var import_react3 = require("react");
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/toKebabCase.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/toKebabCase.mjs
 var toKebabCase = (string) => string?.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/toLucideIconData.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/toLucideIconData.mjs
 function toLucideIconData(iconName, iconNode, aliases = []) {
   if (iconNode == null) {
     throw new Error("[lucide]: iconNode is required when icon name is used");
@@ -48,7 +48,7 @@ function toLucideIconData(iconName, iconNode, aliases = []) {
   };
 }
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/toCamelCase.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/toCamelCase.mjs
 var toCamelCase = (string) => {
   let out = "";
   let upperNext = false;
@@ -67,21 +67,21 @@ var toCamelCase = (string) => {
   return out;
 };
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/toPascalCase.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/toPascalCase.mjs
 var toPascalCase = (string) => {
   const camelCase = toCamelCase(string);
   return camelCase.charAt(0).toUpperCase() + camelCase.slice(1);
 };
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/Icon.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/Icon.mjs
 var import_react2 = require("react");
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/mergeClasses.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/mergeClasses.mjs
 var mergeClasses = (...classes) => classes.filter((className, index, array) => {
   return Boolean(className) && className.trim() !== "" && array.indexOf(className) === index;
 }).join(" ").trim();
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/build/defaultAttributes.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/build/defaultAttributes.mjs
 var defaultAttributes = {
   xmlns: "http://www.w3.org/2000/svg",
   width: 24,
@@ -94,7 +94,7 @@ var defaultAttributes = {
   "stroke-linejoin": "round"
 };
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/build/buildLucideIconNode.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/build/buildLucideIconNode.mjs
 function isDefined(value) {
   return value !== null && value !== void 0;
 }
@@ -147,7 +147,7 @@ function buildLucideIconNode(icon, params = {}) {
   ];
 }
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/build/buildLucideIconForReact.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/build/buildLucideIconForReact.mjs
 function buildLucideIconForReact(icon, params = {}) {
   return buildLucideIconNode(icon, {
     ...params,
@@ -162,7 +162,7 @@ function buildLucideIconForReact(icon, params = {}) {
   });
 }
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/hasA11yProp.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/hasA11yProp.mjs
 var hasA11yProp = (props) => {
   for (const prop in props) {
     if (prop.startsWith("aria-") || prop === "role" || prop === "title") {
@@ -172,12 +172,12 @@ var hasA11yProp = (props) => {
   return false;
 };
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/context.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/context.mjs
 var import_react = require("react");
 var LucideContext = (0, import_react.createContext)({});
 var useLucideContext = () => (0, import_react.useContext)(LucideContext);
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/Icon.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/Icon.mjs
 var Icon = (0, import_react2.forwardRef)(
   ({
     color,
@@ -231,7 +231,7 @@ var Icon = (0, import_react2.forwardRef)(
   }
 );
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/createLucideIcon.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/createLucideIcon.mjs
 function createLucideIcon(iconDataOrName, iconNode = [], aliases = []) {
   const iconData = typeof iconDataOrName === "string" ? toLucideIconData(iconDataOrName, iconNode, aliases) : iconDataOrName;
   const Component = (0, import_react3.forwardRef)(
@@ -248,7 +248,7 @@ function createLucideIcon(iconDataOrName, iconNode = [], aliases = []) {
   return Component;
 }
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/arrow-right.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/arrow-right.mjs
 var __iconData = {
   name: "arrow-right",
   size: 24,
@@ -260,7 +260,7 @@ var __iconData = {
 __iconData.node;
 var ArrowRight = createLucideIcon(__iconData);
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/boxes.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/boxes.mjs
 var __iconData2 = {
   name: "boxes",
   size: 24,
@@ -300,7 +300,7 @@ var __iconData2 = {
 __iconData2.node;
 var Boxes = createLucideIcon(__iconData2);
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/check.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/check.mjs
 var __iconData3 = {
   name: "check",
   size: 24,
@@ -309,7 +309,7 @@ var __iconData3 = {
 __iconData3.node;
 var Check = createLucideIcon(__iconData3);
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/circle-check.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/circle-check.mjs
 var __iconData4 = {
   name: "circle-check",
   size: 24,
@@ -322,7 +322,7 @@ var __iconData4 = {
 __iconData4.node;
 var CircleCheck = createLucideIcon(__iconData4);
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/cpu.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/cpu.mjs
 var __iconData5 = {
   name: "cpu",
   size: 24,
@@ -346,7 +346,7 @@ var __iconData5 = {
 __iconData5.node;
 var Cpu = createLucideIcon(__iconData5);
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/download.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/download.mjs
 var __iconData6 = {
   name: "download",
   size: 24,
@@ -359,7 +359,7 @@ var __iconData6 = {
 __iconData6.node;
 var Download = createLucideIcon(__iconData6);
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/earth.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/earth.mjs
 var __iconData7 = {
   name: "earth",
   size: 24,
@@ -383,7 +383,7 @@ var __iconData7 = {
 __iconData7.node;
 var Earth = createLucideIcon(__iconData7);
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/external-link.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/external-link.mjs
 var __iconData8 = {
   name: "external-link",
   size: 24,
@@ -396,7 +396,7 @@ var __iconData8 = {
 __iconData8.node;
 var ExternalLink = createLucideIcon(__iconData8);
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/key-round.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/key-round.mjs
 var __iconData9 = {
   name: "key-round",
   size: 24,
@@ -414,7 +414,7 @@ var __iconData9 = {
 __iconData9.node;
 var KeyRound = createLucideIcon(__iconData9);
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/loader-circle.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/loader-circle.mjs
 var __iconData10 = {
   name: "loader-circle",
   size: 24,
@@ -424,7 +424,7 @@ var __iconData10 = {
 __iconData10.node;
 var LoaderCircle = createLucideIcon(__iconData10);
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/plus.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/plus.mjs
 var __iconData11 = {
   name: "plus",
   size: 24,
@@ -436,7 +436,7 @@ var __iconData11 = {
 __iconData11.node;
 var Plus = createLucideIcon(__iconData11);
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/power.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/power.mjs
 var __iconData12 = {
   name: "power",
   size: 24,
@@ -448,7 +448,7 @@ var __iconData12 = {
 __iconData12.node;
 var Power = createLucideIcon(__iconData12);
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/refresh-cw.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/refresh-cw.mjs
 var __iconData13 = {
   name: "refresh-cw",
   size: 24,
@@ -462,7 +462,7 @@ var __iconData13 = {
 __iconData13.node;
 var RefreshCw = createLucideIcon(__iconData13);
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/save.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/save.mjs
 var __iconData14 = {
   name: "save",
   size: 24,
@@ -481,7 +481,7 @@ var __iconData14 = {
 __iconData14.node;
 var Save = createLucideIcon(__iconData14);
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/search.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/search.mjs
 var __iconData15 = {
   name: "search",
   size: 24,
@@ -493,7 +493,7 @@ var __iconData15 = {
 __iconData15.node;
 var Search = createLucideIcon(__iconData15);
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/settings-2.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/settings-2.mjs
 var __iconData16 = {
   name: "settings-2",
   size: 24,
@@ -507,7 +507,7 @@ var __iconData16 = {
 __iconData16.node;
 var Settings2 = createLucideIcon(__iconData16);
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/trash.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/trash.mjs
 var __iconData17 = {
   name: "trash",
   size: 24,
@@ -523,7 +523,7 @@ var __iconData17 = {
 __iconData17.node;
 var Trash = createLucideIcon(__iconData17);
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/x.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/x.mjs
 var __iconData18 = {
   name: "x",
   size: 24,
@@ -535,10 +535,10 @@ var __iconData18 = {
 __iconData18.node;
 var X = createLucideIcon(__iconData18);
 
-// apps/dsh/src/provider-ui.tsx
+// src/provider-ui.tsx
 var import_react4 = require("react");
 
-// apps/dsh/src/plugin-settings.tsx
+// src/plugin-settings.tsx
 var import_jsx_runtime = require("react/jsx-runtime");
 function PluginSwitch({ label, checked, disabled, onChange }) {
   return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
@@ -606,7 +606,7 @@ div:has(> div > button.eda-sidebar-entry) { display:flex; flex-direction:column;
 @media (prefers-reduced-motion:reduce) { .studio-plugin-switch span { transition:none; } }
 `;
 
-// apps/dsh/src/provider-ui.tsx
+// src/provider-ui.tsx
 var import_jsx_runtime2 = require("react/jsx-runtime");
 function Button({ variant = "secondary", size = "md", className = "", ...props }) {
   return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { ...props, className: `studio-native-button is-${variant} size-${size} ${className}` });
@@ -673,7 +673,7 @@ function Modal({ open, onClose, title, description, children, footer, wide }) {
   );
 }
 
-// node_modules/.pnpm/clsx@2.1.1/node_modules/clsx/dist/clsx.mjs
+// ../../node_modules/.pnpm/clsx@2.1.1/node_modules/clsx/dist/clsx.mjs
 function r(e) {
   var t, f, n = "";
   if ("string" == typeof e || "number" == typeof e) n += e;
@@ -688,7 +688,7 @@ function clsx() {
   return n;
 }
 
-// node_modules/.pnpm/tailwind-merge@3.7.0/node_modules/tailwind-merge/dist/bundle-mjs.mjs
+// ../../node_modules/.pnpm/tailwind-merge@3.7.0/node_modules/tailwind-merge/dist/bundle-mjs.mjs
 var concatArrays = (array1, array2) => {
   const combinedArray = new Array(array1.length + array2.length);
   for (let i = 0; i < array1.length; i++) {
@@ -3946,12 +3946,12 @@ var getDefaultConfig = () => {
 };
 var twMerge = /* @__PURE__ */ createTailwindMerge(getDefaultConfig);
 
-// apps/web/src/lib/utils.ts
+// ../web/src/lib/utils.ts
 function cn(...inputs) {
   return twMerge(clsx(inputs));
 }
 
-// node_modules/.pnpm/@opencode+client@2.2.5_effect@4.0.6_solid-js@1.9.15/node_modules/@opencode/client/dist/chunks/rpc-runtime-9rqn6x4v.js
+// ../../node_modules/.pnpm/@opencode+client@2.2.5_effect@4.0.6_solid-js@1.9.15/node_modules/@opencode/client/dist/chunks/rpc-runtime-9rqn6x4v.js
 var __defProp2 = Object.defineProperty;
 var __returnValue = (v) => v;
 function __exportSetter(name, newValue) {
@@ -3967,7 +3967,7 @@ var __export2 = (target, all) => {
     });
 };
 
-// node_modules/.pnpm/@opencode+client@2.2.5_effect@4.0.6_solid-js@1.9.15/node_modules/@opencode/client/dist/chunks/rpc-runtime-gecjxyvt.js
+// ../../node_modules/.pnpm/@opencode+client@2.2.5_effect@4.0.6_solid-js@1.9.15/node_modules/@opencode/client/dist/chunks/rpc-runtime-gecjxyvt.js
 var exports_shared_events = {};
 __export2(exports_shared_events, {
   SharedEvents: () => exports_shared_events,
@@ -4111,7 +4111,7 @@ function make7(connect) {
   };
 }
 
-// node_modules/.pnpm/@opencode+client@2.2.5_effect@4.0.6_solid-js@1.9.15/node_modules/@opencode/client/dist/chunks/rpc-runtime-js54wxgp.js
+// ../../node_modules/.pnpm/@opencode+client@2.2.5_effect@4.0.6_solid-js@1.9.15/node_modules/@opencode/client/dist/chunks/rpc-runtime-js54wxgp.js
 var ClientError2 = class extends Error {
   reason;
   name = "ClientError";
@@ -4122,7 +4122,7 @@ var ClientError2 = class extends Error {
   }
 };
 
-// node_modules/.pnpm/@opencode+client@2.2.5_effect@4.0.6_solid-js@1.9.15/node_modules/@opencode/client/dist/chunks/rpc-runtime-t2ajednw.js
+// ../../node_modules/.pnpm/@opencode+client@2.2.5_effect@4.0.6_solid-js@1.9.15/node_modules/@opencode/client/dist/chunks/rpc-runtime-t2ajednw.js
 var exports_client2 = {};
 __export2(exports_client2, {
   make: () => make3
@@ -5915,11 +5915,11 @@ function isContentType(response, expected) {
   return response.headers.get("content-type")?.split(";", 1)[0]?.trim().toLowerCase() === expected;
 }
 
-// node_modules/.pnpm/@opencode+client@2.2.5_effect@4.0.6_solid-js@1.9.15/node_modules/@opencode/client/dist/chunks/rpc-runtime-sdjh9vmn.js
+// ../../node_modules/.pnpm/@opencode+client@2.2.5_effect@4.0.6_solid-js@1.9.15/node_modules/@opencode/client/dist/chunks/rpc-runtime-sdjh9vmn.js
 var isRpcError2 = (value) => typeof value === "object" && value !== null && "_tag" in value && value["_tag"] === "RpcError";
 var isRpcInternalError2 = (value) => typeof value === "object" && value !== null && "_tag" in value && value["_tag"] === "RpcInternalError";
 
-// node_modules/.pnpm/@opencode+client@2.2.5_effect@4.0.6_solid-js@1.9.15/node_modules/@opencode/client/dist/chunks/rpc-runtime-xqwq6bgr.js
+// ../../node_modules/.pnpm/@opencode+client@2.2.5_effect@4.0.6_solid-js@1.9.15/node_modules/@opencode/client/dist/chunks/rpc-runtime-xqwq6bgr.js
 function makeRpc2(raw, events) {
   return (definition) => {
     const subscribe = (name, options) => {
@@ -5994,7 +5994,7 @@ function eventType(definition, name) {
   return `rpc.${definition.id}.${name}`;
 }
 
-// node_modules/.pnpm/@opencode+client@2.2.5_effect@4.0.6_solid-js@1.9.15/node_modules/@opencode/client/dist/chunks/rpc-runtime-wbnz2gjn.js
+// ../../node_modules/.pnpm/@opencode+client@2.2.5_effect@4.0.6_solid-js@1.9.15/node_modules/@opencode/client/dist/chunks/rpc-runtime-wbnz2gjn.js
 var exports_client = {};
 __export2(exports_client, {
   OpenCode: () => exports_client,
@@ -6010,7 +6010,7 @@ function make2(options) {
   };
 }
 
-// apps/web/src/lib/provider-settings.ts
+// ../web/src/lib/provider-settings.ts
 var accountConnections = (integration) => integration?.connections.filter((c) => c.type === "credential") ?? [];
 var modelRef = (model) => `${model.providerID}/${model.id}`;
 var modalityName = { text: "\u6587\u672C", image: "\u89C6\u89C9", pdf: "PDF", audio: "\u97F3\u9891", video: "\u89C6\u9891" };
@@ -6045,7 +6045,7 @@ function errorText(error) {
   return "\u8BF7\u6C42\u5931\u8D25\uFF0C\u8BF7\u91CD\u8BD5\u3002";
 }
 
-// apps/web/src/components/models/ProviderConnectionDialog.tsx
+// ../web/src/components/models/ProviderConnectionDialog.tsx
 var import_react5 = require("react");
 var import_jsx_runtime3 = require("react/jsx-runtime");
 var providerFieldClass = "flex min-w-0 flex-col gap-2 text-sm font-medium text-[var(--studio-text)]";
@@ -6214,7 +6214,7 @@ function ProviderConnectionDialog({ client, integration, directory, onClose, onC
   ] }) });
 }
 
-// apps/web/src/components/models/ProviderAccountsDialog.tsx
+// ../web/src/components/models/ProviderAccountsDialog.tsx
 var import_react6 = require("react");
 var import_jsx_runtime4 = require("react/jsx-runtime");
 function ProviderAccountsDialog({ client, integration, onChanged, onClose }) {
@@ -6251,10 +6251,10 @@ function ProviderAccountsDialog({ client, integration, onChanged, onClose }) {
   ] }) });
 }
 
-// apps/web/src/components/models/CustomProviderDialog.tsx
+// ../web/src/components/models/CustomProviderDialog.tsx
 var import_react7 = require("react");
 
-// apps/web/src/components/models/ModelLimitFields.tsx
+// ../web/src/components/models/ModelLimitFields.tsx
 var import_jsx_runtime5 = require("react/jsx-runtime");
 function ModelLimitFields({ id, context, output, disabled, onChange }) {
   return /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("div", { className: "studio-model-limit-fields", children: [{ key: "context", label: "\u4E0A\u4E0B\u6587\u7A97\u53E3" }, { key: "output", label: "\u6700\u5927\u8F93\u51FA" }].map((field) => /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("label", { children: [
@@ -6264,7 +6264,7 @@ function ModelLimitFields({ id, context, output, disabled, onChange }) {
   ] }, field.key)) });
 }
 
-// apps/web/src/components/models/CustomProviderDialog.tsx
+// ../web/src/components/models/CustomProviderDialog.tsx
 var import_jsx_runtime6 = require("react/jsx-runtime");
 function CustomProviderDialog({ client, existingIds, onClose, onSaved }) {
   const [providerID, setId] = (0, import_react7.useState)(""), [name, setName] = (0, import_react7.useState)(""), [baseURL, setUrl] = (0, import_react7.useState)(""), [key, setKey] = (0, import_react7.useState)("");
@@ -6467,7 +6467,7 @@ function CustomProviderDialog({ client, existingIds, onClose, onSaved }) {
   ] }) });
 }
 
-// apps/web/src/components/models/ProviderModelsDialog.tsx
+// ../web/src/components/models/ProviderModelsDialog.tsx
 var import_react8 = require("react");
 var import_jsx_runtime7 = require("react/jsx-runtime");
 var rowsOf = (models) => models.map((model) => ({ ...model, rowKey: crypto.randomUUID() }));
@@ -6593,7 +6593,7 @@ function ProviderModelsDialog({ client, providerID, onClose, onSaved }) {
   ] }) });
 }
 
-// apps/web/src/components/models/ProviderSettings.tsx
+// ../web/src/components/models/ProviderSettings.tsx
 var import_jsx_runtime8 = require("react/jsx-runtime");
 var panel = "rounded-2xl border border-[var(--studio-border)] bg-[var(--studio-panel)] shadow-sm";
 var recommended = ["anthropic", "openai", "google", "deepseek", "openrouter", "minimax"];
@@ -6899,7 +6899,7 @@ function ProviderSettings({ projectId, onChanged }) {
   ] });
 }
 
-// apps/dsh/src/native-providers.css
+// src/native-providers.css
 var native_providers_default = `/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
 @layer properties;
 .studio-native-providers, .studio-native-providers {
@@ -7843,7 +7843,7 @@ var native_providers_default = `/*! tailwindcss v4.3.3 | MIT License | https://t
 }
 `;
 
-// apps/dsh/src/native-providers.tsx
+// src/native-providers.tsx
 var import_jsx_runtime9 = require("react/jsx-runtime");
 var unchanged = async () => {
 };
@@ -7851,10 +7851,10 @@ function NativeProviderSettings() {
   return /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("section", { className: "studio-native-providers", children: /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(ProviderSettings, { onChanged: unchanged }) });
 }
 
-// apps/dsh/src/restart-settings.tsx
+// src/restart-settings.tsx
 var import_react10 = require("react");
 
-// apps/dsh/src/directory-api.ts
+// src/directory-api.ts
 async function studioRequest(endpoint, data, signal) {
   const response = await fetch(`studio/${endpoint}`, { signal, credentials: "same-origin", ...data ? { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(data) } : {} });
   const body = await response.text();
@@ -7887,7 +7887,7 @@ var directoryApi = {
   restartDsh: () => studioRequest("restart", {})
 };
 
-// apps/dsh/src/restart-settings.tsx
+// src/restart-settings.tsx
 var import_jsx_runtime10 = require("react/jsx-runtime");
 function RestartDshSettings({ view }) {
   const [busy, setBusy] = (0, import_react10.useState)(false);
@@ -7930,7 +7930,7 @@ function RestartDshSettings({ view }) {
   ] });
 }
 
-// apps/dsh/src/client-opencode-provider.tsx
+// src/client-opencode-provider.tsx
 var inject = ["slots"];
 function apply(ctx) {
   ctx.effect(() => {

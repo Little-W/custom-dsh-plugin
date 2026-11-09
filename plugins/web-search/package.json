@@ -1,6 +1,6 @@
 {
   "name": "@agent-studio/plugin-web-search",
-  "version": "0.1.0",
+  "version": "0.1.3",
   "type": "module",
   "description": "让智能体搜索网页资料，并可选择搜索服务和使用方式。",
   "main": "./index.js",

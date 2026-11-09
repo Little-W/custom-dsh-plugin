@@ -18,7 +18,7 @@ var __copyProps = (to, from, except, desc) => {
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-// apps/dsh/src/client-web-search.tsx
+// src/client-web-search.tsx
 var client_web_search_exports = {};
 __export(client_web_search_exports, {
   apply: () => apply,
@@ -26,7 +26,7 @@ __export(client_web_search_exports, {
 });
 module.exports = __toCommonJS(client_web_search_exports);
 
-// apps/dsh/src/plugin-settings.tsx
+// src/plugin-settings.tsx
 var import_jsx_runtime = require("react/jsx-runtime");
 function PluginSwitch({ label, checked, disabled, onChange }) {
   return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
@@ -94,7 +94,7 @@ div:has(> div > button.eda-sidebar-entry) { display:flex; flex-direction:column;
 @media (prefers-reduced-motion:reduce) { .studio-plugin-switch span { transition:none; } }
 `;
 
-// apps/dsh/src/search-native-settings.tsx
+// src/search-native-settings.tsx
 var import_react = require("react");
 var import_jsx_runtime2 = require("react/jsx-runtime");
 var emptySearchForm = { getSnapshot: () => emptySnapshot, subscribe: () => () => {
@@ -217,16 +217,16 @@ function NativeSearchConnection({ provider, options }) {
   ] });
 }
 
-// apps/dsh/src/search-settings.tsx
+// src/search-settings.tsx
 var import_react5 = require("react");
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/createLucideIcon.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/createLucideIcon.mjs
 var import_react4 = require("react");
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/toKebabCase.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/toKebabCase.mjs
 var toKebabCase = (string) => string?.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/toLucideIconData.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/toLucideIconData.mjs
 function toLucideIconData(iconName, iconNode, aliases = []) {
   if (iconNode == null) {
     throw new Error("[lucide]: iconNode is required when icon name is used");
@@ -239,7 +239,7 @@ function toLucideIconData(iconName, iconNode, aliases = []) {
   };
 }
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/toCamelCase.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/toCamelCase.mjs
 var toCamelCase = (string) => {
   let out = "";
   let upperNext = false;
@@ -258,21 +258,21 @@ var toCamelCase = (string) => {
   return out;
 };
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/toPascalCase.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/toPascalCase.mjs
 var toPascalCase = (string) => {
   const camelCase = toCamelCase(string);
   return camelCase.charAt(0).toUpperCase() + camelCase.slice(1);
 };
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/Icon.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/Icon.mjs
 var import_react3 = require("react");
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/mergeClasses.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/mergeClasses.mjs
 var mergeClasses = (...classes) => classes.filter((className, index, array) => {
   return Boolean(className) && className.trim() !== "" && array.indexOf(className) === index;
 }).join(" ").trim();
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/build/defaultAttributes.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/build/defaultAttributes.mjs
 var defaultAttributes = {
   xmlns: "http://www.w3.org/2000/svg",
   width: 24,
@@ -285,7 +285,7 @@ var defaultAttributes = {
   "stroke-linejoin": "round"
 };
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/build/buildLucideIconNode.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/build/buildLucideIconNode.mjs
 function isDefined(value) {
   return value !== null && value !== void 0;
 }
@@ -338,7 +338,7 @@ function buildLucideIconNode(icon, params = {}) {
   ];
 }
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/build/buildLucideIconForReact.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/build/buildLucideIconForReact.mjs
 function buildLucideIconForReact(icon, params = {}) {
   return buildLucideIconNode(icon, {
     ...params,
@@ -353,7 +353,7 @@ function buildLucideIconForReact(icon, params = {}) {
   });
 }
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/hasA11yProp.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/shared/src/utils/hasA11yProp.mjs
 var hasA11yProp = (props) => {
   for (const prop in props) {
     if (prop.startsWith("aria-") || prop === "role" || prop === "title") {
@@ -363,12 +363,12 @@ var hasA11yProp = (props) => {
   return false;
 };
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/context.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/context.mjs
 var import_react2 = require("react");
 var LucideContext = (0, import_react2.createContext)({});
 var useLucideContext = () => (0, import_react2.useContext)(LucideContext);
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/Icon.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/Icon.mjs
 var Icon = (0, import_react3.forwardRef)(
   ({
     color,
@@ -422,7 +422,7 @@ var Icon = (0, import_react3.forwardRef)(
   }
 );
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/createLucideIcon.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/createLucideIcon.mjs
 function createLucideIcon(iconDataOrName, iconNode = [], aliases = []) {
   const iconData = typeof iconDataOrName === "string" ? toLucideIconData(iconDataOrName, iconNode, aliases) : iconDataOrName;
   const Component = (0, import_react4.forwardRef)(
@@ -439,7 +439,7 @@ function createLucideIcon(iconDataOrName, iconNode = [], aliases = []) {
   return Component;
 }
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/save.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/save.mjs
 var __iconData = {
   name: "save",
   size: 24,
@@ -458,7 +458,7 @@ var __iconData = {
 __iconData.node;
 var Save = createLucideIcon(__iconData);
 
-// node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/search.mjs
+// ../../node_modules/.pnpm/lucide-react@1.65.0_@types+react@19.3.0_react@19.3.1/node_modules/lucide-react/dist/esm/icons/search.mjs
 var __iconData2 = {
   name: "search",
   size: 24,
@@ -470,7 +470,7 @@ var __iconData2 = {
 __iconData2.node;
 var Search = createLucideIcon(__iconData2);
 
-// apps/dsh/src/directory-api.ts
+// src/directory-api.ts
 async function studioRequest(endpoint, data, signal) {
   const response = await fetch(`studio/${endpoint}`, { signal, credentials: "same-origin", ...data ? { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(data) } : {} });
   const body = await response.text();
@@ -495,7 +495,7 @@ async function studioRequest(endpoint, data, signal) {
   return result;
 }
 
-// apps/dsh/src/search-settings.tsx
+// src/search-settings.tsx
 var import_jsx_runtime3 = require("react/jsx-runtime");
 var defaults = { provider: "auto", mode: "fallback", searxngURL: "", maxResults: 8, timeoutSeconds: 15, cacheSeconds: 300, language: "auto" };
 function SearchPluginSettings({ view, form, manager, native }) {
@@ -568,13 +568,21 @@ function SearchPluginSettings({ view, form, manager, native }) {
     setMessage("");
     try {
       const selected = isOpenAI ? "opencode-openai-web-search" : isNative ? draft.provider : "studio-search";
-      if (entry.enabled && native && !await native.web.mutate([{ op: "set", path: ["searchProvider"], value: "studio-search" }])) throw new Error("\u65E0\u6CD5\u5173\u95ED\u5F53\u524D\u641C\u7D22\u6765\u6E90");
+      const previousProviders = { searchProvider: webState.value?.searchProvider, fetchProvider: webState.value?.fetchProvider };
+      const nativeFallback = [{ op: "set", path: ["searchProvider"], value: "deepseek-search-api" }, { op: "set", path: ["fetchProvider"], value: "http" }];
+      if (entry.enabled && native && !await native.web.mutate(nativeFallback, webState.revision)) throw new Error("\u65E0\u6CD5\u5207\u56DE DSH \u5185\u7F6E\u641C\u7D22\u548C\u7F51\u9875\u8BFB\u53D6\u63D0\u4F9B\u5546");
       const response = await manager.setPluginEnabled(entry.entryId, !entry.enabled);
       if (!response.ok) {
-        if (native) await native.web.mutate([{ op: "set", path: ["searchProvider"], value: selected }]);
+        if (native) await native.web.mutate([
+          { op: "set", path: ["searchProvider"], value: previousProviders.searchProvider ?? selected },
+          { op: "set", path: ["fetchProvider"], value: previousProviders.fetchProvider ?? "http" }
+        ]);
         throw new Error("\u63D2\u4EF6\u5F00\u5173\u66F4\u65B0\u5931\u8D25");
       }
-      if (!entry.enabled && native && !await native.web.mutate([{ op: "set", path: ["searchProvider"], value: selected }])) throw new Error("\u63D2\u4EF6\u5DF2\u542F\u7528\uFF0C\u4F46\u63D0\u4F9B\u5546\u5207\u6362\u5931\u8D25\uFF0C\u8BF7\u91CD\u65B0\u4FDD\u5B58\u641C\u7D22\u8BBE\u7F6E");
+      if (!entry.enabled && native && !await native.web.mutate([
+        { op: "set", path: ["searchProvider"], value: selected },
+        { op: "set", path: ["fetchProvider"], value: "http" }
+      ])) throw new Error("\u63D2\u4EF6\u5DF2\u542F\u7528\uFF0C\u4F46\u63D0\u4F9B\u5546\u5207\u6362\u5931\u8D25\uFF0C\u8BF7\u91CD\u65B0\u4FDD\u5B58\u641C\u7D22\u8BBE\u7F6E");
       if (mounted.current) {
         setEntry({ ...entry, enabled: !entry.enabled });
         setMessage(response.value?.application === "restart-required" ? "\u72B6\u6001\u5DF2\u4FDD\u5B58\uFF0C\u91CD\u542F\u5E94\u7528\u540E\u751F\u6548\u3002" : "\u63D2\u4EF6\u72B6\u6001\u5DF2\u66F4\u65B0\u3002");
@@ -586,7 +594,30 @@ function SearchPluginSettings({ view, form, manager, native }) {
     }
   };
   const save = async () => {
-    if (!form) return;
+    if (!form) {
+      // OpenAI web_search is routed by DSH's native web service. It does not
+      // need the studio-search Config form, which may be unavailable during
+      // first load or when that plugin's Config form has not mounted yet.
+      if (isOpenAI && native?.web) {
+        setSaving(true);
+        setMessage("");
+        try {
+          const accepted = await native.web.mutate([{ op: "set", path: ["searchProvider"], value: "opencode-openai-web-search" }], webState.revision);
+          if (!accepted) throw new Error("OpenAI 搜索提供商保存失败；请刷新设置后重试。");
+          if (mounted.current) {
+            setDirty(false);
+            setMessage("OpenAI web_search 提供商已保存。请确认 OpenCode 插件已启用且 ChatGPT OAuth 已连接。");
+          }
+        } catch (error) {
+          if (mounted.current) setMessage(error instanceof Error ? error.message : String(error));
+        } finally {
+          if (mounted.current) setSaving(false);
+        }
+        return;
+      }
+      setMessage("\u5F53\u524D\u641C\u7D22\u8BBE\u7F6E\u8868\u5355\u4E0D\u53EF\u7528\uFF0C\u8BF7\u5237\u65B0\u8BBE\u7F6E\u9875\u540E\u91CD\u8BD5\u3002");
+      return;
+    }
     if ((draft.provider === "searxng" || draft.searxngURL.trim()) && draft.searxngURL.trim()) {
       try {
         const url = new URL(draft.searxngURL);
@@ -636,7 +667,7 @@ function SearchPluginSettings({ view, form, manager, native }) {
       }
     }
   };
-  const disabled = saving || !form?.state.writable || !entry?.enabled;
+  const disabled = saving || !entry?.enabled;
   return /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { className: "studio-search-settings studio-plugin-settings", children: [
     /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { className: "studio-plugin-settings__status", children: [
       /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { className: "studio-plugin-settings__status-label", children: [
@@ -758,7 +789,7 @@ var searchSettingsStyles = `
 .studio-search-settings [role=alert] { color:var(--dsw-alias-state-error-primary); }
 `;
 
-// apps/dsh/src/client-web-search.tsx
+// src/client-web-search.tsx
 var import_jsx_runtime4 = require("react/jsx-runtime");
 var inject = ["remote.pluginManager", "remote.credentials", "configForms"];
 function apply(ctx) {

@@ -1,6 +1,6 @@
 {
   "name": "@agent-studio/plugin-opencode-provider",
-  "version": "0.1.4",
+  "version": "0.1.15",
   "type": "module",
   "description": "连接并管理 OpenCode 提供的 AI 模型；Claude 模型也可通过工作台内置的兼容服务使用。",
   "main": "./plugins/opencode-provider/index.js",
@@ -12,6 +12,8 @@
   },
   "files": [
     "plugins/opencode-provider/index.js",
+    "plugins/opencode-provider/openai-web-search.js",
+    "plugins/opencode-provider/provider-failure.js",
     "plugins/opencode-provider/client.js",
     "plugins/opencode-provider/cordis.patch.yml",
     "plugins/opencode-provider/locale/*.json",
